@@ -37,7 +37,8 @@ public class TextureCache {
 		} else {
 
 			final Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-			pixmap.setColor(color);
+			// In the rest of the code ARGB is used
+			pixmap.setColor( (color << 8) | (color >>> 24) );
 			pixmap.fill();
 			GdxTexture bmp = new GdxTexture( pixmap );
 
