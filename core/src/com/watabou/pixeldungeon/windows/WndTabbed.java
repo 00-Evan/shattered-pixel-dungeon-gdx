@@ -19,6 +19,8 @@ package com.watabou.pixeldungeon.windows;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Input;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.NinePatch;
@@ -31,7 +33,7 @@ import com.watabou.pixeldungeon.ui.Window;
 
 public class WndTabbed extends Window {
 
-	protected ArrayList<Tab> tabs = new ArrayList<WndTabbed.Tab>();
+	protected ArrayList<Tab> tabs = new ArrayList<Tab>();
 	protected Tab selected;
 	
 	public WndTabbed() {
@@ -88,7 +90,7 @@ public class WndTabbed extends Window {
 			remove( tab );
 		}
 		
-		ArrayList<Tab> tabs = new ArrayList<WndTabbed.Tab>( this.tabs );
+		ArrayList<Tab> tabs = new ArrayList<Tab>( this.tabs );
 		this.tabs.clear();
 		
 		for (Tab tab : tabs) {
@@ -103,7 +105,22 @@ public class WndTabbed extends Window {
 	protected void onClick( Tab tab ) {
 		select( tab );
 	}
-	
+
+	@Override
+	protected void onKeyDown(PDInputProcessor.Key key) {
+		if (key.code == Input.Keys.TAB) {
+			int next = 0;
+			for (int j = 0; j < tabs.size(); j++) {
+				Tab t = tabs.get(j);
+				if (t == selected) {
+					next = (j + 1) % tabs.size();
+					break;
+				}
+			}
+			select(next);
+		}
+	}
+
 	protected class Tab extends Button {
 		
 		protected final int CUT = 5;

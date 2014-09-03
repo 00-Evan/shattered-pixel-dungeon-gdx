@@ -80,6 +80,14 @@ public class DungeonTilemap extends Tilemap {
 			(pos % Level.WIDTH + 0.5f) * SIZE, 
 			(pos / Level.WIDTH + 0.5f) * SIZE );
 	}
+
+	public static Point tileToPoint( int pos ) {
+		return new Point(pos % Level.WIDTH, pos / Level.WIDTH);
+	}
+
+	public static int pointToTile( Point point ) {
+		return point.y * Level.WIDTH + point.x;
+	}
 	
 	public static Image tile( int index ) {
 		Image img = new Image( instance.texture );

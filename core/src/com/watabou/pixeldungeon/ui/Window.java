@@ -128,12 +128,19 @@ public class Window extends Group implements Signal.Listener<PDInputProcessor.Ke
 			case Input.Keys.F5:
 				onMenuPressed();
 				break;
+			default:
+				onKeyDown(key);
+				break;
 			}
 		}
 
 		PDInputProcessor.eventKey.cancel();
 	}
-	
+
+	protected void onKeyDown(PDInputProcessor.Key key) {
+
+	}
+
 	public void onBackPressed() {
 		hide();
 	}

@@ -17,15 +17,17 @@
  */
 package com.watabou.pixeldungeon.scenes;
 
+import com.badlogic.gdx.Input;
 import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.TouchArea;
+import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
 import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.utils.GameMath;
+import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
 public class CellSelector extends TouchArea {
-
 	public Listener listener = null;
 	
 	public boolean enabled;
@@ -52,7 +54,59 @@ public class CellSelector extends TouchArea {
 				(int)touch.current.y ) );
 		}
 	}
-	
+
+	@Override
+	public boolean onKeyDown(PDInputProcessor.Key key) {
+		boolean handled = true;
+		int x = 0, y = 0;
+		switch (key.code) {
+			case Input.Keys.UP:
+			case Input.Keys.NUMPAD_8:
+				y = -1;
+				break;
+			case Input.Keys.DOWN:
+			case Input.Keys.NUMPAD_2:
+				y = 1;
+				break;
+			case Input.Keys.LEFT:
+			case Input.Keys.NUMPAD_4:
+				x = -1;
+				break;
+			case Input.Keys.RIGHT:
+			case Input.Keys.NUMPAD_6:
+				x = 1;
+				break;
+			case Input.Keys.NUMPAD_7:
+				x = -1;
+				y = -1;
+				break;
+			case Input.Keys.NUMPAD_9:
+				x = 1;
+				y = -1;
+				break;
+			case Input.Keys.NUMPAD_1:
+				x = -1;
+				y = 1;
+				break;
+			case Input.Keys.NUMPAD_3:
+				x = 1;
+				y = 1;
+				break;
+			default:
+				handled = false;
+				break;
+		}
+
+		if (x != 0 || y != 0) {
+			Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
+			point.x += x;
+			point.y += y;
+			select(DungeonTilemap.pointToTile(point));
+		}
+
+		return handled;
+	}
+
 	public void select( int cell ) {
 		if (enabled && listener != null && cell != -1) {
 			
@@ -145,12 +199,12 @@ public class CellSelector extends TouchArea {
 	public void cancel() {
 		
 		if (listener != null) {
-			listener.onSelect( null );
+			listener.onSelect(null);
 		}
 		
 		GameScene.ready();
 	}
-	
+
 	public interface Listener {
 		void onSelect( Integer cell );
 		String prompt();

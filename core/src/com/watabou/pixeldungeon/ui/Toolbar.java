@@ -17,6 +17,8 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.badlogic.gdx.Input;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
@@ -69,17 +71,60 @@ public class Toolbar extends Component {
 		add( btnWait = new Tool( 0, 7, 20, 24 ) {
 			@Override
 			protected void onClick() {
-				Dungeon.hero.rest( false );
+				restOneTurn();
 			};
 			protected boolean onLongClick() {
-				Dungeon.hero.rest( true );
+				restFull();
 				return true;
 			};
+
+			@Override
+			protected boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+					case Input.Keys.SPACE:
+						restOneTurn();
+						break;
+					case Input.Keys.F:
+						restFull();
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				return handled;
+			}
+
+			private void restOneTurn() {
+				Dungeon.hero.rest( false );
+			}
+
+			private void restFull() {
+				Dungeon.hero.rest( true );
+			}
 		} );
 		
 		add( btnSearch = new Tool( 20, 7, 20, 24 ) {
 			@Override
 			protected void onClick() {
+				doSearch();
+			}
+
+			@Override
+			protected boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+					case Input.Keys.S:
+						doSearch();
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				return handled;
+			}
+
+			private void doSearch() {
 				Dungeon.hero.search( true );
 			}
 		} );
@@ -87,13 +132,49 @@ public class Toolbar extends Component {
 		add( btnInfo = new Tool( 40, 7, 21, 24 ) {
 			@Override
 			protected void onClick() {
-				GameScene.selectCell( informer );
+				getCellInfo();
+			}
+
+			@Override
+			protected boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+					case Input.Keys.V:
+						getCellInfo();
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				return handled;
+			}
+
+			private void getCellInfo() {
+				GameScene.selectCell(informer);
 			}
 		} );
 		
 		add( btnResume = new Tool( 61, 7, 21, 24 ) {
 			@Override
 			protected void onClick() {
+				resume();
+			}
+
+			@Override
+			protected boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+					case Input.Keys.R:
+						resume();
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				return handled;
+			}
+
+			private void resume() {
 				Dungeon.hero.resume();
 			}
 		} );
@@ -102,12 +183,37 @@ public class Toolbar extends Component {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
-				GameScene.show( new WndBag( Dungeon.hero.belongings.backpack, null, WndBag.Mode.ALL, null ) );
+				showBackpack();
 			}
 			protected boolean onLongClick() {
-				GameScene.show( new WndCatalogus() );
+				showCatalogus();
 				return true;
-			};
+			}
+
+			@Override
+			protected boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+					case Input.Keys.I:
+						showBackpack();
+						break;
+					case Input.Keys.C:
+						showCatalogus();
+						break;
+					default:
+						handled = false;
+						break;
+				}
+				return handled;
+			}
+
+			private void showBackpack() {
+				GameScene.show(new WndBag(Dungeon.hero.belongings.backpack, null, WndBag.Mode.ALL, null));
+			}
+			private void showCatalogus() {
+				GameScene.show(new WndCatalogus());
+			}
+
 			@Override
 			protected void createChildren() {
 				super.createChildren();
@@ -222,9 +328,9 @@ public class Toolbar extends Component {
 		
 		private Image base;
 		
-		public Tool( int x, int y, int width, int height ) {
+		public Tool(int x, int y, int width, int height) {
 			super();
-			
+
 			base.frame( x, y, width, height );
 			
 			this.width = width;
@@ -278,7 +384,7 @@ public class Toolbar extends Component {
 		private QuickSlot slot;
 		
 		public QuickslotTool( int x, int y, int width, int height ) {
-			super( x, y, width, height );
+			super( x, y, width, height);
 		}
 		
 		@Override
