@@ -22,7 +22,7 @@ import com.watabou.utils.Signal;
 public class TouchArea extends Visual implements Signal.Listener<PDInputProcessor.Touch> {
 	
 	// Its target can be toucharea itself
-	public Visual target;
+	public final Visual target;
 	
 	protected PDInputProcessor.Touch touch = null;
 
@@ -43,6 +43,23 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		}
 	};
 
+	private Signal.Listener<PDInputProcessor.PDMouseEvent> mouseListener = new Signal.Listener<PDInputProcessor.PDMouseEvent>() {
+		@Override
+		public void onSignal(PDInputProcessor.PDMouseEvent event) {
+			final boolean handled;
+
+			handled = onMouseScroll(event.scroll);
+
+			if (handled) {
+				PDInputProcessor.eventMouse.cancel();
+			}
+		}
+	};
+
+	public boolean onMouseScroll(int scroll) {
+		return false;
+	}
+
 	public boolean onKeyDown(PDInputProcessor.Key key) {
 		return false;
 	}
@@ -55,18 +72,22 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		super( 0, 0, 0, 0 );
 		this.target = target;
 
-		PDInputProcessor.eventTouch.add( this );
-		PDInputProcessor.eventKey.add( keyListener );
+		setupListeners();
 	}
-	
+
 	public TouchArea( float x, float y, float width, float height ) {
-		super( x, y, width, height );
+		super(x, y, width, height);
 		this.target = this;
-		
+
 		visible = false;
 
-		PDInputProcessor.eventTouch.add( this );
+		setupListeners();
+	}
+
+	private void setupListeners() {
+		PDInputProcessor.eventTouch.add(this);
 		PDInputProcessor.eventKey.add( keyListener );
+		PDInputProcessor.eventMouse.add(mouseListener);
 	}
 
 	@Override
@@ -132,8 +153,9 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 	
 	@Override
 	public void destroy() {
-		PDInputProcessor.eventTouch.remove( this );
+		PDInputProcessor.eventMouse.remove( mouseListener );
 		PDInputProcessor.eventKey.remove( keyListener );
+		PDInputProcessor.eventTouch.remove( this );
 		super.destroy();
 	}
 }

@@ -118,25 +118,8 @@ public class ScrollPane extends Component {
 		@Override
 		protected void onDrag( PDInputProcessor.Touch t ) {
 			if (dragging) {
-				
-				Camera c = content.camera;
-				
-				c.scroll.offset( PointF.diff( lastPos, t.current ).invScale( c.zoom ) );
-				if (c.scroll.x + width > content.width()) {
-					c.scroll.x = content.width() - width;
-				}
-				if (c.scroll.x < 0) {
-					c.scroll.x = 0;
-				}
-				if (c.scroll.y + height > content.height()) {
-					c.scroll.y = content.height() - height;
-				}
-				if (c.scroll.y < 0) {
-					c.scroll.y = 0;
-				}
-				
-				
-				lastPos.set( t.current );	
+
+				doScroll(t.current);
 				
 			} else if (PointF.distance( t.current, t.start ) > dragThreshold) {
 				
@@ -144,6 +127,34 @@ public class ScrollPane extends Component {
 				lastPos.set( t.current );
 				
 			}
-		}	
+		}
+
+		@Override
+		public boolean onMouseScroll(int scroll) {
+			PointF newPt = new PointF(lastPos);
+			newPt.y -= scroll * content.camera.zoom * 2;
+			doScroll(newPt);
+			return true;
+		}
+
+		private void doScroll(PointF current) {
+			final Camera c = content.camera;
+
+			c.scroll.offset( PointF.diff(lastPos, current).invScale( c.zoom ) );
+			if (c.scroll.x + width > content.width()) {
+				c.scroll.x = content.width() - width;
+			}
+			if (c.scroll.x < 0) {
+				c.scroll.x = 0;
+			}
+			if (c.scroll.y + height > content.height()) {
+				c.scroll.y = content.height() - height;
+			}
+			if (c.scroll.y < 0) {
+				c.scroll.y = 0;
+			}
+
+			lastPos.set(current);
+		}
 	}
 }

@@ -19,15 +19,15 @@ package com.watabou.input;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.utils.IntMap;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
-
-import java.util.HashMap;
 
 public class PDInputProcessor implements InputProcessor {
 	public static Signal<Key> eventKey = new Signal<>(true);
 	public static Signal<Touch> eventTouch = new Signal<>(true);
-	public static HashMap<Integer, Touch> pointers = new HashMap<>();
+	public static Signal<PDMouseEvent> eventMouse = new Signal<>(true);
+	public static IntMap<Touch> pointers = new IntMap<>();
 
 	@Override
 	public boolean keyDown(int keycode) {
@@ -80,7 +80,17 @@ public class PDInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		return false;
+		eventMouse.dispatch(new PDMouseEvent(amount));
+		return true;
+	}
+
+	public static class PDMouseEvent {
+		// TODO: This should probably contain the position of the mouse as well to be used by 'mouseMoved'
+		public final int scroll;
+
+		public PDMouseEvent(int scroll) {
+			this.scroll = scroll;
+		}
 	}
 
 	public static class Key {
