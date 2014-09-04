@@ -69,6 +69,7 @@ public class Toolbar extends Component {
 	protected void createChildren() {
 		
 		add( btnWait = new Tool( 0, 7, 20, 24 ) {
+			
 			@Override
 			protected void onClick() {
 				restOneTurn();
