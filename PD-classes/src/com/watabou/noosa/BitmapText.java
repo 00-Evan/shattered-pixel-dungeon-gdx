@@ -274,7 +274,7 @@ public class BitmapText extends Visual {
 			if (!td.isPrepared()) {
 				td.prepare();
 			}
-			Pixmap pixmap = td.consumePixmap();
+			final Pixmap pixmap = td.consumePixmap();
 		spaceMeasuring:
 			for (pos=0; pos <  width; pos++) {
 				for (int j=0; j < height; j++) {
@@ -310,6 +310,7 @@ public class BitmapText extends Visual {
 					pos = separator + 1;
 				}
 			}
+			pixmap.dispose();
 			
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
 		}

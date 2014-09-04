@@ -18,6 +18,7 @@
 package com.watabou.pixeldungeon.sprites;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.TextureData;
 import com.watabou.gdx.GdxTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Game;
@@ -198,8 +199,14 @@ public class ItemSprite extends MovieClip {
 		int row = index / rows;
 		int col = index % rows;
 		// FIXME: I'm assuming this is super slow?
-		final Pixmap pixmap = bmp.getTextureData().consumePixmap();
-		return pixmap.getPixel( col * SIZE + x, row * SIZE + y );
+		final TextureData td = bmp.getTextureData();
+		if (!td.isPrepared()) {
+			td.prepare();
+		}
+		final Pixmap pixmap = td.consumePixmap();
+		int pixel = pixmap.getPixel(col * SIZE + x, row * SIZE + y);
+		pixmap.dispose();
+		return pixel;
 	}
 	
 	public static class Glowing {
