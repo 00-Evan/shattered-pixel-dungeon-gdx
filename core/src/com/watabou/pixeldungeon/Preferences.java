@@ -37,7 +37,7 @@ enum Preferences {
 	
 	private com.badlogic.gdx.Preferences get() {
 		if (prefs == null) {
-			prefs = Gdx.app.getPreferences("pixel-dungeon");
+			prefs = Gdx.app.getPreferences("pd-prefs");
 		}
 		return prefs;
 	}
@@ -56,13 +56,16 @@ enum Preferences {
 	
 	void put( String key, int value ) {
 		get().putInteger(key, value);
+		get().flush();
 	}
 	
 	void put( String key, boolean value ) {
 		get().putBoolean( key, value );
+		get().flush();
 	}
 	
 	void put( String key, String value ) {
 		get().putString(key, value);
+		get().flush();
 	}
 }

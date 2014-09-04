@@ -44,6 +44,7 @@ public class Game implements ApplicationListener {
 	public static float density = 1;
 	
 	public static String version;
+	private final String basePath;
 
 	// Current scene
 	protected Scene scene;
@@ -62,9 +63,10 @@ public class Game implements ApplicationListener {
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
 	
-	public Game( Class<? extends Scene> c ) {
+	public Game( Class<? extends Scene> c, String basePath ) {
 		super();
 		sceneClass = c;
+		this.basePath = basePath;
 	}
 	
 	@Override
@@ -230,19 +232,19 @@ public class Game implements ApplicationListener {
 
 	public boolean deleteFile(String fileName) {
 		// FIXME: On desktop, files need a base path, or they'll go to the home directory
-		final FileHandle fh = Gdx.files.external(fileName);
+		final FileHandle fh = Gdx.files.external(basePath != null ? basePath + fileName : fileName);
 		return fh.exists() && fh.delete();
 	}
 
 	public InputStream openFileInput(String fileName) throws IOException {
-		final FileHandle fh = Gdx.files.external(fileName);
+		final FileHandle fh = Gdx.files.external(basePath != null ? basePath + fileName : fileName);
 		if (!fh.exists())
 			throw new IOException("File " + fileName + " doesn't exist");
 		return fh.read();
 	}
 
 	public OutputStream openFileOutput(String fileName) {
-		final FileHandle fh = Gdx.files.external(fileName);
+		final FileHandle fh = Gdx.files.external(basePath != null ? basePath + fileName : fileName);
 		return fh.write(false);
 	}
 

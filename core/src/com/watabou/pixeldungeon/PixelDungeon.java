@@ -26,10 +26,10 @@ import com.watabou.pixeldungeon.scenes.TitleScene;
 
 public class PixelDungeon extends Game {
 	
-	public PixelDungeon() {
-		super( TitleScene.class );
-		
-		com.watabou.utils.Bundle.addAlias( 
+	public PixelDungeon(String preferencesDirectory) {
+		super( TitleScene.class, preferencesDirectory );
+
+		com.watabou.utils.Bundle.addAlias(
 			com.watabou.pixeldungeon.items.scrolls.ScrollOfUpgrade.class, 
 			"com.watabou.pixeldungeon.items.scrolls.ScrollOfEnhancement" );
 		com.watabou.utils.Bundle.addAlias( 

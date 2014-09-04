@@ -14,6 +14,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener getApplicationListener () {
-                return new PixelDungeon();
+                return new PixelDungeon(null);
         }
 }
