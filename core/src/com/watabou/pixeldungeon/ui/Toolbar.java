@@ -198,9 +198,6 @@ public class Toolbar extends Component {
 					case Input.Keys.I:
 						showBackpack();
 						break;
-					case Input.Keys.C:
-						showCatalogus();
-						break;
 					default:
 						handled = false;
 						break;
