@@ -37,7 +37,8 @@ public class Gradient extends SmartTexture {
 	private static GdxTexture createTexture(int[] colors) {
 		final Pixmap pixmap = new Pixmap( colors.length, 1, Pixmap.Format.RGBA8888 );
 		for (int i=0; i < colors.length; i++) {
-			pixmap.drawPixel(i, 0, colors[i]);
+			final int color = colors[i];
+			pixmap.drawPixel(i, 0, (color << 8) | (color >>> 24));
 		}
 		return new GdxTexture(pixmap);
 	}
