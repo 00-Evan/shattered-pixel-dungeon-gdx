@@ -23,8 +23,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
 
-import java.util.HashMap;
-
 public class PDInputProcessor implements InputProcessor {
 	public static Signal<Key> eventKey = new Signal<>(true);
 	public static Signal<Touch> eventTouch = new Signal<>(true);
