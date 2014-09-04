@@ -69,9 +69,14 @@ public class Toolbar extends Component {
 	protected void createChildren() {
 		
 		add( btnWait = new Tool( 0, 7, 20, 24 ) {
+			
 			@Override
 			protected void onClick() {
-				restOneTurn();
+				if (PDInputProcessor.modifier) {
+					restFull();
+				} else {
+					restOneTurn();
+				}
 			};
 			protected boolean onLongClick() {
 				restFull();
@@ -83,10 +88,11 @@ public class Toolbar extends Component {
 				boolean handled = true;
 				switch (key.code) {
 					case Input.Keys.SPACE:
-						restOneTurn();
-						break;
-					case Input.Keys.F:
-						restFull();
+						if (PDInputProcessor.modifier) {
+							restFull();
+						} else {
+							restOneTurn();
+						}
 						break;
 					default:
 						handled = false;
@@ -196,9 +202,6 @@ public class Toolbar extends Component {
 				switch (key.code) {
 					case Input.Keys.I:
 						showBackpack();
-						break;
-					case Input.Keys.C:
-						showCatalogus();
 						break;
 					default:
 						handled = false;

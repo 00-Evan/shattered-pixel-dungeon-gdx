@@ -92,12 +92,14 @@ public class CellSelector extends TouchArea {
 				x = 1;
 				y = 1;
 				break;
+			case Input.Keys.ENTER:
+				break;
 			default:
 				handled = false;
 				break;
 		}
 
-		if (x != 0 || y != 0) {
+		if (handled) {
 			Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
 			point.x += x;
 			point.y += y;

@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.badlogic.gdx.Input;
 import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
@@ -33,7 +34,9 @@ import com.watabou.pixeldungeon.items.keys.IronKey;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.sprites.HeroSprite;
+import com.watabou.pixeldungeon.windows.WndCatalogus;
 import com.watabou.pixeldungeon.windows.WndHero;
+import com.watabou.pixeldungeon.windows.WndJournal;
 
 public class StatusPane extends Component {
 	
@@ -72,7 +75,27 @@ public class StatusPane extends Component {
 					Camera.main.focusOn( sprite );
 				}
 				GameScene.show( new WndHero() );
-			};			
+			};	
+
+			@Override
+			public boolean onKeyUp(PDInputProcessor.Key key) {
+				boolean handled = true;
+				switch (key.code) {
+				case Input.Keys.H:
+					onClick( null );
+					break;
+				case Input.Keys.C:
+					GameScene.show( new WndCatalogus() );
+					break;
+				case Input.Keys.J:
+					GameScene.show( new WndJournal() );
+					break;
+				default:
+					handled = false;
+					break;
+				}
+				return handled;
+			}			
 		} );
 		
 		avatar = HeroSprite.avatar( Dungeon.hero.heroClass, lastTier );

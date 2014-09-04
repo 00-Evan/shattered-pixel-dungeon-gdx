@@ -17,6 +17,8 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.badlogic.gdx.Input;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
@@ -100,5 +102,15 @@ public class DangerIndicator extends Tag {
 		
 		Camera.main.target = null;
 		Camera.main.focusOn( target.sprite );
+	}
+	
+	@Override
+	protected boolean onKeyUp( PDInputProcessor.Key key ) {
+		if (visible && key.code == Input.Keys.TAB) {
+			onClick();
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
