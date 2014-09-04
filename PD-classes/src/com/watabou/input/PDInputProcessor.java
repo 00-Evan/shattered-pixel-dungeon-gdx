@@ -23,28 +23,50 @@ import com.badlogic.gdx.utils.IntMap;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
 
+import java.util.HashMap;
+
 public class PDInputProcessor implements InputProcessor {
 	public static Signal<Key> eventKey = new Signal<>(true);
 	public static Signal<Touch> eventTouch = new Signal<>(true);
 	public static Signal<PDMouseEvent> eventMouse = new Signal<>(true);
 	public static IntMap<Touch> pointers = new IntMap<>();
+	
+	public static boolean modifier = false;
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if (keycode == Input.Keys.VOLUME_DOWN || keycode == Input.Keys.VOLUME_UP) {
+		switch (keycode) {
+		
+		case Input.Keys.VOLUME_DOWN:
+		case Input.Keys.VOLUME_UP:
 			return false;
+			
+		case Input.Keys.CONTROL_LEFT:
+		case Input.Keys.CONTROL_RIGHT:
+			modifier = true;
+			
+		default:
+			eventKey.dispatch( new Key( keycode, true ) );
+			return true;
 		}
-		eventKey.dispatch(new Key(keycode, true));
-		return true;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if (keycode == Input.Keys.VOLUME_DOWN || keycode == Input.Keys.VOLUME_UP) {
+		switch (keycode) {
+		
+		case Input.Keys.VOLUME_DOWN:
+		case Input.Keys.VOLUME_UP:
 			return false;
+			
+		case Input.Keys.CONTROL_LEFT:
+		case Input.Keys.CONTROL_RIGHT:
+			modifier = false;
+			
+		default:
+			eventKey.dispatch( new Key( keycode, false ) );
+			return true;
 		}
-		eventKey.dispatch(new Key(keycode, false));
-		return true;
 	}
 
 	@Override

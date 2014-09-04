@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Dungeon;
@@ -68,6 +69,11 @@ public class QuickSlot extends Button implements WndBag.Listener {
 		slot = new ItemSlot() {
 			@Override
 			protected void onClick() {
+				if (PDInputProcessor.modifier) {
+					onLongClick();
+					return;
+				}
+				
 				if (targeting) {
 					GameScene.handleCell( lastTarget.pos );
 				} else {

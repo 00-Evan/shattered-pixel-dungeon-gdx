@@ -85,6 +85,8 @@ public class WndSettings extends Window {
 				}
 			}.setRect( btnZoomOut.right(), 0, WIDTH - btnZoomIn.width() - btnZoomOut.width(), BTN_HEIGHT ) );
 			
+			updateEnabled();
+			
 		} else {
 			
 			CheckBox btnScaleUp = new CheckBox( TXT_SCALE_UP ) {
