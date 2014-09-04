@@ -72,7 +72,11 @@ public class Toolbar extends Component {
 			
 			@Override
 			protected void onClick() {
-				restOneTurn();
+				if (PDInputProcessor.modifier) {
+					restFull();
+				} else {
+					restOneTurn();
+				}
 			};
 			protected boolean onLongClick() {
 				restFull();
@@ -84,10 +88,11 @@ public class Toolbar extends Component {
 				boolean handled = true;
 				switch (key.code) {
 					case Input.Keys.SPACE:
-						restOneTurn();
-						break;
-					case Input.Keys.F:
-						restFull();
+						if (PDInputProcessor.modifier) {
+							restFull();
+						} else {
+							restOneTurn();
+						}
 						break;
 					default:
 						handled = false;
