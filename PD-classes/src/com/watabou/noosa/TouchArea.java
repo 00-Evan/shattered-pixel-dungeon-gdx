@@ -25,12 +25,38 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 	public Visual target;
 	
 	protected PDInputProcessor.Touch touch = null;
-	
+
+	private Signal.Listener<PDInputProcessor.Key> keyListener = new Signal.Listener<PDInputProcessor.Key>() {
+		@Override
+		public void onSignal(PDInputProcessor.Key key) {
+			final boolean handled;
+
+			if (key.pressed) {
+				handled = onKeyDown(key);
+			} else {
+				handled = onKeyUp(key);
+			}
+
+			if (handled) {
+				PDInputProcessor.eventKey.cancel();
+			}
+		}
+	};
+
+	public boolean onKeyDown(PDInputProcessor.Key key) {
+		return false;
+	}
+
+	public boolean onKeyUp(PDInputProcessor.Key key) {
+		return false;
+	}
+
 	public TouchArea( Visual target ) {
 		super( 0, 0, 0, 0 );
 		this.target = target;
 
 		PDInputProcessor.eventTouch.add( this );
+		PDInputProcessor.eventKey.add( keyListener );
 	}
 	
 	public TouchArea( float x, float y, float width, float height ) {
@@ -40,6 +66,7 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		visible = false;
 
 		PDInputProcessor.eventTouch.add( this );
+		PDInputProcessor.eventKey.add( keyListener );
 	}
 
 	@Override
@@ -106,6 +133,7 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 	@Override
 	public void destroy() {
 		PDInputProcessor.eventTouch.remove( this );
+		PDInputProcessor.eventKey.remove( keyListener );
 		super.destroy();
 	}
 }

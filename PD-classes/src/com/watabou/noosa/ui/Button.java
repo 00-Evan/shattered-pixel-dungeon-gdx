@@ -25,7 +25,7 @@ public class Button extends Component {
 	public static float longClick = 1f;
 	
 	protected TouchArea hotArea;
-	
+
 	protected boolean pressed;
 	protected float pressTime;
 	
@@ -52,6 +52,14 @@ public class Button extends Component {
 					Button.this.onClick();
 				}
 			};
+			@Override
+			public boolean onKeyDown(PDInputProcessor.Key key) {
+				return Button.this.onKeyDown(key);
+			}
+			@Override
+			public boolean onKeyUp(PDInputProcessor.Key key) {
+				return Button.this.onKeyUp(key);
+			}
 		};
 		add( hotArea );
 	}
@@ -80,7 +88,13 @@ public class Button extends Component {
 	protected void onTouchDown() {};
 	protected void onTouchUp() {};
 	protected void onClick() {};
-	
+	protected boolean onKeyDown(PDInputProcessor.Key key) {
+		return false;
+	}
+	protected boolean onKeyUp(PDInputProcessor.Key key) {
+		return false;
+	}
+
 	protected boolean onLongClick() {
 		return false;
 	};
