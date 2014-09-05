@@ -45,7 +45,10 @@ public class WndSettings extends Window {
 	
 	private static final String TXT_SWITCH_PORT	= "Switch to portrait";
 	private static final String TXT_SWITCH_LAND	= "Switch to landscape";
-	
+
+	private static final String TXT_SWITCH_FULL = "Switch to fullscreen";
+	private static final String TXT_SWITCH_WIN = "Switch to windowed";
+
 	private static final int WIDTH		= 112;
 	private static final int BTN_HEIGHT	= 20;
 	private static final int GAP 		= 2;
@@ -139,6 +142,17 @@ public class WndSettings extends Window {
 				add(btnOrientation);
 
 				lastBtn = btnOrientation;
+			} else if (type == Application.ApplicationType.Desktop) {
+				RedButton btnResolution = new RedButton(resolutionText()) {
+					@Override
+					protected void onClick() {
+						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
+					}
+				};
+				btnResolution.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				add(btnResolution);
+
+				lastBtn = btnResolution;
 			}
 		} else {
 		
@@ -150,7 +164,7 @@ public class WndSettings extends Window {
 				}
 			};
 			btnBrightness.setRect( 0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT );
-			btnBrightness.checked( PixelDungeon.brightness() );
+			btnBrightness.checked(PixelDungeon.brightness());
 			add( btnBrightness );
 			
 			lastBtn = btnBrightness;
@@ -175,5 +189,9 @@ public class WndSettings extends Window {
 	
 	private String orientationText() {
 		return PixelDungeon.landscape() ? TXT_SWITCH_PORT : TXT_SWITCH_LAND;
+	}
+
+	private String resolutionText() {
+		return Gdx.graphics.isFullscreen() ? TXT_SWITCH_WIN : TXT_SWITCH_FULL;
 	}
 }

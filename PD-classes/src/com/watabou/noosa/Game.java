@@ -18,6 +18,7 @@ package com.watabou.noosa;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -26,6 +27,7 @@ import com.watabou.gltextures.TextureCache;
 import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.Signal;
 import com.watabou.utils.SystemTime;
 
 import java.io.IOException;
@@ -62,7 +64,8 @@ public class Game implements ApplicationListener {
 	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
-	
+	private Signal.Listener<PDInputProcessor.Key> keyListener;
+
 	public Game( Class<? extends Scene> c, String basePath ) {
 		super();
 		sceneClass = c;
@@ -75,6 +78,18 @@ public class Game implements ApplicationListener {
 		
 		density = Gdx.graphics.getDensity();
 		Gdx.input.setInputProcessor(new PDInputProcessor());
+		PDInputProcessor.eventKey.add( keyListener = new Signal.Listener<PDInputProcessor.Key>() {
+			@Override
+			public void onSignal( PDInputProcessor.Key key ) {
+				if (key.pressed && PDInputProcessor.modifier && key.code == Input.Keys.ENTER) {
+					if (!Gdx.graphics.isFullscreen()) {
+						Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
+					} else {
+
+					}
+				}
+			}
+		} );
 
 		// FIXME
 //		try {
@@ -109,6 +124,7 @@ public class Game implements ApplicationListener {
 	
 	@Override
 	public void dispose() {
+		PDInputProcessor.eventKey.remove(keyListener);
 		destroyGame();
 		
 		Music.INSTANCE.mute();
@@ -137,7 +153,7 @@ public class Game implements ApplicationListener {
 
 	@Override
 	public void resize( int width, int height ) {
-		
+		System.out.println("Resizing to " + width + "x" + height);
 		Gdx.gl.glViewport( 0, 0, width, height );
 
 		if (width != Game.width || height != Game.height) {
@@ -231,7 +247,6 @@ public class Game implements ApplicationListener {
 	}
 
 	public boolean deleteFile(String fileName) {
-		// FIXME: On desktop, files need a base path, or they'll go to the home directory
 		final FileHandle fh = Gdx.files.external(basePath != null ? basePath + fileName : fileName);
 		return fh.exists() && fh.delete();
 	}
