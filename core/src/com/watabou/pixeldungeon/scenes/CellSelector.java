@@ -169,7 +169,16 @@ public class CellSelector extends TouchArea {
 	
 	private boolean dragging = false;
 	private PointF lastPos = new PointF();
-	
+
+	@Override
+	public boolean onMouseScroll(int scroll) {
+		camera.zoom( GameMath.gate(
+				PixelScene.minZoom,
+				camera.zoom + scroll/10f,
+				PixelScene.maxZoom ) );
+		return true;
+	}
+
 	@Override
 	protected void onDrag( PDInputProcessor.Touch t ) {
 		 
