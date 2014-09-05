@@ -20,6 +20,7 @@ package com.watabou.pixeldungeon.scenes;
 import java.io.IOException;
 
 import com.badlogic.gdx.utils.IntMap;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
@@ -71,7 +72,14 @@ import com.watabou.pixeldungeon.utils.GLog;
 import com.watabou.pixeldungeon.windows.WndBag.Mode;
 import com.watabou.pixeldungeon.windows.WndGame;
 import com.watabou.pixeldungeon.windows.WndBag;
+import com.watabou.pixeldungeon.windows.WndHero;
+import com.watabou.pixeldungeon.windows.WndInfoCell;
+import com.watabou.pixeldungeon.windows.WndInfoItem;
+import com.watabou.pixeldungeon.windows.WndInfoMob;
+import com.watabou.pixeldungeon.windows.WndInfoPlant;
+import com.watabou.pixeldungeon.windows.WndMessage;
 import com.watabou.pixeldungeon.windows.WndStory;
+import com.watabou.pixeldungeon.windows.WndTradeItem;
 import com.watabou.utils.Random;
 
 public class GameScene extends PixelScene {
@@ -350,7 +358,7 @@ public class GameScene extends PixelScene {
 			selectItem( null, WndBag.Mode.ALL, null );
 		}
 	}
-	
+
 	public void brightness( boolean value ) {
 		water.rm = water.gm = water.bm = 
 		tiles.rm = tiles.gm = tiles.bm = 
@@ -601,12 +609,61 @@ public class GameScene extends PixelScene {
 		selectCell( defaultCellListener );
 		QuickSlot.cancel();
 	}
+
+    public static void examineCell( Integer cell ) {
+        if (cell == null) {
+            return;
+        }
+
+        if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
+            GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
+            return;
+        }
+
+        if (!Dungeon.visible[cell]) {
+            GameScene.show( new WndInfoCell( cell ) );
+            return;
+        }
+
+        if (cell == Dungeon.hero.pos) {
+            GameScene.show( new WndHero() );
+            return;
+        }
+
+        Mob mob = (Mob)Actor.findChar( cell );
+        if (mob != null) {
+            GameScene.show( new WndInfoMob( mob ) );
+            return;
+        }
+
+        Heap heap = Dungeon.level.heaps.get( cell );
+        if (heap != null) {
+            if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
+                GameScene.show( new WndTradeItem( heap, false ) );
+            } else {
+                GameScene.show( new WndInfoItem( heap ) );
+            }
+            return;
+        }
+
+        Plant plant = Dungeon.level.plants.get( cell );
+        if (plant != null) {
+            GameScene.show( new WndInfoPlant( plant ) );
+            return;
+        }
+
+        GameScene.show( new WndInfoCell( cell ) );
+    }
 	
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
 			if (cell != -1) {
-				Dungeon.hero.handle( cell );
+                if (PDInputProcessor.modifier) {
+                    examineCell( cell );
+                } else {
+                    Dungeon.hero.handle(cell);
+                }
 			}
 		}
 		@Override

@@ -19,7 +19,9 @@ package com.watabou.pixeldungeon.ui;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
@@ -154,6 +156,16 @@ public class AttackIndicator extends Tag {
 			Dungeon.hero.handle( lastTarget.pos );
 		}
 	}
+
+    @Override
+    protected boolean onKeyUp( PDInputProcessor.Key key ) {
+        if (key.code == Input.Keys.A) {
+            onClick();
+            return true;
+        } else {
+            return false;
+        }
+    }
 	
 	public static void target( Char target ) {
 		lastTarget = (Mob)target;
