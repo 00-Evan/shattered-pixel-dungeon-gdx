@@ -189,8 +189,14 @@ public class Toolbar extends Component {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
-				showBackpack();
+                if (PDInputProcessor.modifier) {
+                    showCatalogus();
+                } else {
+                    showBackpack();
+                }
 			}
+
+            @Override
 			protected boolean onLongClick() {
 				showCatalogus();
 				return true;
@@ -201,7 +207,11 @@ public class Toolbar extends Component {
 				boolean handled = true;
 				switch (key.code) {
 					case Input.Keys.I:
-						showBackpack();
+                        if (PDInputProcessor.modifier) {
+                            showCatalogus();
+                        } else {
+                            showBackpack();
+                        }
 						break;
 					default:
 						handled = false;
@@ -275,49 +285,7 @@ public class Toolbar extends Component {
 	private static CellSelector.Listener informer = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
-			
-			if (cell == null) {
-				return;
-			}
-			
-			if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
-				GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
-				return;
-			}
-			
-			if (!Dungeon.visible[cell]) {
-				GameScene.show( new WndInfoCell( cell ) );
-				return;
-			}
-			
-			if (cell == Dungeon.hero.pos) {
-				GameScene.show( new WndHero() );
-				return;
-			}
-			
-			Mob mob = (Mob)Actor.findChar( cell );
-			if (mob != null) {
-				GameScene.show( new WndInfoMob( mob ) );
-				return;
-			}
-			
-			Heap heap = Dungeon.level.heaps.get( cell );
-			if (heap != null) {
-				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-					GameScene.show( new WndTradeItem( heap, false ) );
-				} else {
-					GameScene.show( new WndInfoItem( heap ) );
-				}
-				return;
-			}
-			
-			Plant plant = Dungeon.level.plants.get( cell );
-			if (plant != null) {
-				GameScene.show( new WndInfoPlant( plant ) );
-				return;
-			}
-			
-			GameScene.show( new WndInfoCell( cell ) );
+            GameScene.examineCell( cell );
 		}	
 		@Override
 		public String prompt() {

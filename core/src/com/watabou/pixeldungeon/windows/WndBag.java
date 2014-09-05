@@ -18,6 +18,7 @@
 package com.watabou.pixeldungeon.windows;
 
 import com.watabou.gltextures.TextureCache;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Image;
@@ -373,8 +374,12 @@ public class WndBag extends WndTabbed {
 				listener.onSelect( item );
 				
 			} else {
-				
-				WndBag.this.add( new WndItem( WndBag.this, item ) );
+
+                if (PDInputProcessor.modifier) {
+                    onLongClick();
+                } else {
+                    WndBag.this.add(new WndItem(WndBag.this, item));
+                }
 				
 			}
 		}
@@ -383,7 +388,7 @@ public class WndBag extends WndTabbed {
 		protected boolean onLongClick() {
 			if (listener == null && item.defaultAction != null) {
 				hide();
-				Dungeon.quickslot = item instanceof Wand ? item : item.getClass();
+				Dungeon.quickslot = item.stackable ? item.getClass() : item;
 				QuickSlot.refresh();
 				return true;
 			} else {

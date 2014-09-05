@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.badlogic.gdx.Input;
 import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
@@ -98,6 +99,16 @@ public class QuickSlot extends Button implements WndBag.Listener {
 			protected void onTouchUp() {
 				icon.resetColor();
 			}
+
+            @Override
+            protected boolean onKeyUp( PDInputProcessor.Key key ) {
+                if (key.code == Input.Keys.Q) {
+                    onClick();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
 		};
 		add( slot );
 		
@@ -129,6 +140,16 @@ public class QuickSlot extends Button implements WndBag.Listener {
 		GameScene.selectItem( this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM );
 		return true;
 	}
+
+    @Override
+    protected boolean onKeyUp( PDInputProcessor.Key key ) {
+        if (key.code == Input.Keys.Q) {
+            onLongClick();
+            return true;
+        } else {
+            return false;
+        }
+    }
 	
 	@SuppressWarnings("unchecked")
 	private static Item select() {

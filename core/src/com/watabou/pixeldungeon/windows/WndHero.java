@@ -19,8 +19,10 @@ package com.watabou.pixeldungeon.windows;
 
 import java.util.Locale;
 
+import com.badlogic.gdx.Input;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
+import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -89,8 +91,24 @@ public class WndHero extends WndTabbed {
 		
 		select( 0 );
 	}
-	
-	private class StatsTab extends Group {
+
+    @Override
+    protected void onKeyDown( PDInputProcessor.Key key ) {
+        switch (key.code) {
+        case Input.Keys.C:
+            hide();
+            GameScene.show( new WndCatalogus() );
+            break;
+        case Input.Keys.J:
+            hide();
+            GameScene.show( new WndJournal() );
+            break;
+        default:
+            super.onKeyDown( key );
+        }
+    }
+
+    private class StatsTab extends Group {
 		
 		private static final String TXT_TITLE		= "Level %d %s";
 		private static final String TXT_CATALOGUS	= "Catalogus";
