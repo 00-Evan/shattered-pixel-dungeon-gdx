@@ -25,7 +25,7 @@ import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.TitleScene;
 
 public class PixelDungeon extends Game {
-	
+
 	public PixelDungeon(String preferencesDirectory) {
 		super( TitleScene.class, preferencesDirectory );
 
@@ -96,15 +96,27 @@ public class PixelDungeon extends Game {
 		}*/
 		
 		boolean landscape = Gdx.graphics.getWidth() > Gdx.graphics.getHeight();
-		
-		if (Preferences.INSTANCE.getBoolean( Preferences.KEY_LANDSCAPE, false ) != landscape) {
+
+		final Preferences prefs = Preferences.INSTANCE;
+		if (prefs.getBoolean(Preferences.KEY_LANDSCAPE, false) != landscape) {
 			landscape( !landscape );
 		}
+		fullscreen(prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false));
 		
 		Music.INSTANCE.enable( music() );
 		Sample.INSTANCE.enable( soundFx() );
 	}
-	
+
+	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
+
+		if (!fullscreen()) {
+			final Preferences prefs = Preferences.INSTANCE;
+			prefs.put(Preferences.KEY_WINDOW_WIDTH, width);
+			prefs.put(Preferences.KEY_WINDOW_HEIGHT, height);
+		}
+	}
 	/*
 	 * ---> Prefernces
 	 */
@@ -119,6 +131,24 @@ public class PixelDungeon extends Game {
 	
 	public static boolean landscape() {
 		return width > height;
+	}
+
+	public static void fullscreen(boolean value) {
+		final Preferences prefs = Preferences.INSTANCE;
+		if (value) {
+			prefs.put(Preferences.KEY_WINDOW_FULLSCREEN, true);
+
+			Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
+		} else {
+			int w = prefs.getInt(Preferences.KEY_WINDOW_WIDTH, Preferences.DEFAULT_WINDOW_WIDTH);
+			int h = prefs.getInt(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
+			prefs.put(Preferences.KEY_WINDOW_FULLSCREEN, false);
+			Gdx.graphics.setDisplayMode(w, h, false);
+		}
+	}
+
+	public static boolean fullscreen() {
+		return Gdx.graphics.isFullscreen();
 	}
 	
 	public static void scaleUp( boolean value ) {
