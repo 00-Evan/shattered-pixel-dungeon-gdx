@@ -5,6 +5,7 @@ sourceCompatibility = '1.7'
 
 ext {
 	mainClassName = "com.watabou.pd.IOSLauncher"
+	mainExecutable = "IOSLauncher"
 }
 
 // Extracts native libs (*.a) from the native-ios.jar and places them
@@ -49,9 +50,20 @@ task updateRoboVMXML << {
   printer.print(config)
 }
 
+task updateRoboVMProps << {
+	ant.propertyfile(file: 'robovm.properties') {
+		entry (key: 'app.version', value: version)
+		entry (key: 'app.build', value: versionCode)
+		entry (key: 'app.name', value: appTitle)
+		entry (key: 'app.id', value: appId)
+		entry (key: 'app.mainclass', value: mainClassName)
+		entry (key: 'app.executable', value: mainExecutable)
+	}
+}
+
 updateRoboVMXML.dependsOn copyNatives
-build.dependsOn updateRoboVMXML
-tasks.eclipse.dependsOn updateRoboVMXML
+build.dependsOn updateRoboVMXML, updateRoboVMProps
+tasks.eclipse.dependsOn updateRoboVMXML, updateRoboVMProps
 
 launchIPhoneSimulator.dependsOn build
 launchIPadSimulator.dependsOn build

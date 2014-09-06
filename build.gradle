@@ -19,6 +19,8 @@ allprojects {
     ext {
         versionCode = 59
         appName = 'pixel-dungeon'
+	    appTitle = 'Pixel Dungeon'
+	    appId = 'com.watabou.pixeldungeon'
         gdxVersion = '1.3.1'
         roboVMVersion = '0.0.14'
     }
