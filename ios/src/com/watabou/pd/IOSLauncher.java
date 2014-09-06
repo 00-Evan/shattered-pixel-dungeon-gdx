@@ -10,7 +10,8 @@ public class IOSLauncher extends IOSApplication.Delegate {
     @Override
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
-        return new IOSApplication(new PixelDungeon(null), config);
+	    String version = "???";
+        return new IOSApplication(new PixelDungeon(null, version), config);
     }
 
     public static void main(String[] argv) {

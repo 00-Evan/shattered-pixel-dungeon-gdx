@@ -9,6 +9,10 @@ import com.watabou.pixeldungeon.Preferences;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
+		String version = DesktopLauncher.class.getPackage().getSpecificationVersion();
+		if (version == null) {
+			version = "???";
+		}
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
 		if (SharedLibraryLoader.isMac) {
@@ -28,6 +32,6 @@ public class DesktopLauncher {
 			config.height = prefs.getInteger(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
 		}
 
-		new LwjglApplication(new PixelDungeon(config.preferencesDirectory), config);
+		new LwjglApplication(new PixelDungeon(config.preferencesDirectory, version), config);
 	}
 }

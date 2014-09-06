@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class Game implements ApplicationListener {
+public abstract class Game implements ApplicationListener {
 
 	public static Game instance;
 	
@@ -71,7 +71,7 @@ public class Game implements ApplicationListener {
 		sceneClass = c;
 		this.basePath = basePath;
 	}
-	
+
 	@Override
 	public void create() {
 		instance = this;
@@ -90,13 +90,6 @@ public class Game implements ApplicationListener {
 				}
 			}
 		} );
-
-		// FIXME
-//		try {
-//			version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
-//		} catch (NameNotFoundException e) {
-			version = "???";
-//		}
 
 		// TODO: Is this right?
 		onSurfaceCreated();
