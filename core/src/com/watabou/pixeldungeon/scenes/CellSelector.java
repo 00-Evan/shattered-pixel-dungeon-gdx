@@ -19,7 +19,6 @@ package com.watabou.pixeldungeon.scenes;
 
 import com.badlogic.gdx.Input;
 import com.watabou.input.PDInputProcessor;
-import com.watabou.noosa.Camera;
 import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
@@ -32,6 +31,8 @@ public class CellSelector extends TouchArea {
 	public Listener listener = null;
 	
 	public boolean enabled;
+
+	private float mouseZoom;
 	
 	private float dragThreshold;
 	
@@ -61,10 +62,10 @@ public class CellSelector extends TouchArea {
 
         switch (key.code) {
         case Input.Keys.PLUS:
-            zoom( Camera.main.zoom + 1 );
+            zoom( camera.zoom + 1 );
             return true;
         case Input.Keys.MINUS:
-            zoom( Camera.main.zoom - 1 );
+            zoom( camera.zoom - 1 );
             return true;
         case Input.Keys.SLASH:
             zoom( PixelScene.defaultZoom );
@@ -126,7 +127,7 @@ public class CellSelector extends TouchArea {
     private void zoom( float value ) {
      //   value = Math.round( value );
         if (value >= PixelScene.minZoom && value <= PixelScene.maxZoom) {
-            Camera.main.zoom( value );
+            camera.zoom( value );
             PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
         }
     }
@@ -194,7 +195,18 @@ public class CellSelector extends TouchArea {
 
 	@Override
 	public boolean onMouseScroll(int scroll) {
-		zoom( camera.zoom + scroll / 10f );
+		mouseZoom -= scroll / 10f;
+		if (mouseZoom < 0) {
+			do {
+				mouseZoom += 1;
+			} while (mouseZoom < 0);
+			zoom( camera.zoom - 1 );
+		} else if (mouseZoom > 1) {
+			do {
+				mouseZoom -= 1;
+			} while (mouseZoom > 1);
+			zoom( camera.zoom + 1 );
+		}
 		return true;
 	}
 
