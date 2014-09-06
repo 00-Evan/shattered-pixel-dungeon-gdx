@@ -1,11 +1,10 @@
 package com.watabou.pd.android;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.watabou.pixeldungeon.PixelDungeon;
-
-import javax.naming.NameNotFoundException;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
@@ -15,7 +14,7 @@ public class AndroidLauncher extends AndroidApplication {
 		String version;
 		try {
 			version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
-		} catch (NameNotFoundException e) {
+		} catch (PackageManager.NameNotFoundException e) {
 			version = "???";
 		}
 		initialize(new PixelDungeon(null, version), config);
