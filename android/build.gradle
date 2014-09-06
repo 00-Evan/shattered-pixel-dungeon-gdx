@@ -3,7 +3,7 @@ android {
     compileSdkVersion 19
 	defaultConfig {
 		applicationId appId
-		versionCode versionCode
+		versionCode project.ext.versionCode
 		versionName version
 	}
     sourceSets {
