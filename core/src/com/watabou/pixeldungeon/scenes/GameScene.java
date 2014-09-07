@@ -133,7 +133,7 @@ public class GameScene extends PixelScene {
 		Camera.main.zoom( defaultZoom + PixelDungeon.zoom() );
 		
 		scene = this;
-		
+
 		terrain = new Group();
 		add( terrain );
 		
@@ -209,7 +209,6 @@ public class GameScene extends PixelScene {
 		hero.updateArmor();
 		mobs.add( hero );
 
-		
 		add( new HealthIndicator() );
 		
 		add( cellSelector = new CellSelector( tiles ) );
@@ -306,6 +305,8 @@ public class GameScene extends PixelScene {
 		
 		Camera.main.target = hero;
 		fadeIn();
+
+        selectCell( defaultCellListener );
 	}
 	
 	public void destroy() {

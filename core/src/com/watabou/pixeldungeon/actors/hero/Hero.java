@@ -390,7 +390,7 @@ public class Hero extends Char {
 					return false;
 				}
 			}
-			
+
 			ready();
 			
 		} else {
@@ -462,7 +462,7 @@ public class Hero extends Char {
 		sprite.idle();
 		curAction = null;
 		ready = true;
-		
+
 		GameScene.ready();
 	}
 	
