@@ -22,6 +22,8 @@ task dist(type: Jar) {
  
     manifest {
         attributes 'Main-Class': project.mainClassName
+        attributes 'Specification-Version': version
+        attributes 'Implementation-Version': versionCode
     }
 }
 

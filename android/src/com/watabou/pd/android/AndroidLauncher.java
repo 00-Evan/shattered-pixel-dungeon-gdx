@@ -1,5 +1,6 @@
 package com.watabou.pd.android;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
@@ -10,6 +11,12 @@ public class AndroidLauncher extends AndroidApplication {
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new PixelDungeon(null), config);
+		String version;
+		try {
+			version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			version = "???";
+		}
+		initialize(new PixelDungeon(null, version), config);
 	}
 }
