@@ -45,6 +45,10 @@ public class QuickSlot extends Button implements WndBag.Listener {
 	private boolean targeting = false;
 	private Item lastItem = null;
 	private Char lastTarget= null;
+
+    {
+        hotKey = Input.Keys.Q;
+    }
 	
 	public QuickSlot() {
 		super();
@@ -70,6 +74,7 @@ public class QuickSlot extends Button implements WndBag.Listener {
 		slot = new ItemSlot() {
 			@Override
 			protected void onClick() {
+
 				if (PDInputProcessor.modifier) {
 					onLongClick();
 					return;
@@ -99,17 +104,8 @@ public class QuickSlot extends Button implements WndBag.Listener {
 			protected void onTouchUp() {
 				icon.resetColor();
 			}
-
-            @Override
-            protected boolean onKeyUp( PDInputProcessor.Key key ) {
-                if (key.code == Input.Keys.Q) {
-                    onClick();
-                    return true;
-                } else {
-                    return false;
-                }
-            }
 		};
+        slot.hotKey = Input.Keys.Q;
 		add( slot );
 		
 		crossB = Icons.TARGET.get();
@@ -132,24 +128,14 @@ public class QuickSlot extends Button implements WndBag.Listener {
 	
 	@Override
 	protected void onClick() {
-		GameScene.selectItem( this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM );
+        GameScene.selectItem( this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM );
 	}
 	
 	@Override
 	protected boolean onLongClick() {
-		GameScene.selectItem( this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM );
+		onClick();
 		return true;
 	}
-
-    @Override
-    protected boolean onKeyUp( PDInputProcessor.Key key ) {
-        if (key.code == Input.Keys.Q) {
-            onLongClick();
-            return true;
-        } else {
-            return false;
-        }
-    }
 	
 	@SuppressWarnings("unchecked")
 	private static Item select() {

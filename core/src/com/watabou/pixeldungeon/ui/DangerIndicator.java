@@ -18,7 +18,6 @@
 package com.watabou.pixeldungeon.ui;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
@@ -36,6 +35,10 @@ public class DangerIndicator extends Tag {
 	private int enemyIndex = 0;
 	
 	private int lastNumber = -1;
+
+    {
+        hotKey = Input.Keys.TAB;
+    }
 	
 	public DangerIndicator() {
 		super( 0xFF4C4C );
@@ -95,22 +98,13 @@ public class DangerIndicator extends Tag {
 	
 	@Override
 	protected void onClick() {
-		
-		Mob target = Dungeon.hero.visibleEnemy( enemyIndex++ );
-		
-		HealthIndicator.instance.target( target == HealthIndicator.instance.target() ? null : target );
-		
-		Camera.main.target = null;
-		Camera.main.focusOn( target.sprite );
-	}
-	
-	@Override
-	protected boolean onKeyUp( PDInputProcessor.Key key ) {
-		if (visible && key.code == Input.Keys.TAB) {
-			onClick();
-			return true;
-		} else {
-			return false;
-		}
+		if (visible) {
+            Mob target = Dungeon.hero.visibleEnemy(enemyIndex++);
+
+            HealthIndicator.instance.target(target == HealthIndicator.instance.target() ? null : target);
+
+            Camera.main.target = null;
+            Camera.main.focusOn(target.sprite);
+        }
 	}
 }

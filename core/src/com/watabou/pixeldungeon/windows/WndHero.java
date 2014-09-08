@@ -92,22 +92,6 @@ public class WndHero extends WndTabbed {
 		select( 0 );
 	}
 
-    @Override
-    protected void onKeyDown( PDInputProcessor.Key key ) {
-        switch (key.code) {
-        case Input.Keys.C:
-            hide();
-            GameScene.show( new WndCatalogus() );
-            break;
-        case Input.Keys.J:
-            hide();
-            GameScene.show( new WndJournal() );
-            break;
-        default:
-            super.onKeyDown( key );
-        }
-    }
-
     private class StatsTab extends Group {
 		
 		private static final String TXT_TITLE		= "Level %d %s";
@@ -135,6 +119,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndCatalogus() );
 				}
 			};
+            btnCatalogus.hotKey = Input.Keys.C;
 			btnCatalogus.setRect( 0, title.y + title.height(), btnCatalogus.reqWidth() + 2, btnCatalogus.reqHeight() + 2 );
 			add( btnCatalogus );
 			
@@ -145,6 +130,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndJournal() );
 				}
 			};
+            btnJournal.hotKey = Input.Keys.J;
 			btnJournal.setRect( 
 				btnCatalogus.right() + 1, btnCatalogus.top(), 
 				btnJournal.reqWidth() + 2, btnJournal.reqHeight() + 2 );
