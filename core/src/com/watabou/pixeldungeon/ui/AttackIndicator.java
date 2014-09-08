@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.watabou.input.PDInputProcessor;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
@@ -41,6 +40,10 @@ public class AttackIndicator extends Tag {
 	
 	private static Mob lastTarget = null;
 	private ArrayList<Mob> candidates = new ArrayList<Mob>();
+
+    {
+        hotKey = Input.Keys.A;
+    }
 	
 	public AttackIndicator() {
 		super( DangerIndicator.COLOR );
@@ -131,7 +134,7 @@ public class AttackIndicator extends Tag {
 			sprite.y = y + (height - sprite.height()) / 2;
 			PixelScene.align( sprite );
 			
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 	
@@ -156,16 +159,6 @@ public class AttackIndicator extends Tag {
 			Dungeon.hero.handle( lastTarget.pos );
 		}
 	}
-
-    @Override
-    protected boolean onKeyUp( PDInputProcessor.Key key ) {
-        if (key.code == Input.Keys.A) {
-            onClick();
-            return true;
-        } else {
-            return false;
-        }
-    }
 	
 	public static void target( Char target ) {
 		lastTarget = (Mob)target;

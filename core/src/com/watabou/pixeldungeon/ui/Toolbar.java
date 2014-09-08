@@ -18,7 +18,6 @@
 package com.watabou.pixeldungeon.ui;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
@@ -27,24 +26,12 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
-import com.watabou.pixeldungeon.actors.Actor;
-import com.watabou.pixeldungeon.actors.mobs.Mob;
-import com.watabou.pixeldungeon.items.Heap;
 import com.watabou.pixeldungeon.items.Item;
-import com.watabou.pixeldungeon.levels.Level;
-import com.watabou.pixeldungeon.plants.Plant;
 import com.watabou.pixeldungeon.scenes.CellSelector;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.windows.WndCatalogus;
-import com.watabou.pixeldungeon.windows.WndHero;
-import com.watabou.pixeldungeon.windows.WndInfoCell;
-import com.watabou.pixeldungeon.windows.WndInfoItem;
-import com.watabou.pixeldungeon.windows.WndInfoMob;
-import com.watabou.pixeldungeon.windows.WndInfoPlant;
 import com.watabou.pixeldungeon.windows.WndBag;
-import com.watabou.pixeldungeon.windows.WndMessage;
-import com.watabou.pixeldungeon.windows.WndTradeItem;
 
 public class Toolbar extends Component {
 
@@ -68,37 +55,15 @@ public class Toolbar extends Component {
 	@Override
 	protected void createChildren() {
 		
-		add( btnWait = new Tool( 0, 7, 20, 24 ) {
+		add( btnWait = new Tool( 0, 7, 20, 24, Input.Keys.SPACE ) {
 			
 			@Override
 			protected void onClick() {
-				if (PDInputProcessor.modifier) {
-					restFull();
-				} else {
-					restOneTurn();
-				}
-			};
+                restOneTurn();
+			}
 			protected boolean onLongClick() {
 				restFull();
 				return true;
-			};
-
-			@Override
-			protected boolean onKeyUp(PDInputProcessor.Key key) {
-				boolean handled = true;
-				switch (key.code) {
-					case Input.Keys.SPACE:
-						if (PDInputProcessor.modifier) {
-							restFull();
-						} else {
-							restOneTurn();
-						}
-						break;
-					default:
-						handled = false;
-						break;
-				}
-				return handled;
 			}
 
 			private void restOneTurn() {
@@ -110,24 +75,10 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnSearch = new Tool( 20, 7, 20, 24 ) {
+		add( btnSearch = new Tool( 20, 7, 20, 24, Input.Keys.S ) {
 			@Override
 			protected void onClick() {
 				doSearch();
-			}
-
-			@Override
-			protected boolean onKeyUp(PDInputProcessor.Key key) {
-				boolean handled = true;
-				switch (key.code) {
-					case Input.Keys.S:
-						doSearch();
-						break;
-					default:
-						handled = false;
-						break;
-				}
-				return handled;
 			}
 
 			private void doSearch() {
@@ -135,24 +86,10 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInfo = new Tool( 40, 7, 21, 24 ) {
+		add( btnInfo = new Tool( 40, 7, 21, 24, Input.Keys.V ) {
 			@Override
 			protected void onClick() {
 				getCellInfo();
-			}
-
-			@Override
-			protected boolean onKeyUp(PDInputProcessor.Key key) {
-				boolean handled = true;
-				switch (key.code) {
-					case Input.Keys.V:
-						getCellInfo();
-						break;
-					default:
-						handled = false;
-						break;
-				}
-				return handled;
 			}
 
 			private void getCellInfo() {
@@ -160,24 +97,10 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnResume = new Tool( 61, 7, 21, 24 ) {
+		add( btnResume = new Tool( 61, 7, 21, 24, Input.Keys.R ) {
 			@Override
 			protected void onClick() {
 				resume();
-			}
-
-			@Override
-			protected boolean onKeyUp(PDInputProcessor.Key key) {
-				boolean handled = true;
-				switch (key.code) {
-					case Input.Keys.R:
-						resume();
-						break;
-					default:
-						handled = false;
-						break;
-				}
-				return handled;
 			}
 
 			private void resume() {
@@ -185,39 +108,17 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInventory = new Tool( 82, 7, 23, 24 ) {
+		add( btnInventory = new Tool( 82, 7, 23, 24, Input.Keys.I ) {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
-                if (PDInputProcessor.modifier) {
-                    showCatalogus();
-                } else {
-                    showBackpack();
-                }
+                showBackpack();
 			}
 
             @Override
 			protected boolean onLongClick() {
 				showCatalogus();
 				return true;
-			}
-
-			@Override
-			protected boolean onKeyUp(PDInputProcessor.Key key) {
-				boolean handled = true;
-				switch (key.code) {
-					case Input.Keys.I:
-                        if (PDInputProcessor.modifier) {
-                            showCatalogus();
-                        } else {
-                            showBackpack();
-                        }
-						break;
-					default:
-						handled = false;
-						break;
-				}
-				return handled;
 			}
 
 			private void showBackpack() {
@@ -232,12 +133,12 @@ public class Toolbar extends Component {
 				super.createChildren();
 				gold = new GoldIndicator();
 				add( gold );
-			};
+			}
 			@Override
 			protected void layout() {
 				super.layout();
 				gold.fill( this );
-			};
+			}
 		} );
 		
 		add( btnQuick = new QuickslotTool( 105, 7, 22, 24 ) );
@@ -299,13 +200,15 @@ public class Toolbar extends Component {
 		
 		private Image base;
 		
-		public Tool(int x, int y, int width, int height) {
+		public Tool(int x, int y, int width, int height, int hotKey ) {
 			super();
 
 			base.frame( x, y, width, height );
 			
 			this.width = width;
 			this.height = height;
+
+            this.hotKey = hotKey;
 		}
 		
 		@Override
@@ -355,7 +258,7 @@ public class Toolbar extends Component {
 		private QuickSlot slot;
 		
 		public QuickslotTool( int x, int y, int width, int height ) {
-			super( x, y, width, height);
+			super( x, y, width, height, -1 );
 		}
 		
 		@Override

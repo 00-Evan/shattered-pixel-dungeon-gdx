@@ -30,6 +30,8 @@ public class Button extends Component {
 	protected float pressTime;
 	
 	protected boolean processed;
+
+    public int hotKey = -1;
 	
 	@Override
 	protected void createChildren() {
@@ -88,16 +90,26 @@ public class Button extends Component {
 	protected void onTouchDown() {};
 	protected void onTouchUp() {};
 	protected void onClick() {};
+
+    protected boolean onLongClick() {
+        return false;
+    };
+
 	protected boolean onKeyDown(PDInputProcessor.Key key) {
 		return false;
 	}
 	protected boolean onKeyUp(PDInputProcessor.Key key) {
-		return false;
+		if (active && key.code == hotKey) {
+            if (PDInputProcessor.modifier) {
+                return onLongClick();
+            } else {
+                onClick();
+                return true;
+            }
+        } else {
+            return false;
+        }
 	}
-
-	protected boolean onLongClick() {
-		return false;
-	};
 	
 	@Override
 	protected void layout() {
