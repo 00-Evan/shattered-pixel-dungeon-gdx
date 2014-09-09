@@ -62,6 +62,7 @@ public class CellSelector extends TouchArea {
 
         switch (key.code) {
         case Input.Keys.PLUS:
+        case Input.Keys.EQUALS:
             zoom( camera.zoom + 1 );
             return true;
         case Input.Keys.MINUS:
