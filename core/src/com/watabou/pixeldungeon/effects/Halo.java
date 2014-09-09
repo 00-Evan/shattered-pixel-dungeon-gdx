@@ -38,9 +38,9 @@ public class Halo extends Image {
 		if (!TextureCache.contains( CACHE_KEY )) {
 			Pixmap pixmap = new Pixmap(RADIUS * 2, RADIUS * 2, Pixmap.Format.RGBA8888);
 			pixmap.setColor( 0xFFFFFFFF );
-			pixmap.drawCircle( RADIUS, RADIUS, (int) (RADIUS * 0.75f));
-			pixmap.setColor( 0x88FFFFFF );
-			pixmap.drawCircle( RADIUS, RADIUS, RADIUS );
+			pixmap.fillCircle( RADIUS, RADIUS, (int) (RADIUS * 0.75f));
+			pixmap.setColor( 0xFFFFFF88 );
+			pixmap.fillCircle( RADIUS, RADIUS, RADIUS );
 			GdxTexture bmp = new GdxTexture(pixmap);
 			TextureCache.add( CACHE_KEY, new SmartTexture( bmp ) );
 		}
