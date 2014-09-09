@@ -146,7 +146,6 @@ public abstract class Game implements ApplicationListener {
 
 	@Override
 	public void resize( int width, int height ) {
-		System.out.println("Resizing to " + width + "x" + height);
 		Gdx.gl.glViewport( 0, 0, width, height );
 
 		if (width != Game.width || height != Game.height) {
