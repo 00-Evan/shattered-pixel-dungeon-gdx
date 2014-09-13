@@ -23,7 +23,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
 
-public class PDInputProcessor implements InputProcessor {
+public abstract class PDInputProcessor implements InputProcessor {
 	public static Signal<Key> eventKey = new Signal<>(true);
 	public static Signal<Touch> eventTouch = new Signal<>(true);
 	public static Signal<PDMouseEvent> eventMouse = new Signal<>(true);
@@ -73,27 +73,6 @@ public class PDInputProcessor implements InputProcessor {
 	}
 
 	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		Touch touch = new Touch(screenX, screenY, pointer);
-		pointers.put(pointer, touch);
-		eventTouch.dispatch(touch);
-		return true;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		eventTouch.dispatch(pointers.remove(pointer).up());
-		return true;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		pointers.get(pointer).update(screenX, screenY, pointer);
-		eventTouch.dispatch(null);
-		return true;
-	}
-
-	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		return false;
 	}
@@ -130,14 +109,14 @@ public class PDInputProcessor implements InputProcessor {
 		public PointF current;
 		public boolean down;
 
-		public Touch(int x, int y, int index) {
+		public Touch(int x, int y) {
 			start = new PointF(x, y);
 			current = new PointF(x, y);
 
 			down = true;
 		}
 
-		public void update(int x, int y, int index) {
+		public void update(int x, int y) {
 			current.set(x, y);
 		}
 
