@@ -23,13 +23,14 @@ import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.TitleScene;
+import com.watabou.utils.PDPlatformSupport;
 
 public class PixelDungeon extends Game {
 
-	public PixelDungeon(String preferencesDirectory, String version) {
-		super( TitleScene.class, preferencesDirectory );
+	public PixelDungeon(final PDPlatformSupport platformSupport) {
+		super( TitleScene.class, platformSupport );
 
-		this.version = version;
+		Game.version = platformSupport.getVersion();
 
 		com.watabou.utils.Bundle.addAlias(
 			com.watabou.pixeldungeon.items.scrolls.ScrollOfUpgrade.class, 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.watabou.pixeldungeon.PixelDungeon;
+import com.watabou.utils.PDPlatformSupport;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override
@@ -17,6 +18,6 @@ public class AndroidLauncher extends AndroidApplication {
 		} catch (PackageManager.NameNotFoundException e) {
 			version = "???";
 		}
-		initialize(new PixelDungeon(null, version), config);
+		initialize(new PixelDungeon(new PDPlatformSupport(version, null, new AndroidInputProcessor())), config);
 	}
 }

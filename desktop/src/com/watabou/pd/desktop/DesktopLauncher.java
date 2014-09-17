@@ -6,6 +6,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.Preferences;
+import com.watabou.utils.PDPlatformSupport;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -32,6 +33,8 @@ public class DesktopLauncher {
 			config.height = prefs.getInteger(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
 		}
 
-		new LwjglApplication(new PixelDungeon(config.preferencesDirectory, version), config);
+		new LwjglApplication(new PixelDungeon(
+				new PDPlatformSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
+		), config);
 	}
 }

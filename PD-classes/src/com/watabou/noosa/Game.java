@@ -19,6 +19,7 @@ package com.watabou.noosa;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
@@ -27,6 +28,7 @@ import com.watabou.gltextures.TextureCache;
 import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.PDPlatformSupport;
 import com.watabou.utils.Signal;
 import com.watabou.utils.SystemTime;
 
@@ -47,6 +49,7 @@ public abstract class Game implements ApplicationListener {
 	
 	public static String version;
 	private final String basePath;
+	private final InputProcessor inputProcessor;
 
 	// Current scene
 	protected Scene scene;
@@ -66,10 +69,11 @@ public abstract class Game implements ApplicationListener {
 	public static float elapsed = 0f;
 	private Signal.Listener<PDInputProcessor.Key> keyListener;
 
-	public Game( Class<? extends Scene> c, String basePath ) {
+	public Game( Class<? extends Scene> c, PDPlatformSupport platformSupport ) {
 		super();
 		sceneClass = c;
-		this.basePath = basePath;
+		this.inputProcessor = platformSupport.getInputProcessor();
+		this.basePath = platformSupport.getBasePath();
 	}
 
 	@Override
@@ -77,7 +81,7 @@ public abstract class Game implements ApplicationListener {
 		instance = this;
 		
 		density = Gdx.graphics.getDensity();
-		Gdx.input.setInputProcessor(new PDInputProcessor());
+		Gdx.input.setInputProcessor(this.inputProcessor);
 		PDInputProcessor.eventKey.add( keyListener = new Signal.Listener<PDInputProcessor.Key>() {
 			@Override
 			public void onSignal( PDInputProcessor.Key key ) {
