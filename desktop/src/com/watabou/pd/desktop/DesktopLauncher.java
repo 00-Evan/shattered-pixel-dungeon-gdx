@@ -1,5 +1,6 @@
 package com.watabou.pd.desktop;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
@@ -32,6 +33,10 @@ public class DesktopLauncher {
 			config.width = prefs.getInteger(Preferences.KEY_WINDOW_WIDTH, Preferences.DEFAULT_WINDOW_WIDTH);
 			config.height = prefs.getInteger(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
 		}
+
+		config.addIcon( "ic_launcher_128.png", Files.FileType.Internal );
+		config.addIcon( "ic_launcher_32.png", Files.FileType.Internal );
+		config.addIcon( "ic_launcher_16.png", Files.FileType.Internal );
 
 		new LwjglApplication(new PixelDungeon(
 				new PDPlatformSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
