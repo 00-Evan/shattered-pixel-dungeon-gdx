@@ -32,13 +32,15 @@ public class CellSelector extends TouchArea {
 	
 	public boolean enabled;
 
-	private float mouseZoom;
+    private float mouseZoom;
 	
 	private float dragThreshold;
 	
 	public CellSelector( DungeonTilemap map ) {
 		super( map );
 		camera = map.camera();
+
+        mouseZoom = camera.zoom;
 		
 		dragThreshold = PixelScene.defaultZoom * DungeonTilemap.SIZE / 2;
 	}
@@ -125,12 +127,24 @@ public class CellSelector extends TouchArea {
 		return handled;
 	}
 
-    private void zoom( float value ) {
-     //   value = Math.round( value );
-        if (value >= PixelScene.minZoom && value <= PixelScene.maxZoom) {
-            camera.zoom( value );
-            PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
+    @Override
+    public boolean onKeyUp( PDInputProcessor.Key key ) {
+        switch (key.code) {
+		case PDInputProcessor.MODIFIER_KEY:
+			mouseZoom = zoom( Math.round( mouseZoom ) );
+			return true;
+		default:
+			return false;
         }
+    }
+
+    private float zoom( float value ) {
+
+        value = GameMath.gate( PixelScene.minZoom, value, PixelScene.maxZoom );
+        PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
+        camera.zoom( value );
+
+        return value;
     }
 
 	public void select( int cell ) {
@@ -196,19 +210,13 @@ public class CellSelector extends TouchArea {
 
 	@Override
 	public boolean onMouseScroll(int scroll) {
-		mouseZoom -= scroll / 10f;
-		if (mouseZoom < 0) {
-			do {
-				mouseZoom += 1;
-			} while (mouseZoom < 0);
-			zoom( camera.zoom - 1 );
-		} else if (mouseZoom > 1) {
-			do {
-				mouseZoom -= 1;
-			} while (mouseZoom > 1);
-			zoom( camera.zoom + 1 );
-		}
-		return true;
+        mouseZoom -= scroll / 3f;
+        if (PDInputProcessor.modifier) {
+            mouseZoom = zoom( mouseZoom );
+        } else {
+            zoom( Math.round( mouseZoom ) );
+        }
+        return true;
 	}
 
 	@Override
