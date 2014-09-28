@@ -28,7 +28,9 @@ public abstract class PDInputProcessor implements InputProcessor {
 	public static Signal<Touch> eventTouch = new Signal<>(true);
 	public static Signal<PDMouseEvent> eventMouse = new Signal<>(true);
 	public static IntMap<Touch> pointers = new IntMap<>();
-	
+
+    public static final int MODIFIER_KEY    = Input.Keys.CONTROL_LEFT;
+
 	public static boolean modifier = false;
 
 	@Override
@@ -39,8 +41,7 @@ public abstract class PDInputProcessor implements InputProcessor {
 		case Input.Keys.VOLUME_UP:
 			return false;
 			
-		case Input.Keys.CONTROL_LEFT:
-		case Input.Keys.CONTROL_RIGHT:
+		case MODIFIER_KEY:
 			modifier = true;
 			
 		default:
@@ -57,8 +58,7 @@ public abstract class PDInputProcessor implements InputProcessor {
 		case Input.Keys.VOLUME_UP:
 			return false;
 			
-		case Input.Keys.CONTROL_LEFT:
-		case Input.Keys.CONTROL_RIGHT:
+		case MODIFIER_KEY:
 			modifier = false;
 			
 		default:
