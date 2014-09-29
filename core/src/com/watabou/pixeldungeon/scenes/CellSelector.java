@@ -215,6 +215,7 @@ public class CellSelector extends TouchArea {
             mouseZoom = zoom( mouseZoom );
         } else {
             zoom( Math.round( mouseZoom ) );
+			mouseZoom = GameMath.gate( PixelScene.minZoom, mouseZoom, PixelScene.maxZoom );
         }
         return true;
 	}
