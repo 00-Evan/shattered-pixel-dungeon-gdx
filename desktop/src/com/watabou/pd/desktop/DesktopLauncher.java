@@ -1,11 +1,13 @@
 package com.watabou.pd.desktop;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.Preferences;
+import com.watabou.utils.PDPlatformSupport;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -32,6 +34,12 @@ public class DesktopLauncher {
 			config.height = prefs.getInteger(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
 		}
 
-		new LwjglApplication(new PixelDungeon(config.preferencesDirectory, version), config);
+		config.addIcon( "ic_launcher_128.png", Files.FileType.Internal );
+		config.addIcon( "ic_launcher_32.png", Files.FileType.Internal );
+		config.addIcon( "ic_launcher_16.png", Files.FileType.Internal );
+
+		new LwjglApplication(new PixelDungeon(
+				new PDPlatformSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
+		), config);
 	}
 }

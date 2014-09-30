@@ -132,11 +132,15 @@ public class PixelScene extends Scene {
 	public static float scale;
 	
 	public static void chooseFont( float size ) {
-		
-		float pt = size * defaultZoom;
-		
+		chooseFont( size, defaultZoom );
+	}
+
+	public static void chooseFont( float size, float zoom ) {
+
+		float pt = size * zoom;
+
 		if (pt >= 19) {
-			
+
 			scale = pt / 19;
 			if (1.5 <= scale && scale < 2) {
 				font = font25x;
@@ -145,9 +149,9 @@ public class PixelScene extends Scene {
 				font = font3x;
 				scale = (int)scale;
 			}
-			
+
 		} else if (pt >= 14) {
-			
+
 			scale = pt / 14;
 			if (1.8 <= scale && scale < 2) {
 				font = font2x;
@@ -156,9 +160,9 @@ public class PixelScene extends Scene {
 				font = font25x;
 				scale = (int)scale;
 			}
-			
+
 		} else if (pt >= 12) {
-			
+
 			scale = pt / 12;
 			if (1.7 <= scale && scale < 2) {
 				font = font15x;
@@ -167,9 +171,9 @@ public class PixelScene extends Scene {
 				font = font2x;
 				scale = (int)scale;
 			}
-			
+
 		} else if (pt >= 10) {
-			
+
 			scale = pt / 10;
 			if (1.4 <= scale && scale < 2) {
 				font = font1x;
@@ -178,15 +182,15 @@ public class PixelScene extends Scene {
 				font = font15x;
 				scale = (int)scale;
 			}
-			
+
 		} else {
-			
+
 			font = font1x;
 			scale = Math.max( 1, (int)(pt / 7) );
-			
+
 		}
-		
-		scale /= defaultZoom;
+
+		scale /= zoom;
 	}
 	
 	public static BitmapText createText( float size ) {
