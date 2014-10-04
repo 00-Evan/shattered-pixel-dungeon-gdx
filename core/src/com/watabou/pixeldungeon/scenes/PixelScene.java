@@ -19,7 +19,7 @@ package com.watabou.pixeldungeon.scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.*;
 import com.watabou.noosa.BitmapText.Font;
 import com.watabou.noosa.audio.Sample;
@@ -125,7 +125,7 @@ public class PixelScene extends Scene {
 	@Override
 	public void destroy() {
 		super.destroy();
-		PDInputProcessor.eventTouch.removeAll();
+		NoosaInputProcessor.eventTouch.removeAll();
 	}
 	
 	public static BitmapText.Font font;

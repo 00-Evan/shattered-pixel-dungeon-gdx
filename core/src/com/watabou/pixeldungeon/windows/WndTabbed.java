@@ -20,7 +20,7 @@ package com.watabou.pixeldungeon.windows;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.NinePatch;
@@ -107,7 +107,7 @@ public class WndTabbed extends Window {
 	}
 
 	@Override
-	protected void onKeyDown(PDInputProcessor.Key key) {
+	protected void onKeyDown(NoosaInputProcessor.Key key) {
 		if (key.code == Input.Keys.TAB) {
 			int next = 0;
 			for (int j = 0; j < tabs.size(); j++) {

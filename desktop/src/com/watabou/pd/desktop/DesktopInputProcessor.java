@@ -1,7 +1,7 @@
 package com.watabou.pd.desktop;
 
 import com.badlogic.gdx.utils.IntMap;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.pixeldungeon.input.PDInputProcessor;
 
 public class DesktopInputProcessor extends PDInputProcessor {
 	@Override

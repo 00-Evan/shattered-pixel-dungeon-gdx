@@ -23,14 +23,14 @@ import com.badlogic.gdx.utils.IntMap;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Signal;
 
-public abstract class PDInputProcessor implements InputProcessor {
-	public static Signal<Key> eventKey = new Signal<>(true);
-	public static Signal<Touch> eventTouch = new Signal<>(true);
-	public static Signal<PDMouseEvent> eventMouse = new Signal<>(true);
-	public static IntMap<Touch> pointers = new IntMap<>();
-
-    public static final int MODIFIER_KEY    = Input.Keys.CONTROL_LEFT;
-
+public abstract class NoosaInputProcessor<T> implements InputProcessor {
+	protected Signal<Key<T>> eventKey = new Signal<>(true);
+	protected Signal<Touch> eventTouch = new Signal<>(true);
+	protected Signal<PDMouseEvent> eventMouse = new Signal<>(true);
+	protected IntMap<Touch> pointers = new IntMap<>();
+	
+	public static final int MODIFIER_KEY    = Input.Keys.CONTROL_LEFT;
+	
 	public static boolean modifier = false;
 
 	@Override
@@ -45,10 +45,12 @@ public abstract class PDInputProcessor implements InputProcessor {
 			modifier = true;
 			
 		default:
-			eventKey.dispatch( new Key( keycode, true ) );
+			eventKey.dispatch( new Key<>( keycodeToGameAction(keycode), true ) );
 			return true;
 		}
 	}
+
+	protected abstract T keycodeToGameAction(int keycode);
 
 	@Override
 	public boolean keyUp(int keycode) {
@@ -62,7 +64,7 @@ public abstract class PDInputProcessor implements InputProcessor {
 			modifier = false;
 			
 		default:
-			eventKey.dispatch( new Key( keycode, false ) );
+			eventKey.dispatch( new Key<>( keycodeToGameAction(keycode), false ) );
 			return true;
 		}
 	}
@@ -82,6 +84,42 @@ public abstract class PDInputProcessor implements InputProcessor {
 		eventMouse.dispatch(new PDMouseEvent(amount));
 		return true;
 	}
+	
+	public void addKeyListener(Signal.Listener<Key<T>> listener) {
+		eventKey.add(listener);
+	}
+
+	public void removeKeyListener(Signal.Listener<Key<T>> listener) {
+		eventKey.remove(listener);
+	}
+	
+	public void addTouchListener(Signal.Listener<Touch> listener) {
+		eventTouch.add(listener);
+	}
+
+	public void removeTouchListener(Signal.Listener<Touch> listener) {
+		eventTouch.remove(listener);
+	}
+	
+	public void addMouseListener(Signal.Listener<PDMouseEvent> listener) {
+		eventMouse.add(listener);
+	}
+
+	public void removeMouseListener(Signal.Listener<PDMouseEvent> listener) {
+		eventMouse.remove(listener);
+	}
+
+	public void cancelKeyEvent() {
+		eventKey.cancel();
+	}
+
+	public void cancelTouchEvent() {
+		eventTouch.cancel();
+	}
+
+	public void cancelMouseEvent() {
+		eventMouse.cancel();
+	}
 
 	public static class PDMouseEvent {
 		// TODO: This should probably contain the position of the mouse as well to be used by 'mouseMoved'
@@ -92,13 +130,12 @@ public abstract class PDInputProcessor implements InputProcessor {
 		}
 	}
 
-	public static class Key {
+	public static class Key<T> {
+		public final T action;
+		public final boolean pressed;
 
-		public int code;
-		public boolean pressed;
-
-		public Key(int code, boolean pressed) {
-			this.code = code;
+		public Key(T action, boolean pressed) {
+			this.action = action;
 			this.pressed = pressed;
 		}
 	}

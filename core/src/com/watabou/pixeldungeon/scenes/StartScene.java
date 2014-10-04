@@ -19,7 +19,7 @@ package com.watabou.pixeldungeon.scenes;
 
 import java.util.HashMap;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
@@ -202,7 +202,7 @@ public class StartScene extends PixelScene {
 		
 		add( new TouchArea( avFrame ) {
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				add( new WndList( curClass.perks() ) );
 			}
 		} );

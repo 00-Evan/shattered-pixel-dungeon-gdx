@@ -18,7 +18,7 @@
 package com.watabou.pixeldungeon.ui;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
@@ -69,7 +69,7 @@ public class StatusPane extends Component {
 		
 		add( new TouchArea( 0, 1, 30, 30 ) {
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				Image sprite = Dungeon.hero.sprite;
 				if (!sprite.isVisible()) {
 					Camera.main.focusOn( sprite );
@@ -78,7 +78,7 @@ public class StatusPane extends Component {
 			};	
 
 			@Override
-			public boolean onKeyUp(PDInputProcessor.Key key) {
+			public boolean onKeyUp(NoosaInputProcessor.Key key) {
 				boolean handled = true;
 				switch (key.code) {
 				case Input.Keys.H:

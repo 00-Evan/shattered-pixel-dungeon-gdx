@@ -22,7 +22,6 @@ import java.util.Locale;
 import com.badlogic.gdx.Input;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
-import com.watabou.input.PDInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;

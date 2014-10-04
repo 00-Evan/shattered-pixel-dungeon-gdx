@@ -18,7 +18,7 @@
 package com.watabou.pixeldungeon.scenes;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
@@ -46,7 +46,7 @@ public class CellSelector extends TouchArea {
 	}
 	
 	@Override
-	protected void onClick( PDInputProcessor.Touch touch ) {
+	protected void onClick( NoosaInputProcessor.Touch touch ) {
 		if (dragging) {
 			
 			dragging = false;
@@ -60,7 +60,7 @@ public class CellSelector extends TouchArea {
 	}
 
 	@Override
-	public boolean onKeyDown(PDInputProcessor.Key key) {
+	public boolean onKeyDown(NoosaInputProcessor.Key key) {
 
         switch (key.code) {
         case Input.Keys.PLUS:
@@ -161,12 +161,12 @@ public class CellSelector extends TouchArea {
 	}
 	
 	private boolean pinching = false;
-	private PDInputProcessor.Touch another;
+	private NoosaInputProcessor.Touch another;
 	private float startZoom;
 	private float startSpan;
 	
 	@Override
-	protected void onTouchDown( PDInputProcessor.Touch t ) {
+	protected void onTouchDown( NoosaInputProcessor.Touch t ) {
 
 		if (t != touch && another == null) {
 					
@@ -187,7 +187,7 @@ public class CellSelector extends TouchArea {
 	}
 	
 	@Override
-	protected void onTouchUp( PDInputProcessor.Touch t ) {
+	protected void onTouchUp( NoosaInputProcessor.Touch t ) {
 		if (pinching && (t == touch || t == another)) {
 			
 			pinching = false;
@@ -221,7 +221,7 @@ public class CellSelector extends TouchArea {
 	}
 
 	@Override
-	protected void onDrag( PDInputProcessor.Touch t ) {
+	protected void onDrag( NoosaInputProcessor.Touch t ) {
 		 
 		camera.target = null;
 

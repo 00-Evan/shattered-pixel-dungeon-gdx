@@ -1,6 +1,6 @@
 package com.watabou.pd.android;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.pixeldungeon.input.PDInputProcessor;
 
 public class AndroidInputProcessor extends PDInputProcessor {
 	@Override
