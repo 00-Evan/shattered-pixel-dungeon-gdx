@@ -33,6 +33,13 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 	
 	public static boolean modifier = false;
 
+	/**
+	 * Called after the platform has been initialized
+	 */
+	public void init() {
+		// Do nothing
+	}
+
 	@Override
 	public boolean keyDown(int keycode) {
 		switch (keycode) {

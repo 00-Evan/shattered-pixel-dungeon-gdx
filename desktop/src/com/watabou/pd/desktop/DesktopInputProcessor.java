@@ -6,7 +6,74 @@ import com.watabou.pixeldungeon.Preferences;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DesktopInputProcessor extends PDInputProcessor {
+	public static final String GAMEACTION_PREFIX = "ACT_";
+	public static final String GAMEACTION_PREFIX2 = "ACT2_";
+
+	private static final class GameActionWrapper {
+		public final boolean defaultKey;
+		public final GameAction gameAction;
+
+		private GameActionWrapper(GameAction gameAction, boolean defaultKey) {
+			this.defaultKey = defaultKey;
+			this.gameAction = gameAction;
+		}
+	}
+
+	private final Map<Integer, GameActionWrapper> keyMapping = new HashMap<>();
+
+	@Override
+	public void init() {
+		super.init();
+
+		// Load the default mappings
+//		loadKeyMapping(GameAction.BACK, Input.Keys.ESCAPE);
+		loadKeyMapping(GameAction.BACKPACK, Input.Keys.I);
+		loadKeyMapping(GameAction.CATALOGUS, Input.Keys.C);
+		loadKeyMapping(GameAction.CELL_INFO, Input.Keys.V);
+		loadKeyMapping(GameAction.HERO_INFO, Input.Keys.H);
+		loadKeyMapping(GameAction.JOURNAL, Input.Keys.J);
+//		loadKeyMapping(GameAction.MENU, Input.Keys.F5);
+		loadKeyMapping(GameAction.QUICKSLOT, Input.Keys.Q);
+		loadKeyMapping(GameAction.REST, Input.Keys.SPACE);
+		loadKeyMapping(GameAction.RESUME, Input.Keys.R);
+		loadKeyMapping(GameAction.SEARCH, Input.Keys.S);
+		loadKeyMapping(GameAction.TAG_ATTACK, Input.Keys.A);
+		loadKeyMapping(GameAction.TAG_DANGER, Input.Keys.TAB);
+		loadKeyMapping(GameAction.WAIT, Input.Keys.ENTER);
+
+		loadKeyMapping(GameAction.ZOOM_DEFAULT, Input.Keys.SLASH);
+		loadKeyMapping(GameAction.ZOOM_IN, Input.Keys.PLUS, Input.Keys.EQUALS);
+		loadKeyMapping(GameAction.ZOOM_OUT, Input.Keys.MINUS);
+
+		loadKeyMapping(GameAction.MOVE_UP, Input.Keys.UP, Input.Keys.NUMPAD_8);
+		loadKeyMapping(GameAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.NUMPAD_2);
+		loadKeyMapping(GameAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.NUMPAD_4);
+		loadKeyMapping(GameAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.NUMPAD_6);
+
+		loadKeyMapping(GameAction.MOVE_TOP_LEFT, Input.Keys.NUMPAD_7);
+		loadKeyMapping(GameAction.MOVE_TOP_RIGHT, Input.Keys.NUMPAD_9);
+		loadKeyMapping(GameAction.MOVE_BOTTOM_LEFT, Input.Keys.NUMPAD_1);
+		loadKeyMapping(GameAction.MOVE_BOTTOM_RIGHT, Input.Keys.NUMPAD_3);
+	}
+
+	private void loadKeyMapping(GameAction action, int defaultKey) {
+		loadKeyMapping(action, defaultKey, null);
+	}
+
+	private void loadKeyMapping(GameAction action, int defaultKey1, Integer defaultKey2) {
+		int mapping = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX + action, -1);
+		keyMapping.put(mapping > 0 ? mapping : defaultKey1, new GameActionWrapper(action, true));
+
+		int mapping2 = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX2 + action, -1);
+		if (mapping2 > 0 || defaultKey2 != null) {
+			keyMapping.put(mapping2 > 0 ? mapping2 : defaultKey2, new GameActionWrapper(action, false));
+		}
+	}
+
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		Touch touch = new Touch(screenX, screenY);
@@ -36,67 +103,8 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		if (defaultResult != null) {
 			return defaultResult;
 		}
-		String enumValue = Preferences.INSTANCE.getString(Integer.toString(keycode), null);
-		if (enumValue != null) {
-			try {
-				return GameAction.valueOf(enumValue);
-			} catch (Exception ignored) {}
-		}
-		switch (keycode) {
-			case Input.Keys.SPACE:
-				return GameAction.REST;
-			case Input.Keys.A:
-				return GameAction.TAG_ATTACK;
-			case Input.Keys.C:
-				return GameAction.CATALOGUS;
-			case Input.Keys.H:
-				return GameAction.HERO_INFO;
-			case Input.Keys.TAB:
-				return GameAction.TAG_DANGER;
-			case Input.Keys.I:
-				return GameAction.BACKPACK;
-			case Input.Keys.J:
-				return GameAction.JOURNAL;
-			case Input.Keys.Q:
-				return GameAction.QUICKSLOT;
-			case Input.Keys.R:
-				return GameAction.RESUME;
-			case Input.Keys.S:
-				return GameAction.SEARCH;
-			case Input.Keys.V:
-				return GameAction.INFO;
-
-			case Input.Keys.PLUS:
-			case Input.Keys.EQUALS:
-				return GameAction.ZOOM_IN;
-			case Input.Keys.MINUS:
-				return GameAction.ZOOM_OUT;
-			case Input.Keys.SLASH:
-				return GameAction.ZOOM_DEFAULT;
-
-			case Input.Keys.UP:
-			case Input.Keys.NUMPAD_8:
-				return GameAction.MOVE_UP;
-			case Input.Keys.DOWN:
-			case Input.Keys.NUMPAD_2:
-				return GameAction.MOVE_DOWN;
-			case Input.Keys.LEFT:
-			case Input.Keys.NUMPAD_4:
-				return GameAction.MOVE_LEFT;
-			case Input.Keys.RIGHT:
-			case Input.Keys.NUMPAD_6:
-				return GameAction.MOVE_RIGHT;
-			case Input.Keys.NUMPAD_7:
-				return GameAction.MOVE_TOP_LEFT;
-			case Input.Keys.NUMPAD_9:
-				return GameAction.MOVE_TOP_RIGHT;
-			case Input.Keys.NUMPAD_1:
-				return GameAction.MOVE_BOTTOM_LEFT;
-			case Input.Keys.NUMPAD_3:
-				return GameAction.MOVE_BOTTOM_RIGHT;
-			case Input.Keys.ENTER:
-				return GameAction.WAIT;
-		}
+		if (keyMapping.containsKey(keycode))
+			return keyMapping.get(keycode).gameAction;
 		return GameAction.UNKNOWN;
 	}
 }

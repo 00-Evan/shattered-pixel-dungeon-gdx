@@ -86,7 +86,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInfo = new Tool( 40, 7, 21, 24, GameAction.INFO ) {
+		add( btnInfo = new Tool( 40, 7, 21, 24, GameAction.CELL_INFO) {
 			@Override
 			protected void onClick() {
 				getCellInfo();

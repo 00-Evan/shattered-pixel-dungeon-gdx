@@ -79,6 +79,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		instance = this;
 		
 		density = Gdx.graphics.getDensity();
+		this.inputProcessor.init();
 		Gdx.input.setInputProcessor(this.inputProcessor);
 
 		// TODO: Is this right?
