@@ -64,55 +64,50 @@ public class CellSelector extends TouchArea<GameAction> {
 	@Override
 	public boolean onKeyDown(NoosaInputProcessor.Key<GameAction> key) {
 
-        switch (key.code) {
-        case Input.Keys.PLUS:
-        case Input.Keys.EQUALS:
+        switch (key.action) {
+        case ZOOM_IN:
             zoom( camera.zoom + 1 );
             return true;
-        case Input.Keys.MINUS:
+        case ZOOM_OUT:
             zoom( camera.zoom - 1 );
             return true;
-        case Input.Keys.SLASH:
+        case ZOOM_DEFAULT:
             zoom( PixelScene.defaultZoom );
             return true;
         }
 
 		boolean handled = true;
 		int x = 0, y = 0;
-		switch (key.code) {
-			case Input.Keys.UP:
-			case Input.Keys.NUMPAD_8:
+		switch (key.action) {
+			case MOVE_UP:
 				y = -1;
 				break;
-			case Input.Keys.DOWN:
-			case Input.Keys.NUMPAD_2:
+			case MOVE_DOWN:
 				y = 1;
 				break;
-			case Input.Keys.LEFT:
-			case Input.Keys.NUMPAD_4:
+			case MOVE_LEFT:
 				x = -1;
 				break;
-			case Input.Keys.RIGHT:
-			case Input.Keys.NUMPAD_6:
+			case MOVE_RIGHT:
 				x = 1;
 				break;
-			case Input.Keys.NUMPAD_7:
+			case MOVE_TOP_LEFT:
 				x = -1;
 				y = -1;
 				break;
-			case Input.Keys.NUMPAD_9:
+			case MOVE_TOP_RIGHT:
 				x = 1;
 				y = -1;
 				break;
-			case Input.Keys.NUMPAD_1:
+			case MOVE_BOTTOM_LEFT:
 				x = -1;
 				y = 1;
 				break;
-			case Input.Keys.NUMPAD_3:
+			case MOVE_BOTTOM_RIGHT:
 				x = 1;
 				y = 1;
 				break;
-			case Input.Keys.ENTER:
+			case WAIT:
 				break;
 			default:
 				handled = false;

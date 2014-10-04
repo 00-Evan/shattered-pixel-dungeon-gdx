@@ -65,6 +65,37 @@ public class DesktopInputProcessor extends PDInputProcessor {
 				return GameAction.SEARCH;
 			case Input.Keys.V:
 				return GameAction.INFO;
+
+			case Input.Keys.PLUS:
+			case Input.Keys.EQUALS:
+				return GameAction.ZOOM_IN;
+			case Input.Keys.MINUS:
+				return GameAction.ZOOM_OUT;
+			case Input.Keys.SLASH:
+				return GameAction.ZOOM_DEFAULT;
+
+			case Input.Keys.UP:
+			case Input.Keys.NUMPAD_8:
+				return GameAction.MOVE_UP;
+			case Input.Keys.DOWN:
+			case Input.Keys.NUMPAD_2:
+				return GameAction.MOVE_DOWN;
+			case Input.Keys.LEFT:
+			case Input.Keys.NUMPAD_4:
+				return GameAction.MOVE_LEFT;
+			case Input.Keys.RIGHT:
+			case Input.Keys.NUMPAD_6:
+				return GameAction.MOVE_RIGHT;
+			case Input.Keys.NUMPAD_7:
+				return GameAction.MOVE_TOP_LEFT;
+			case Input.Keys.NUMPAD_9:
+				return GameAction.MOVE_TOP_RIGHT;
+			case Input.Keys.NUMPAD_1:
+				return GameAction.MOVE_BOTTOM_LEFT;
+			case Input.Keys.NUMPAD_3:
+				return GameAction.MOVE_BOTTOM_RIGHT;
+			case Input.Keys.ENTER:
+				return GameAction.WAIT;
 		}
 		return null;
 	}
