@@ -2,21 +2,16 @@ package com.watabou.pixeldungeon.windows;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
+import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
-import com.watabou.pixeldungeon.Dungeon;
-import com.watabou.pixeldungeon.Journal;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.pixeldungeon.scenes.PixelScene;
-import com.watabou.pixeldungeon.ui.Icons;
 import com.watabou.pixeldungeon.ui.ScrollPane;
 import com.watabou.pixeldungeon.ui.Window;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -39,6 +34,7 @@ public class WndKeymap extends Window {
 		resize(maxWidth, maxHeight);
 
 		Component content = new Component();
+		ScrollPane list = new ScrollPane(content);
 		PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
 		Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
 
@@ -64,7 +60,6 @@ public class WndKeymap extends Window {
 
 		content.setSize(maxWidth, tempPos);
 
-		ScrollPane list = new ScrollPane(content);
 		add(list);
 
 		list.setRect(0, 0, width - MARGIN*2, height);
@@ -77,10 +72,46 @@ public class WndKeymap extends Window {
 		content.add(keyLeft);
 	}
 
+	private static class TextButton extends Button<GameAction> {
+		protected BitmapText text;
+
+		public TextButton() {
+			super();
+		}
+
+		public void setText(String label) {
+			text.text( label );
+			text.measure();
+		}
+
+		@Override
+		protected void createChildren() {
+			super.createChildren();
+
+			text = PixelScene.createText( 9 );
+			text.hardlight(TITLE_COLOR);
+			add( text );
+		}
+		@Override
+		protected void layout() {
+
+			super.layout();
+
+			text.x = x + (int) (width - text.width()) / 2;
+			text.y = y + (int) (height - text.baseLine()) / 2;
+		}
+
+		@Override
+		protected void onClick() {
+			super.onClick();
+
+			System.out.println("Clicked");
+		}
+	}
+
 	private static class ListItem extends Component {
 		private BitmapText action;
-		private BitmapText key;
-		private BitmapText key2;
+		private TextButton key, key2;
 
 		public ListItem(GameAction gameAction, KeyPair keys) {
 			super();
@@ -88,14 +119,8 @@ public class WndKeymap extends Window {
 			action.text(gameAction.getDescription());
 			action.measure();
 
-			key.text(keys.key1 > 0 ? Input.Keys.toString(keys.key1) : TXT_UNASSIGNED);
-			key.measure();
-
-			key2.text(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
-			key2.measure();
-
-			this.key.hardlight(TITLE_COLOR);
-			this.key2.hardlight(TITLE_COLOR);
+			key.setText(keys.key1 > 0 ? Input.Keys.toString(keys.key1) : TXT_UNASSIGNED);
+			key2.setText(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
 		}
 
 		@Override
@@ -103,20 +128,25 @@ public class WndKeymap extends Window {
 			action = PixelScene.createText(9);
 			add(action);
 
-			key = new BitmapText(PixelScene.font1x);
+			key = new TextButton();
 			add(key);
-			key2 = new BitmapText(PixelScene.font1x);
+			key2 = new TextButton();
 			add(key2);
 		}
 
 		@Override
 		protected void layout() {
-			key.x = width/4*2;
-			key2.x = width/4*3;
-			key.y = key2.y = PixelScene.align(y + (height - key.height()) / 2);
+			final float newY = PixelScene.align(y + (height - key.height()) / 2);
+			final float oldH = key.height();
+			final float w4 = width / 4;
+
+			key.setPos(w4 * 2, newY);
+			key.setSize(w4, oldH);
+			key2.setPos(w4 * 3, newY);
+			key2.setSize(w4, oldH);
 
 			action.x = MARGIN;
-			action.y = PixelScene.align(key.y + key.baseLine() - action.baseLine());
+			action.y = key.top();
 		}
 	}
 }
