@@ -13,17 +13,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	public static final String GAMEACTION_PREFIX = "ACT_";
 	public static final String GAMEACTION_PREFIX2 = "ACT2_";
 
-	private static final class GameActionWrapper {
-		public final boolean defaultKey;
-		public final GameAction gameAction;
-
-		private GameActionWrapper(GameAction gameAction, boolean defaultKey) {
-			this.defaultKey = defaultKey;
-			this.gameAction = gameAction;
-		}
-	}
-
-	private final Map<Integer, GameActionWrapper> keyMapping = new HashMap<>();
+	private final Map<Integer, GameActionWrapper> keyMappings = new HashMap<>();
 
 	@Override
 	public void init() {
@@ -66,12 +56,17 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 	private void loadKeyMapping(GameAction action, int defaultKey1, Integer defaultKey2) {
 		int mapping = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX + action, -1);
-		keyMapping.put(mapping > 0 ? mapping : defaultKey1, new GameActionWrapper(action, true));
+		keyMappings.put(mapping > 0 ? mapping : defaultKey1, new GameActionWrapper(action, true));
 
 		int mapping2 = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX2 + action, -1);
 		if (mapping2 > 0 || defaultKey2 != null) {
-			keyMapping.put(mapping2 > 0 ? mapping2 : defaultKey2, new GameActionWrapper(action, false));
+			keyMappings.put(mapping2 > 0 ? mapping2 : defaultKey2, new GameActionWrapper(action, false));
 		}
+	}
+
+	@Override
+	public Map<Integer, GameActionWrapper> getKeyMappings() {
+		return keyMappings;
 	}
 
 	@Override
@@ -103,8 +98,8 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		if (defaultResult != null) {
 			return defaultResult;
 		}
-		if (keyMapping.containsKey(keycode))
-			return keyMapping.get(keycode).gameAction;
+		if (keyMappings.containsKey(keycode))
+			return keyMappings.get(keycode).gameAction;
 		return GameAction.UNKNOWN;
 	}
 }

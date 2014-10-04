@@ -24,6 +24,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.PixelDungeon;
+import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.CheckBox;
 import com.watabou.pixeldungeon.ui.RedButton;
@@ -152,7 +153,16 @@ public class WndSettings extends Window {
 				btnResolution.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 
-				lastBtn = btnResolution;
+				RedButton btnKeymap = new RedButton("Keymap") {
+					@Override
+					protected void onClick() {
+						parent.add(new WndKeymap());
+					}
+				};
+				btnKeymap.setRect(0, btnResolution.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				add(btnKeymap);
+
+				lastBtn = btnKeymap;
 			}
 		} else {
 		
