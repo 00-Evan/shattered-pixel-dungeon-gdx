@@ -18,16 +18,20 @@
 package com.watabou.pixeldungeon;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.TitleScene;
 import com.watabou.utils.PDPlatformSupport;
+import com.watabou.utils.Signal;
 
-public class PixelDungeon extends Game {
+public class PixelDungeon extends Game<GameAction> {
 
-	public PixelDungeon(final PDPlatformSupport platformSupport) {
+	public PixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super( TitleScene.class, platformSupport );
 
 		Game.version = platformSupport.getVersion();
@@ -87,7 +91,7 @@ public class PixelDungeon extends Game {
 	@Override
 	public void create() {
 		super.create();
-		
+
 	/*	if (android.os.Build.VERSION.SDK_INT >= 19) {
 			getWindow().getDecorView().setSystemUiVisibility( 
 				View.SYSTEM_UI_FLAG_LAYOUT_STABLE | 

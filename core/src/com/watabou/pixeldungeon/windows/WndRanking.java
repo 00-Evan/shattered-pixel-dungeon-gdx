@@ -31,6 +31,7 @@ import com.watabou.pixeldungeon.Badges;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.Statistics;
 import com.watabou.pixeldungeon.actors.hero.Belongings;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.sprites.HeroSprite;
@@ -262,7 +263,7 @@ public class WndRanking extends WndTabbed {
 		}
 	}
 	
-	private class ItemButton extends Button {
+	private class ItemButton extends Button<GameAction> {
 		
 		public static final int HEIGHT	= 28;
 		

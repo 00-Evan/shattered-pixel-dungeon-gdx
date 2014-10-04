@@ -1,6 +1,10 @@
 package com.watabou.pd.desktop;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.IntMap;
+import com.watabou.noosa.Game;
+import com.watabou.pixeldungeon.Preferences;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 
 public class DesktopInputProcessor extends PDInputProcessor {
@@ -25,5 +29,42 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		}
 		eventTouch.dispatch(null);
 		return true;
+	}
+
+	@Override
+	protected GameAction keycodeToGameAction(int keycode) {
+		final GameAction defaultResult = super.keycodeToGameAction(keycode);
+		if (defaultResult != null) {
+			return defaultResult;
+		}
+		String enumValue = Preferences.INSTANCE.getString(Integer.toString(keycode), null);
+		if (enumValue != null) {
+			try {
+				return GameAction.valueOf(enumValue);
+			} catch (Exception ignored) {}
+		}
+		switch (keycode) {
+			case Input.Keys.SPACE:
+				return GameAction.REST;
+			case Input.Keys.A:
+				return GameAction.TAG_ATTACK;
+			case Input.Keys.C:
+				return GameAction.CATALOGUS;
+			case Input.Keys.TAB:
+				return GameAction.TAG_DANGER;
+			case Input.Keys.I:
+				return GameAction.BACKPACK;
+			case Input.Keys.J:
+				return GameAction.JOURNAL;
+			case Input.Keys.Q:
+				return GameAction.QUICKSLOT;
+			case Input.Keys.R:
+				return GameAction.RESUME;
+			case Input.Keys.S:
+				return GameAction.SEARCH;
+			case Input.Keys.V:
+				return GameAction.INFO;
+		}
+		return null;
 	}
 }

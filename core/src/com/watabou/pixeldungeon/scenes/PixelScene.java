@@ -125,7 +125,7 @@ public class PixelScene extends Scene {
 	@Override
 	public void destroy() {
 		super.destroy();
-		NoosaInputProcessor.eventTouch.removeAll();
+		Game.instance.getInputProcessor().removeAllTouchEvent();
 	}
 	
 	public static BitmapText.Font font;

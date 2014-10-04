@@ -19,13 +19,12 @@ package com.watabou.noosa;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.glscripts.Script;
 import com.watabou.gltextures.TextureCache;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PDPlatformSupport;
@@ -36,7 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public abstract class Game implements ApplicationListener {
+public abstract class Game<GameActionType> implements ApplicationListener {
 
 	public static Game instance;
 	
@@ -49,7 +48,7 @@ public abstract class Game implements ApplicationListener {
 	
 	public static String version;
 	private final String basePath;
-	private final InputProcessor inputProcessor;
+	private final NoosaInputProcessor<GameActionType> inputProcessor;
 
 	// Current scene
 	protected Scene scene;
@@ -67,9 +66,8 @@ public abstract class Game implements ApplicationListener {
 	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
-	private Signal.Listener<PDInputProcessor.Key> keyListener;
 
-	public Game( Class<? extends Scene> c, PDPlatformSupport platformSupport ) {
+	public Game( Class<? extends Scene> c, PDPlatformSupport<GameActionType> platformSupport ) {
 		super();
 		sceneClass = c;
 		this.inputProcessor = platformSupport.getInputProcessor();
@@ -82,18 +80,6 @@ public abstract class Game implements ApplicationListener {
 		
 		density = Gdx.graphics.getDensity();
 		Gdx.input.setInputProcessor(this.inputProcessor);
-		PDInputProcessor.eventKey.add( keyListener = new Signal.Listener<PDInputProcessor.Key>() {
-			@Override
-			public void onSignal( PDInputProcessor.Key key ) {
-				if (key.pressed && PDInputProcessor.modifier && key.code == Input.Keys.ENTER) {
-					if (!Gdx.graphics.isFullscreen()) {
-						Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
-					} else {
-
-					}
-				}
-			}
-		} );
 
 		// TODO: Is this right?
 		onSurfaceCreated();
@@ -121,7 +107,6 @@ public abstract class Game implements ApplicationListener {
 	
 	@Override
 	public void dispose() {
-		PDInputProcessor.eventKey.remove(keyListener);
 		destroyGame();
 		
 		Music.INSTANCE.mute();
@@ -261,5 +246,9 @@ public abstract class Game implements ApplicationListener {
 
 	public void finish() {
 		Gdx.app.exit();
+	}
+
+	public NoosaInputProcessor<GameActionType> getInputProcessor() {
+		return inputProcessor;
 	}
 }

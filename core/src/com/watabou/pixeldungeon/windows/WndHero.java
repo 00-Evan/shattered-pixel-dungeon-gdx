@@ -31,6 +31,7 @@ import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.Statistics;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.hero.Hero;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
@@ -118,7 +119,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndCatalogus() );
 				}
 			};
-            btnCatalogus.hotKey = Input.Keys.C;
+			btnCatalogus.hotKey = GameAction.CATALOGUS;
 			btnCatalogus.setRect( 0, title.y + title.height(), btnCatalogus.reqWidth() + 2, btnCatalogus.reqHeight() + 2 );
 			add( btnCatalogus );
 			
@@ -129,7 +130,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndJournal() );
 				}
 			};
-            btnJournal.hotKey = Input.Keys.J;
+			btnJournal.hotKey = GameAction.JOURNAL;
 			btnJournal.setRect( 
 				btnCatalogus.right() + 1, btnCatalogus.top(), 
 				btnJournal.reqWidth() + 2, btnJournal.reqHeight() + 2 );

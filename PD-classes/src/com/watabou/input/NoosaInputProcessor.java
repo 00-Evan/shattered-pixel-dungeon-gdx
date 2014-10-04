@@ -45,7 +45,7 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 			modifier = true;
 			
 		default:
-			eventKey.dispatch( new Key<>( keycodeToGameAction(keycode), true ) );
+			eventKey.dispatch( new Key<>(keycode, keycodeToGameAction(keycode), true ) );
 			return true;
 		}
 	}
@@ -64,7 +64,7 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 			modifier = false;
 			
 		default:
-			eventKey.dispatch( new Key<>( keycodeToGameAction(keycode), false ) );
+			eventKey.dispatch( new Key<>(keycode, keycodeToGameAction(keycode), false ) );
 			return true;
 		}
 	}
@@ -121,6 +121,18 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 		eventMouse.cancel();
 	}
 
+	public void removeAllKeyEvent() {
+		eventKey.removeAll();
+	}
+
+	public void removeAllTouchEvent() {
+		eventTouch.removeAll();
+	}
+
+	public void removeAllMouseEvent() {
+	eventMouse.removeAll();
+	}
+
 	public static class PDMouseEvent {
 		// TODO: This should probably contain the position of the mouse as well to be used by 'mouseMoved'
 		public final int scroll;
@@ -131,10 +143,12 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 	}
 
 	public static class Key<T> {
+		public final int code;
 		public final T action;
 		public final boolean pressed;
 
-		public Key(T action, boolean pressed) {
+		public Key(int code, T action, boolean pressed) {
+			this.code = code;
 			this.action = action;
 			this.pressed = pressed;
 		}

@@ -16,11 +16,11 @@
  */
 package com.watabou.noosa.ui;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.TouchArea;
 
-public class Button extends Component {
+public class Button<T> extends Component {
 
 	public static float longClick = 1f;
 	
@@ -31,35 +31,35 @@ public class Button extends Component {
 	
 	protected boolean processed;
 
-    public int hotKey = -1;
-	
+	public T hotKey = null;
+
 	@Override
 	protected void createChildren() {
-		hotArea = new TouchArea( 0, 0, 0, 0 ) {
+		hotArea = new TouchArea<T>( 0, 0, 0, 0 ) {
 			@Override
-			protected void onTouchDown(PDInputProcessor.Touch touch) {
+			protected void onTouchDown(NoosaInputProcessor.Touch touch) {
 				pressed = true;
 				pressTime = 0;
 				processed = false;
 				Button.this.onTouchDown();
 			};
 			@Override
-			protected void onTouchUp(PDInputProcessor.Touch touch) {
+			protected void onTouchUp(NoosaInputProcessor.Touch touch) {
 				pressed = false;
 				Button.this.onTouchUp();
 			};
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				if (!processed) {
 					Button.this.onClick();
 				}
 			};
 			@Override
-			public boolean onKeyDown(PDInputProcessor.Key key) {
+			public boolean onKeyDown(NoosaInputProcessor.Key<T> key) {
 				return Button.this.onKeyDown(key);
 			}
 			@Override
-			public boolean onKeyUp(PDInputProcessor.Key key) {
+			public boolean onKeyUp(NoosaInputProcessor.Key<T> key) {
 				return Button.this.onKeyUp(key);
 			}
 		};
@@ -95,12 +95,12 @@ public class Button extends Component {
         return false;
     };
 
-	protected boolean onKeyDown(PDInputProcessor.Key key) {
+	protected boolean onKeyDown(NoosaInputProcessor.Key<T> key) {
 		return false;
 	}
-	protected boolean onKeyUp(PDInputProcessor.Key key) {
-		if (active && key.code == hotKey) {
-            if (PDInputProcessor.modifier) {
+	protected boolean onKeyUp(NoosaInputProcessor.Key<T> key) {
+		if (active && hotKey != null && key.action.equals(hotKey)) {
+            if (NoosaInputProcessor.modifier) {
                 return onLongClick();
             } else {
                 onClick();

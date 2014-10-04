@@ -27,6 +27,7 @@ import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.effects.BannerSprites;
 import com.watabou.pixeldungeon.effects.Fireball;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.ui.Archs;
 import com.watabou.pixeldungeon.ui.PrefsButton;
 
@@ -121,7 +122,7 @@ public class TitleScene extends PixelScene {
 		add( fb );
 	}
 	
-	private static class DashboardItem extends Button {
+	private static class DashboardItem extends Button<GameAction> {
 		
 		public static final float SIZE	= 48;
 		

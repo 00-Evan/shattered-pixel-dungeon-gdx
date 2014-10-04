@@ -16,19 +16,19 @@
  */
 package com.watabou.noosa;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.utils.Signal;
 
-public class TouchArea extends Visual implements Signal.Listener<PDInputProcessor.Touch> {
+public class TouchArea<T> extends Visual implements Signal.Listener<NoosaInputProcessor.Touch> {
 	
 	// Its target can be toucharea itself
 	public final Visual target;
 	
-	protected PDInputProcessor.Touch touch = null;
+	protected NoosaInputProcessor.Touch touch = null;
 
-	private Signal.Listener<PDInputProcessor.Key> keyListener = new Signal.Listener<PDInputProcessor.Key>() {
+	private Signal.Listener<NoosaInputProcessor.Key<T>> keyListener = new Signal.Listener<NoosaInputProcessor.Key<T>>() {
 		@Override
-		public void onSignal(PDInputProcessor.Key key) {
+		public void onSignal(NoosaInputProcessor.Key<T> key) {
 			final boolean handled;
 
 			if (key.pressed) {
@@ -38,20 +38,20 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 			}
 
 			if (handled) {
-				PDInputProcessor.eventKey.cancel();
+				Game.instance.getInputProcessor().cancelKeyEvent();
 			}
 		}
 	};
 
-	private Signal.Listener<PDInputProcessor.PDMouseEvent> mouseListener = new Signal.Listener<PDInputProcessor.PDMouseEvent>() {
+	private Signal.Listener<NoosaInputProcessor.PDMouseEvent> mouseListener = new Signal.Listener<NoosaInputProcessor.PDMouseEvent>() {
 		@Override
-		public void onSignal(PDInputProcessor.PDMouseEvent event) {
+		public void onSignal(NoosaInputProcessor.PDMouseEvent event) {
 			final boolean handled;
 
 			handled = onMouseScroll(event.scroll);
 
 			if (handled) {
-				PDInputProcessor.eventMouse.cancel();
+				Game.instance.getInputProcessor().cancelMouseEvent();
 			}
 		}
 	};
@@ -60,11 +60,11 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		return false;
 	}
 
-	public boolean onKeyDown(PDInputProcessor.Key key) {
+	public boolean onKeyDown(NoosaInputProcessor.Key<T> key) {
 		return false;
 	}
 
-	public boolean onKeyUp(PDInputProcessor.Key key) {
+	public boolean onKeyUp(NoosaInputProcessor.Key<T> key) {
 		return false;
 	}
 
@@ -85,13 +85,14 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 	}
 
 	private void setupListeners() {
-		PDInputProcessor.eventTouch.add(this);
-		PDInputProcessor.eventKey.add( keyListener );
-		PDInputProcessor.eventMouse.add(mouseListener);
+		NoosaInputProcessor<T> ip = Game.instance.<T>getInputProcessor();
+		ip.addTouchListener(this);
+		ip.addKeyListener(keyListener);
+		ip.addMouseListener(mouseListener);
 	}
 
 	@Override
-	public void onSignal( PDInputProcessor.Touch touch ) {
+	public void onSignal( NoosaInputProcessor.Touch touch ) {
 		
 		if (!isActive()) {
 			return;
@@ -101,7 +102,7 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		
 		if (hit) {
 
-			PDInputProcessor.eventTouch.cancel();
+			Game.instance.getInputProcessor().cancelTouchEvent();
 			
 			if (touch.down) {
 				
@@ -135,16 +136,16 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 		}
 	}
 	
-	protected void onTouchDown( PDInputProcessor.Touch touch ) {
+	protected void onTouchDown( NoosaInputProcessor.Touch touch ) {
 	}
 	
-	protected void onTouchUp( PDInputProcessor.Touch touch ) {
+	protected void onTouchUp( NoosaInputProcessor.Touch touch ) {
 	}
 	
-	protected void onClick( PDInputProcessor.Touch touch ) {
+	protected void onClick( NoosaInputProcessor.Touch touch ) {
 	}
 	
-	protected void onDrag( PDInputProcessor.Touch touch ) {
+	protected void onDrag( NoosaInputProcessor.Touch touch ) {
 	}
 	
 	public void reset() {
@@ -153,9 +154,10 @@ public class TouchArea extends Visual implements Signal.Listener<PDInputProcesso
 	
 	@Override
 	public void destroy() {
-		PDInputProcessor.eventMouse.remove( mouseListener );
-		PDInputProcessor.eventKey.remove( keyListener );
-		PDInputProcessor.eventTouch.remove( this );
+		NoosaInputProcessor<T> ip = Game.instance.<T>getInputProcessor();
+		ip.removeMouseListener(mouseListener);
+		ip.removeKeyListener(keyListener);
+		ip.removeTouchListener(this);
 		super.destroy();
 	}
 }

@@ -17,7 +17,6 @@
  */
 package com.watabou.pixeldungeon.ui;
 
-import com.badlogic.gdx.Input;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
@@ -26,12 +25,13 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.scenes.CellSelector;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
-import com.watabou.pixeldungeon.windows.WndCatalogus;
 import com.watabou.pixeldungeon.windows.WndBag;
+import com.watabou.pixeldungeon.windows.WndCatalogus;
 
 public class Toolbar extends Component {
 
@@ -55,7 +55,7 @@ public class Toolbar extends Component {
 	@Override
 	protected void createChildren() {
 		
-		add( btnWait = new Tool( 0, 7, 20, 24, Input.Keys.SPACE ) {
+		add( btnWait = new Tool( 0, 7, 20, 24, GameAction.REST ) {
 			
 			@Override
 			protected void onClick() {
@@ -75,7 +75,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnSearch = new Tool( 20, 7, 20, 24, Input.Keys.S ) {
+		add( btnSearch = new Tool( 20, 7, 20, 24, GameAction.SEARCH ) {
 			@Override
 			protected void onClick() {
 				doSearch();
@@ -86,7 +86,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInfo = new Tool( 40, 7, 21, 24, Input.Keys.V ) {
+		add( btnInfo = new Tool( 40, 7, 21, 24, GameAction.INFO ) {
 			@Override
 			protected void onClick() {
 				getCellInfo();
@@ -97,7 +97,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnResume = new Tool( 61, 7, 21, 24, Input.Keys.R ) {
+		add( btnResume = new Tool( 61, 7, 21, 24, GameAction.RESUME ) {
 			@Override
 			protected void onClick() {
 				resume();
@@ -108,7 +108,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInventory = new Tool( 82, 7, 23, 24, Input.Keys.I ) {
+		add( btnInventory = new Tool( 82, 7, 23, 24, GameAction.BACKPACK ) {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
@@ -194,13 +194,13 @@ public class Toolbar extends Component {
 		}
 	};
 	
-	private static class Tool extends Button {
+	private static class Tool extends Button<GameAction> {
 		
 		private static final int BGCOLOR = 0x7B8073;
 		
 		private Image base;
 		
-		public Tool(int x, int y, int width, int height, int hotKey ) {
+		public Tool(int x, int y, int width, int height, GameAction hotKey ) {
 			super();
 
 			base.frame( x, y, width, height );
@@ -258,7 +258,7 @@ public class Toolbar extends Component {
 		private QuickSlot slot;
 		
 		public QuickslotTool( int x, int y, int width, int height ) {
-			super( x, y, width, height, -1 );
+			super( x, y, width, height, null );
 		}
 		
 		@Override

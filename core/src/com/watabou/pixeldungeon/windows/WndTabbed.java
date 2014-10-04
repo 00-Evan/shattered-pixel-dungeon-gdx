@@ -28,6 +28,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Chrome;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.Window;
 
@@ -121,14 +122,14 @@ public class WndTabbed extends Window {
 		}
 	}
 
-	protected class Tab extends Button {
+	protected class Tab extends Button<GameAction> {
 		
 		protected final int CUT = 5;
 		
 		protected boolean selected;
 		
 		protected NinePatch bg;
-		
+
 		@Override
 		protected void layout() {
 			super.layout();

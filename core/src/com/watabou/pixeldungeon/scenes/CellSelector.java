@@ -23,11 +23,13 @@ import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
 import com.watabou.pixeldungeon.PixelDungeon;
+import com.watabou.pixeldungeon.input.GameAction;
+import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
-public class CellSelector extends TouchArea {
+public class CellSelector extends TouchArea<GameAction> {
 	public Listener listener = null;
 	
 	public boolean enabled;
@@ -60,7 +62,7 @@ public class CellSelector extends TouchArea {
 	}
 
 	@Override
-	public boolean onKeyDown(NoosaInputProcessor.Key key) {
+	public boolean onKeyDown(NoosaInputProcessor.Key<GameAction> key) {
 
         switch (key.code) {
         case Input.Keys.PLUS:
@@ -128,7 +130,7 @@ public class CellSelector extends TouchArea {
 	}
 
     @Override
-    public boolean onKeyUp( PDInputProcessor.Key key ) {
+    public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
         switch (key.code) {
 		case PDInputProcessor.MODIFIER_KEY:
 			mouseZoom = zoom( Math.round( mouseZoom ) );
