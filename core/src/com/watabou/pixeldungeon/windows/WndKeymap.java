@@ -2,16 +2,20 @@ package com.watabou.pixeldungeon.windows;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.pixeldungeon.scenes.PixelScene;
+import com.watabou.pixeldungeon.ui.Icons;
 import com.watabou.pixeldungeon.ui.ScrollPane;
 import com.watabou.pixeldungeon.ui.Window;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,6 +25,8 @@ public class WndKeymap extends Window {
 	public static final String TXT_UNASSIGNED = "<None>";
 
 	private int tempPos = 0;
+
+	private ArrayList<ListItem> items = new ArrayList<ListItem>();
 
 	private static class KeyPair {
 		public int key1, key2;
@@ -33,10 +39,34 @@ public class WndKeymap extends Window {
 
 		resize(maxWidth, maxHeight);
 
-		Component content = new Component();
-		ScrollPane list = new ScrollPane(content);
 		PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
-		Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+
+		Component content = new Component();
+		ScrollPane list = new ScrollPane(content) {
+			@Override
+			public void onClick( float x, float y ) {
+
+				final ListItem item = items.get((int) (y / ITEM_HEIGHT));
+				final GameAction action = item.gameAction;
+				final KeyPair keys = item.keys;
+				final boolean defaultKey = x < width * 3 / 4;
+
+				Game.scene().add( new WndMessage( "Press a key for the action \"" + item.gameAction.getDescription() + "\"" ) {
+					@Override
+					protected void onKeyDown( NoosaInputProcessor.Key key ) {
+						keyMappings.put(key.code, new PDInputProcessor.GameActionWrapper(action, defaultKey));
+						if (defaultKey) {
+							keys.key1 = key.code;
+						} else {
+							keys.key2 = key.code;
+						}
+						item.setValues( action, keys );
+						hide();
+					}
+				});
+			}
+		};
 
 		Map<GameAction, KeyPair> mappings = new TreeMap<>();
 		for (Map.Entry<Integer, PDInputProcessor.GameActionWrapper> entry : keyMappings.entrySet()) {
@@ -58,11 +88,11 @@ public class WndKeymap extends Window {
 			addKey(content, maxWidth, entry);
 		}
 
-		content.setSize(maxWidth, tempPos);
+		content.setSize( 0, tempPos);
 
 		add(list);
 
-		list.setRect(0, 0, width - MARGIN*2, height);
+		list.setRect(0, 0, width, height);
 	}
 
 	private void addKey(Component content, int maxWidth, Map.Entry<GameAction, KeyPair> entry) {
@@ -70,9 +100,11 @@ public class WndKeymap extends Window {
 		keyLeft.setRect( 0, tempPos, maxWidth, ITEM_HEIGHT );
 		tempPos += ITEM_HEIGHT;
 		content.add(keyLeft);
+
+		items.add( keyLeft );
 	}
 
-	private static class TextButton extends Button<GameAction> {
+/*	private static class TextButton extends Button<GameAction> {
 		protected BitmapText text;
 
 		public TextButton() {
@@ -107,46 +139,64 @@ public class WndKeymap extends Window {
 
 			System.out.println("Clicked");
 		}
-	}
+	}*/
 
 	private static class ListItem extends Component {
+
+		public GameAction gameAction;
+		public KeyPair keys;
+
 		private BitmapText action;
-		private TextButton key, key2;
+		private BitmapText key1;
+		private BitmapText key2;
 
-		public ListItem(GameAction gameAction, KeyPair keys) {
+		public ListItem( GameAction gameAction, KeyPair keys ) {
 			super();
-
-			action.text(gameAction.getDescription());
-			action.measure();
-
-			key.setText(keys.key1 > 0 ? Input.Keys.toString(keys.key1) : TXT_UNASSIGNED);
-			key2.setText(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
+			setValues( gameAction, keys );
 		}
 
 		@Override
 		protected void createChildren() {
-			action = PixelScene.createText(9);
-			add(action);
+			action = PixelScene.createText( 9 );
+			add( action );
 
-			key = new TextButton();
-			add(key);
-			key2 = new TextButton();
-			add(key2);
+			key1 = PixelScene.createText( 9 );
+			key1.hardlight( TITLE_COLOR );
+			add( key1 );
+
+			key2 = PixelScene.createText( 9 );
+			key2.hardlight( TITLE_COLOR );
+			add( key2 );
 		}
 
 		@Override
 		protected void layout() {
-			final float newY = PixelScene.align(y + (height - key.height()) / 2);
-			final float oldH = key.height();
+
+			final float ty = PixelScene.align( y + (height - action.baseLine()) / 2 );
 			final float w4 = width / 4;
 
-			key.setPos(w4 * 2, newY);
-			key.setSize(w4, oldH);
-			key2.setPos(w4 * 3, newY);
-			key2.setSize(w4, oldH);
+			action.x = 0;
+			action.y = ty;
 
-			action.x = MARGIN;
-			action.y = key.top();
+			key1.x = PixelScene.align( w4 * 2 + (w4 - key1.width()) / 2 );
+			key1.y = y;
+
+			key2.x = PixelScene.align( w4 * 3 + (w4 - key2.width()) / 2 );
+			key2.y = y;
+		}
+
+		public void setValues( GameAction gameAction, KeyPair keys ) {
+			this.gameAction = gameAction;
+			this.keys = keys;
+
+			action.text(gameAction.getDescription());
+			action.measure();
+
+			key1.text( keys.key1 > 0 ? Input.Keys.toString( keys.key1 ) : TXT_UNASSIGNED );
+			key1.measure();
+
+			key2.text(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
+			key2.measure();
 		}
 	}
 }
