@@ -97,6 +97,6 @@ public class DesktopInputProcessor extends PDInputProcessor {
 			case Input.Keys.ENTER:
 				return GameAction.WAIT;
 		}
-		return null;
+		return GameAction.UNKNOWN;
 	}
 }
