@@ -143,6 +143,7 @@ public abstract class NoosaInputProcessor<T> implements InputProcessor {
 	}
 
 	public static class Key<T> {
+		// FIXME: This is only here to support reading the key from PD-Classes, but that should also be abstracted and this removed
 		public final int code;
 		public final T action;
 		public final boolean pressed;

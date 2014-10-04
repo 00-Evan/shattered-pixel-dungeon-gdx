@@ -17,7 +17,6 @@
  */
 package com.watabou.pixeldungeon.ui;
 
-import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
@@ -30,6 +29,7 @@ import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.effects.particles.BloodParticle;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.keys.IronKey;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
@@ -67,7 +67,7 @@ public class StatusPane extends Component {
 		shield = new NinePatch( Assets.STATUS, 80, 0, 30, 0 );
 		add( shield );
 		
-		add( new TouchArea( 0, 1, 30, 30 ) {
+		add( new TouchArea<GameAction>( 0, 1, 30, 30 ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				Image sprite = Dungeon.hero.sprite;
@@ -78,16 +78,16 @@ public class StatusPane extends Component {
 			};	
 
 			@Override
-			public boolean onKeyUp(NoosaInputProcessor.Key key) {
+			public boolean onKeyUp(NoosaInputProcessor.Key<GameAction> key) {
 				boolean handled = true;
-				switch (key.code) {
-				case Input.Keys.H:
+				switch (key.action) {
+				case HERO_INFO:
 					onClick( null );
 					break;
-				case Input.Keys.C:
+				case CATALOGUS:
 					GameScene.show( new WndCatalogus() );
 					break;
-				case Input.Keys.J:
+				case JOURNAL:
 					GameScene.show( new WndJournal() );
 					break;
 				default:

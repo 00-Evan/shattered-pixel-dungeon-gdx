@@ -2,7 +2,6 @@ package com.watabou.pd.desktop;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.IntMap;
-import com.watabou.noosa.Game;
 import com.watabou.pixeldungeon.Preferences;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
@@ -50,6 +49,8 @@ public class DesktopInputProcessor extends PDInputProcessor {
 				return GameAction.TAG_ATTACK;
 			case Input.Keys.C:
 				return GameAction.CATALOGUS;
+			case Input.Keys.H:
+				return GameAction.HERO_INFO;
 			case Input.Keys.TAB:
 				return GameAction.TAG_DANGER;
 			case Input.Keys.I:

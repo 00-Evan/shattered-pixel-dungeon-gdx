@@ -1,7 +1,7 @@
 package com.watabou.pixeldungeon.input;
 
 public enum GameAction {
-	BACK, MENU, JOURNAL, RESUME, REST, SEARCH, INFO, BACKPACK, TAG_ATTACK, TAG_DANGER, QUICKSLOT, CATALOGUS;
+	BACK, MENU, JOURNAL, RESUME, REST, SEARCH, INFO, BACKPACK, TAG_ATTACK, TAG_DANGER, QUICKSLOT, CATALOGUS, HERO_INFO;
 
 	@Override
 	public String toString() {
