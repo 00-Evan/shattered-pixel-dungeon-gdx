@@ -5,17 +5,16 @@ import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.pixeldungeon.scenes.PixelScene;
-import com.watabou.pixeldungeon.ui.Icons;
 import com.watabou.pixeldungeon.ui.ScrollPane;
 import com.watabou.pixeldungeon.ui.Window;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -26,49 +25,61 @@ public class WndKeymap extends Window {
 
 	private int tempPos = 0;
 
-	private ArrayList<ListItem> items = new ArrayList<ListItem>();
+	private final List<GameAction> actions = new ArrayList<>();
+	private final Map<GameAction, ListItem> items = new HashMap<>(32);
 
 	private static class KeyPair {
 		public int key1, key2;
 	}
 
 	public WndKeymap() {
-
-		int maxWidth = Gdx.graphics.getWidth()/4;
-		int maxHeight = Gdx.graphics.getHeight()/4;
+		final int maxWidth = Gdx.graphics.getWidth()/4;
+		final int maxHeight = Gdx.graphics.getHeight()/4;
 
 		resize(maxWidth, maxHeight);
 
-		PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
+		final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
 		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
 
-		Component content = new Component();
-		ScrollPane list = new ScrollPane(content) {
+		final Component content = new Component();
+		final ScrollPane list = new ScrollPane(content) {
 			@Override
 			public void onClick( float x, float y ) {
+				// FIXME: This is obviously error-prone
+				final GameAction action = actions.get((int) (y / ITEM_HEIGHT));
+				if (action == null)
+					return;
 
-				final ListItem item = items.get((int) (y / ITEM_HEIGHT));
-				final GameAction action = item.gameAction;
-				final KeyPair keys = item.keys;
+				final ListItem item = items.get(action);
 				final boolean defaultKey = x < width * 3 / 4;
 
-				Game.scene().add( new WndMessage( "Press a key for the action \"" + item.gameAction.getDescription() + "\"" ) {
+				Game.scene().add( new WndMessage( "Press a key for the action \"" + item.gameAction.getDescription() + "\"," +
+						" or press " + Input.Keys.toString(PDInputProcessor.MODIFIER_KEY) + " to remove the mapping" )
+				{
 					@Override
 					protected void onKeyDown( NoosaInputProcessor.Key key ) {
-						keyMappings.put(key.code, new PDInputProcessor.GameActionWrapper(action, defaultKey));
-						if (defaultKey) {
-							keys.key1 = key.code;
+						int oldKeycode = item.getKey(defaultKey);
+						inputProcessor.removeKeyMapping(action, defaultKey, oldKeycode);
+
+						// Don't allow the modifier key to be replaced. TODO: This should probably be improved
+						if (key.code == PDInputProcessor.MODIFIER_KEY) {
+							item.setKey(defaultKey, 0);
 						} else {
-							keys.key2 = key.code;
+							item.setKey(defaultKey, key.code);
+
+							final PDInputProcessor.GameActionWrapper replacedAction = inputProcessor.setKeyMapping(action, defaultKey, key.code);
+							if (replacedAction != null) {
+								final ListItem replacedItem = items.get(replacedAction.gameAction);
+								replacedItem.setKey(replacedAction.defaultKey, 0);
+							}
 						}
-						item.setValues( action, keys );
 						hide();
 					}
 				});
 			}
 		};
 
-		Map<GameAction, KeyPair> mappings = new TreeMap<>();
+		final Map<GameAction, KeyPair> mappings = new TreeMap<>();
 		for (Map.Entry<Integer, PDInputProcessor.GameActionWrapper> entry : keyMappings.entrySet()) {
 			final Integer key = entry.getKey();
 			final PDInputProcessor.GameActionWrapper value = entry.getValue();
@@ -96,55 +107,19 @@ public class WndKeymap extends Window {
 	}
 
 	private void addKey(Component content, int maxWidth, Map.Entry<GameAction, KeyPair> entry) {
-		ListItem keyLeft = new ListItem(entry.getKey(), entry.getValue());
-		keyLeft.setRect( 0, tempPos, maxWidth, ITEM_HEIGHT );
+		final GameAction action = entry.getKey();
+		final ListItem keyItem = new ListItem(action, entry.getValue());
+		keyItem.setRect(0, tempPos, maxWidth, ITEM_HEIGHT);
 		tempPos += ITEM_HEIGHT;
-		content.add(keyLeft);
+		content.add(keyItem);
 
-		items.add( keyLeft );
+		actions.add(action);
+		items.put(action, keyItem);
 	}
 
-/*	private static class TextButton extends Button<GameAction> {
-		protected BitmapText text;
-
-		public TextButton() {
-			super();
-		}
-
-		public void setText(String label) {
-			text.text( label );
-			text.measure();
-		}
-
-		@Override
-		protected void createChildren() {
-			super.createChildren();
-
-			text = PixelScene.createText( 9 );
-			text.hardlight(TITLE_COLOR);
-			add( text );
-		}
-		@Override
-		protected void layout() {
-
-			super.layout();
-
-			text.x = x + (int) (width - text.width()) / 2;
-			text.y = y + (int) (height - text.baseLine()) / 2;
-		}
-
-		@Override
-		protected void onClick() {
-			super.onClick();
-
-			System.out.println("Clicked");
-		}
-	}*/
-
 	private static class ListItem extends Component {
-
-		public GameAction gameAction;
-		public KeyPair keys;
+		private final GameAction gameAction;
+		private final KeyPair keys;
 
 		private BitmapText action;
 		private BitmapText key1;
@@ -152,7 +127,14 @@ public class WndKeymap extends Window {
 
 		public ListItem( GameAction gameAction, KeyPair keys ) {
 			super();
-			setValues( gameAction, keys );
+
+			this.gameAction = gameAction;
+			this.keys = keys;
+
+			action.text(gameAction.getDescription());
+			action.measure();
+
+			reconfigureKeysText();
 		}
 
 		@Override
@@ -171,11 +153,10 @@ public class WndKeymap extends Window {
 
 		@Override
 		protected void layout() {
-
 			final float ty = PixelScene.align( y + (height - action.baseLine()) / 2 );
 			final float w4 = width / 4;
 
-			action.x = 0;
+			action.x = MARGIN;
 			action.y = ty;
 
 			key1.x = PixelScene.align( w4 * 2 + (w4 - key1.width()) / 2 );
@@ -185,18 +166,31 @@ public class WndKeymap extends Window {
 			key2.y = y;
 		}
 
-		public void setValues( GameAction gameAction, KeyPair keys ) {
-			this.gameAction = gameAction;
-			this.keys = keys;
-
-			action.text(gameAction.getDescription());
-			action.measure();
-
-			key1.text( keys.key1 > 0 ? Input.Keys.toString( keys.key1 ) : TXT_UNASSIGNED );
+		private void reconfigureKeysText() {
+			key1.text(keys.key1 > 0 ? Input.Keys.toString(keys.key1) : TXT_UNASSIGNED);
 			key1.measure();
 
 			key2.text(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
 			key2.measure();
+
+			layout();
+		}
+
+		public int getKey(boolean defaultKey) {
+			if (defaultKey) {
+				return this.keys.key1;
+			} else {
+				return this.keys.key2;
+			}
+		}
+
+		public void setKey(boolean defaultKey, int keycode) {
+			if (defaultKey) {
+				this.keys.key1 = keycode;
+			} else {
+				this.keys.key2 = keycode;
+			}
+			reconfigureKeysText();
 		}
 	}
 }

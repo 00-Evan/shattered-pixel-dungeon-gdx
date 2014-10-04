@@ -55,6 +55,10 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	}
 
 	private void loadKeyMapping(GameAction action, int defaultKey1, Integer defaultKey2) {
+		/*
+		 * Right now we store key mapping preferences on the default game preferences file/registry/whatever. It will probably
+		 * be a good idea to have a separate one for this
+		 */
 		int mapping = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX + action, -1);
 		keyMappings.put(mapping > 0 ? mapping : defaultKey1, new GameActionWrapper(action, true));
 
@@ -67,6 +71,25 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	@Override
 	public Map<Integer, GameActionWrapper> getKeyMappings() {
 		return keyMappings;
+	}
+
+	@Override
+	public GameActionWrapper setKeyMapping(GameAction action, boolean defaultKey, int code) {
+		final GameActionWrapper existingMapping = keyMappings.get(code);
+		keyMappings.put(code, new GameActionWrapper(action, defaultKey));
+		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX : GAMEACTION_PREFIX2) + action, code);
+
+		// Return a "replaced" object only if it's not the same action and default key that we are remapping
+		return existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)
+				? existingMapping
+				: null;
+	}
+
+	@Override
+	public GameActionWrapper removeKeyMapping(GameAction action, boolean defaultKey, int code) {
+		final GameActionWrapper result = keyMappings.remove(code);
+		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX : GAMEACTION_PREFIX2) + action, -1);
+		return result;
 	}
 
 	@Override
