@@ -1,14 +1,34 @@
 package com.watabou.pixeldungeon.input;
 
 public enum GameAction {
-	BACK("Go back"), MENU("Open menu"), JOURNAL("Open journal"), RESUME("Resume game"),
-	REST("Rest"), SEARCH("Search"), CELL_INFO("Get cell information"), BACKPACK("Open backpack"),
-	TAG_ATTACK("Open attack screen"), TAG_DANGER("Open danger screen"), QUICKSLOT("Quickslot"),
-	CATALOGUS("Open catalogus"), HERO_INFO("Open hero info"),
-	ZOOM_IN("Zoom in"), ZOOM_OUT("Zoom out"), ZOOM_DEFAULT("Reset zoom"),
-	MOVE_UP("Move up"), MOVE_DOWN("Move down"), MOVE_LEFT("Move left"), MOVE_RIGHT("Move right"),
-	MOVE_TOP_LEFT("Move top left"), MOVE_TOP_RIGHT("Move top right"), MOVE_BOTTOM_LEFT("Move bottom left"), MOVE_BOTTOM_RIGHT("Move bottom right"),
-	WAIT("Wait"), UNKNOWN(null);
+	BACK("Back"),
+
+	MENU("Game Menu"),
+
+	HERO_INFO("Hero Info"),
+	JOURNAL("Journal"),
+	CATALOGUS("Catalogus"),
+
+	REST("Wait"),
+	SEARCH("Search"),
+	CELL_INFO("Examine cell"),
+	RESUME("Resume motion"),
+
+	BACKPACK("Backpack"),
+	QUICKSLOT("Quickslot"),
+
+	TAG_ATTACK("Attack"),
+	TAG_DANGER("Visible Enemies"),
+
+	ZOOM_IN("Zoom In"),
+	ZOOM_OUT("Zoom Out"),
+	ZOOM_DEFAULT("Default Zoom"),
+
+	MOVE_UP("Move North"), MOVE_DOWN("Move South"), MOVE_LEFT("Move West"), MOVE_RIGHT("Move East"),
+	MOVE_TOP_LEFT("Move NW"), MOVE_TOP_RIGHT("Move NE"), MOVE_BOTTOM_LEFT("Move SW"), MOVE_BOTTOM_RIGHT("Move SE"),
+	WAIT("Current Cell"),
+
+	UNKNOWN(null);
 
 	private final String description;
 
