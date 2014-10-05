@@ -17,17 +17,18 @@
  */
 package com.watabou.pixeldungeon.scenes;
 
-import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
 import com.watabou.pixeldungeon.PixelDungeon;
+import com.watabou.pixeldungeon.input.GameAction;
+import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
-public class CellSelector extends TouchArea {
+public class CellSelector extends TouchArea<GameAction> {
 	public Listener listener = null;
 	
 	public boolean enabled;
@@ -46,7 +47,7 @@ public class CellSelector extends TouchArea {
 	}
 	
 	@Override
-	protected void onClick( PDInputProcessor.Touch touch ) {
+	protected void onClick( NoosaInputProcessor.Touch touch ) {
 		if (dragging) {
 			
 			dragging = false;
@@ -60,57 +61,52 @@ public class CellSelector extends TouchArea {
 	}
 
 	@Override
-	public boolean onKeyDown(PDInputProcessor.Key key) {
+	public boolean onKeyDown(NoosaInputProcessor.Key<GameAction> key) {
 
-        switch (key.code) {
-        case Input.Keys.PLUS:
-        case Input.Keys.EQUALS:
+        switch (key.action) {
+        case ZOOM_IN:
             zoom( camera.zoom + 1 );
             return true;
-        case Input.Keys.MINUS:
+        case ZOOM_OUT:
             zoom( camera.zoom - 1 );
             return true;
-        case Input.Keys.SLASH:
+        case ZOOM_DEFAULT:
             zoom( PixelScene.defaultZoom );
             return true;
         }
 
 		boolean handled = true;
 		int x = 0, y = 0;
-		switch (key.code) {
-			case Input.Keys.UP:
-			case Input.Keys.NUMPAD_8:
+		switch (key.action) {
+			case MOVE_UP:
 				y = -1;
 				break;
-			case Input.Keys.DOWN:
-			case Input.Keys.NUMPAD_2:
+			case MOVE_DOWN:
 				y = 1;
 				break;
-			case Input.Keys.LEFT:
-			case Input.Keys.NUMPAD_4:
+			case MOVE_LEFT:
 				x = -1;
 				break;
-			case Input.Keys.RIGHT:
-			case Input.Keys.NUMPAD_6:
+			case MOVE_RIGHT:
 				x = 1;
 				break;
-			case Input.Keys.NUMPAD_7:
+			case MOVE_TOP_LEFT:
 				x = -1;
 				y = -1;
 				break;
-			case Input.Keys.NUMPAD_9:
+			case MOVE_TOP_RIGHT:
 				x = 1;
 				y = -1;
 				break;
-			case Input.Keys.NUMPAD_1:
+			case MOVE_BOTTOM_LEFT:
 				x = -1;
 				y = 1;
 				break;
-			case Input.Keys.NUMPAD_3:
+			case MOVE_BOTTOM_RIGHT:
 				x = 1;
 				y = 1;
 				break;
-			case Input.Keys.ENTER:
+			case OPERATE:
 				break;
 			default:
 				handled = false;
@@ -128,7 +124,7 @@ public class CellSelector extends TouchArea {
 	}
 
     @Override
-    public boolean onKeyUp( PDInputProcessor.Key key ) {
+    public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
         switch (key.code) {
 		case PDInputProcessor.MODIFIER_KEY:
 			mouseZoom = zoom( Math.round( mouseZoom ) );
@@ -161,12 +157,12 @@ public class CellSelector extends TouchArea {
 	}
 	
 	private boolean pinching = false;
-	private PDInputProcessor.Touch another;
+	private NoosaInputProcessor.Touch another;
 	private float startZoom;
 	private float startSpan;
 	
 	@Override
-	protected void onTouchDown( PDInputProcessor.Touch t ) {
+	protected void onTouchDown( NoosaInputProcessor.Touch t ) {
 
 		if (t != touch && another == null) {
 					
@@ -187,7 +183,7 @@ public class CellSelector extends TouchArea {
 	}
 	
 	@Override
-	protected void onTouchUp( PDInputProcessor.Touch t ) {
+	protected void onTouchUp( NoosaInputProcessor.Touch t ) {
 		if (pinching && (t == touch || t == another)) {
 			
 			pinching = false;
@@ -221,7 +217,7 @@ public class CellSelector extends TouchArea {
 	}
 
 	@Override
-	protected void onDrag( PDInputProcessor.Touch t ) {
+	protected void onDrag( NoosaInputProcessor.Touch t ) {
 		 
 		camera.target = null;
 

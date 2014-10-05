@@ -24,6 +24,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.PixelDungeon;
+import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.CheckBox;
 import com.watabou.pixeldungeon.ui.RedButton;
@@ -40,6 +41,8 @@ public class WndSettings extends Window {
 	private static final String TXT_MUSIC	= "Music";
 	
 	private static final String TXT_SOUND	= "Sound FX";
+
+	private static final String TXT_BINDINGS	= "Key bindings";
 	
 	private static final String TXT_BRIGHTNESS	= "Brightness";
 	
@@ -143,13 +146,23 @@ public class WndSettings extends Window {
 
 				lastBtn = btnOrientation;
 			} else if (type == Application.ApplicationType.Desktop) {
+
+				RedButton btnKeymap = new RedButton( TXT_BINDINGS ) {
+					@Override
+					protected void onClick() {
+						parent.add(new WndKeymap());
+					}
+				};
+				btnKeymap.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				add(btnKeymap);
+
 				RedButton btnResolution = new RedButton(resolutionText()) {
 					@Override
 					protected void onClick() {
 						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
 					}
 				};
-				btnResolution.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				btnResolution.setRect(0, btnKeymap.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 
 				lastBtn = btnResolution;

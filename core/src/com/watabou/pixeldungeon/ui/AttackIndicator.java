@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.sprites.CharSprite;
@@ -41,14 +42,12 @@ public class AttackIndicator extends Tag {
 	private static Mob lastTarget = null;
 	private ArrayList<Mob> candidates = new ArrayList<Mob>();
 
-    {
-        hotKey = Input.Keys.A;
-    }
-	
 	public AttackIndicator() {
 		super( DangerIndicator.COLOR );
 		
 		instance = this;
+
+		hotKey = GameAction.TAG_ATTACK;
 		
 		setSize( 24, 24 );
 		visible( false );

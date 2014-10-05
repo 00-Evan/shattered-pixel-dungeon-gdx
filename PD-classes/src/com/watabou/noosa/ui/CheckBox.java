@@ -16,10 +16,10 @@
  */
 package com.watabou.noosa.ui;
 
-public class CheckBox extends Button {
+public class CheckBox<T> extends Button<T> {
 
 	protected boolean checked;
-	
+
 	public boolean checked() {
 		return checked;
 	}

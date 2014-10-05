@@ -20,6 +20,7 @@ package com.watabou.pixeldungeon.ui;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Dungeon;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.armor.Armor;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
@@ -29,7 +30,7 @@ import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.pixeldungeon.utils.Utils;
 
-public class ItemSlot extends Button {
+public class ItemSlot extends Button<GameAction> {
 
 	public static final int DEGRADED	= 0xFF4444;
 	public static final int UPGRADED	= 0x44FF44;

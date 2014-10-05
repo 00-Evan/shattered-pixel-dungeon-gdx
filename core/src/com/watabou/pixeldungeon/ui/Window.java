@@ -21,17 +21,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Chrome;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.utils.Signal;
 
-public class Window extends Group implements Signal.Listener<PDInputProcessor.Key> {
+public class Window extends Group implements Signal.Listener<NoosaInputProcessor.Key<GameAction>> {
 
 	protected int width;
 	protected int height;
@@ -54,7 +55,7 @@ public class Window extends Group implements Signal.Listener<PDInputProcessor.Ke
 		
 		blocker = new TouchArea( 0, 0, PixelScene.uiCamera.width, PixelScene.uiCamera.height ) {
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				if (!Window.this.chrome.overlapsScreenPoint( 
 					(int)touch.current.x, 
 					(int)touch.current.y )) {
@@ -87,7 +88,7 @@ public class Window extends Group implements Signal.Listener<PDInputProcessor.Ke
 		camera.scroll.set( chrome.x, chrome.y );
 		Camera.add( camera );
 
-		PDInputProcessor.eventKey.add( this );
+		Game.instance.getInputProcessor().addKeyListener(this);
 	}
 	
 	public void resize( int w, int h ) {
@@ -113,11 +114,11 @@ public class Window extends Group implements Signal.Listener<PDInputProcessor.Ke
 		super.destroy();
 		
 		Camera.remove( camera );
-		PDInputProcessor.eventKey.remove( this );
+		Game.instance.getInputProcessor().removeKeyListener(this);
 	}
 
 	@Override
-	public void onSignal( PDInputProcessor.Key key ) {
+	public void onSignal( NoosaInputProcessor.Key<GameAction> key ) {
 		if (key.pressed) {
 			switch (key.code) {
 			case Input.Keys.BACK:
@@ -125,20 +126,23 @@ public class Window extends Group implements Signal.Listener<PDInputProcessor.Ke
 				onBackPressed();
 				break;
 			case Input.Keys.MENU:
-			case Input.Keys.F5:
 				onMenuPressed();
 				break;
 			default:
 				onKeyDown(key);
 				break;
 			}
+		} else {
+			onKeyUp( key );
 		}
 
-		PDInputProcessor.eventKey.cancel();
+		Game.instance.getInputProcessor().cancelKeyEvent();
 	}
 
-	protected void onKeyDown(PDInputProcessor.Key key) {
+	protected void onKeyDown(NoosaInputProcessor.Key key) {
+	}
 
+	protected void onKeyUp( NoosaInputProcessor.Key<GameAction> key ) {
 	}
 
 	public void onBackPressed() {

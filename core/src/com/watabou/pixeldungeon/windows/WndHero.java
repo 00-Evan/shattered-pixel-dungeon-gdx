@@ -22,7 +22,7 @@ import java.util.Locale;
 import com.badlogic.gdx.Input;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -32,6 +32,7 @@ import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.Statistics;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.hero.Hero;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
@@ -92,7 +93,16 @@ public class WndHero extends WndTabbed {
 		select( 0 );
 	}
 
-    private class StatsTab extends Group {
+	@Override
+	protected void onKeyUp( NoosaInputProcessor.Key key ) {
+		if (key.action == GameAction.HERO_INFO) {
+			hide();
+		} else {
+			super.onKeyUp( key );
+		}
+	}
+
+	private class StatsTab extends Group {
 		
 		private static final String TXT_TITLE		= "Level %d %s";
 		private static final String TXT_CATALOGUS	= "Catalogus";
@@ -119,7 +129,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndCatalogus() );
 				}
 			};
-            btnCatalogus.hotKey = Input.Keys.C;
+			btnCatalogus.hotKey = GameAction.CATALOGUS;
 			btnCatalogus.setRect( 0, title.y + title.height(), btnCatalogus.reqWidth() + 2, btnCatalogus.reqHeight() + 2 );
 			add( btnCatalogus );
 			
@@ -130,7 +140,7 @@ public class WndHero extends WndTabbed {
 					GameScene.show( new WndJournal() );
 				}
 			};
-            btnJournal.hotKey = Input.Keys.J;
+			btnJournal.hotKey = GameAction.JOURNAL;
 			btnJournal.setRect( 
 				btnCatalogus.right() + 1, btnCatalogus.top(), 
 				btnJournal.reqWidth() + 2, btnJournal.reqHeight() + 2 );

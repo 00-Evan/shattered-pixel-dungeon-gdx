@@ -20,7 +20,7 @@ package com.watabou.pixeldungeon.scenes;
 import java.io.IOException;
 
 import com.badlogic.gdx.utils.IntMap;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
@@ -660,7 +660,7 @@ public class GameScene extends PixelScene {
 		@Override
 		public void onSelect( Integer cell ) {
 			if (cell != -1) {
-                if (PDInputProcessor.modifier) {
+                if (NoosaInputProcessor.modifier) {
                     examineCell( cell );
                 } else {
                     Dungeon.hero.handle(cell);

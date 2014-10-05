@@ -17,7 +17,7 @@
  */
 package com.watabou.pixeldungeon.ui;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TouchArea;
 import com.watabou.noosa.ui.Component;
@@ -41,15 +41,15 @@ public class SimpleButton extends Component {
 		
 		add( new TouchArea( image ) {
 			@Override
-			protected void onTouchDown(PDInputProcessor.Touch touch) {
+			protected void onTouchDown(NoosaInputProcessor.Touch touch) {
 				image.brightness( 1.2f );
 			};
 			@Override
-			protected void onTouchUp(PDInputProcessor.Touch touch) {
+			protected void onTouchUp(NoosaInputProcessor.Touch touch) {
 				image.brightness( 1.0f );
 			};
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				SimpleButton.this.onClick();
 			};
 		} );

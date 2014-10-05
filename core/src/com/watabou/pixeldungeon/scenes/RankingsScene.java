@@ -27,6 +27,7 @@ import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Rankings;
 import com.watabou.pixeldungeon.effects.Flare;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.pixeldungeon.ui.Archs;
@@ -118,7 +119,7 @@ public class RankingsScene extends PixelScene {
 		Game.switchScene( TitleScene.class );
 	}
 	
-	public static class Record extends Button {
+	public static class Record extends Button<GameAction> {
 		
 		private static final float GAP	= 4;
 		

@@ -23,6 +23,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 
 public class DangerIndicator extends Tag {
@@ -36,13 +37,11 @@ public class DangerIndicator extends Tag {
 	
 	private int lastNumber = -1;
 
-    {
-        hotKey = Input.Keys.TAB;
-    }
-	
 	public DangerIndicator() {
 		super( 0xFF4C4C );
-		
+
+		hotKey = GameAction.TAG_DANGER;
+
 		setSize( 24, 16 );
 		
 		visible = false;

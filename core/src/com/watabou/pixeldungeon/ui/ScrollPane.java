@@ -17,7 +17,7 @@
  */
 package com.watabou.pixeldungeon.ui;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.TouchArea;
 import com.watabou.noosa.ui.Component;
@@ -34,7 +34,7 @@ public class ScrollPane extends Component {
 	protected float minY;
 	protected float maxX;
 	protected float maxY;
-	
+
 	public ScrollPane( Component content ) {
 		super();
 		
@@ -84,7 +84,7 @@ public class ScrollPane extends Component {
 		return content;
 	}
 	
-	public void onClick( float x, float y ) {		
+	public void onClick( float x, float y ) {
 	}
 	
 	public class TouchController extends TouchArea {
@@ -97,7 +97,7 @@ public class ScrollPane extends Component {
 		}
 		
 		@Override
-		protected void onClick( PDInputProcessor.Touch touch ) {
+		protected void onClick( NoosaInputProcessor.Touch touch ) {
 			if (dragging) {
 				
 				dragging = false;
@@ -116,7 +116,7 @@ public class ScrollPane extends Component {
 		private PointF lastPos = new PointF();
 		
 		@Override
-		protected void onDrag( PDInputProcessor.Touch t ) {
+		protected void onDrag( NoosaInputProcessor.Touch t ) {
 			if (dragging) {
 
 				doScroll(t.current);
