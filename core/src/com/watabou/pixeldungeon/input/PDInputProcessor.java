@@ -20,6 +20,9 @@ public abstract class PDInputProcessor extends NoosaInputProcessor<GameAction> {
 		return null;
 	}
 
+	public void resetKeyMappings() {
+	}
+
 	public GameActionWrapper setKeyMapping(GameAction action, boolean defaultKey, int code) {
 		return null;
 	}

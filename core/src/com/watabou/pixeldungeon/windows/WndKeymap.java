@@ -9,6 +9,7 @@ import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.input.PDInputProcessor;
 import com.watabou.pixeldungeon.scenes.PixelScene;
+import com.watabou.pixeldungeon.ui.RedButton;
 import com.watabou.pixeldungeon.ui.ScrollPane;
 import com.watabou.pixeldungeon.ui.Window;
 
@@ -19,9 +20,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class WndKeymap extends Window {
-	private static final int MARGIN = 5;
+	private static final int MARGIN = 0;
 	private static final float ITEM_HEIGHT = 10;
+	private static final int BTN_HEIGHT	= 20;
+
 	public static final String TXT_UNASSIGNED = "<None>";
+
+	private Component listContent;
 
 	private int tempPos = 0;
 
@@ -38,11 +43,18 @@ public class WndKeymap extends Window {
 
 		resize(maxWidth, maxHeight);
 
-		final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
-		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+		RedButton btnReset = new RedButton( "Reset To Defaults" ) {
+			@Override
+			protected void onClick() {
+				resetToDefaults();
+				populateList();
+			}
+		};
+		btnReset.setRect( 0, height - BTN_HEIGHT, width, BTN_HEIGHT );
+		add( btnReset );
 
-		final Component content = new Component();
-		final ScrollPane list = new ScrollPane(content) {
+		listContent = new Component();
+		final ScrollPane list = new ScrollPane(listContent) {
 			@Override
 			public void onClick( float x, float y ) {
 				// FIXME: This is obviously error-prone
@@ -58,6 +70,10 @@ public class WndKeymap extends Window {
 				{
 					@Override
 					protected void onKeyDown( NoosaInputProcessor.Key key ) {
+
+						final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
+						final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+
 						int oldKeycode = item.getKey(defaultKey);
 						inputProcessor.removeKeyMapping(action, defaultKey, oldKeycode);
 
@@ -79,6 +95,22 @@ public class WndKeymap extends Window {
 			}
 		};
 
+		populateList();
+
+		add(list);
+
+		list.setRect(0, 0, width, btnReset.top() );
+	}
+
+	private void populateList() {
+
+		listContent.clear();
+
+		tempPos = 0;
+
+		final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
+		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+
 		final Map<GameAction, KeyPair> mappings = new TreeMap<>();
 		for (Map.Entry<Integer, PDInputProcessor.GameActionWrapper> entry : keyMappings.entrySet()) {
 			final Integer key = entry.getKey();
@@ -96,14 +128,10 @@ public class WndKeymap extends Window {
 			}
 		}
 		for (Map.Entry<GameAction, KeyPair> entry : mappings.entrySet()) {
-			addKey(content, maxWidth, entry);
+			addKey(listContent, width, entry);
 		}
 
-		content.setSize( 0, tempPos);
-
-		add(list);
-
-		list.setRect(0, 0, width, height);
+		listContent.setSize( 0, tempPos);
 	}
 
 	private void addKey(Component content, int maxWidth, Map.Entry<GameAction, KeyPair> entry) {
@@ -115,6 +143,10 @@ public class WndKeymap extends Window {
 
 		actions.add(action);
 		items.put(action, keyItem);
+	}
+
+	private void resetToDefaults() {
+		((PDInputProcessor)Game.instance.getInputProcessor()).resetKeyMappings();
 	}
 
 	private static class ListItem extends Component {

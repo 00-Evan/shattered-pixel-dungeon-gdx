@@ -17,7 +17,6 @@
  */
 package com.watabou.pixeldungeon.scenes;
 
-import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.TouchArea;
 import com.watabou.pixeldungeon.Dungeon;
@@ -107,7 +106,7 @@ public class CellSelector extends TouchArea<GameAction> {
 				x = 1;
 				y = 1;
 				break;
-			case WAIT:
+			case OPERATE:
 				break;
 			default:
 				handled = false;

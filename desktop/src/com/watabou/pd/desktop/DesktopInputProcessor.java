@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DesktopInputProcessor extends PDInputProcessor {
-	public static final String GAMEACTION_PREFIX = "ACT_";
+	public static final String GAMEACTION_PREFIX1 = "ACT1_";
 	public static final String GAMEACTION_PREFIX2 = "ACT2_";
 
 	private final Map<Integer, GameActionWrapper> keyMappings = new HashMap<>();
@@ -20,51 +20,53 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		super.init();
 
 		// Load the default mappings
-//		loadKeyMapping(GameAction.BACK, Input.Keys.ESCAPE);
-		loadKeyMapping(GameAction.BACKPACK, Input.Keys.I);
-		loadKeyMapping(GameAction.CATALOGUS, Input.Keys.C);
-		loadKeyMapping(GameAction.CELL_INFO, Input.Keys.V);
-		loadKeyMapping(GameAction.HERO_INFO, Input.Keys.H);
-		loadKeyMapping(GameAction.JOURNAL, Input.Keys.J);
-//		loadKeyMapping(GameAction.MENU, Input.Keys.F5);
-		loadKeyMapping(GameAction.QUICKSLOT, Input.Keys.Q);
-		loadKeyMapping(GameAction.REST, Input.Keys.SPACE);
-		loadKeyMapping(GameAction.RESUME, Input.Keys.R);
-		loadKeyMapping(GameAction.SEARCH, Input.Keys.S);
-		loadKeyMapping(GameAction.TAG_ATTACK, Input.Keys.A);
-		loadKeyMapping(GameAction.TAG_DANGER, Input.Keys.TAB);
-		loadKeyMapping(GameAction.WAIT, Input.Keys.ENTER);
+		resetKeyMappings();
 
-		loadKeyMapping(GameAction.ZOOM_DEFAULT, Input.Keys.SLASH);
-		loadKeyMapping(GameAction.ZOOM_IN, Input.Keys.PLUS, Input.Keys.EQUALS);
-		loadKeyMapping(GameAction.ZOOM_OUT, Input.Keys.MINUS);
+		loadKeyMapping( GameAction.HERO_INFO );
+		loadKeyMapping( GameAction.CATALOGUS );
+		loadKeyMapping( GameAction.JOURNAL );
 
-		loadKeyMapping(GameAction.MOVE_UP, Input.Keys.UP, Input.Keys.NUMPAD_8);
-		loadKeyMapping(GameAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.NUMPAD_2);
-		loadKeyMapping(GameAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.NUMPAD_4);
-		loadKeyMapping(GameAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.NUMPAD_6);
+		loadKeyMapping( GameAction.REST );
+		loadKeyMapping( GameAction.SEARCH );
+		loadKeyMapping( GameAction.CELL_INFO );
+		loadKeyMapping( GameAction.RESUME );
 
-		loadKeyMapping(GameAction.MOVE_TOP_LEFT, Input.Keys.NUMPAD_7);
-		loadKeyMapping(GameAction.MOVE_TOP_RIGHT, Input.Keys.NUMPAD_9);
-		loadKeyMapping(GameAction.MOVE_BOTTOM_LEFT, Input.Keys.NUMPAD_1);
-		loadKeyMapping(GameAction.MOVE_BOTTOM_RIGHT, Input.Keys.NUMPAD_3);
+		loadKeyMapping( GameAction.BACKPACK );
+		loadKeyMapping( GameAction.QUICKSLOT );
+
+		loadKeyMapping( GameAction.TAG_ATTACK );
+		loadKeyMapping( GameAction.TAG_DANGER );
+
+		loadKeyMapping( GameAction.ZOOM_IN );
+		loadKeyMapping( GameAction.ZOOM_OUT );
+		loadKeyMapping( GameAction.ZOOM_DEFAULT );
+
+		loadKeyMapping( GameAction.MOVE_UP );
+		loadKeyMapping( GameAction.MOVE_DOWN );
+		loadKeyMapping( GameAction.MOVE_LEFT );
+		loadKeyMapping( GameAction.MOVE_RIGHT );
+
+		loadKeyMapping( GameAction.MOVE_TOP_LEFT );
+		loadKeyMapping( GameAction.MOVE_TOP_RIGHT );
+		loadKeyMapping( GameAction.MOVE_BOTTOM_LEFT );
+		loadKeyMapping( GameAction.MOVE_BOTTOM_RIGHT );
+
+		loadKeyMapping( GameAction.OPERATE );
 	}
 
-	private void loadKeyMapping(GameAction action, int defaultKey) {
-		loadKeyMapping(action, defaultKey, null);
-	}
-
-	private void loadKeyMapping(GameAction action, int defaultKey1, Integer defaultKey2) {
+	private void loadKeyMapping( GameAction action ) {
 		/*
 		 * Right now we store key mapping preferences on the default game preferences file/registry/whatever. It will probably
 		 * be a good idea to have a separate one for this
 		 */
-		int mapping = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX + action, -1);
-		keyMappings.put(mapping > 0 ? mapping : defaultKey1, new GameActionWrapper(action, true));
+		int mapping1 = Preferences.INSTANCE.getInt( GAMEACTION_PREFIX1 + action, -1 );
+		if (mapping1 > 0) {
+			keyMappings.put( mapping1, new GameActionWrapper( action, true ) );
+		}
 
-		int mapping2 = Preferences.INSTANCE.getInt(GAMEACTION_PREFIX2 + action, -1);
-		if (mapping2 > 0 || defaultKey2 != null) {
-			keyMappings.put(mapping2 > 0 ? mapping2 : defaultKey2, new GameActionWrapper(action, false));
+		int mapping2 = Preferences.INSTANCE.getInt (GAMEACTION_PREFIX2 + action, -1 );
+		if (mapping2 > 0) {
+			keyMappings.put( mapping2, new GameActionWrapper( action, false ) );
 		}
 	}
 
@@ -74,10 +76,44 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	}
 
 	@Override
+	public void resetKeyMappings() {
+		setKeyMapping( GameAction.HERO_INFO, Input.Keys.H );
+		setKeyMapping( GameAction.CATALOGUS, Input.Keys.C );
+		setKeyMapping( GameAction.JOURNAL, Input.Keys.J );
+
+		setKeyMapping( GameAction.REST, Input.Keys.SPACE );
+		setKeyMapping( GameAction.SEARCH, Input.Keys.S );
+		setKeyMapping( GameAction.CELL_INFO, Input.Keys.V );
+		setKeyMapping (GameAction.RESUME, Input.Keys.R );
+
+		setKeyMapping( GameAction.BACKPACK, Input.Keys.I );
+		setKeyMapping( GameAction.QUICKSLOT, Input.Keys.Q );
+
+		setKeyMapping( GameAction.TAG_ATTACK, Input.Keys.A );
+		setKeyMapping( GameAction.TAG_DANGER, Input.Keys.TAB );
+
+		setKeyMapping( GameAction.ZOOM_IN, Input.Keys.PLUS, Input.Keys.EQUALS );
+		setKeyMapping( GameAction.ZOOM_OUT, Input.Keys.MINUS );
+		setKeyMapping( GameAction.ZOOM_DEFAULT, Input.Keys.SLASH );
+
+		setKeyMapping( GameAction.MOVE_UP, Input.Keys.UP, Input.Keys.NUMPAD_8 );
+		setKeyMapping( GameAction.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.NUMPAD_2 );
+		setKeyMapping( GameAction.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.NUMPAD_4 );
+		setKeyMapping( GameAction.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.NUMPAD_6 );
+
+		setKeyMapping( GameAction.MOVE_TOP_LEFT, Input.Keys.NUMPAD_7 );
+		setKeyMapping( GameAction.MOVE_TOP_RIGHT, Input.Keys.NUMPAD_9 );
+		setKeyMapping( GameAction.MOVE_BOTTOM_LEFT, Input.Keys.NUMPAD_1 );
+		setKeyMapping( GameAction.MOVE_BOTTOM_RIGHT, Input.Keys.NUMPAD_3 );
+
+		setKeyMapping( GameAction.OPERATE, Input.Keys.ENTER );
+	}
+
+	@Override
 	public GameActionWrapper setKeyMapping(GameAction action, boolean defaultKey, int code) {
 		final GameActionWrapper existingMapping = keyMappings.get(code);
 		keyMappings.put(code, new GameActionWrapper(action, defaultKey));
-		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX : GAMEACTION_PREFIX2) + action, code);
+		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX1 : GAMEACTION_PREFIX2) + action, code);
 
 		// Return a "replaced" object only if it's not the same action and default key that we are remapping
 		return existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)
@@ -85,10 +121,27 @@ public class DesktopInputProcessor extends PDInputProcessor {
 				: null;
 	}
 
+	public void setKeyMapping( GameAction action, int code1, int code2 ) {
+		if (code1 > 0) {
+			setKeyMapping( action, true, code1 );
+		} else {
+			removeKeyMapping( action, true, code1 );
+		}
+		if (code2 > 0) {
+			setKeyMapping( action, false, code2 );
+		} else {
+			removeKeyMapping( action, false, code2 );
+		}
+	}
+
+	public void setKeyMapping( GameAction action, int code ) {
+		setKeyMapping( action, code, 0 );
+	}
+
 	@Override
 	public GameActionWrapper removeKeyMapping(GameAction action, boolean defaultKey, int code) {
 		final GameActionWrapper result = keyMappings.remove(code);
-		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX : GAMEACTION_PREFIX2) + action, -1);
+		Preferences.INSTANCE.put((defaultKey ? GAMEACTION_PREFIX1 : GAMEACTION_PREFIX2) + action, -1);
 		return result;
 	}
 

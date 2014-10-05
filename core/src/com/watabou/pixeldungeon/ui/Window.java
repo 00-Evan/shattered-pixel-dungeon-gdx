@@ -126,7 +126,6 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 				onBackPressed();
 				break;
 			case Input.Keys.MENU:
-			case Input.Keys.F5:
 				onMenuPressed();
 				break;
 			default:

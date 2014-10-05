@@ -1,13 +1,11 @@
 package com.watabou.pixeldungeon.input;
 
 public enum GameAction {
-	BACK("Back"),
-
-	MENU("Game Menu"),
+	BACK( null ),
 
 	HERO_INFO("Hero Info"),
-	JOURNAL("Journal"),
 	CATALOGUS("Catalogus"),
+	JOURNAL("Journal"),
 
 	REST("Wait"),
 	SEARCH("Search"),
@@ -26,7 +24,7 @@ public enum GameAction {
 
 	MOVE_UP("Move North"), MOVE_DOWN("Move South"), MOVE_LEFT("Move West"), MOVE_RIGHT("Move East"),
 	MOVE_TOP_LEFT("Move NW"), MOVE_TOP_RIGHT("Move NE"), MOVE_BOTTOM_LEFT("Move SW"), MOVE_BOTTOM_RIGHT("Move SE"),
-	WAIT("Current Cell"),
+	OPERATE("Current Cell"),
 
 	UNKNOWN(null);
 
