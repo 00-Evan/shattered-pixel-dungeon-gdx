@@ -132,13 +132,17 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 				onKeyDown(key);
 				break;
 			}
+		} else {
+			onKeyUp( key );
 		}
 
 		Game.instance.getInputProcessor().cancelKeyEvent();
 	}
 
 	protected void onKeyDown(NoosaInputProcessor.Key key) {
+	}
 
+	protected void onKeyUp( NoosaInputProcessor.Key<GameAction> key ) {
 	}
 
 	public void onBackPressed() {

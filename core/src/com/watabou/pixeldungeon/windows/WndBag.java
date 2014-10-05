@@ -27,6 +27,7 @@ import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Belongings;
 import com.watabou.pixeldungeon.actors.hero.Hero;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Gold;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.armor.Armor;
@@ -124,6 +125,15 @@ public class WndBag extends WndTabbed {
 				
 				tab.select( b == bag );
 			}
+		}
+	}
+
+	@Override
+	protected void onKeyUp( NoosaInputProcessor.Key<GameAction> key ) {
+		if (key.action == GameAction.BACKPACK) {
+			hide();
+		} else {
+			super.onKeyUp( key );
 		}
 	}
 	

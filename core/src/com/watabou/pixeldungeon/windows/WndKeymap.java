@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 public class WndKeymap extends Window {
 	private static final int MARGIN = 0;
-	private static final float ITEM_HEIGHT = 10;
+	private static final float ITEM_HEIGHT = 12;
 	private static final int BTN_HEIGHT	= 20;
 
 	public static final String TXT_UNASSIGNED = "<None>";
@@ -83,11 +83,13 @@ public class WndKeymap extends Window {
 		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
 
 		final Map<GameAction, KeyPair> mappings = new TreeMap<>();
+
 		for (GameAction action : GameAction.values()) {
 			if (action.getDescription() != null) {
-				mappings.put(action, new KeyPair());
+				mappings.put( action, new KeyPair() );
 			}
 		}
+
 		for (Map.Entry<Integer, PDInputProcessor.GameActionWrapper> entry : keyMappings.entrySet()) {
 			final Integer key = entry.getKey();
 			final PDInputProcessor.GameActionWrapper value = entry.getValue();
@@ -221,10 +223,11 @@ public class WndKeymap extends Window {
 			}
 
 			final boolean defaultKey = x < width * 3 / 4;
+			final String message =
+				"Press a key for \"" + gameAction.getDescription() + "\", or press " +
+				Input.Keys.toString(PDInputProcessor.MODIFIER_KEY) + " to remove the binding.";
 
-			Game.scene().add( new WndMessage( "Press a key for \"" + gameAction.getDescription() + "\"," +
-					" or press " + Input.Keys.toString(PDInputProcessor.MODIFIER_KEY) + " to remove the binding." )
-			{
+			Game.scene().add( new WndMessage( message ) {
 				@Override
 				protected void onKeyDown( NoosaInputProcessor.Key key ) {
 
@@ -248,7 +251,7 @@ public class WndKeymap extends Window {
 					}
 					hide();
 				}
-			});
+			} );
 
 			return true;
 		}

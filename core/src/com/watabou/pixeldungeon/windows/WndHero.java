@@ -22,6 +22,7 @@ import java.util.Locale;
 import com.badlogic.gdx.Input;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -92,7 +93,16 @@ public class WndHero extends WndTabbed {
 		select( 0 );
 	}
 
-    private class StatsTab extends Group {
+	@Override
+	protected void onKeyUp( NoosaInputProcessor.Key key ) {
+		if (key.action == GameAction.HERO_INFO) {
+			hide();
+		} else {
+			super.onKeyUp( key );
+		}
+	}
+
+	private class StatsTab extends Group {
 		
 		private static final String TXT_TITLE		= "Level %d %s";
 		private static final String TXT_CATALOGUS	= "Catalogus";
