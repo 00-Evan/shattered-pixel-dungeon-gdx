@@ -83,6 +83,11 @@ public class WndKeymap extends Window {
 		final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
 
 		final Map<GameAction, KeyPair> mappings = new TreeMap<>();
+		for (GameAction action : GameAction.values()) {
+			if (action.getDescription() != null) {
+				mappings.put(action, new KeyPair());
+			}
+		}
 		for (Map.Entry<Integer, PDInputProcessor.GameActionWrapper> entry : keyMappings.entrySet()) {
 			final Integer key = entry.getKey();
 			final PDInputProcessor.GameActionWrapper value = entry.getValue();
