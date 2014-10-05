@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.ui.Component;
 import com.watabou.pixeldungeon.input.GameAction;
@@ -30,7 +31,6 @@ public class WndKeymap extends Window {
 
 	private int tempPos = 0;
 
-	private final List<GameAction> actions = new ArrayList<>();
 	private final Map<GameAction, ListItem> items = new HashMap<>(32);
 
 	private static class KeyPair {
@@ -38,10 +38,11 @@ public class WndKeymap extends Window {
 	}
 
 	public WndKeymap() {
-		final int maxWidth = Gdx.graphics.getWidth()/4;
-		final int maxHeight = Gdx.graphics.getHeight()/4;
 
-		resize(maxWidth, maxHeight);
+		int ww = Math.min( 160, Camera.main.width - 16 );
+		int wh = Camera.main.height - 24;
+
+		resize( ww, wh );
 
 		RedButton btnReset = new RedButton( "Reset To Defaults" ) {
 			@Override
@@ -57,41 +58,11 @@ public class WndKeymap extends Window {
 		final ScrollPane list = new ScrollPane(listContent) {
 			@Override
 			public void onClick( float x, float y ) {
-				// FIXME: This is obviously error-prone
-				final GameAction action = actions.get((int) (y / ITEM_HEIGHT));
-				if (action == null)
-					return;
-
-				final ListItem item = items.get(action);
-				final boolean defaultKey = x < width * 3 / 4;
-
-				Game.scene().add( new WndMessage( "Press a key for the action \"" + item.gameAction.getDescription() + "\"," +
-						" or press " + Input.Keys.toString(PDInputProcessor.MODIFIER_KEY) + " to remove the mapping" )
-				{
-					@Override
-					protected void onKeyDown( NoosaInputProcessor.Key key ) {
-
-						final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
-						final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
-
-						int oldKeycode = item.getKey(defaultKey);
-						inputProcessor.removeKeyMapping(action, defaultKey, oldKeycode);
-
-						// Don't allow the modifier key to be replaced. TODO: This should probably be improved
-						if (key.code == PDInputProcessor.MODIFIER_KEY) {
-							item.setKey(defaultKey, 0);
-						} else {
-							item.setKey(defaultKey, key.code);
-
-							final PDInputProcessor.GameActionWrapper replacedAction = inputProcessor.setKeyMapping(action, defaultKey, key.code);
-							if (replacedAction != null) {
-								final ListItem replacedItem = items.get(replacedAction.gameAction);
-								replacedItem.setKey(replacedAction.defaultKey, 0);
-							}
-						}
-						hide();
+				for (ListItem item : items.values()) {
+					if (item.onClick( x, y )) {
+						break;
 					}
-				});
+				}
 			}
 		};
 
@@ -141,7 +112,6 @@ public class WndKeymap extends Window {
 		tempPos += ITEM_HEIGHT;
 		content.add(keyItem);
 
-		actions.add(action);
 		items.put(action, keyItem);
 	}
 
@@ -149,7 +119,11 @@ public class WndKeymap extends Window {
 		((PDInputProcessor)Game.instance.getInputProcessor()).resetKeyMappings();
 	}
 
-	private static class ListItem extends Component {
+	private class ListItem extends Component {
+
+		private static final int BOUND		= TITLE_COLOR;
+		private static final int NOT_BOUND	= 0xCACFC2;
+
 		private final GameAction gameAction;
 		private final KeyPair keys;
 
@@ -175,11 +149,9 @@ public class WndKeymap extends Window {
 			add( action );
 
 			key1 = PixelScene.createText( 9 );
-			key1.hardlight( TITLE_COLOR );
 			add( key1 );
 
 			key2 = PixelScene.createText( 9 );
-			key2.hardlight( TITLE_COLOR );
 			add( key2 );
 		}
 
@@ -192,17 +164,29 @@ public class WndKeymap extends Window {
 			action.y = ty;
 
 			key1.x = PixelScene.align( w4 * 2 + (w4 - key1.width()) / 2 );
-			key1.y = y;
+			key1.y = ty;
 
 			key2.x = PixelScene.align( w4 * 3 + (w4 - key2.width()) / 2 );
-			key2.y = y;
+			key2.y = ty;
 		}
 
 		private void reconfigureKeysText() {
-			key1.text(keys.key1 > 0 ? Input.Keys.toString(keys.key1) : TXT_UNASSIGNED);
+			if (keys.key1 > 0) {
+				key1.text( Input.Keys.toString( keys.key1 ) );
+				key1.hardlight( BOUND );
+			} else {
+				key1.text( TXT_UNASSIGNED );
+				key1.hardlight( NOT_BOUND );
+			}
 			key1.measure();
 
-			key2.text(keys.key2 > 0 ? Input.Keys.toString(keys.key2) : TXT_UNASSIGNED);
+			if (keys.key2 > 0) {
+				key2.text( Input.Keys.toString( keys.key2 ) );
+				key2.hardlight( BOUND );
+			} else {
+				key2.text( TXT_UNASSIGNED );
+				key2.hardlight( NOT_BOUND );
+			}
 			key2.measure();
 
 			layout();
@@ -223,6 +207,45 @@ public class WndKeymap extends Window {
 				this.keys.key2 = keycode;
 			}
 			reconfigureKeysText();
+		}
+
+		public boolean onClick( float x, float y ) {
+
+			if (x < this.x || x > this.x + width || y < this.y || y > this.y + height) {
+				return false;
+			}
+
+			final boolean defaultKey = x < width * 3 / 4;
+
+			Game.scene().add( new WndMessage( "Press a key for \"" + gameAction.getDescription() + "\"," +
+					" or press " + Input.Keys.toString(PDInputProcessor.MODIFIER_KEY) + " to remove the binding." )
+			{
+				@Override
+				protected void onKeyDown( NoosaInputProcessor.Key key ) {
+
+					final PDInputProcessor inputProcessor = (PDInputProcessor) Game.instance.getInputProcessor();
+					final Map<Integer, PDInputProcessor.GameActionWrapper> keyMappings = inputProcessor.getKeyMappings();
+
+					int oldKeycode = getKey(defaultKey);
+					inputProcessor.removeKeyMapping( gameAction, defaultKey, oldKeycode);
+
+					// Don't allow the modifier key to be replaced. TODO: This should probably be improved
+					if (key.code == PDInputProcessor.MODIFIER_KEY) {
+						setKey(defaultKey, 0);
+					} else {
+						setKey(defaultKey, key.code);
+
+						final PDInputProcessor.GameActionWrapper replacedAction = inputProcessor.setKeyMapping( gameAction, defaultKey, key.code);
+						if (replacedAction != null) {
+							final ListItem replacedItem = items.get(replacedAction.gameAction);
+							replacedItem.setKey(replacedAction.defaultKey, 0);
+						}
+					}
+					hide();
+				}
+			});
+
+			return true;
 		}
 	}
 }

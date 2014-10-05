@@ -41,6 +41,8 @@ public class WndSettings extends Window {
 	private static final String TXT_MUSIC	= "Music";
 	
 	private static final String TXT_SOUND	= "Sound FX";
+
+	private static final String TXT_BINDINGS	= "Key bindings";
 	
 	private static final String TXT_BRIGHTNESS	= "Brightness";
 	
@@ -144,25 +146,26 @@ public class WndSettings extends Window {
 
 				lastBtn = btnOrientation;
 			} else if (type == Application.ApplicationType.Desktop) {
+
+				RedButton btnKeymap = new RedButton( TXT_BINDINGS ) {
+					@Override
+					protected void onClick() {
+						parent.add(new WndKeymap());
+					}
+				};
+				btnKeymap.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				add(btnKeymap);
+
 				RedButton btnResolution = new RedButton(resolutionText()) {
 					@Override
 					protected void onClick() {
 						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
 					}
 				};
-				btnResolution.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				btnResolution.setRect(0, btnKeymap.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 
-				RedButton btnKeymap = new RedButton("Keymap") {
-					@Override
-					protected void onClick() {
-						parent.add(new WndKeymap());
-					}
-				};
-				btnKeymap.setRect(0, btnResolution.bottom() + GAP, WIDTH, BTN_HEIGHT);
-				add(btnKeymap);
-
-				lastBtn = btnKeymap;
+				lastBtn = btnResolution;
 			}
 		} else {
 		
