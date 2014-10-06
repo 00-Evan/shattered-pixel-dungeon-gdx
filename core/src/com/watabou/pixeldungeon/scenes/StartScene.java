@@ -19,7 +19,7 @@ package com.watabou.pixeldungeon.scenes;
 
 import java.util.HashMap;
 
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
@@ -41,6 +41,7 @@ import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
 import com.watabou.pixeldungeon.actors.hero.HeroSubClass;
 import com.watabou.pixeldungeon.effects.Speck;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.ui.Archs;
 import com.watabou.pixeldungeon.ui.Icons;
 import com.watabou.pixeldungeon.ui.RedButton;
@@ -202,7 +203,7 @@ public class StartScene extends PixelScene {
 		
 		add( new TouchArea( avFrame ) {
 			@Override
-			protected void onClick( PDInputProcessor.Touch touch ) {
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				add( new WndList( curClass.perks() ) );
 			}
 		} );
@@ -397,7 +398,7 @@ public class StartScene extends PixelScene {
 		}
 	}
 	
-	private class GemButton extends Button {
+	private class GemButton extends Button<GameAction> {
 		
 		private NinePatch bg;
 		private Image icon;

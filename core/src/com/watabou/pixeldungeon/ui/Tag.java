@@ -21,8 +21,9 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Chrome;
+import com.watabou.pixeldungeon.input.GameAction;
 
-public class Tag extends Button {
+public class Tag extends Button<GameAction> {
 
 	private float r;
 	private float g;

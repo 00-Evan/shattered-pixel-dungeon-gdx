@@ -20,8 +20,10 @@ package com.watabou.pixeldungeon.windows;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ui.Component;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.potions.Potion;
 import com.watabou.pixeldungeon.items.scrolls.Scroll;
@@ -133,6 +135,15 @@ public class WndCatalogus extends WndTabbed {
 		}
 		
 		content.setSize( WIDTH, pos );
+	}
+
+	@Override
+	protected void onKeyUp( NoosaInputProcessor.Key<GameAction> key ) {
+		if (key.action == GameAction.CATALOGUS) {
+			hide();
+		} else {
+			super.onKeyUp( key );
+		}
 	}
 	
 	private static class ListItem extends Component {

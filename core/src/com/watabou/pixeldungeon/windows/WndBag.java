@@ -18,7 +18,7 @@
 package com.watabou.pixeldungeon.windows;
 
 import com.watabou.gltextures.TextureCache;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Image;
@@ -27,6 +27,7 @@ import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Belongings;
 import com.watabou.pixeldungeon.actors.hero.Hero;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Gold;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.armor.Armor;
@@ -124,6 +125,15 @@ public class WndBag extends WndTabbed {
 				
 				tab.select( b == bag );
 			}
+		}
+	}
+
+	@Override
+	protected void onKeyUp( NoosaInputProcessor.Key<GameAction> key ) {
+		if (key.action == GameAction.BACKPACK) {
+			hide();
+		} else {
+			super.onKeyUp( key );
 		}
 	}
 	
@@ -375,7 +385,7 @@ public class WndBag extends WndTabbed {
 				
 			} else {
 
-                if (PDInputProcessor.modifier) {
+                if (NoosaInputProcessor.modifier) {
                     onLongClick();
                 } else {
                     WndBag.this.add(new WndItem(WndBag.this, item));

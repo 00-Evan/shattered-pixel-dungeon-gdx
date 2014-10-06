@@ -18,19 +18,20 @@
 package com.watabou.pixeldungeon.ui;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.DungeonTilemap;
 import com.watabou.pixeldungeon.actors.Actor;
 import com.watabou.pixeldungeon.actors.Char;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.windows.WndBag;
 
-public class QuickSlot extends Button implements WndBag.Listener {
+public class QuickSlot extends Button<GameAction> implements WndBag.Listener {
 
 	private static final String TXT_SELECT_ITEM = "Select an item for the quickslot";
 	
@@ -46,12 +47,11 @@ public class QuickSlot extends Button implements WndBag.Listener {
 	private Item lastItem = null;
 	private Char lastTarget= null;
 
-    {
-        hotKey = Input.Keys.Q;
-    }
-	
 	public QuickSlot() {
 		super();
+
+		hotKey = GameAction.QUICKSLOT;
+
 		item( select() );
 		
 		instance = this;
@@ -75,7 +75,7 @@ public class QuickSlot extends Button implements WndBag.Listener {
 			@Override
 			protected void onClick() {
 
-				if (PDInputProcessor.modifier) {
+				if (NoosaInputProcessor.modifier) {
 					onLongClick();
 					return;
 				}
@@ -105,7 +105,7 @@ public class QuickSlot extends Button implements WndBag.Listener {
 				icon.resetColor();
 			}
 		};
-        slot.hotKey = Input.Keys.Q;
+        slot.hotKey = GameAction.QUICKSLOT;
 		add( slot );
 		
 		crossB = Icons.TARGET.get();

@@ -17,36 +17,36 @@
 package com.watabou.noosa;
 
 import com.badlogic.gdx.Input;
-import com.watabou.input.PDInputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.utils.Signal;
 
 public class Scene extends Group {
 	
-	private Signal.Listener<PDInputProcessor.Key> keyListener;
+	private Signal.Listener<NoosaInputProcessor.Key> keyListener;
 	
 	public void create() {
-		PDInputProcessor.eventKey.add( keyListener = new Signal.Listener<PDInputProcessor.Key>() {
+		Game.instance.getInputProcessor().addKeyListener(keyListener = new Signal.Listener<NoosaInputProcessor.Key>() {
 			@Override
-			public void onSignal( PDInputProcessor.Key key ) {
+			public void onSignal(NoosaInputProcessor.Key key) {
 				if (Game.instance != null && key.pressed) {
 					switch (key.code) {
-					case Input.Keys.BACK:
-					case Input.Keys.ESCAPE:
-						onBackPressed();
-						break;
-					case Input.Keys.MENU:
-					case Input.Keys.F5:
-						onMenuPressed();
-						break;
+						case Input.Keys.BACK:
+						case Input.Keys.ESCAPE:
+							onBackPressed();
+							break;
+						case Input.Keys.MENU:
+						case Input.Keys.F5:
+							onMenuPressed();
+							break;
 					}
 				}
 			}
-		} );
+		});
 	}
 	
 	@Override
 	public void destroy() {
-		PDInputProcessor.eventKey.remove( keyListener );
+		Game.instance.getInputProcessor().removeKeyListener(keyListener);
 		super.destroy();
 	}
 	

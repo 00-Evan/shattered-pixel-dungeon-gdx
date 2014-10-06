@@ -24,9 +24,10 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Chrome;
+import com.watabou.pixeldungeon.input.GameAction;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 
-public class RedButton extends Button {
+public class RedButton extends Button<GameAction> {
 	
 	protected NinePatch bg;
 	protected BitmapText text;

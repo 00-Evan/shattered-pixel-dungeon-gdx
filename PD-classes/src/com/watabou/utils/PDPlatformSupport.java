@@ -1,13 +1,13 @@
 package com.watabou.utils;
 
-import com.badlogic.gdx.InputProcessor;
+import com.watabou.input.NoosaInputProcessor;
 
-public class PDPlatformSupport {
+public class PDPlatformSupport<GameActionType> {
 	private final String version;
 	private final String basePath;
-	private final InputProcessor inputProcessor;
+	private final NoosaInputProcessor<GameActionType> inputProcessor;
 
-	public PDPlatformSupport(String version, String basePath, InputProcessor inputProcessor) {
+	public PDPlatformSupport(String version, String basePath, NoosaInputProcessor<GameActionType> inputProcessor) {
 		this.version = version;
 		this.basePath = basePath;
 		this.inputProcessor = inputProcessor;
@@ -21,7 +21,7 @@ public class PDPlatformSupport {
 		return basePath;
 	}
 
-	public InputProcessor getInputProcessor() {
+	public NoosaInputProcessor<GameActionType> getInputProcessor() {
 		return inputProcessor;
 	}
 }
