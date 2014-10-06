@@ -269,10 +269,19 @@ public class Bundle {
 		
 		try {
 			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-			char[] chars = reader.readLine().toCharArray();
+			
+			StringBuilder builder = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				builder.append( line );
+				line = reader.readLine();
+			}
+			
+			char[] chars = builder.toString().toCharArray();
 			for (int i=0; i < chars.length; i++) {
 				chars[i] ^= 0x1F;
 			}
+			
 			JSONObject json = (JSONObject)new JSONTokener( new String( chars ) ).nextValue();
 			reader.close();
 			
