@@ -95,10 +95,10 @@ public class WndKeymap extends Window {
 			final PDInputProcessor.GameActionWrapper value = entry.getValue();
 
 			final GameAction action = value.gameAction;
-			KeyPair keyPair = mappings.get(action);
-			if (keyPair == null) {
+			final KeyPair keyPair = mappings.get(action);
+		/*	if (keyPair == null) {
 				mappings.put(action, keyPair = new KeyPair());
-			}
+			}*/
 			if (value.defaultKey) {
 				keyPair.key1 = key;
 			} else {
