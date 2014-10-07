@@ -19,8 +19,11 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	public void init() {
 		super.init();
 
-		// Load the default mappings
-		resetToDefaults();
+		// Load the default mappings...
+		// ...ONLY IF IT'S THE FIRST RUN!
+		if (Preferences.INSTANCE.getInt( getPrefKey( GameAction.BACK, true ), 0 ) == 0) {
+			resetKeyMappings();
+		}
 
 		for (GameAction action : GameAction.values()) {
 			loadKeyMapping( action );
@@ -34,7 +37,6 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		 */
 		int mapping1 = Preferences.INSTANCE.getInt( getPrefKey( action, true ), -1 );
 		if (mapping1 > 0) {
-			System.out.println( Input.Keys.toString( mapping1 ));
 			keyMappings.put( mapping1, new GameActionWrapper( action, true ) );
 		}
 
@@ -51,37 +53,30 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 	@Override
 	 public void resetKeyMappings() {
-		resetToDefaults();
-
-		for (GameAction action : GameAction.values()) {
-			Preferences.INSTANCE.put( getPrefKey( action, true ), -1 );
-			Preferences.INSTANCE.put( getPrefKey( action, false ), -1 );
-		}
-		// No need to save default bindings, cause next time
-		// they will be loaded anyway
-	}
-
-	private void resetToDefaults() {
 
 		keyMappings.clear();
 
-		for (GameAction action : DEFAULTS.keySet()) {
+		for (GameAction action : GameAction.values()) {
 			KeyPair pair = DEFAULTS.get( action );
-			setKeyMapping( action, pair.code1, pair.code2 );
+			if (pair != null) {
+				setKeyMapping( action, pair.code1, pair.code2 );
+			} else {	
+				pair = new KeyPair();
+			}
+			Preferences.INSTANCE.put( getPrefKey( action, true ), pair.code1 );
+			Preferences.INSTANCE.put( getPrefKey( action, false ), pair.code2 );
 		}
 	}
 
 	@Override
-	public GameActionWrapper setKeyMapping(GameAction action, boolean defaultKey, int code) {
+	public GameActionWrapper setKeyMapping( GameAction action, boolean defaultKey, int code ) {
 		final GameActionWrapper existingMapping = keyMappings.get(code);
 		keyMappings.put(code, new GameActionWrapper(action, defaultKey));
 		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), code);
 
-		// Return a "replaced" object only if it's not the same action and default key that we are remapping
-	/*	return existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)
-				? existingMapping
-				: null;*/
 		if (existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)) {
+			// If some other action was mapped to this key, then we have 
+			// to remove a record about it from the preferences
 			Preferences.INSTANCE.put( getPrefKey( existingMapping.gameAction, existingMapping.defaultKey ), -1);
 			return existingMapping;
 		} else {
@@ -151,6 +146,10 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		return (defaultKey ? GAMEACTION_PREFIX1 : GAMEACTION_PREFIX2) + action;
 	}
 
+	private static void putToPrefs( GameAction action, boolean defaultKey, boolean code ) {
+		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), code );
+	}
+
 	private static final HashMap<GameAction, KeyPair> DEFAULTS = new HashMap<>();
 	static {
 		DEFAULTS.put( GameAction.HERO_INFO, new KeyPair( Input.Keys.H ) );
@@ -197,6 +196,11 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 		public KeyPair( int code ) {
 			this( code, -1 );
+		}
+
+		public KeyPair() {
+			code1 = -1;
+			code2 = -1;
 		}
 	}
 }
