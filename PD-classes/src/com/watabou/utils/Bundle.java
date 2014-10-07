@@ -269,7 +269,20 @@ public class Bundle {
 		
 		try {
 			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
+			
+			StringBuilder builder = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				builder.append( line );
+				line = reader.readLine();
+			}
+			
+			char[] chars = builder.toString().toCharArray();
+			for (int i=0; i < chars.length; i++) {
+				chars[i] ^= 0x1F;
+			}
+			
+			JSONObject json = (JSONObject)new JSONTokener( new String( chars ) ).nextValue();
 			reader.close();
 			
 			return new Bundle( json );
@@ -281,7 +294,11 @@ public class Bundle {
 	public static boolean write( Bundle bundle, OutputStream stream ) {
 		try {
 			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );	
-			writer.write( bundle.data.toString() );
+			char[] chars = bundle.data.toString().toCharArray();
+			for (int i=0; i < chars.length; i++) {
+				chars[i] ^= 0x1F;
+			}
+			writer.write( chars );
 			writer.close();
 			
 			return true;
