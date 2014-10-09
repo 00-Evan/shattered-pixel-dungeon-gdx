@@ -264,12 +264,27 @@ public class Bundle {
 			
 		}
 	}
-	
+
+	private static final char XOR_KEY = 0x1F;
+
 	public static Bundle read( InputStream stream ) {
 		
 		try {
 			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
+
+			StringBuilder builder = new StringBuilder();
+
+			char[] buffer = new char[0x2000];
+			int count = reader.read( buffer );
+			while (count > 0) {
+				for (int i=0; i < count; i++) {
+					buffer[i] ^= XOR_KEY;
+				}
+				builder.append( buffer, 0, count );
+				count = reader.read( buffer );
+			}
+			
+			JSONObject json = (JSONObject)new JSONTokener( builder.toString() ).nextValue();
 			reader.close();
 			
 			return new Bundle( json );
@@ -280,8 +295,13 @@ public class Bundle {
 	
 	public static boolean write( Bundle bundle, OutputStream stream ) {
 		try {
-			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );	
-			writer.write( bundle.data.toString() );
+			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );
+
+			char[] chars = bundle.data.toString().toCharArray();
+			for (int i=0; i < chars.length; i++) {
+				chars[i] ^= XOR_KEY;
+			}
+			writer.write( chars );
 			writer.close();
 			
 			return true;
