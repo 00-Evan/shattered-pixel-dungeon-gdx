@@ -24,4 +24,8 @@ public class PDPlatformSupport<GameActionType> {
 	public NoosaInputProcessor<GameActionType> getInputProcessor() {
 		return inputProcessor;
 	}
+
+	public boolean isFullscreenEnabled() {
+		return false;
+	}
 }
