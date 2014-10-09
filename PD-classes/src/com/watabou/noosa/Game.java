@@ -255,7 +255,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		return inputProcessor;
 	}
 
-	public PDPlatformSupport getPlatfformSupport() {
+	public PDPlatformSupport getPlatformSupport() {
 		return platformSupport;
 	}
 }

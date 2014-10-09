@@ -161,7 +161,7 @@ public class WndSettings extends Window {
 						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
 					}
 				};
-				btnResolution.enable( PixelDungeon.instance.getPlatfformSupport().isFullscreenEnabled() );
+				btnResolution.enable( PixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
 				btnResolution.setRect(0, btnKeymap.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 
