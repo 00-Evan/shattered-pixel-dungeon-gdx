@@ -37,8 +37,8 @@ public enum Preferences {
 	public static final String KEY_WINDOW_WIDTH			= "windowWidth";
 	public static final String KEY_WINDOW_HEIGHT		= "windowHeight";
 
-	public static final int DEFAULT_WINDOW_WIDTH = 640;
-	public static final int DEFAULT_WINDOW_HEIGHT = 865;
+	public static final int DEFAULT_WINDOW_WIDTH = 480;
+	public static final int DEFAULT_WINDOW_HEIGHT = 800;
 
 	public static final String FILE_NAME = "pd-prefs";
 

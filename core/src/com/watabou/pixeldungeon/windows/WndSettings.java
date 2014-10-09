@@ -24,7 +24,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.ui.CheckBox;
 import com.watabou.pixeldungeon.ui.RedButton;
@@ -162,6 +161,7 @@ public class WndSettings extends Window {
 						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
 					}
 				};
+				btnResolution.enable( PixelDungeon.instance.getPlatfformSupport().isFullscreenEnabled() );
 				btnResolution.setRect(0, btnKeymap.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 

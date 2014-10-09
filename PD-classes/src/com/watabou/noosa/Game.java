@@ -49,6 +49,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	public static String version;
 	private final String basePath;
 	private final NoosaInputProcessor<GameActionType> inputProcessor;
+	private final PDPlatformSupport platformSupport;
 
 	// Current scene
 	protected Scene scene;
@@ -70,6 +71,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	public Game( Class<? extends Scene> c, PDPlatformSupport<GameActionType> platformSupport ) {
 		super();
 		sceneClass = c;
+		this.platformSupport = platformSupport;
 		this.inputProcessor = platformSupport.getInputProcessor();
 		this.basePath = platformSupport.getBasePath();
 	}
@@ -251,5 +253,9 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 
 	public NoosaInputProcessor<GameActionType> getInputProcessor() {
 		return inputProcessor;
+	}
+
+	public PDPlatformSupport getPlatfformSupport() {
+		return platformSupport;
 	}
 }

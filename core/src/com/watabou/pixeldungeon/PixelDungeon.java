@@ -18,6 +18,7 @@
 package com.watabou.pixeldungeon;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
@@ -91,16 +92,6 @@ public class PixelDungeon extends Game<GameAction> {
 	@Override
 	public void create() {
 		super.create();
-
-	/*	if (android.os.Build.VERSION.SDK_INT >= 19) {
-			getWindow().getDecorView().setSystemUiVisibility( 
-				View.SYSTEM_UI_FLAG_LAYOUT_STABLE | 
-				View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | 
-				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | 
-				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | 
-				View.SYSTEM_UI_FLAG_FULLSCREEN | 
-				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY );
-		}*/
 		
 		boolean landscape = Gdx.graphics.getWidth() > Gdx.graphics.getHeight();
 
@@ -118,7 +109,10 @@ public class PixelDungeon extends Game<GameAction> {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 
-		if (!fullscreen()) {
+		Graphics.DisplayMode mode = Gdx.graphics.getDesktopDisplayMode();
+		boolean maximized = width >= mode.width || height >= mode.height;
+
+		if (!maximized && !fullscreen()) {
 			final Preferences prefs = Preferences.INSTANCE;
 			prefs.put(Preferences.KEY_WINDOW_WIDTH, width);
 			prefs.put(Preferences.KEY_WINDOW_HEIGHT, height);

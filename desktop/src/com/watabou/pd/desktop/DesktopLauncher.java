@@ -5,9 +5,12 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.Preferences;
 import com.watabou.utils.PDPlatformSupport;
+
+import org.lwjgl.opengl.Display;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -39,7 +42,18 @@ public class DesktopLauncher {
 		config.addIcon( "ic_launcher_16.png", Files.FileType.Internal );
 
 		new LwjglApplication(new PixelDungeon(
-				new PDPlatformSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
+				new DesktopSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
 		), config);
+	}
+
+	private static class DesktopSupport extends PDPlatformSupport {
+		public DesktopSupport( String version, String basePath, NoosaInputProcessor inputProcessor ) {
+			super( version, basePath, inputProcessor );
+		}
+
+		@Override
+		public boolean isFullscreenEnabled() {
+			return Display.getPixelScaleFactor() == 1f;
+		}
 	}
 }
