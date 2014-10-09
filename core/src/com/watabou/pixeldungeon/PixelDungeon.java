@@ -99,7 +99,7 @@ public class PixelDungeon extends Game<GameAction> {
 		if (prefs.getBoolean(Preferences.KEY_LANDSCAPE, false) != landscape) {
 			landscape( !landscape );
 		}
-		fullscreen(prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false));
+		fullscreen( prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false) );
 		
 		Music.INSTANCE.enable( music() );
 		Sample.INSTANCE.enable( soundFx() );
