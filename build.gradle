@@ -15,7 +15,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.7.1c-1'
+    version = '1.7.2a-1'
     ext {
         versionCode = 59
         appName = 'pixel-dungeon'
