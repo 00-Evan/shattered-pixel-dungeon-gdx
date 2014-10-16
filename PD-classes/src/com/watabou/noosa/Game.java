@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.watabou.noosa;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -53,7 +54,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 
 	// Current scene
 	protected Scene scene;
-	// New scene wea re going to switch to
+	// New scene we are going to switch to
 	protected Scene requestedScene;
 	// true if scene switch is requested
 	protected boolean requestedReset = true;

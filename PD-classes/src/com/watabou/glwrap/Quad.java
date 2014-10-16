@@ -59,7 +59,7 @@ public class Quad {
 		ShortBuffer indices = cache.get(size);
 		if (indices == null) {
 			
-			// Can be optimized
+			// TODO: Optimize it!
 			
 			indices = ByteBuffer.
 				allocateDirect( size * SIZE * Short.SIZE / 8 ).

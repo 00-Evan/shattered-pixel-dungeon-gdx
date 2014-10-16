@@ -47,6 +47,10 @@ public class Bundle {
 		this( new JSONObject() );
 	}
 	
+	public String toString() {
+		return data.toString();
+	}
+	
 	private Bundle( JSONObject data ) {
 		this.data = data;
 	}
@@ -74,7 +78,7 @@ public class Bundle {
 	public String getString( String key ) {
 		return data.optString( key );
 	}
-
+	
 	public Bundle getBundle( String key ) {
 		return new Bundle( data.optJSONObject( key ) );
 	}
@@ -102,6 +106,14 @@ public class Bundle {
 	
 	public Bundlable get( String key ) {
 		return getBundle( key ).get();	
+	}
+	
+	public <E extends Enum<E>> E getEnum( String key, Class<E> enumClass ) {
+		try {
+			return (E)Enum.valueOf( enumClass, data.getString( key ) );
+		} catch (JSONException e) {
+			return enumClass.getEnumConstants()[0];
+		}
 	}
 	
 	public int[] getIntArray( String key ) {
@@ -214,6 +226,15 @@ public class Bundle {
 		}
 	}
 	
+	public void put( String key, Enum<?> value ) {
+		if (value != null) {
+			try {
+				data.put( key, value.name() );
+			} catch (JSONException e) {
+			}
+		}
+	}
+	
 	public void put( String key, int[] array ) {
 		try {
 			JSONArray jsonArray = new JSONArray();
@@ -289,6 +310,17 @@ public class Bundle {
 			
 			return new Bundle( json );
 		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public static Bundle read( byte[] bytes ) {
+		try {
+			
+			JSONObject json = (JSONObject)new JSONTokener( new String( bytes ) ).nextValue();
+			return new Bundle( json );
+			
+		} catch (JSONException e) {
 			return null;
 		}
 	}
