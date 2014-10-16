@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -72,18 +71,13 @@ public class StartScene extends PixelScene {
 	
 	private static final String TXT_UNLOCK	= "To unlock this character class, slay the 3rd boss with any other class";
 	
-	private float width;
-	private float height;
-	private float top;
-	private float left;
+	private static final String TXT_WIN_THE_GAME = 
+		"To unlock \"Challenges\", win the game with any character class.";
 	
-	private static HashMap<HeroClass, GemButton> gems = new HashMap<HeroClass, StartScene.GemButton>();
+	private static final float WIDTH = 116;
+	private static final float HEIGHT = 220;
 	
-	private Avatar avatar;
-	private NinePatch frame;
-	private BitmapText className;
-	
-	private SimpleButton btnMastery;
+	private static HashMap<HeroClass, ClassShield> shields = new HashMap<HeroClass, ClassShield>();
 	
 	private GameButton btnLoad;
 	private GameButton btnNewGame;
@@ -104,46 +98,19 @@ public class StartScene extends PixelScene {
 		
 		int w = Camera.main.width;
 		int h = Camera.main.height;
-		
-		width = 128;
-		height = 220;
-		left = (w - width) / 2;
-		top = (h - height) / 2; 
+
+		float left = (w - WIDTH) / 2;
+		float top = (h - HEIGHT) / 2; 
+		float bottom = h - top;
 		
 		Archs archs = new Archs();
 		archs.setSize( w, h );
-		add( archs );
+		add( archs ); 
 		
-		BitmapText title = PixelScene.createText( TXT_TITLE, 9 );
-		title.hardlight( Window.TITLE_COLOR );
-		title.measure();
+		Image title = BannerSprites.get( Type.SELECT_YOUR_HERO );
 		title.x = align( (w - title.width()) / 2 );
-		title.y = align( top );
+		title.y = top;
 		add( title );
-		
-		float pos = title.y + title.height() + GAP;
-		
-		GemButton btns[] = {
-			new GemButton( HeroClass.WARRIOR ), 
-			new GemButton( HeroClass.MAGE ), 
-			new GemButton( HeroClass.ROGUE ), 
-			new GemButton( HeroClass.HUNTRESS ) };
-		
-		float space = width;
-		for (GemButton btn : btns) {
-			space -= btn.width();
-		}
-		
-		float p = 0;
-		for (GemButton btn : btns) {
-			add( btn );
-			btn.setPos( align( left + p ), align( pos ) );
-			p += btn.width() + space / 3;
-		}
-		
-		
-		frame = Chrome.get( Chrome.Type.TOAST_TR );
-		add( frame );
 		
 		btnNewGame = new GameButton( TXT_NEW ) {
 			@Override
@@ -255,6 +222,10 @@ public class StartScene extends PixelScene {
 			}
 		}
 		
+		ExitButton btnExit = new ExitButton();
+		btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
+		add( btnExit );
+		
 		curClass = null;
 		updateClass( HeroClass.values()[PixelDungeon.lastClass()] );
 		
@@ -264,24 +235,22 @@ public class StartScene extends PixelScene {
 	private void updateClass( HeroClass cl ) {
 		
 		if (curClass == cl) {
+			add( new WndClass( cl ) );
 			return;
 		}
 		
 		if (curClass != null) {
-			gems.get( curClass ).highlight( false );
+			shields.get( curClass ).highlight( false );
 		}
-		
-		gems.get( curClass = cl ).highlight( true );
-		
-		className.text( Utils.capitalize( cl.title() ) );
-		className.measure();
-		className.x = align( frame.center().x - className.width() / 2 );
+		shields.get( curClass = cl ).highlight( true );
 		
 		if (cl != HeroClass.HUNTRESS || huntressUnlocked) {
 		
 			unlock.visible = false;
+			 
+			float buttonPos = (Camera.main.height + HEIGHT) / 2 - BUTTON_HEIGHT;
 			
-			float buttonPos = frame.y + frame.innerBottom() - BUTTON_HEIGHT;
+			float left = (Camera.main.width - WIDTH) / 2;
 			
 			GamesInProgress.Info info = GamesInProgress.check( curClass );
 			if (info != null) {
@@ -291,10 +260,10 @@ public class StartScene extends PixelScene {
 				btnNewGame.visible = true;
 				btnNewGame.secondary( TXT_ERASE );
 				
-				float w = (frame.innerWidth() - GAP) / 2;
+				float w = (WIDTH - GAP) / 2;
 				
 				btnLoad.setRect(
-					frame.x + frame.marginLeft(), buttonPos, w, BUTTON_HEIGHT );
+					left, buttonPos, w, BUTTON_HEIGHT );
 				btnNewGame.setRect(
 					btnLoad.right() + GAP, buttonPos, w, BUTTON_HEIGHT );
 				
@@ -303,39 +272,16 @@ public class StartScene extends PixelScene {
 				
 				btnNewGame.visible = true;
 				btnNewGame.secondary( null );
-				btnNewGame.setRect(
-					frame.x + frame.marginLeft(), buttonPos, frame.innerWidth(), BUTTON_HEIGHT );
+				btnNewGame.setRect( left, buttonPos, WIDTH, BUTTON_HEIGHT );
 			}
-			
-			Badges.Badge badgeToCheck = null;
-			switch (curClass) {
-			case WARRIOR:
-				badgeToCheck = Badges.Badge.MASTERY_WARRIOR;
-				break;
-			case MAGE:
-				badgeToCheck = Badges.Badge.MASTERY_MAGE;
-				break;
-			case ROGUE:
-				badgeToCheck = Badges.Badge.MASTERY_ROGUE;
-				break;
-			case HUNTRESS:
-				badgeToCheck = Badges.Badge.MASTERY_HUNTRESS;
-				break;
-			}
-			btnMastery.active = 
-			btnMastery.visible = 
-				Badges.isUnlocked( badgeToCheck );
 			
 		} else {
 			
 			unlock.visible = true;
 			btnLoad.visible = false;
 			btnNewGame.visible = false;
-			btnMastery.active = btnMastery.visible = false;
 			
 		}
-		
-		avatar.selectClass( curClass );
 	}
 	
 	private void startNewGame() {

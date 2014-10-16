@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -69,7 +68,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnBadges = new DashboardItem( TXT_BADGES, 3 ) {
 			@Override
 			protected void onClick() {
-				Game.switchScene( BadgesScene.class );
+				PixelDungeon.switchNoFade( BadgesScene.class );
 			}
 		};
 		btnBadges.setPos( w / 2 - btnBadges.width(), (h + height) / 2 - DashboardItem.SIZE );
@@ -78,7 +77,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnAbout = new DashboardItem( TXT_ABOUT, 1 ) {
 			@Override
 			protected void onClick() {
-				Game.switchScene( AboutScene.class );
+				PixelDungeon.switchNoFade( AboutScene.class );
 			}
 		};
 		btnAbout.setPos( w / 2, (h + height) / 2 - DashboardItem.SIZE );
@@ -87,7 +86,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
 			@Override
 			protected void onClick() {
-				Game.switchScene( StartScene.class );
+				PixelDungeon.switchNoFade( StartScene.class );
 			}
 		};
 		btnPlay.setPos( w / 2 - btnPlay.width(), btnAbout.top() - DashboardItem.SIZE );
@@ -96,7 +95,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnHighscores = new DashboardItem( TXT_HIGHSCORES, 2 ) {
 			@Override
 			protected void onClick() {
-				Game.switchScene( RankingsScene.class );
+				PixelDungeon.switchNoFade( RankingsScene.class );
 			}
 		};
 		btnHighscores.setPos( w / 2, btnPlay.top() );
@@ -110,8 +109,12 @@ public class TitleScene extends PixelScene {
 		add( version );
 		
 		PrefsButton btnPrefs = new PrefsButton();
-		btnPrefs.setPos( w - btnPrefs.width() - 1, 1 );
+		btnPrefs.setPos( 0, 0 );
 		add( btnPrefs );
+		
+		ExitButton btnExit = new ExitButton();
+		btnExit.setPos( w - btnExit.width(), 0 );
+		add( btnExit );
 		
 		fadeIn();
 	}

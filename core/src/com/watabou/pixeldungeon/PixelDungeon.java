@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -61,9 +60,6 @@ public class PixelDungeon extends Game<GameAction> {
 		com.watabou.utils.Bundle.addAlias( 
 			com.watabou.pixeldungeon.actors.hero.Hero.class, 
 			"com.watabou.pixeldungeon.actors.Hero" );
-	//	com.watabou.utils.Bundle.addAlias( 
-	//		com.watabou.pixeldungeon.items.weapon.missiles.Javelin.class, 
-	//		"com.watabou.pixeldungeon.items.weapon.missiles.Boomerang" );
 		com.watabou.utils.Bundle.addAlias( 
 			com.watabou.pixeldungeon.actors.mobs.npcs.Shopkeeper.class,
 			"com.watabou.pixeldungeon.actors.mobs.Shopkeeper" );
@@ -220,6 +216,21 @@ public class PixelDungeon extends Game<GameAction> {
 	
 	public static boolean intro() {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_INTRO, true );
+	}
+	
+	@Override
+	public void onWindowFocusChanged( boolean hasFocus ) {
+		
+		super.onWindowFocusChanged( hasFocus );
+		
+		if (hasFocus) {
+			updateImmersiveMode();
+		}
+	}
+	
+	public static void switchNoFade( Class<? extends PixelScene> c ) {
+		PixelScene.noFade = true;
+		switchScene( c );
 	}
 	
 	/*

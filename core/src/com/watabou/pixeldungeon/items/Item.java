@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -133,7 +132,7 @@ public class Item implements Bundlable {
 	public void execute( Hero hero ) {
 		execute( hero, defaultAction );
 	}
-	
+
 	protected void onThrow( int cell ) {
 		Heap heap = Dungeon.level.drop( this, cell );
 		if (!heap.isEmpty()) {
@@ -156,8 +155,10 @@ public class Item implements Bundlable {
 		}
 		
 		if (stackable) {
+			
+			Class<?>c = getClass();
 			for (Item item:items) {
-				if (isSimilar( item )) {
+				if (item.getClass() == c) {
 					item.quantity += quantity;
 					item.updateQuickslot();
 					return true;
@@ -188,7 +189,7 @@ public class Item implements Bundlable {
 		return collect( Dungeon.hero.belongings.backpack );
 	}
 	
-	public Item detach( Bag container ) {
+	public final Item detach( Bag container ) {
 		
 		if (quantity <= 0) {
 			
@@ -230,8 +231,7 @@ public class Item implements Bundlable {
 		return this;
 	}
 	
-	public boolean isSimilar( Item item ) {
-		return getClass() == item.getClass();
+	protected void onDetach( ) {
 	}
 	
 	public Item upgrade() {
@@ -429,7 +429,7 @@ public class Item implements Bundlable {
 		float delay = TIME_TO_THROW;
 		if (this instanceof MissileWeapon) {
 
-			// Refactoring needed!
+			// FIXME
 			delay *= ((MissileWeapon)this).speedFactor( user );
 			if (enemy != null && enemy.buff( SnipersMark.class ) != null) {
 				delay *= 0.5f;

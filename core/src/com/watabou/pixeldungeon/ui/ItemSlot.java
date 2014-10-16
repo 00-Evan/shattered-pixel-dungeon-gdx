@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -48,7 +47,6 @@ public class ItemSlot extends Button<GameAction> {
 	private static final String TXT_TYPICAL_STR	= "%d?";
 	
 	private static final String TXT_LEVEL	= "%+d";
-	private static final String TXT_CURSED	= "";
 	
 	// Special items for containers
 	public static final Item CHEST = new Item() {
@@ -162,7 +160,7 @@ public class ItemSlot extends Button<GameAction> {
 			int level = item.visiblyUpgraded(); 
 
 			if (level != 0 || (item.cursed && item.cursedKnown)) {
-				bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );
+				bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : "" );
 				bottomRight.measure();
 				bottomRight.hardlight( level > 0 ? UPGRADED : DEGRADED );
 			} else {
