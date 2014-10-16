@@ -141,8 +141,6 @@ public class ItemSprite extends MovieClip {
 	
 			speed.offset( (px-x) / DROP_INTERVAL, (py-y) / DROP_INTERVAL );
 			
-			Log.d( "GAME", toString() );
-			Log.d( "GAME", String.format( "drop aside: %.1f %.1f", speed.x, speed.y ) );
 		}
 	}
 	

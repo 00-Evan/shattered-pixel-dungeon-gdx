@@ -134,7 +134,7 @@ public class StartScene extends PixelScene {
 				Game.switchScene( InterlevelScene.class );
 			}
 		};
-		add( btnLoad ); 
+		add( btnLoad );	
 		
 		HeroClass[] classes = {
 			HeroClass.WARRIOR, HeroClass.MAGE, HeroClass.ROGUE, HeroClass.HUNTRESS	
@@ -294,12 +294,12 @@ public class StartScene extends PixelScene {
 				text.y = align( y + (height - text.baseLine()) / 2 );
 			}
 		}
-	}
 		
 		public void secondary( String text ) {
 			secondary.text( text );
 			secondary.measure();
 		}
+	}
 	
 	private class ClassShield extends Button<GameAction> {
 		
