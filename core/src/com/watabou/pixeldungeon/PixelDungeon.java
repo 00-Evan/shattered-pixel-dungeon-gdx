@@ -235,15 +235,6 @@ public class PixelDungeon extends Game<GameAction> {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_INTRO, true );
 	}
 	
-	@Override
-	public void onWindowFocusChanged( boolean hasFocus ) {
-		
-		super.onWindowFocusChanged( hasFocus );
-		
-		if (hasFocus) {
-			updateImmersiveMode();
-		}
-	}
 	
 	public static void switchNoFade( Class<? extends PixelScene> c ) {
 		PixelScene.noFade = true;
