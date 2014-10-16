@@ -378,7 +378,12 @@ public class StartScene extends PixelScene {
 		public void update() {
 			super.update();
 			
-			Sample.INSTANCE.play( Assets.SND_CLICK, 1, 1, 1.2f );
+			if (brightness < 1.0f && brightness > MIN_BRIGHTNESS) {
+				if ((brightness -= Game.elapsed) <= MIN_BRIGHTNESS) {
+					brightness = MIN_BRIGHTNESS;
+				}
+				updateBrightness();
+			}
 		}
 		
 		public void highlight( boolean value ) {
