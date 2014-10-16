@@ -112,6 +112,7 @@ public class WndSettings extends Window {
 				PixelDungeon.music( checked() );
 			}
 		};
+		btnMusic.setRect( 0, BTN_HEIGHT + GAP, WIDTH, BTN_HEIGHT );
 		btnMusic.checked( PixelDungeon.music() );
 		add( btnMusic );
 		
