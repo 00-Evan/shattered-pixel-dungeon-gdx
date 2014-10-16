@@ -206,24 +206,26 @@ public class Item implements Bundlable {
 			updateQuickslot();
 			
 			try { 
-				return ClassReflection.newInstance(getClass());
+				Item detached = ClassReflection.newInstance(getClass());
+				detached.onDetach( );
+				return detached;
 			} catch (Exception e) {
 				return null;
 			}
 		}
 	}
 	
-	public Item detachAll( Bag container ) {
+	public final Item detachAll( Bag container ) {
 		for (Item item : container.items) {
 			if (item == this) {
 				container.items.remove( this );
+				item.onDetach( );
 				QuickSlot.refresh();
 				return this;
 			} else if (item instanceof Bag) {
 				Bag bag = (Bag)item;
 				if (bag.contains( this )) {
-					detachAll( bag );
-					return this;
+					return detachAll( bag );
 				}
 			}
 		}

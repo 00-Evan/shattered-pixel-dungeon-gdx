@@ -19,8 +19,10 @@ package com.watabou.pixeldungeon.scenes;
 import com.badlogic.gdx.Gdx;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.*;
+import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.effects.Flare;
 import com.watabou.pixeldungeon.ui.Archs;
+import com.watabou.pixeldungeon.ui.ExitButton;
 import com.watabou.pixeldungeon.ui.Icons;
 import com.watabou.pixeldungeon.ui.Window;
 

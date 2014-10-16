@@ -21,10 +21,16 @@ import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
+import com.watabou.noosa.Visual;
+import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
+import com.watabou.pixeldungeon.levels.Level;
+import com.watabou.pixeldungeon.scenes.GameScene;
+import com.watabou.utils.Callback;
+import com.watabou.utils.PointF;
 import com.watabou.utils.RectF;
 
 public class HeroSprite extends CharSprite {

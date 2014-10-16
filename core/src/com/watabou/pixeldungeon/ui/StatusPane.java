@@ -35,6 +35,7 @@ import com.watabou.pixeldungeon.items.keys.IronKey;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.sprites.HeroSprite;
+import com.watabou.pixeldungeon.windows.WndGame;
 import com.watabou.pixeldungeon.windows.WndCatalogus;
 import com.watabou.pixeldungeon.windows.WndHero;
 import com.watabou.pixeldungeon.windows.WndJournal;

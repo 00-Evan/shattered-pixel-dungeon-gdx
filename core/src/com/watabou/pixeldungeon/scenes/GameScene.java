@@ -658,11 +658,12 @@ public class GameScene extends PixelScene {
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
-			if (cell != -1) {
+			if (Dungeon.hero.handle( cell )) {
                 if (NoosaInputProcessor.modifier) {
                     examineCell( cell );
                 } else {
-                    Dungeon.hero.handle(cell);
+				//	Actor.next();
+					Dungeon.hero.next();
                 }
 			}
 		}

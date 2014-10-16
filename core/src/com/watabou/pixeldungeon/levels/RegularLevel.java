@@ -681,7 +681,7 @@ public abstract class RegularLevel extends Level {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-
+		
 		rooms = new HashSet( bundle.getCollection( "rooms" ) );
 		for (Room r : rooms) {
 			if (r.type == Type.WEAK_FLOOR) {

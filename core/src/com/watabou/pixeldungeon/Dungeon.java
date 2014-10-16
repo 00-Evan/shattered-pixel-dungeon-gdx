@@ -113,7 +113,8 @@ public class Dungeon {
 	public static boolean dewVial;		// true if the dew vial can be spawned
 	public static int transmutation;	// depth number for a well of transmutation
 	
-
+	public static int challenges;
+	
 	public static Hero hero;
 	public static Level level;
 	
@@ -464,8 +465,7 @@ public class Dungeon {
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, level );
 		
-		OutputStream output = Game.instance.openFileOutput( 
-			Utils.format( depthFile( hero.heroClass ), depth ) );
+		OutputStream output = Game.instance.openFileOutput( Utils.format( depthFile( hero.heroClass ), depth ), Game.MODE_PRIVATE );
 		Bundle.write( bundle, output );
 		output.close();
 	}
