@@ -365,12 +365,7 @@ public class StartScene extends PixelScene {
 			emitter.revive();
 			emitter.start( Speck.factory( Speck.LIGHT ), 0.05f, 7 );
 			
-			if (brightness < 1.0f && brightness > MIN_BRIGHTNESS) {
-				if ((brightness -= Game.elapsed) <= MIN_BRIGHTNESS) {
-					brightness = MIN_BRIGHTNESS;
-				}
-				updateBrightness();
-			}
+			Sample.INSTANCE.play( Assets.SND_CLICK, 1, 1, 1.2f );
 			updateClass( cl );
 		}
 		
