@@ -111,17 +111,17 @@ public class RankingsScene extends PixelScene {
 			add( title );
 			
 		}
-		
-		ExitButton btnExit = new ExitButton();
-		btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
-		add( btnExit );
+
+        ExitButton btnExit = new ExitButton();
+        btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
+        add( btnExit );
 		
 		fadeIn();
 	}
 	
 	@Override
 	protected void onBackPressed() {
-		PixelDungeon.switchNoFade( TitleScene.class );
+        PixelDungeon.switchNoFade(TitleScene.class);
 	}
 	
 	public static class Record extends Button<GameAction> {

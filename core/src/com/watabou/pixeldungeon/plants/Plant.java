@@ -20,6 +20,7 @@ package com.watabou.pixeldungeon.plants;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.watabou.pixeldungeon.items.artifacts.SandalsOfNature;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;

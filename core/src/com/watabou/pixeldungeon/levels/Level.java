@@ -326,10 +326,12 @@ public abstract class Level implements Bundlable {
 		bundle.put( MAPPED, mapped );
 		bundle.put( ENTRANCE, entrance );
 		bundle.put( EXIT, exit );
+        bundle.put( LOCKED, locked );
 		bundle.put( HEAPS, heaps.valuesAsList() );
 		bundle.put( PLANTS, plants.valuesAsList() );
 		bundle.put( MOBS, mobs );
 		bundle.put( BLOBS, blobs.values() );
+        bundle.put( FALLING, fallingItems);
 	}
 	
 	public int tunnelTile() {

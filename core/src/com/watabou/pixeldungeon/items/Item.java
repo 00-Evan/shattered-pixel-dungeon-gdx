@@ -232,8 +232,11 @@ public class Item implements Bundlable {
 		return this;
 	}
 	
-	protected void onDetach( ) {
+	public boolean isSimilar( Item item ) {
+		return getClass() == item.getClass();
 	}
+
+    protected void onDetach(){}
 	
 	public Item upgrade() {
 		

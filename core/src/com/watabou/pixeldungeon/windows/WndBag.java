@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.windows;
 
+import com.watabou.pixeldungeon.items.food.Food;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;

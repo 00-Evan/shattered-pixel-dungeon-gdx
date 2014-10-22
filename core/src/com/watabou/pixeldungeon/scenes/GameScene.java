@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.scenes;
 
 import java.io.IOException;
 
+import com.watabou.pixeldungeon.*;
 import com.badlogic.gdx.utils.IntMap;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
