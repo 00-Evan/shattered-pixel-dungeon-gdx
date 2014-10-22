@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.levels.painters;
 
+import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.items.Generator;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.Heap.Type;
@@ -42,7 +43,7 @@ public class VaultPainter extends Painter {
 		
 		case 0:
 			level.drop( prize( level ), c ).type = Type.LOCKED_CHEST;
-			level.addItemToSpawn( new GoldenKey() );
+			level.addItemToSpawn( new GoldenKey( Dungeon.depth ) );
 			break;
 			
 		case 1:
@@ -53,7 +54,7 @@ public class VaultPainter extends Painter {
 			} while (i1.getClass() == i2.getClass());
 			level.drop( i1, c ).type = Type.CRYSTAL_CHEST;
 			level.drop( i2, c + Level.NEIGHBOURS8[Random.Int( 8 )]).type = Type.CRYSTAL_CHEST;
-			level.addItemToSpawn( new GoldenKey() );
+			level.addItemToSpawn( new GoldenKey( Dungeon.depth ) );
 			break;
 			
 		case 2:
@@ -63,13 +64,14 @@ public class VaultPainter extends Painter {
 		}
 		
 		room.entrance().set( Room.Door.Type.LOCKED );
-		level.addItemToSpawn( new IronKey() );
+		level.addItemToSpawn( new IronKey( Dungeon.depth ) );
 	}
 	
 	private static Item prize( Level level ) {
 		return Generator.random( Random.oneOf(  
 			Generator.Category.WAND, 
-			Generator.Category.RING 
+			Generator.Category.RING,
+            Generator.Category.ARTIFACT
 		) );
 	}
 }

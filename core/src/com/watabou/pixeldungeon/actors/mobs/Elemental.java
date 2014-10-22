@@ -25,9 +25,9 @@ import com.watabou.pixeldungeon.actors.buffs.Burning;
 import com.watabou.pixeldungeon.actors.buffs.Frost;
 import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.items.potions.PotionOfLiquidFlame;
-import com.watabou.pixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.watabou.pixeldungeon.items.wands.WandOfFirebolt;
 import com.watabou.pixeldungeon.items.weapon.enchantments.Fire;
+import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.sprites.ElementalSprite;
 import com.watabou.utils.Random;
 
@@ -82,7 +82,10 @@ public class Elemental extends Mob {
 			}
 		} else {
 			if (buff instanceof Frost) {
-				damage( Random.NormalIntRange( 1, HT * 2 / 3 ), buff );
+                if (Level.water[this.pos])
+                    damage(Random.NormalIntRange( HT / 2, HT ), buff);
+                else
+				    damage( Random.NormalIntRange( 1, HT * 2 / 3 ), buff );
 			}
 			super.add( buff );
 		}
@@ -100,7 +103,6 @@ public class Elemental extends Mob {
 		IMMUNITIES.add( Burning.class );
 		IMMUNITIES.add( Fire.class );
 		IMMUNITIES.add( WandOfFirebolt.class );
-		IMMUNITIES.add( ScrollOfPsionicBlast.class );
 	}
 	
 	@Override

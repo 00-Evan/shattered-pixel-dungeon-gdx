@@ -20,6 +20,8 @@ package com.watabou.pixeldungeon.items.quest;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 
+//this one's still hanging around to support quests from old saves
+//TODO: remove this when saves from v0.2.1 are no longer supported
 public class RatSkull extends Item {
 	
 	{

@@ -17,6 +17,9 @@
  */
 package com.watabou.pixeldungeon.ui;
 
+import com.watabou.pixeldungeon.items.keys.IronKey;
+import com.watabou.pixeldungeon.items.keys.Key;
+import com.watabou.pixeldungeon.items.keys.SkeletonKey;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.ui.Button;
 import com.watabou.pixeldungeon.Dungeon;
@@ -46,6 +49,7 @@ public class ItemSlot extends Button<GameAction> {
 	
 	private static final String TXT_STRENGTH	= ":%d";
 	private static final String TXT_TYPICAL_STR	= "%d?";
+    private static final String TXT_KEY_DEPTH	= "*%d";
 	
 	private static final String TXT_LEVEL	= "%+d";
 	
@@ -56,6 +60,9 @@ public class ItemSlot extends Button<GameAction> {
 	public static final Item LOCKED_CHEST = new Item() {
 		public int image() { return ItemSpriteSheet.LOCKED_CHEST; };
 	};
+    public static final Item CRYSTAL_CHEST = new Item() {
+        public int image() { return ItemSpriteSheet.CRYSTAL_CHEST; };
+    };
 	public static final Item TOMB = new Item() {
 		public int image() { return ItemSpriteSheet.TOMB; };
 	};
@@ -151,8 +158,11 @@ public class ItemSlot extends Button<GameAction> {
 					
 				}
 				topRight.measure();
-				
-			} else {
+
+			} else if (item instanceof Key && !(item instanceof SkeletonKey)) {
+                topRight.text(Utils.format(TXT_KEY_DEPTH, ((Key) item).depth));
+                topRight.measure();
+            } else {
 				
 				topRight.text( null );
 				

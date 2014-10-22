@@ -1,5 +1,4 @@
 /*
- * Pixel Dungeon
  * Copyright (C) 2012-2014  Oleg Dolya
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,21 +21,21 @@ import com.watabou.pixeldungeon.items.rings.RingOfElements.Resistance;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
 
 public class Vertigo extends FlavourBuff {
-	
-	public static final float DURATION	= 10f;
-	
-	@Override
-	public int icon() {
-		return BuffIndicator.VERTIGO;
-	}
-	
-	@Override
-	public String toString() {
-		return "Vertigo";
-	}
-	
-	public static float duration( Char ch ) {
-		Resistance r = ch.buff( Resistance.class );
-		return r != null ? r.durationFactor() * DURATION : DURATION;
-	}
+
+    public static final float DURATION	= 10f;
+
+    @Override
+    public int icon() {
+        return BuffIndicator.VERTIGO;
+    }
+
+    @Override
+    public String toString() {
+        return "Vertigo";
+    }
+
+    public static float duration( Char ch ) {
+        Resistance r = ch.buff( Resistance.class );
+        return r != null ? r.durationFactor() * DURATION : DURATION;
+    }
 }

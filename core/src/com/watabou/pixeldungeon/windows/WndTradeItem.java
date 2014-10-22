@@ -17,6 +17,8 @@
  */
 package com.watabou.pixeldungeon.windows;
 
+import com.watabou.pixeldungeon.actors.mobs.Mob;
+import com.watabou.pixeldungeon.items.artifacts.MasterThievesArmband;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Hero;
@@ -25,7 +27,6 @@ import com.watabou.pixeldungeon.items.EquipableItem;
 import com.watabou.pixeldungeon.items.Gold;
 import com.watabou.pixeldungeon.items.Heap;
 import com.watabou.pixeldungeon.items.Item;
-import com.watabou.pixeldungeon.items.rings.RingOfHaggler;
 import com.watabou.pixeldungeon.scenes.PixelScene;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.ui.ItemSlot;
@@ -42,6 +43,7 @@ public class WndTradeItem extends Window {
 	
 	private static final String TXT_SALE		= "FOR SALE: %s - %dg";
 	private static final String TXT_BUY			= "Buy for %dg";
+    private static final String TXT_STEAL		= "Steal with %d%% chance";
 	private static final String TXT_SELL		= "Sell for %dg";
 	private static final String TXT_SELL_1		= "Sell 1 for %dg";
 	private static final String TXT_SELL_ALL	= "Sell all for %dg";
@@ -49,6 +51,7 @@ public class WndTradeItem extends Window {
 	
 	private static final String TXT_SOLD	= "You've sold your %s for %dg";
 	private static final String TXT_BOUGHT	= "You've bought %s for %dg";
+    private static final String TXT_STOLE	= "You've stolen the %s";
 	
 	private WndBag owner;
 	
@@ -120,7 +123,7 @@ public class WndTradeItem extends Window {
 		
 		float pos = createDescription( item, true );
 		
-		int price = price( item );
+		final int price = price( item );
 		
 		if (canBuy) {
 			
@@ -134,14 +137,48 @@ public class WndTradeItem extends Window {
 			btnBuy.setRect( 0, pos + GAP, WIDTH, BTN_HEIGHT );
 			btnBuy.enable( price <= Dungeon.gold );
 			add( btnBuy );
-			
-			RedButton btnCancel = new RedButton( TXT_CANCEL ) {
-				@Override
-				protected void onClick() {
-					hide();
-				}
-			};
-			btnCancel.setRect( 0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT );
+
+            RedButton btnCancel = new RedButton( TXT_CANCEL ) {
+                @Override
+                protected void onClick() {
+                    hide();
+                }
+            };
+
+            final MasterThievesArmband.Thievery thievery = Dungeon.hero.buff(MasterThievesArmband.Thievery.class);
+            if (thievery != null) {
+                final float chance = thievery.stealChance(price);
+                RedButton btnSteal = new RedButton(Utils.format(TXT_STEAL, Math.min(100, (int)(chance*100)))) {
+                    @Override
+                    protected void onClick() {
+                        if(thievery.steal(price)){
+                            Hero hero = Dungeon.hero;
+                            Item item = heap.pickUp();
+                            GLog.i( TXT_STOLE, item.name());
+                            hide();
+
+                            if (!item.doPickUp( hero )) {
+                                Dungeon.level.drop( item, heap.pos ).sprite.drop();
+                            }
+                        } else {
+                            for (Mob mob : Dungeon.level.mobs){
+                                if (mob instanceof Shopkeeper) {
+                                    mob.yell(((Shopkeeper) mob).TXT_THIEF);
+                                    ((Shopkeeper) mob).flee();
+                                    break;
+                                }
+                            }
+                            hide();
+                        }
+                    }
+                };
+                btnSteal.setRect(0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT);
+                add(btnSteal);
+
+                btnCancel.setRect( 0, btnSteal.bottom() + GAP, WIDTH, BTN_HEIGHT );
+            } else
+                btnCancel.setRect( 0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT );
+
 			add( btnCancel );
 			
 			resize( WIDTH, (int)btnCancel.bottom() );
@@ -227,9 +264,6 @@ public class WndTradeItem extends Window {
 	private int price( Item item ) {
 		// This formula is not completely correct...
 		int price = item.price() * 5 * (Dungeon.depth / 5 + 1);
-		if (Dungeon.hero.buff( RingOfHaggler.Haggling.class ) != null && price >= 2) {
-			price /= 2;
-		}
 		return price;
 	}
 	

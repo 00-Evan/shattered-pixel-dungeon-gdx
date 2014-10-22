@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.actors.buffs;
 
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
+import com.watabou.pixeldungeon.items.artifacts.CloakOfShadows;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
 
 public class Invisibility extends FlavourBuff {
@@ -37,7 +38,8 @@ public class Invisibility extends FlavourBuff {
 	
 	@Override
 	public void detach() {
-		target.invisible--;
+        if (target.invisible > 0)
+		    target.invisible--;
 		super.detach();
 	}
 	
@@ -56,5 +58,10 @@ public class Invisibility extends FlavourBuff {
 		if (buff != null && Dungeon.hero.visibleEnemies() > 0) {
 			buff.detach();
 		}
+        CloakOfShadows.cloakStealth cloakBuff = Dungeon.hero.buff( CloakOfShadows.cloakStealth.class );
+        if (cloakBuff != null && Dungeon.hero.visibleEnemies() > 0) {
+            cloakBuff.act();
+            cloakBuff.detach();
+        }
 	}
 }

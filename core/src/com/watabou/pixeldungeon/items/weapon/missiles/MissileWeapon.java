@@ -22,12 +22,15 @@ import java.util.ArrayList;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Actor;
 import com.watabou.pixeldungeon.actors.Char;
+import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
 import com.watabou.pixeldungeon.items.Item;
+import com.watabou.pixeldungeon.items.rings.RingOfSharpshooting;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.windows.WndOptions;
+import com.watabou.utils.Random;
 
 public class MissileWeapon extends Weapon {
 
@@ -57,16 +60,32 @@ public class MissileWeapon extends Weapon {
 	protected void onThrow( int cell ) {
 		Char enemy = Actor.findChar( cell );
 		if (enemy == null || enemy == curUser) {
-			super.onThrow( cell );
+            if (this instanceof Boomerang)
+                super.onThrow( cell );
+            else
+                miss( cell );
 		} else {
 			if (!curUser.shoot( enemy, this )) {
 				miss( cell );
-			}
+			} else if (!(this instanceof Boomerang)){
+                int bonus = 0;
+                for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class)) {
+                    bonus += ((RingOfSharpshooting.Aim)buff).level;
+                }
+                if (Random.Float() > Math.pow(0.7, bonus))
+                    Dungeon.level.drop( this, cell ).sprite.drop();
+            }
 		}
 	}
 	
 	protected void miss( int cell ) {
-		super.onThrow( cell );
+        int bonus = 0;
+        for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class)) {
+            bonus += ((RingOfSharpshooting.Aim)buff).level;
+        }
+
+        if (Random.Float() < Math.pow(0.6, -bonus))
+            super.onThrow( cell );
 	}
 	
 	@Override
@@ -75,9 +94,9 @@ public class MissileWeapon extends Weapon {
 		super.proc( attacker, defender, damage );
 		
 		Hero hero = (Hero)attacker;
-		if (hero.rangedWeapon == null && stackable) {
-			if (quantity == 1) {
-				doUnequip( hero, false, false );
+        if (hero.rangedWeapon == null && stackable) {
+            if (quantity == 1) {
+                doUnequip( hero, false, false );
 			} else {
 				detach( null );
 			}

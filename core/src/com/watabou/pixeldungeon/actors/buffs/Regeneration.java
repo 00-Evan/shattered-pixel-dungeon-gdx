@@ -17,8 +17,9 @@
  */
 package com.watabou.pixeldungeon.actors.buffs;
 
+import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Hero;
-import com.watabou.pixeldungeon.items.rings.RingOfMending;
+import com.watabou.pixeldungeon.items.artifacts.ChaliceOfBlood;
 
 public class Regeneration extends Buff {
 	
@@ -31,20 +32,19 @@ public class Regeneration extends Buff {
 			if (target.HP < target.HT && !((Hero)target).isStarving()) {
 				target.HP += 1;
 			}
-			
-			int bonus = 0;
-			for (Buff buff : target.buffs( RingOfMending.Rejuvenation.class )) {
-				bonus += ((RingOfMending.Rejuvenation)buff).level;
-			}
-			
-			spend( (float)(REGENERATION_DELAY / Math.pow( 1.2, bonus )) );
+
+            ChaliceOfBlood.chaliceRegen regenBuff = Dungeon.hero.buff( ChaliceOfBlood.chaliceRegen.class);
+			if (regenBuff != null)
+			    spend( Math.max(REGENERATION_DELAY - regenBuff.level(), 0.5f) );
+            else
+                spend( REGENERATION_DELAY );
 			
 		} else {
 			
 			diactivate();
 			
 		}
-
+		
 		return true;
 	}
 }

@@ -17,6 +17,10 @@
  */
 package com.watabou.pixeldungeon.items.scrolls;
 
+import com.watabou.pixeldungeon.ResultDescriptions;
+import com.watabou.pixeldungeon.actors.buffs.Paralysis;
+import com.watabou.pixeldungeon.utils.GLog;
+import com.watabou.pixeldungeon.utils.Utils;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
@@ -44,25 +48,31 @@ public class ScrollOfPsionicBlast extends Scroll {
 		
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
 			if (Level.fieldOfView[mob.pos]) {
-				Buff.prolong( mob, Blindness.class, Random.Int( 3, 6 ) );
-				mob.damage( Random.IntRange( 1, mob.HT * 2 / 3 ), this );
+				mob.damage(mob.HT, this );
 			}
 		}
-		
-		Buff.prolong( curUser, Blindness.class, Random.Int( 3, 6 ) );
+
+		curUser.damage(Random.IntRange(curUser.HT/4, curUser.HT/2), this);
+        Buff.prolong( curUser, Paralysis.class, Random.Int( 4, 6 ) );
+		Buff.prolong( curUser, Blindness.class, Random.Int( 6, 9 ) );
 		Dungeon.observe();
 		
 		setKnown();
 		
 		curUser.spendAndNext( TIME_TO_READ );
+
+        if (!curUser.isAlive()) {
+            Dungeon.fail(Utils.format(ResultDescriptions.ITEM, name, Dungeon.depth));
+            GLog.n("The Psionic Blast tears your mind apart...");
+        }
 	}
 	
 	@Override
 	public String desc() {
 		return
-			"This scroll contains destructive energy, that can be psionically channeled to inflict a " +
-			"massive damage to all creatures within a field of view. An accompanying flash of light will " +
-			"temporarily blind everybody in the area of effect including the reader of the scroll.";
+			"This scroll contains destructive energy that can be psionically channeled to tear apart " +
+			"the minds of all visible creatures. The power unleashed by the scroll will also temporarily " +
+			"blind, stun, and seriously harm the reader.";
 	}
 	
 	@Override

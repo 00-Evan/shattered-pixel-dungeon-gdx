@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.actors.mobs.npcs;
 
 import java.util.ArrayList;
 
+import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
@@ -132,10 +133,11 @@ public class Wandmaker extends NPC {
 			}
 			
 		} else {
-			tell( Quest.alternative ? TXT_DUST1 : TXT_BERRY1 );
-			Quest.given = true;
 			
 			Quest.placeItem();
+
+            if (Quest.given)
+                tell(Quest.alternative ? TXT_DUST1 : TXT_BERRY1);
 			
 			Journal.add( Journal.Feature.WANDMAKER );
 		}
@@ -281,15 +283,19 @@ public class Wandmaker extends NPC {
 				
 				if (candidates.size() > 0) {
 					Random.element( candidates ).drop( new CorpseDust() );
+                    given = true;
 				} else {
 					int pos = Dungeon.level.randomRespawnCell();
 					while (Dungeon.level.heaps.get( pos ) != null) {
 						pos = Dungeon.level.randomRespawnCell();
 					}
-					
-					Heap heap = Dungeon.level.drop( new CorpseDust(), pos );
-					heap.type = Heap.Type.SKELETON;
-					heap.sprite.link();
+
+                    if (pos != -1) {
+                        Heap heap = Dungeon.level.drop(new CorpseDust(), pos);
+                        heap.type = Heap.Type.SKELETON;
+                        heap.sprite.link();
+                        given = true;
+                    }
 				}
 				
 			} else {
@@ -298,7 +304,11 @@ public class Wandmaker extends NPC {
 				while (Dungeon.level.heaps.get( shrubPos ) != null) {
 					shrubPos = Dungeon.level.randomRespawnCell();
 				}
-				Dungeon.level.plant( new Rotberry.Seed(), shrubPos );
+
+                if (shrubPos != -1) {
+                    Dungeon.level.plant(new Rotberry.Seed(), shrubPos);
+                    given = true;
+                }
 				
 			}
 		}
@@ -351,8 +361,8 @@ public class Wandmaker extends NPC {
 			}
 			
 			@Override
-			public boolean collect( Bag container ) {
-				if (super.collect( container )) {
+			public boolean doPickUp( Hero hero ) {
+				if (super.doPickUp(hero)) {
 					
 					if (Dungeon.level != null) {
 						for (Mob mob : Dungeon.level.mobs) {

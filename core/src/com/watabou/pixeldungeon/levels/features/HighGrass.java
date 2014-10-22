@@ -28,7 +28,7 @@ import com.watabou.pixeldungeon.effects.CellEmitter;
 import com.watabou.pixeldungeon.effects.particles.LeafParticle;
 import com.watabou.pixeldungeon.items.Dewdrop;
 import com.watabou.pixeldungeon.items.Generator;
-import com.watabou.pixeldungeon.items.rings.RingOfHerbalism.Herbalism;
+import com.watabou.pixeldungeon.items.artifacts.SandalsOfNature;
 import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.levels.Terrain;
 import com.watabou.pixeldungeon.scenes.GameScene;
@@ -40,27 +40,28 @@ public class HighGrass {
 		
 		Level.set( pos, Terrain.GRASS );
 		GameScene.updateMap( pos );
-		
-		if (!Dungeon.isChallenged( Challenges.NO_HERBALISM )) {
-			int herbalismLevel = 0;
-			if (ch != null) {
-				Herbalism herbalism = ch.buff( Herbalism.class );
-				if (herbalism != null) {
-					herbalismLevel = herbalism.level;
-				}
-			}
-			
-			// Seed
-			if (herbalismLevel >= 0 && Random.Int( 18 ) <= Random.Int( herbalismLevel + 1 )) {
-				level.drop( Generator.random( Generator.Category.SEED ), pos ).sprite.drop();
-			}
-			
-			// Dew
-			if (herbalismLevel >= 0 && Random.Int( 6 ) <= Random.Int( herbalismLevel + 1 )) {
-				level.drop( new Dewdrop(), pos ).sprite.drop();
-			}
-		}
-		
+
+        if (!Dungeon.isChallenged( Challenges.NO_HERBALISM )) {
+            int naturalismLevel = 0;
+            if (ch != null) {
+                SandalsOfNature.Naturalism naturalism = ch.buff( SandalsOfNature.Naturalism.class );
+                if (naturalism != null) {
+                    naturalismLevel = naturalism.level()+1;
+                    naturalism.charge();
+                }
+            }
+
+            // Seed
+            if (Random.Int(18-((int)(naturalismLevel*3.34))) == 0) {
+                level.drop( Generator.random( Generator.Category.SEED ), pos ).sprite.drop();
+            }
+
+            // Dew
+            if (Random.Int( 6-naturalismLevel ) == 0) {
+                level.drop( new Dewdrop(), pos ).sprite.drop();
+            }
+        }
+
 		int leaves = 4;
 		
 		// Barkskin

@@ -25,6 +25,7 @@ import com.watabou.pixeldungeon.actors.buffs.Frost;
 import com.watabou.pixeldungeon.effects.CellEmitter;
 import com.watabou.pixeldungeon.effects.particles.SnowParticle;
 import com.watabou.pixeldungeon.items.Heap;
+import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.utils.Random;
 
 public class Freezing {
@@ -35,7 +36,11 @@ public class Freezing {
 		
 		Char ch = Actor.findChar( cell ); 
 		if (ch != null) {
-			Buff.prolong( ch, Frost.class, Frost.duration( ch ) * Random.Float( 1.0f, 1.5f ) );
+            if (Level.water[ch.pos]){
+                Buff.prolong(ch, Frost.class, Frost.duration(ch) * Random.Float(5f, 7.5f));
+            } else {
+                Buff.prolong(ch, Frost.class, Frost.duration(ch) * Random.Float(1.0f, 1.5f));
+            }
 		}
 		
 		if (fire != null) {

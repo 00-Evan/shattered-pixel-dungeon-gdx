@@ -21,11 +21,11 @@ import java.util.ArrayList;
 
 import com.watabou.pixeldungeon.Badges;
 import com.watabou.pixeldungeon.Dungeon;
+import com.watabou.pixeldungeon.items.KindofMisc;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
-import com.watabou.pixeldungeon.items.EquipableItem;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.ItemStatusHandler;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
@@ -33,7 +33,7 @@ import com.watabou.pixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-public class Ring extends EquipableItem {
+public class Ring extends KindofMisc {
 
 	private static final float TIME_TO_EQUIP = 1f;
 	
@@ -42,19 +42,18 @@ public class Ring extends EquipableItem {
 	
 	protected Buff buff;
 	
-	private static final Class<?>[] rings = { 
-		RingOfMending.class, 
-		RingOfDetection.class, 
-		RingOfShadows.class,
-		RingOfPower.class,
-		RingOfHerbalism.class,
-		RingOfAccuracy.class,
-		RingOfEvasion.class,
-		RingOfSatiety.class,
-		RingOfHaste.class,
-		RingOfHaggler.class,
-		RingOfElements.class,
-		RingOfThorns.class
+	private static final Class<?>[] rings = {
+        RingOfAccuracy.class,
+        RingOfEvasion.class,
+        RingOfElements.class,
+        RingOfForce.class,
+        RingOfFuror.class,
+        RingOfHaste.class,
+		RingOfMagic.class,
+		RingOfMight.class,
+        RingOfSharpshooting.class,
+        RingOfTenacity.class,
+        RingOfWealth.class,
 	};
 	private static final String[] gems = 
 		{"diamond", "opal", "garnet", "ruby", "amethyst", "topaz", "onyx", "tourmaline", "emerald", "sapphire", "quartz", "agate"};
@@ -112,17 +111,17 @@ public class Ring extends EquipableItem {
 	@Override
 	public boolean doEquip( Hero hero ) {
 		
-		if (hero.belongings.ring1 != null && hero.belongings.ring2 != null) {
+		if (hero.belongings.misc1 != null && hero.belongings.misc2 != null) {
 			
-			GLog.w( "you can only wear 2 rings at a time" );
+			GLog.w( "you can only wear 2 misc items at a time" );
 			return false;
 			
 		} else {
 			
-			if (hero.belongings.ring1 == null) {
-				hero.belongings.ring1 = this;
+			if (hero.belongings.misc1 == null) {
+				hero.belongings.misc1 = this;
 			} else {
-				hero.belongings.ring2 = this;
+				hero.belongings.misc2 = this;
 			}
 			
 			detach( hero.belongings.backpack );
@@ -147,31 +146,31 @@ public class Ring extends EquipableItem {
 		buff.attachTo( ch );
 	}
 
-	@Override
-	public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
-		if (super.doUnequip( hero, collect, single )) {
-			
-			if (hero.belongings.ring1 == this) {
-				hero.belongings.ring1 = null;
-			} else {
-				hero.belongings.ring2 = null;
-			}
-			
-			hero.remove( buff );
-			buff = null;
-			
-			return true;
-			
-		} else {
-			
-			return false;
-			
-		}
-	}
+    @Override
+    public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
+        if (super.doUnequip( hero, collect, single )) {
+
+            if (hero.belongings.misc1 == this) {
+                hero.belongings.misc1 = null;
+            } else {
+                hero.belongings.misc2 = null;
+            }
+
+            hero.remove( buff );
+            buff = null;
+
+            return true;
+
+        } else {
+
+            return false;
+
+        }
+    }
 	
 	@Override
 	public boolean isEquipped( Hero hero ) {
-		return hero.belongings.ring1 == this || hero.belongings.ring2 == this;
+		return hero.belongings.misc1 == this || hero.belongings.misc2 == this;
 	}
 	
 	@Override
@@ -246,11 +245,11 @@ public class Ring extends EquipableItem {
 	
 	@Override
 	public Item random() {
-		level = Random.Int( 1, 3 );
 		if (Random.Float() < 0.3f) {
-			level = -level;
+			level = -Random.Int( 1, 3 );
 			cursed = true;
-		}
+		} else
+            level = Random.Int( 1, 2 );
 		return this;
 	}
 	
@@ -260,7 +259,7 @@ public class Ring extends EquipableItem {
 	
 	@Override
 	public int price() {
-		int price = 80;
+		int price = 120;
 		if (cursed && cursedKnown) {
 			price /= 2;
 		}

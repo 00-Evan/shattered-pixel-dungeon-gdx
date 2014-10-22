@@ -24,7 +24,7 @@ import com.watabou.pixeldungeon.ui.BuffIndicator;
 
 public class GasesImmunity extends FlavourBuff {
 	
-	public static final float DURATION	= 5f;
+	public static final float DURATION	= 10f;
 	
 	@Override
 	public int icon() {

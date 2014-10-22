@@ -24,6 +24,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
+import com.watabou.pixeldungeon.actors.blobs.Blob;
+import com.watabou.pixeldungeon.actors.blobs.Fire;
+import com.watabou.pixeldungeon.actors.blobs.ParalyticGas;
+import com.watabou.pixeldungeon.actors.blobs.ToxicGas;
+import com.watabou.pixeldungeon.items.potions.PotionOfLiquidFlame;
+import com.watabou.pixeldungeon.items.potions.PotionOfParalyticGas;
+import com.watabou.pixeldungeon.items.potions.PotionOfToxicGas;
 import com.watabou.noosa.Game;
 import com.watabou.pixeldungeon.actors.Actor;
 import com.watabou.pixeldungeon.actors.Char;
@@ -68,13 +75,23 @@ public class Dungeon {
 	
 	private static final String NO_TIPS = "The text  is indecipherable...";
 	private static final String[] TIPS = {
-		"Don't overestimate your strength, use weapons and armor you can handle.",
-		"Not all doors in the dungeon are visible at first sight. If you are stuck, search for hidden doors.",
-		"Remember, that raising your strength is not the only way to access better equipment, you can go " +
-			"the other way lowering its strength requirement with Scrolls of Upgrade.",
-		"You can spend your gold in shops on deeper levels of the dungeon. The first one is on the 6th level.",
+		"Almost all equipment has a strength requirement. Don't overestimate your strength, using equipment you can't " +
+                "handle has big penalties!\n\nRaising your strength is not the only way to access better equipment, " +
+                "you can also lower equipment strength requirements with Scrolls of Upgrade.\n\n\n" +
+                "Items found in the dungeon will often be unidentified. Some items will have unknown effects, others " +
+                "may be upgraded, or degraded and cursed! Unidentified items are unpredictable, so be careful!",
+		"Charging forward recklessly is a great way to get killed.\n\n" +
+                "Slowing down a bit to examine enemies and use the environment and items to your advantage can make a" +
+                " big difference.\n\nThe dungeon is full of traps and hidden passageways as well, keep your eyes open!",
+		"Levelling up is important!\n\nBeing at least the same level as the floor you are on is a good idea. " +
+                "Don't be afraid to slow down a little and train yourself up.",
+        "The rogue isn't the only character that benefits from being sneaky. You can retreat to the other side of a " +
+                "door to ambush a chasing opponent for a guaranteed hit!" +
+                "\n\nAny attack on an unaware opponent is guaranteed to hit them.",
 			
-		"Beware of Goo!",
+		"Note to all sewer maintenance & cleaning crews: TURN BACK NOW. Some sort of sludge monster has made its home" +
+                " here and several crews have been lost trying to deal with it.\n\n" +
+                "Approval has been given to seal off the lower sewers, this area has been condemned, LEAVE NOW.",
 		
 		"Pixel-Mart - all you need for successful adventure!",
 		"Identify your potions and scrolls as soon as possible. Don't put it off to the moment " +
@@ -88,7 +105,8 @@ public class Dungeon {
 		"Pixel-Mart. Spend money. Live longer.",
 		"When you're attacked by several monsters at the same time, try to retreat behind a door.",
 		"If you are burning, you can't put out the fire in the water while levitating.",
-		"There is no sense in possessing more than one Ankh at the same time, because you will lose them upon resurrecting.",
+		"There is no sense in possessing more than one unblessed Ankh at the same time, " +
+                "because you will lose them upon resurrecting.",
 		
 		"DANGER! Heavy machinery can cause injury, loss of limbs or death!",
 		
@@ -113,9 +131,9 @@ public class Dungeon {
 	public static int arcaneStyli;
 	public static boolean dewVial;		// true if the dew vial can be spawned
 	public static int transmutation;	// depth number for a well of transmutation
-	
-	public static int challenges;
-	
+
+    public static int challenges;
+
 	public static Hero hero;
 	public static Level level;
 	
@@ -133,11 +151,13 @@ public class Dungeon {
 	public static boolean[] visible = new boolean[Level.LENGTH];
 	
 	public static boolean nightMode;
+
+    public static int version;
 	
 	public static void init() {
 
-		challenges = PixelDungeon.challenges();
-		
+        challenges = PixelDungeon.challenges();
+
 		Actor.clear();
 		
 		PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
@@ -175,10 +195,10 @@ public class Dungeon {
 		
 		StartScene.curClass.initHero( hero );
 	}
-	
-	public static boolean isChallenged( int mask ) {
-		return (challenges & mask) != 0;
-	}
+
+    public static boolean isChallenged( int mask ) {
+        return (challenges & mask) != 0;
+    }
 	
 	public static Level newLevel() {
 		
@@ -314,6 +334,22 @@ public class Dungeon {
 		if (respawner != null) {
 			Actor.add( level.respawner() );
 		}
+
+        for (Potion potion : level.fallingPotions){
+
+            int cell = level.randomRespawnCell();
+            while (cell == -1)
+                cell = level.randomRespawnCell();
+
+            if (potion instanceof PotionOfLiquidFlame)
+                GameScene.add(Blob.seed(cell, 2, Fire.class));
+            else if (potion instanceof PotionOfToxicGas)
+                GameScene.add( Blob.seed( cell, 1000, ToxicGas.class ) );
+            else if (potion instanceof PotionOfParalyticGas)
+                GameScene.add( Blob.seed( cell, 1000, ParalyticGas.class ) );
+
+        }
+        level.fallingPotions.clear();
 		
 		hero.pos = pos != -1 ? pos : level.exit;
 		
@@ -321,6 +357,12 @@ public class Dungeon {
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
 		
 		observe();
+        try {
+            saveAll();
+        } catch (Exception e) {
+            //TODO: I need to add analytics code to this or something.
+            //Silent failure is really bad, don't want to interrupt the user but I do want to know if this fails.
+        }
 	}
 	
 	public static boolean posNeeded() {
@@ -363,7 +405,7 @@ public class Dungeon {
 	private static final String RN_DEPTH_FILE	= "ranger%d.dat";
 	
 	private static final String VERSION		= "version";
-	private static final String CHALLENGES	= "challenges";
+    private static final String CHALLENGES	= "challenges";
 	private static final String HERO		= "hero";
 	private static final String GOLD		= "gold";
 	private static final String DEPTH		= "depth";
@@ -408,8 +450,8 @@ public class Dungeon {
 		try {
 			Bundle bundle = new Bundle();
 			
-			bundle.put( VERSION, Game.version );
-			bundle.put( CHALLENGES, challenges );
+			bundle.put( VERSION, Game.versionCode );
+            bundle.put( CHALLENGES, challenges );
 			bundle.put( HERO, hero );
 			bundle.put( GOLD, gold );
 			bundle.put( DEPTH, depth );
@@ -477,8 +519,8 @@ public class Dungeon {
 			Actor.fixTime();
 			saveGame( gameFile( hero.heroClass ) );
 			saveLevel();
-			
-			GamesInProgress.set( hero.heroClass, depth, hero.lvl );
+
+            GamesInProgress.set( hero.heroClass, depth, hero.lvl );
 			
 		} else if (WndResurrect.instance != null) {
 			
@@ -499,8 +541,10 @@ public class Dungeon {
 	public static void loadGame( String fileName, boolean fullLoad ) throws IOException {
 		
 		Bundle bundle = gameBundle( fileName );
-		
-		Dungeon.challenges = bundle.getInt( CHALLENGES );
+
+        version = bundle.getInt( VERSION );
+
+        Dungeon.challenges = bundle.getInt( CHALLENGES );
 		
 		Dungeon.level = null;
 		Dungeon.depth = -1;
@@ -561,9 +605,6 @@ public class Dungeon {
 		} else {
 			quickslot = null;
 		}
-		
-		@SuppressWarnings("unused")
-		String version = bundle.getString( VERSION );
 		
 		hero = null;
 		hero = (Hero)bundle.get( HERO );
@@ -626,11 +667,11 @@ public class Dungeon {
 	}
 	
 	public static void win( String desc ) {
-		
-		if (challenges != 0) {
-			Badges.validateChampion();
-		}
-		
+
+        if (challenges != 0) {
+            Badges.validateChampion();
+        }
+
 		resultDescription = desc;
 		Rankings.INSTANCE.submit( true );
 	}

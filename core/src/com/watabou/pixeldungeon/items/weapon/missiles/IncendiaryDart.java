@@ -25,6 +25,7 @@ import com.watabou.pixeldungeon.actors.blobs.Fire;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.buffs.Burning;
 import com.watabou.pixeldungeon.items.Item;
+import com.watabou.pixeldungeon.items.rings.RingOfSharpshooting;
 import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
@@ -63,6 +64,13 @@ public class IncendiaryDart extends MissileWeapon {
 		} else {
 			if (!curUser.shoot( enemy, this )) {
 				Dungeon.level.drop( this, cell ).sprite.drop();
+            } else {
+                int bonus = 0;
+                for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class)) {
+                    bonus += ((RingOfSharpshooting.Aim)buff).level;
+                }
+                if (Random.Float() > Math.pow(0.7, bonus))
+                    Dungeon.level.drop( this, cell ).sprite.drop();
 			}
 		}
 	}

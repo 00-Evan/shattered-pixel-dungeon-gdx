@@ -24,6 +24,7 @@ import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.mobs.npcs.Wandmaker.Rotberry;
 import com.watabou.pixeldungeon.items.armor.*;
+import com.watabou.pixeldungeon.items.artifacts.*;
 import com.watabou.pixeldungeon.items.bags.Bag;
 import com.watabou.pixeldungeon.items.food.Food;
 import com.watabou.pixeldungeon.items.food.MysteryMeat;
@@ -41,15 +42,16 @@ import com.watabou.utils.Random;
 public class Generator {
 
 	public static enum Category {
-		WEAPON	( 15,	Weapon.class ),
-		ARMOR	( 10,	Armor.class ),
-		POTION	( 50,	Potion.class ),
-		SCROLL	( 40,	Scroll.class ),
-		WAND	( 4,	Wand.class ),
-		RING	( 2,	Ring.class ),
-		SEED	( 5,	Plant.Seed.class ),
+		WEAPON	( 150,	Weapon.class ),
+		ARMOR	( 100,	Armor.class ),
+		POTION	( 500,	Potion.class ),
+		SCROLL	( 400,	Scroll.class ),
+		WAND	( 40,	Wand.class ),
+		RING	( 15,	Ring.class ),
+        ARTIFACT( 20,    Artifact.class),
+		SEED	( 50,	Plant.Seed.class ),
 		FOOD	( 0,	Food.class ),
-		GOLD	( 50,	Gold.class );
+		GOLD	( 500,	Gold.class );
 		
 		public Class<?>[] classes;
 		public float[] probs;
@@ -88,13 +90,13 @@ public class Generator {
 			ScrollOfUpgrade.class,
 			ScrollOfRecharging.class,
 			ScrollOfMagicMapping.class,
-			ScrollOfChallenge.class,
+			ScrollOfRage.class,
 			ScrollOfTerror.class,
 			ScrollOfLullaby.class,
 			ScrollOfWeaponUpgrade.class,
 			ScrollOfPsionicBlast.class,
 			ScrollOfMirrorImage.class };
-		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 10, 15, 12, 8, 8, 0, 4, 6 };
+		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 10, 15, 12, 8, 8, 0, 3, 6 };
 		
 		Category.POTION.classes = new Class<?>[]{ 
 			PotionOfHealing.class, 
@@ -162,31 +164,41 @@ public class Generator {
 			MysteryMeat.class };
 		Category.FOOD.probs = new float[]{ 4, 1, 0 };
 			
-		Category.RING.classes = new Class<?>[]{ 
-			RingOfMending.class,
-			RingOfDetection.class,
-			RingOfShadows.class,
-			RingOfPower.class,
-			RingOfHerbalism.class,
-			RingOfAccuracy.class,
-			RingOfEvasion.class,
-			RingOfSatiety.class,
-			RingOfHaste.class,
-			RingOfElements.class,
-			RingOfHaggler.class,
-			RingOfThorns.class };
-		Category.RING.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 };
+		Category.RING.classes = new Class<?>[]{
+            RingOfAccuracy.class,
+            RingOfEvasion.class,
+            RingOfElements.class,
+            RingOfForce.class,
+            RingOfFuror.class,
+            RingOfHaste.class,
+            RingOfMagic.class,
+            RingOfMight.class,
+            RingOfSharpshooting.class,
+            RingOfTenacity.class,
+            RingOfWealth.class};
+		Category.RING.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+        Category.ARTIFACT.classes = new Class<?>[]{
+            CapeOfThorns.class,
+            ChaliceOfBlood.class,
+            CloakOfShadows.class,
+            HornOfPlenty.class,
+            MasterThievesArmband.class,
+            SandalsOfNature.class,
+            TalismanOfForesight.class};
+        Category.ARTIFACT.probs = new float[]{ 0, 1, 1, 1, 0, 1, 1 };
 		
 		Category.SEED.classes = new Class<?>[]{ 
 			Firebloom.Seed.class,
 			Icecap.Seed.class,
 			Sorrowmoss.Seed.class,
-			Dreamweed.Seed.class,
+			Blindweed.Seed.class,
 			Sungrass.Seed.class,
 			Earthroot.Seed.class,
 			Fadeleaf.Seed.class,
-			Rotberry.Seed.class };
-		Category.SEED.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 0 };
+            Rotberry.Seed.class,
+			BlandfruitBush.Seed.class};
+		Category.SEED.probs = new float[]{ 3, 3, 3, 3, 3, 3, 3, 0, 1 };
 	}
 	
 	public static void reset() {
@@ -231,34 +243,50 @@ public class Generator {
 			
 		}
 	}
+
+    public static Armor randomArmor(){
+        int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
+
+        return randomArmor(curStr);
+    }
 	
-	public static Armor randomArmor() throws Exception {
-		
-		int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
+	public static Armor randomArmor(int targetStr) {
 		
 		Category cat = Category.ARMOR;
-		
-		Armor a1 = (Armor)cat.classes[Random.chances( cat.probs )].newInstance();
-		Armor a2 = (Armor)cat.classes[Random.chances( cat.probs )].newInstance();
-		
-		a1.random();
-		a2.random();
-		
-		return Math.abs( curStr - a1.STR ) < Math.abs( curStr - a2.STR ) ? a1 : a2;
+
+        try {
+            Armor a1 = (Armor) cat.classes[Random.chances(cat.probs)].newInstance();
+            Armor a2 = (Armor) cat.classes[Random.chances(cat.probs)].newInstance();
+
+            a1.random();
+            a2.random();
+
+            return Math.abs(targetStr - a1.STR) < Math.abs(targetStr - a2.STR) ? a1 : a2;
+        } catch (Exception e) {
+            return null;
+        }
 	}
+
+    public static Weapon randomWeapon(){
+        int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
+
+        return randomWeapon(curStr);
+    }
 	
-	public static Weapon randomWeapon() throws Exception {
-		
-		int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
-		
-		Category cat = Category.WEAPON;
-		
-		Weapon w1 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
-		Weapon w2 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
-		
-		w1.random();
-		w2.random();
-		
-		return Math.abs( curStr - w1.STR ) < Math.abs( curStr - w2.STR ) ? w1 : w2;
+	public static Weapon randomWeapon(int targetStr) {
+
+        try {
+            Category cat = Category.WEAPON;
+
+            Weapon w1 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
+            Weapon w2 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
+
+            w1.random();
+            w2.random();
+
+            return Math.abs( targetStr - w1.STR ) < Math.abs( targetStr - w2.STR ) ? w1 : w2;
+        } catch (Exception e) {
+            return null;
+        }
 	}
 }

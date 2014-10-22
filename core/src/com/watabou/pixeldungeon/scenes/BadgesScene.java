@@ -78,16 +78,16 @@ public class BadgesScene extends PixelScene {
 			panel.y + panel.marginTop(), 
 			panel.innerWidth(), 
 			panel.innerHeight() );
-		
-		ExitButton btnExit = new ExitButton();
-		btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
-		add( btnExit );
+
+        ExitButton btnExit = new ExitButton();
+        btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
+        add( btnExit );
 		
 		fadeIn();
 	}
 	
 	@Override
 	protected void onBackPressed() {
-		PixelDungeon.switchNoFade( TitleScene.class );
+        PixelDungeon.switchNoFade(TitleScene.class);
 	}
 }

@@ -22,7 +22,6 @@ import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.ResultDescriptions;
 import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
-import com.watabou.pixeldungeon.items.rings.RingOfSatiety;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
 import com.watabou.pixeldungeon.utils.GLog;
 import com.watabou.pixeldungeon.utils.Utils;
@@ -71,14 +70,9 @@ public class Hunger extends Buff implements Hero.Doom {
 					
 					hero.interrupt();
 				}
-			} else {	
+			} else {
 				
-				int bonus = 0;
-				for (Buff buff : target.buffs( RingOfSatiety.Satiety.class )) {
-					bonus += ((RingOfSatiety.Satiety)buff).level;
-				}
-				
-				float newLevel = level + STEP - bonus;
+				float newLevel = level + STEP;
 				boolean statusUpdated = false;
 				if (newLevel >= STARVING) {
 					

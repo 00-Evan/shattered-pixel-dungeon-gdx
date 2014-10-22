@@ -1,0 +1,9 @@
+diff a/core/src/com/watabou/pixeldungeon/windows/WndBag.java b/core/src/com/watabou/pixeldungeon/windows/WndBag.java	(rejected hunks)
+@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.windows;
+ 
+ import android.graphics.RectF;
+ 
++import com.watabou.pixeldungeon.items.food.Food;
+ import com.watabou.gltextures.TextureCache;
+ import com.watabou.noosa.BitmapText;
+ import com.watabou.noosa.ColorBlock;

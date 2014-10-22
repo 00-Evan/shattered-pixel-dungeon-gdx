@@ -18,7 +18,10 @@
 package com.watabou.pixeldungeon.scenes;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
+import com.watabou.pixeldungeon.items.Item;
+import com.watabou.pixeldungeon.items.potions.Potion;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -221,7 +224,7 @@ public class InterlevelScene extends PixelScene {
 			
 		case FADE_OUT:
 			message.alpha( p );
-			
+
 			if (mode == Mode.CONTINUE || (mode == Mode.DESCEND && Dungeon.depth == 1)) {
 				Music.INSTANCE.volume( p );
 			}
@@ -238,15 +241,25 @@ public class InterlevelScene extends PixelScene {
 						Game.switchScene( StartScene.class );
 					};
 				} );
-				error = null;
+                error = null;
 			}
 			break;
 		}
 	}
 	
 	private void descend() throws Exception {
-		
-		Actor.fixTime();
+
+        Level level;
+        ArrayList<Item> fallingItems = new ArrayList<Item>();
+
+        if (Dungeon.depth > 0) {
+            level = Dungeon.level;
+
+            fallingItems = level.fallingItems;
+            level.fallingItems = new ArrayList<Item>();
+        }
+
+        Actor.fixTime();
 		if (Dungeon.hero == null) {
 			Dungeon.init();
 			if (noStory) {
@@ -256,29 +269,57 @@ public class InterlevelScene extends PixelScene {
 		} else {
 			Dungeon.saveLevel();
 		}
-		
-		Level level;
+
 		if (Dungeon.depth >= Statistics.deepestFloor) {
 			level = Dungeon.newLevel();
 		} else {
 			Dungeon.depth++;
 			level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 		}
+
+        for (Item item : fallingItems){
+            int cell = level.randomRespawnCell();
+            while (cell == -1)
+                cell = level.randomRespawnCell();
+
+            if (!(item instanceof Potion))
+                level.drop(item, cell);
+            else
+                level.fallingPotions.add((Potion)item);
+        }
+
 		Dungeon.switchLevel( level, level.entrance );
+
 	}
 	
 	private void fall() throws Exception {
-		
-		Actor.fixTime();
+
+        Level level = Dungeon.level;
+
+        ArrayList<Item> fallingItems = level.fallingItems;
+        level.fallingItems = new ArrayList<Item>();
+
+        Actor.fixTime();
 		Dungeon.saveLevel();
-		
-		Level level;
+
 		if (Dungeon.depth >= Statistics.deepestFloor) {
 			level = Dungeon.newLevel();
 		} else {
 			Dungeon.depth++;
 			level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 		}
+
+        for (Item item : fallingItems){
+            int cell = level.randomRespawnCell();
+            while (cell == -1)
+                cell = level.randomRespawnCell();
+
+            if (!(item instanceof Potion))
+                level.drop(item, cell);
+            else
+                level.fallingPotions.add((Potion)item);
+        }
+
 		Dungeon.switchLevel( level, fallIntoPit ? level.pitCell() : level.randomRespawnCell() );
 	}
 	
@@ -319,7 +360,7 @@ public class InterlevelScene extends PixelScene {
 		
 		Actor.fixTime(); 
 		
-		if (Dungeon.bossLevel()) {
+		if (Dungeon.level.locked) {
 			Dungeon.hero.resurrect( Dungeon.depth );
 			Dungeon.depth--;
 			Level level = Dungeon.newLevel(/* true */);

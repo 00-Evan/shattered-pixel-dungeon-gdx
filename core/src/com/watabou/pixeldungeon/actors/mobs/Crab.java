@@ -61,16 +61,10 @@ public class Crab extends Mob {
 	}
 	
 	@Override
-	public void die( Object cause ) {
-		Ghost.Quest.process( pos );
-		super.die( cause );
-	}
-	
-	@Override
 	public String description() {
 		return
 			"These huge crabs are at the top of the food chain in the sewers. " +
-			"They are extremely fast and their thick exoskeleton can withstand " +
+			"They are extremely fast and their thick carapace can withstand " +
 			"heavy blows.";
 	}
 }

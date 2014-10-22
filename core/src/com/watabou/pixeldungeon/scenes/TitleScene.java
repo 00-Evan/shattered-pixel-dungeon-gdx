@@ -44,6 +44,17 @@ public class TitleScene extends PixelScene {
 	public void create() {
 		
 		super.create();
+
+
+
+        int gameversion = PixelDungeon.version();
+
+        if (gameversion != Game.versionCode) {
+            //new intro, make older players see it again.
+            if (gameversion < 9)
+                PixelDungeon.intro(true);
+            Game.switchScene(WelcomeScene.class);
+        }
 		
 		Music.INSTANCE.play( Assets.THEME, true );
 		Music.INSTANCE.volume( 1f );
@@ -71,7 +82,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnBadges = new DashboardItem( TXT_BADGES, 3 ) {
 			@Override
 			protected void onClick() {
-				PixelDungeon.switchNoFade( BadgesScene.class );
+                PixelDungeon.switchNoFade( BadgesScene.class );
 			}
 		};
 		btnBadges.setPos( w / 2 - btnBadges.width(), (h + height) / 2 - DashboardItem.SIZE );
@@ -80,7 +91,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnAbout = new DashboardItem( TXT_ABOUT, 1 ) {
 			@Override
 			protected void onClick() {
-				PixelDungeon.switchNoFade( AboutScene.class );
+                PixelDungeon.switchNoFade( AboutScene.class );
 			}
 		};
 		btnAbout.setPos( w / 2, (h + height) / 2 - DashboardItem.SIZE );
@@ -89,7 +100,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
 			@Override
 			protected void onClick() {
-				PixelDungeon.switchNoFade( StartScene.class );
+                PixelDungeon.switchNoFade( StartScene.class );
 			}
 		};
 		btnPlay.setPos( w / 2 - btnPlay.width(), btnAbout.top() - DashboardItem.SIZE );
@@ -98,26 +109,33 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnHighscores = new DashboardItem( TXT_HIGHSCORES, 2 ) {
 			@Override
 			protected void onClick() {
-				PixelDungeon.switchNoFade( RankingsScene.class );
+                PixelDungeon.switchNoFade( RankingsScene.class );
 			}
 		};
 		btnHighscores.setPos( w / 2, btnPlay.top() );
 		add( btnHighscores );
-		
-		BitmapText version = new BitmapText( "v " + Game.version, font1x );
-		version.measure();
-		version.hardlight( 0x888888 );
-		version.x = w - version.width();
-		version.y = h - version.height();
-		add( version );
+
+        BitmapText source = new BitmapText( "PD source v 1.7.2a", font1x );
+        source.measure();
+        source.hardlight( 0x444444 );
+        source.x = w - source.width();
+        source.y = h - source.height();
+        add( source );
+
+        BitmapText version = new BitmapText( "v " + Game.version + "", font1x );
+        version.measure();
+        version.hardlight( 0xCCCCCC );
+        version.x = w - version.width();
+        version.y = h - version.height() - source.height();
+        add( version );
 		
 		PrefsButton btnPrefs = new PrefsButton();
 		btnPrefs.setPos( 0, 0 );
 		add( btnPrefs );
-		
-		ExitButton btnExit = new ExitButton();
-		btnExit.setPos( w - btnExit.width(), 0 );
-		add( btnExit );
+
+        ExitButton btnExit = new ExitButton();
+        btnExit.setPos( w - btnExit.width(), 0 );
+        add( btnExit );
 		
 		fadeIn();
 	}

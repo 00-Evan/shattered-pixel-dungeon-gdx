@@ -44,9 +44,9 @@ public class HeroSprite extends CharSprite {
 	private static TextureFilm tiers;
 	
 	private Animation fly;
-	
-	private Tweener jumpTweener;
-	private Callback jumpCallback;
+
+    private Tweener jumpTweener;
+    private Callback jumpCallback;
 	
 	public HeroSprite() {
 		super();
@@ -98,36 +98,36 @@ public class HeroSprite extends CharSprite {
 		}
 		Camera.main.target = this;
 	}
-	
-	public void jump( int from, int to, Callback callback ) {	
-		jumpCallback = callback;
-		
-		int distance = Level.distance( from, to );
-		jumpTweener = new JumpTweener( this, worldToCamera( to ), distance * 4, distance * 0.1f );
-		jumpTweener.listener = this;
-		parent.add( jumpTweener );
-		
-		turnTo( from, to );
-		play( fly );
-	}
-	
-	@Override
-	public void onComplete( Tweener tweener ) {
-		if (tweener == jumpTweener) {
-			
-			if (visible && Level.water[ch.pos] && !ch.flying) {
-				GameScene.ripple( ch.pos );
-			}
-			if (jumpCallback != null) {
-				jumpCallback.call();
-			}
-			
-		} else {
-			super.onComplete( tweener );
-		}
-	}
-	
-	@Override
+
+    public void jump( int from, int to, Callback callback ) {
+        jumpCallback = callback;
+
+        int distance = Level.distance( from, to );
+        jumpTweener = new JumpTweener( this, worldToCamera( to ), distance * 4, distance * 0.1f );
+        jumpTweener.listener = this;
+        parent.add( jumpTweener );
+
+        turnTo( from, to );
+        play( fly );
+    }
+
+    @Override
+    public void onComplete( Tweener tweener ) {
+        if (tweener == jumpTweener) {
+
+            if (visible && Level.water[ch.pos] && !ch.flying) {
+                GameScene.ripple( ch.pos );
+            }
+            if (jumpCallback != null) {
+                jumpCallback.call();
+            }
+
+        } else {
+            super.onComplete( tweener );
+        }
+    }
+
+    @Override
 	public void update() {
 		sleeping = ((Hero)ch).restoreHealth;
 		
@@ -160,28 +160,28 @@ public class HeroSprite extends CharSprite {
 		return avatar;
 	}
 
-	private static class JumpTweener extends Tweener {
+    private static class JumpTweener extends Tweener {
 
-		public Visual visual;
-		
-		public PointF start;
-		public PointF end;
-		
-		public float height;
-		
-		public JumpTweener( Visual visual, PointF pos, float height, float time ) {
-			super( visual, time );
-			
-			this.visual = visual;
-			start = visual.point();
-			end = pos;
+        public Visual visual;
 
-			this.height = height;
-		}
+        public PointF start;
+        public PointF end;
 
-		@Override
-		protected void updateValues( float progress ) {
-			visual.point( PointF.inter( start, end, progress ).offset( 0, -height * 4 * progress * (1 - progress) ) );
-		}
-	}
+        public float height;
+
+        public JumpTweener( Visual visual, PointF pos, float height, float time ) {
+            super( visual, time );
+
+            this.visual = visual;
+            start = visual.point();
+            end = pos;
+
+            this.height = height;
+        }
+
+        @Override
+        protected void updateValues( float progress ) {
+            visual.point( PointF.inter( start, end, progress ).offset( 0, -height * 4 * progress * (1 - progress) ) );
+        }
+    }
 }

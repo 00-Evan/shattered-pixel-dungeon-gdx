@@ -73,6 +73,7 @@ public class WndSettings extends Window {
 			};
 			add( btnZoomOut.setRect( 0, 0, w, BTN_HEIGHT) );
 			
+			// Zoom in
 			btnZoomIn = new RedButton( TXT_ZOOM_IN ) {
 				@Override
 				protected void onClick() {
@@ -81,6 +82,7 @@ public class WndSettings extends Window {
 			};
 			add( btnZoomIn.setRect( WIDTH - w, 0, w, BTN_HEIGHT) );
 			
+			// Default zoom
 			add( new RedButton( TXT_ZOOM_DEFAULT ) {
 				@Override
 				protected void onClick() {
@@ -120,7 +122,7 @@ public class WndSettings extends Window {
 			@Override
 			protected void onClick() {
 				super.onClick();
-				PixelDungeon.soundFx( checked() );
+				PixelDungeon.soundFx(checked());
 				Sample.INSTANCE.play( Assets.SND_CLICK );
 			}
 		};
@@ -171,7 +173,7 @@ public class WndSettings extends Window {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					PixelDungeon.brightness( checked() );
+					PixelDungeon.brightness(checked());
 				}
 			};
 			btnBrightness.setRect( 0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT );
@@ -187,7 +189,7 @@ public class WndSettings extends Window {
 	private void zoom( float value ) {
 
 		Camera.main.zoom( value );
-		PixelDungeon.zoom( (int)(value - PixelScene.defaultZoom) );
+		PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
 
 		updateEnabled();
 	}

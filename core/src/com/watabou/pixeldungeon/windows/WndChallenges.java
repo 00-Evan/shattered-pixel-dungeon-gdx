@@ -28,62 +28,62 @@ import com.watabou.pixeldungeon.ui.Window;
 
 public class WndChallenges extends Window {
 
-	private static final int WIDTH		= 108;
-	private static final int BTN_HEIGHT	= 20;
-	private static final int GAP		= 2;
-	
-	private static final String TITLE	= "Challenges";
-	
-	private boolean editable;
-	private ArrayList<CheckBox> boxes;
-	
-	public WndChallenges( int checked, boolean editable ) {
-		
-		super();
-		
-		this.editable = editable;
-		
-		BitmapText title = PixelScene.createText( TITLE, 9 );
-		title.hardlight( TITLE_COLOR );
-		title.measure();
-		title.x = PixelScene.align( camera, (WIDTH - title.width()) / 2 );
-		add( title );
-		
-		boxes = new ArrayList<CheckBox>();
-		
-		float pos = title.height() + GAP;
-		for (int i=0; i < Challenges.NAMES.length; i++) {
-			
-			CheckBox cb = new CheckBox( Challenges.NAMES[i] );
-			cb.checked( (checked & Challenges.MASKS[i]) != 0 );
-			cb.active = editable;
-			
-			if (i > 0) {
-				pos += GAP;
-			}
-			cb.setRect( 0, pos, WIDTH, BTN_HEIGHT );
-			pos = cb.bottom();
-			
-			add( cb );
-			boxes.add( cb );
-		}
-		
-		resize( WIDTH, (int)pos );
-	}
-	
-	@Override
-	public void onBackPressed() {
-		
-		if (editable) {
-			int value = 0;
-			for (int i=0; i < boxes.size(); i++) {
-				if (boxes.get( i ).checked()) {
-					value |= Challenges.MASKS[i];
-				}
-			}	
-			PixelDungeon.challenges( value );
-		}
-		
-		super.onBackPressed();
-	}
+    private static final int WIDTH		= 108;
+    private static final int BTN_HEIGHT	= 20;
+    private static final int GAP		= 2;
+
+    private static final String TITLE	= "Challenges";
+
+    private boolean editable;
+    private ArrayList<CheckBox> boxes;
+
+    public WndChallenges( int checked, boolean editable ) {
+
+        super();
+
+        this.editable = editable;
+
+        BitmapText title = PixelScene.createText( TITLE, 9 );
+        title.hardlight( TITLE_COLOR );
+        title.measure();
+        title.x = PixelScene.align( camera, (WIDTH - title.width()) / 2 );
+        add( title );
+
+        boxes = new ArrayList<CheckBox>();
+
+        float pos = title.height() + GAP;
+        for (int i=0; i < Challenges.NAMES.length; i++) {
+
+            CheckBox cb = new CheckBox( Challenges.NAMES[i] );
+            cb.checked( (checked & Challenges.MASKS[i]) != 0 );
+            cb.active = editable;
+
+            if (i > 0) {
+                pos += GAP;
+            }
+            cb.setRect( 0, pos, WIDTH, BTN_HEIGHT );
+            pos = cb.bottom();
+
+            add( cb );
+            boxes.add( cb );
+        }
+
+        resize( WIDTH, (int)pos );
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (editable) {
+            int value = 0;
+            for (int i=0; i < boxes.size(); i++) {
+                if (boxes.get( i ).checked()) {
+                    value |= Challenges.MASKS[i];
+                }
+            }
+            PixelDungeon.challenges( value );
+        }
+
+        super.onBackPressed();
+    }
 }

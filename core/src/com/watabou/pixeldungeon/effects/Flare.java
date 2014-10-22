@@ -48,8 +48,8 @@ public class Flare extends Visual {
 	public Flare( int nRays, float radius ) {
 		
 		super( 0, 0, 0, 0 );
-		
-		// FIXME
+
+        // FIXME
 		// Texture is incorrectly created every time we need
 		// to show the effect, it must be refactored
 		

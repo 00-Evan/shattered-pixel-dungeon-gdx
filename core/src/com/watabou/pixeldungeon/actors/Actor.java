@@ -24,6 +24,7 @@ import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.Statistics;
 import com.watabou.pixeldungeon.actors.blobs.Blob;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
+import com.watabou.pixeldungeon.actors.hero.Hero;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
 import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.utils.Bundlable;
@@ -129,12 +130,12 @@ public abstract class Actor implements Bundlable {
 	public static void freeCell( int pos ) {
 		chars[pos] = null;
 	}
-	
-	/*protected*/public void next() {
-		if (current == this) {
-			current = null;
-		}
-	}
+
+    /*protected*/public void next() {
+        if (current == this) {
+            current = null;
+        }
+    }
 	
 	public static void process() {
 		
@@ -151,7 +152,12 @@ public abstract class Actor implements Bundlable {
 			Arrays.fill( chars, null );
 			
 			for (Actor actor : all) {
-				if (actor.time < now) {
+                //Order of actions when time is equal:
+                //1. Hero
+                //2. Other Chars
+                //3. Other Actors (e.g. blobs)
+				if (actor.time < now || (actor instanceof Hero && actor.time == now)
+                        || (actor instanceof Char && actor.time == now && !(current instanceof Hero))) {
 					now = actor.time;
 					current = actor;
 				}
@@ -162,15 +168,15 @@ public abstract class Actor implements Bundlable {
 				}
 			}
 
-			if (current != null) {
-				
-				if (current instanceof Char && ((Char)current).sprite.isMoving) {
-					// If it's character's turn to act, but its sprite 
-					// is moving, wait till the movement is over
-					current = null;
-					break;
-				}
-				
+			if  (current != null) {
+
+                if (current instanceof Char && ((Char)current).sprite.isMoving) {
+                    // If it's character's turn to act, but its sprite
+                    // is moving, wait till the movement is over
+                    current = null;
+                    break;
+                }
+
 				doNext = current.act();
 				if (doNext && !Dungeon.hero.isAlive()) {
 					doNext = false;

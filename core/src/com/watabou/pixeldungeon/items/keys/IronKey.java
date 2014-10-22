@@ -18,6 +18,7 @@
 package com.watabou.pixeldungeon.items.keys;
 
 import com.watabou.pixeldungeon.Dungeon;
+import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.bags.Bag;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.pixeldungeon.utils.Utils;
@@ -33,6 +34,15 @@ public class IronKey extends Key {
 		image = ItemSpriteSheet.IRON_KEY;
 	}
 	
+	public IronKey() {
+		this( 0 );
+	}
+	
+	public IronKey( int depth ) {
+		super();
+		this.depth = depth;
+	}
+	
 	@Override
 	public boolean collect( Bag bag ) {
 		boolean result = super.collect( bag );
@@ -41,13 +51,13 @@ public class IronKey extends Key {
 		}
 		return result;
 	}
-	
-	@Override
-	public void onDetach( ) {
-		if (depth == Dungeon.depth) {
-			Dungeon.hero.belongings.countIronKeys();
-		}
-	}
+
+    @Override
+    public void onDetach( ) {
+        if (depth == Dungeon.depth) {
+            Dungeon.hero.belongings.countIronKeys();
+        }
+    }
 	
 	@Override
 	public String toString() {

@@ -84,7 +84,7 @@ public class DangerIndicator extends Tag {
 					number.text( Integer.toString( lastNumber ) );
 					number.measure();
 					placeNumber();
-					
+
 					flash();
 				}
 			}

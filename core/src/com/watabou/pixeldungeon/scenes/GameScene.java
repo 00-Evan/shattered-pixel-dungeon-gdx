@@ -29,13 +29,7 @@ import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.Badges;
-import com.watabou.pixeldungeon.Dungeon;
-import com.watabou.pixeldungeon.DungeonTilemap;
-import com.watabou.pixeldungeon.FogOfWar;
 import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.Statistics;
 import com.watabou.pixeldungeon.actors.Actor;
 import com.watabou.pixeldungeon.actors.blobs.Blob;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
@@ -89,7 +83,7 @@ public class GameScene extends PixelScene {
 	private static final String TXT_NIGHT_MODE		= "Be cautious, since the dungeon is even more dangerous at night!";
 	
 	private static final String TXT_CHASM	= "Your steps echo across the dungeon.";
-	private static final String TXT_WATER	= "You hear the water splashing around you.";
+	private static final String TXT_WATER	= "You hear water splashing around you.";
 	private static final String TXT_GRASS	= "The smell of vegetation is thick in the air.";
 	private static final String TXT_SECRETS	= "The atmosphere hints that this floor hides many secrets.";
 	
@@ -127,7 +121,7 @@ public class GameScene extends PixelScene {
 		Music.INSTANCE.play( Assets.TUNE, true );
 		Music.INSTANCE.volume( 1f );
 		
-		PixelDungeon.lastClass( Dungeon.hero.heroClass.ordinal() );
+		PixelDungeon.lastClass(Dungeon.hero.heroClass.ordinal());
 		
 		super.create();
 		Camera.main.zoom( defaultZoom + PixelDungeon.zoom() );
@@ -235,12 +229,11 @@ public class GameScene extends PixelScene {
 		log.setRect( 0, toolbar.top(), attack.left(),  0 );
 		add( log );
 		
-		if (Dungeon.depth < Statistics.deepestFloor) {
+		if (Dungeon.depth < Statistics.deepestFloor)
 			GLog.i( TXT_WELCOME_BACK, Dungeon.depth );
-		} else {
+		else
 			GLog.i( TXT_WELCOME, Dungeon.depth );
-			Sample.INSTANCE.play( Assets.SND_DESCEND );
-		}
+        Sample.INSTANCE.play( Assets.SND_DESCEND );
 		switch (Dungeon.level.feeling) {
 		case CHASM:
 			GLog.w( TXT_CHASM );

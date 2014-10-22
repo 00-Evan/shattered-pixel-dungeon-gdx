@@ -20,49 +20,48 @@ package com.watabou.pixeldungeon.plants;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.blobs.Blob;
-import com.watabou.pixeldungeon.actors.blobs.ConfusionGas;
 import com.watabou.pixeldungeon.items.potions.PotionOfInvisibility;
 import com.watabou.pixeldungeon.scenes.GameScene;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 
 public class Dreamweed extends Plant {
 
-	private static final String TXT_DESC = 
-		"Upon touching a Dreamweed it secretes a glittering cloud of confusing gas.";
-	
-	{
-		image = 3;
-		plantName = "Dreamweed";
-	}
-	
-	@Override
-	public void activate( Char ch ) {
-		super.activate( ch );
-		
-		if (ch != null) {
-			GameScene.add( Blob.seed( pos, 300 + 20 * Dungeon.depth, ConfusionGas.class ) );
-		}
-	}
-	
-	@Override
-	public String desc() {
-		return TXT_DESC;
-	}
-	
-	public static class Seed extends Plant.Seed {
-		{
-			plantName = "Dreamweed";
-			
-			name = "seed of " + plantName;
-			image = ItemSpriteSheet.SEED_DREAMWEED;
-			
-			plantClass = Dreamweed.class;
-			alchemyClass = PotionOfInvisibility.class;
-		}
-		
-		@Override
-		public String desc() {
-			return TXT_DESC;
-		}
-	}
+    private static final String TXT_DESC =
+            "Upon touching a Dreamweed it secretes a glittering cloud of confusing gas.";
+
+    {
+        image = 3;
+        plantName = "Dreamweed";
+    }
+
+    @Override
+    public void activate( Char ch ) {
+        super.activate( ch );
+
+        if (ch != null) {
+            //GameScene.add(Blob.seed(pos, 300 + 20 * Dungeon.depth, ConfusionGas.class));
+        }
+    }
+
+    @Override
+    public String desc() {
+        return TXT_DESC;
+    }
+
+    public static class Seed extends Plant.Seed {
+        {
+            plantName = "Dreamweed";
+
+            name = "seed of " + plantName;
+            image = ItemSpriteSheet.SEED_DREAMWEED;
+
+            plantClass = Dreamweed.class;
+            alchemyClass = PotionOfInvisibility.class;
+        }
+
+        @Override
+        public String desc() {
+            return TXT_DESC;
+        }
+    }
 }

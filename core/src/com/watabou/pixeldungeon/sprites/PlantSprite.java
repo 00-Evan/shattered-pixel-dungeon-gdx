@@ -65,9 +65,9 @@ public class PlantSprite extends Image {
 		alpha( 1f );
 		
 		pos = plant.pos;
-		PointF p = DungeonTilemap.tileToWorld( plant.pos );
-		x = p.x;
-		y = p.y;
+        PointF p = DungeonTilemap.tileToWorld( plant.pos );
+        x = p.x;
+        y = p.y;
 		
 		state = State.GROWING;
 		time = DELAY;

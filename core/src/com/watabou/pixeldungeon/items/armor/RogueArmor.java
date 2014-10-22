@@ -87,8 +87,8 @@ public class RogueArmor extends ClassArmor {
 					GLog.w( TXT_FOV );
 					return;
 				}
-				
-				curUser.HP -= (curUser.HP / 3);
+
+                curUser.HP -= (curUser.HP / 3);
 				
 				for (Mob mob : Dungeon.level.mobs) {
 					if (Level.fieldOfView[mob.pos]) {

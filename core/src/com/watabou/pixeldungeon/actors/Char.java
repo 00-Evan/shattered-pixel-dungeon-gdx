@@ -140,8 +140,8 @@ public abstract class Char extends Actor {
 			}
 			
 			// FIXME
-			int dr = this instanceof Hero && ((Hero)this).rangedWeapon != null && ((Hero)this).subClass == HeroSubClass.SNIPER ? 0 :
-				Random.IntRange( 0, enemy.dr() );
+			int dr = this instanceof Hero && ((Hero)this).rangedWeapon != null && ((Hero)this).subClass ==
+                HeroSubClass.SNIPER ? 0 : Random.IntRange( 0, enemy.dr() );
 			
 			int dmg = damageRoll();
 			int effectiveDamage = Math.max( dmg - dr, 0 );;
@@ -249,8 +249,15 @@ public abstract class Char extends Actor {
 		if (HP <= 0) {
 			return;
 		}
-		
-		Buff.detach( this, Frost.class );
+		if (this.buff(Frost.class) != null){
+            Buff.detach( this, Frost.class );
+            if (Level.water[this.pos]) {
+                Buff.prolong(this, Paralysis.class, 1f);
+            }
+        }
+        if (this.buff(MagicalSleep.class) != null){
+            Buff.detach(this, MagicalSleep.class);
+        }
 		
 		Class<?> srcClass = src.getClass();
 		if (immunities().contains( srcClass )) {
@@ -379,12 +386,12 @@ public abstract class Char extends Actor {
 			} else if (buff instanceof Bleeding) {
 
 				sprite.showStatus( CharSprite.NEGATIVE, "bleeding" );
-				
-			} else if (buff instanceof Vertigo) {
 
-				sprite.showStatus( CharSprite.NEGATIVE, "dizzy" );
-				
-			} else if (buff instanceof Sleep) {
+            } else if (buff instanceof Vertigo) {
+
+                sprite.showStatus( CharSprite.NEGATIVE, "dizzy" );
+
+            } else if (buff instanceof Sleep) {
 				sprite.idle();
 			}
 			
@@ -394,7 +401,7 @@ public abstract class Char extends Actor {
 				sprite.add( CharSprite.State.LEVITATING );
 			} else if (buff instanceof Frost) {
 				sprite.add( CharSprite.State.FROZEN );
-			} else if (buff instanceof Invisibility) {
+			} else if (buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth) {
 				if (!(buff instanceof Shadows)) {
 					sprite.showStatus( CharSprite.POSITIVE, "invisible" );
 				}
@@ -412,7 +419,7 @@ public abstract class Char extends Actor {
 			sprite.remove( CharSprite.State.BURNING );
 		} else if (buff instanceof Levitation) {
 			sprite.remove( CharSprite.State.LEVITATING );
-		} else if (buff instanceof Invisibility && invisible <= 0) {
+		} else if ((buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth) && invisible <= 0) {
 			sprite.remove( CharSprite.State.INVISIBLE );
 		} else if (buff instanceof Paralysis) {
 			sprite.remove( CharSprite.State.PARALYSED );
@@ -440,7 +447,7 @@ public abstract class Char extends Actor {
 				sprite.add( CharSprite.State.BURNING );
 			} else if (buff instanceof Levitation) {
 				sprite.add( CharSprite.State.LEVITATING );
-			} else if (buff instanceof Invisibility) {
+			} else if (buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth)  {
 				sprite.add( CharSprite.State.INVISIBLE );
 			} else if (buff instanceof Paralysis) {
 				sprite.add( CharSprite.State.PARALYSED );
@@ -457,19 +464,19 @@ public abstract class Char extends Actor {
 	}
 	
 	public void move( int step ) {
-		
-		if (buff( Vertigo.class ) != null) {
-			ArrayList<Integer> candidates = new ArrayList<Integer>();
-			for (int dir : Level.NEIGHBOURS8) {
-				int p = pos + dir;
-				if ((Level.passable[p] || Level.avoid[p]) && Actor.findChar( p ) == null) {
-					candidates.add( p );
-				}
-			}
-			
-			step = Random.element( candidates );
-		}
-		
+
+        if (buff( Vertigo.class ) != null) {
+            ArrayList<Integer> candidates = new ArrayList<Integer>();
+            for (int dir : Level.NEIGHBOURS8) {
+                int p = pos + dir;
+                if ((Level.passable[p] || Level.avoid[p]) && Actor.findChar( p ) == null) {
+                    candidates.add( p );
+                }
+            }
+
+            step = Random.element( candidates );
+        }
+
 		if (Dungeon.level.map[pos] == Terrain.OPEN_DOOR) {
 			Door.leave( pos );
 		}

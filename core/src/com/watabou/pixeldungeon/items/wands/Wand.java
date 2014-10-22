@@ -34,7 +34,7 @@ import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.ItemStatusHandler;
 import com.watabou.pixeldungeon.items.KindOfWeapon;
 import com.watabou.pixeldungeon.items.bags.Bag;
-import com.watabou.pixeldungeon.items.rings.RingOfPower.Power;
+import com.watabou.pixeldungeon.items.rings.RingOfMagic.Magic;
 import com.watabou.pixeldungeon.mechanics.Ballistica;
 import com.watabou.pixeldungeon.scenes.CellSelector;
 import com.watabou.pixeldungeon.scenes.GameScene;
@@ -147,8 +147,8 @@ public abstract class Wand extends KindOfWeapon {
 	
 	@Override
 	public boolean doUnequip( Hero hero, boolean collect ) {
-		onDetach();
-		return super.doUnequip( hero, collect );
+        onDetach();
+        return super.doUnequip( hero, collect );
 	}
 	
 	@Override
@@ -188,12 +188,12 @@ public abstract class Wand extends KindOfWeapon {
 	public void charge( Char owner ) {
 		(charger = new Charger()).attachTo( owner );
 	}
-	
-	@Override
-	public void onDetach( ) {
-		stopCharging();
-	}
-	
+
+    @Override
+    public void onDetach( ) {
+        stopCharging();
+    }
+
 	public void stopCharging() {
 		if (charger != null) {
 			charger.detach();
@@ -203,8 +203,8 @@ public abstract class Wand extends KindOfWeapon {
 	
 	public int level() {
 		if (charger != null) {
-			Power power = charger.target.buff( Power.class );
-			return power == null ? level : Math.max( level + power.level, 0 ); 
+			Magic magic = charger.target.buff( Magic.class );
+			return magic == null ? level : Math.max( level + magic.level, 0 );
 		} else {
 			return level;
 		}

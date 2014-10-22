@@ -49,10 +49,10 @@ public class Bones {
 			item = Dungeon.hero.belongings.armor;
 			break;
 		case 2:
-			item = Dungeon.hero.belongings.ring1;
+			item = Dungeon.hero.belongings.misc1;
 			break;
 		case 3:
-			item = Dungeon.hero.belongings.ring2;
+			item = Dungeon.hero.belongings.misc2;
 			break;
 		}
 		if (item == null) {
@@ -91,7 +91,7 @@ public class Bones {
 				
 				return get();
 				
-			} catch (IOException e) {
+			} catch (Exception e) {
 				return null;
 			}
 			

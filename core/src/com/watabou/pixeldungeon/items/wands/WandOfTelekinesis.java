@@ -88,7 +88,7 @@ public class WandOfTelekinesis extends Wand {
 						}
 						
 					} else {
-
+						
 						ch.damage( maxDistance-1 - i, this );
 						
 					}

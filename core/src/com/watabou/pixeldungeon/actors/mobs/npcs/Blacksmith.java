@@ -27,6 +27,7 @@ import com.watabou.pixeldungeon.Journal;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.hero.Hero;
+import com.watabou.pixeldungeon.actors.mobs.Mob;
 import com.watabou.pixeldungeon.items.EquipableItem;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.quest.DarkGold;
@@ -166,8 +167,8 @@ public class Blacksmith extends NPC {
 		if (item1 == item2) {
 			return "Select 2 different items, not the same item twice!";
 		}
-		
-		if (item1.getClass() != item2.getClass()) {
+
+        if (item1.getClass() != item2.getClass()) {
 			return "Select 2 items of the same type!";
 		}
 		

@@ -24,11 +24,13 @@ import java.util.List;
 import com.watabou.pixeldungeon.Bones;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Actor;
+import com.watabou.pixeldungeon.actors.buffs.Buff;
 import com.watabou.pixeldungeon.actors.mobs.Bestiary;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
 import com.watabou.pixeldungeon.items.Generator;
 import com.watabou.pixeldungeon.items.Heap;
 import com.watabou.pixeldungeon.items.Item;
+import com.watabou.pixeldungeon.items.rings.RingOfWealth;
 import com.watabou.pixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.watabou.pixeldungeon.levels.Room.Type;
 import com.watabou.pixeldungeon.levels.painters.*;
@@ -81,29 +83,29 @@ public abstract class RegularLevel extends Level {
 		
 		HashSet<Room> connected = new HashSet<Room>();
 		connected.add( roomEntrance );
-		
+
 		Graph.buildDistanceMap( rooms, roomExit );
 		List<Room> path = Graph.buildPath( rooms, roomEntrance, roomExit );
-		
+
 		Room room = roomEntrance;
 		for (Room next : path) {
 			room.connect( next );
 			room = next;
 			connected.add( room );
 		}
-		
+
 		Graph.setPrice( path, roomEntrance.distance );
-		
+
 		Graph.buildDistanceMap( rooms, roomExit );
 		path = Graph.buildPath( rooms, roomEntrance, roomExit );
-		
+
 		room = roomEntrance;
 		for (Room next : path) {
 			room.connect( next );
 			room = next;
 			connected.add( room );
 		}
-		
+
 		int nConnected = (int)(rooms.size() * Random.Float( 0.5f, 0.7f ));
 		while (connected.size() < nConnected) {
 
@@ -151,7 +153,7 @@ public abstract class RegularLevel extends Level {
 
 		rooms = new HashSet<Room>();
 		split( new Rect( 0, 0, WIDTH - 1, HEIGHT - 1 ) );
-
+		
 		if (rooms.size() < 8) {
 			return false;
 		}
@@ -354,7 +356,7 @@ public abstract class RegularLevel extends Level {
 		int h = rect.height();
 		
 		if (w > maxRoomSize && h < minRoomSize) {
-			
+
 			int vw = Random.Int( rect.left + 3, rect.right - 3 );
 			split( new Rect( rect.left, rect.top, vw, rect.bottom ) );
 			split( new Rect( vw, rect.top, rect.right, rect.bottom ) );
@@ -548,7 +550,7 @@ public abstract class RegularLevel extends Level {
 		
 		while (true) {
 			
-			if (++count > 10) {
+			if (++count > 30) {
 				return -1;
 			}
 			
@@ -589,7 +591,13 @@ public abstract class RegularLevel extends Level {
 	protected void createItems() {
 		
 		int nItems = 3;
-		while (Random.Float() < 0.3f) {
+        int bonus = 0;
+        for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
+            bonus += ((RingOfWealth.Wealth) buff).level;
+        }
+        //just incase someone gets a ridiculous ring, cap this at 80%
+        bonus = Math.min(bonus, 10);
+		while (Random.Float() < (0.3f + bonus*0.05f)) {
 			nItems++;
 		}
 		
@@ -614,12 +622,10 @@ public abstract class RegularLevel extends Level {
 		for (Item item : itemsToSpawn) {
 			int cell = randomDropCell();
 			if (item instanceof ScrollOfUpgrade) {
-
 				while (map[cell] == Terrain.FIRE_TRAP || map[cell] == Terrain.SECRET_FIRE_TRAP) {
 					cell = randomDropCell();
 				}
 			}
-
 			drop( item, cell ).type = Heap.Type.HEAP;
 		}
 		

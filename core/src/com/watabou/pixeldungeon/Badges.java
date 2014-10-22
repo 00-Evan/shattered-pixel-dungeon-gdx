@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import com.watabou.pixeldungeon.items.artifacts.Artifact;
 import com.watabou.noosa.Game;
 import com.watabou.pixeldungeon.actors.mobs.Acidic;
 import com.watabou.pixeldungeon.actors.mobs.Albino;
@@ -39,8 +40,6 @@ import com.watabou.pixeldungeon.items.bags.SeedPouch;
 import com.watabou.pixeldungeon.items.bags.WandHolster;
 import com.watabou.pixeldungeon.items.potions.Potion;
 import com.watabou.pixeldungeon.items.rings.Ring;
-import com.watabou.pixeldungeon.items.rings.RingOfHaggler;
-import com.watabou.pixeldungeon.items.rings.RingOfThorns;
 import com.watabou.pixeldungeon.items.scrolls.Scroll;
 import com.watabou.pixeldungeon.items.wands.Wand;
 import com.watabou.pixeldungeon.scenes.PixelScene;
@@ -96,7 +95,8 @@ public class Badges {
 		BOSS_SLAIN_3_SNIPER,
 		BOSS_SLAIN_3_WARDEN,
 		BOSS_SLAIN_3_ALL_SUBCLASSES( 
-			"3rd boss slain by Gladiator, Berserker, Warlock, Battlemage, Freerunner, Assassin, Sniper & Warden", 33, true ),
+			"3rd boss slain by Gladiator, Berserker, Warlock, Battlemage, " +
+			"Freerunner, Assassin, Sniper & Warden", 33, true ),
 		RING_OF_HAGGLER( "Ring of Haggler obtained", 20 ),
 		RING_OF_THORNS( "Ring of Thorns obtained", 21 ),
 		STRENGTH_ATTAINED_1( "13 points of Strength attained", 40 ),
@@ -141,7 +141,7 @@ public class Badges {
 		GAMES_PLAYED_3( "500 games played", 62, true ),
 		GAMES_PLAYED_4( "2000 games played", 63, true ),
 		HAPPY_END( "Happy end", 38 ),
-		CHAMPION( "Challenge won", 39, true ),
+        CHAMPION( "Challenge won", 39, true ),
 		SUPPORTER( "Thanks for your support!", 31, true );
 		
 		public boolean meta;
@@ -399,12 +399,13 @@ public class Badges {
 		// 1) When an item is obtained (Item.collect)
 		// 2) When an item is upgraded (ScrollOfUpgrade, ScrollOfWeaponUpgrade, ShortSword, WandOfMagicMissile)
 		// 3) When an item is identified
-		if (!item.levelKnown) {
+
+        // Note that artifacts should never trigger this badge as they are alternatively upgraded
+		if (!item.levelKnown || item instanceof Artifact) {
 			return;
 		}
 		
 		Badge badge = null;
-		
 		if (!local.contains( Badge.ITEM_LEVEL_1 ) && item.level >= 3) {
 			badge = Badge.ITEM_LEVEL_1;
 			local.add( badge );
@@ -709,17 +710,19 @@ public class Badges {
 			displayBadge( badge );
 		}
 	}
-	
+
+    //TODO: Replace this badge, Delayed to 0.2.1
 	public static void validateRingOfHaggler() {
-		if (!local.contains( Badge.RING_OF_HAGGLER ) && new RingOfHaggler().isKnown()) {
+		if (!local.contains( Badge.RING_OF_HAGGLER )/* && new RingOfThorns().isKnown()*/) {
 			Badge badge = Badge.RING_OF_HAGGLER;
 			local.add( badge );
 			displayBadge( badge );
 		}
 	}
-	
+
+    //TODO: Replace this badge, Delayed to 0.2.1
 	public static void validateRingOfThorns() {
-		if (!local.contains( Badge.RING_OF_THORNS ) && new RingOfThorns().isKnown()) {
+		if (!local.contains( Badge.RING_OF_THORNS )/* && new RingOfThorns().isKnown()*/) {
 			Badge badge = Badge.RING_OF_THORNS;
 			local.add( badge );
 			displayBadge( badge );
@@ -844,10 +847,10 @@ public class Badges {
 	public static void validateHappyEnd() {
 		displayBadge( Badge.HAPPY_END );
 	}
-	
-	public static void validateChampion() {
-		displayBadge( Badge.CHAMPION );
-	}
+
+    public static void validateChampion() {
+        displayBadge(Badge.CHAMPION);
+    }
 	
 	private static void displayBadge( Badge badge ) {
 		

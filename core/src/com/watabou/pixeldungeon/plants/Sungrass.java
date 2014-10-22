@@ -26,11 +26,12 @@ import com.watabou.pixeldungeon.effects.particles.ShaftParticle;
 import com.watabou.pixeldungeon.items.potions.PotionOfHealing;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.pixeldungeon.ui.BuffIndicator;
+import com.watabou.pixeldungeon.utils.Utils;
 import com.watabou.utils.Bundle;
 
 public class Sungrass extends Plant {
 
-	private static final String TXT_DESC = "Sungrass is renowned for its sap's healing properties.";
+	private static final String TXT_DESC = "Sungrass is renowned for its sap's slow but effective healing properties.";
 	
 	{
 		image = 4;
@@ -42,7 +43,7 @@ public class Sungrass extends Plant {
 		super.activate( ch );
 		
 		if (ch != null) {
-			Buff.affect( ch, Health.class );
+			Buff.affect( ch, Health.class ).level = ch.HT;
 		}
 		
 		if (Dungeon.visible[pos]) {
@@ -74,9 +75,12 @@ public class Sungrass extends Plant {
 	
 	public static class Health extends Buff {
 		
-		private static final float STEP = 5f;
+		private static final float STEP = 1f;
 		
 		private int pos;
+        private int healCurr = 1;
+        private int count = 0;
+        private int level;
 		
 		@Override
 		public boolean attachTo( Char target ) {
@@ -85,16 +89,38 @@ public class Sungrass extends Plant {
 		}
 		
 		@Override
-		public boolean act() {
-			if (target.pos != pos || target.HP >= target.HT) {
-				detach();
-			} else {
-				target.HP = Math.min( target.HT, target.HP + target.HT / 10 );
-				target.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
-			}
-			spend( STEP );
-			return true;
-		}
+        public boolean act() {
+            if (target.pos != pos) {
+                detach();
+            }
+            if (count == 5) {
+                if (level <= healCurr*.025*target.HT) {
+                    target.HP = Math.min(target.HT, target.HP + level);
+                    target.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);
+                    detach();
+                } else {
+                    target.HP = Math.min(target.HT, target.HP+(int)(healCurr*.025*target.HT));
+                    level -= (healCurr*.025*target.HT);
+                    if (healCurr < 6)
+                        healCurr ++;
+                    target.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);
+                }
+                count = 1;
+            } else {
+                count++;
+            }
+            if (level <= 0)
+                detach();
+            spend( STEP );
+            return true;
+        }
+
+        public int absorb( int damage ) {
+            level -= damage;
+            if (level <= 0)
+                detach();
+            return damage;
+        }
 		
 		@Override
 		public int icon() {
@@ -103,21 +129,31 @@ public class Sungrass extends Plant {
 		
 		@Override
 		public String toString() {
-			return "Herbal healing";
+            return Utils.format( "Herbal Healing (%d)", level);
 		}
 		
 		private static final String POS	= "pos";
-		
-		@Override
+        private static final String HEALCURR = "healCurr";
+        private static final String COUNT = "count";
+        private static final String LEVEL = "level";
+
+        @Override
 		public void storeInBundle( Bundle bundle ) {
 			super.storeInBundle( bundle );
 			bundle.put( POS, pos );
+            bundle.put( HEALCURR, healCurr);
+            bundle.put( COUNT, count);
+            bundle.put( LEVEL, level);
 		}
 		
 		@Override
 		public void restoreFromBundle( Bundle bundle ) {
 			super.restoreFromBundle( bundle );
 			pos = bundle.getInt( POS );
+            healCurr = bundle.getInt( HEALCURR );
+            count = bundle.getInt( COUNT );
+            level = bundle.getInt( LEVEL );
+
 		}
 	}
 }

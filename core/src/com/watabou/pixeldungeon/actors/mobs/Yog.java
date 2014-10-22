@@ -144,7 +144,7 @@ public class Yog extends Mob {
 		}
 		
 		GameScene.bossSlain();
-		Dungeon.level.drop( new SkeletonKey(), pos ).sprite.drop();
+		Dungeon.level.drop( new SkeletonKey( Dungeon.depth ), pos ).sprite.drop();
 		super.die( cause );
 		
 		yell( "..." );
@@ -370,7 +370,7 @@ public class Yog extends Mob {
 		static {
 			RESISTANCES.add( ToxicGas.class );
 			RESISTANCES.add( Death.class );
-			RESISTANCES.add( ScrollOfPsionicBlast.class );
+
 		}
 		
 		@Override
@@ -384,6 +384,7 @@ public class Yog extends Mob {
 			IMMUNITIES.add( Sleep.class );
 			IMMUNITIES.add( Terror.class );
 			IMMUNITIES.add( Burning.class );
+            IMMUNITIES.add( ScrollOfPsionicBlast.class );
 		}
 		
 		@Override

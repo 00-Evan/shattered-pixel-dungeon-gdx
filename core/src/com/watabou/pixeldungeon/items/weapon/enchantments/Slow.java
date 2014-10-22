@@ -39,7 +39,7 @@ public class Slow extends Weapon.Enchantment {
 		
 		if (Random.Int( level + 4 ) >= 3) {
 			
-			Buff.prolong( defender, com.watabou.pixeldungeon.actors.buffs.Slow.class, 
+			Buff.prolong( defender, com.watabou.pixeldungeon.actors.buffs.Slow.class,
 				Random.Float( 1, 1.5f + level ) );
 			
 			return true;

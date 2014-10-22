@@ -25,7 +25,7 @@ public enum HeroSubClass {
 	
 	GLADIATOR( "gladiator", 
 		"A successful attack with a melee weapon allows the _Gladiator_ to start a combo, " +
-		"in which every next successful hit inflicts more damage." ),	
+		"in which every next successful hit inflicts more damage." ),
 	BERSERKER( "berserker", 
 		"When severely wounded, the _Berserker_ enters a state of wild fury " +
 		"significantly increasing his damage output." ),

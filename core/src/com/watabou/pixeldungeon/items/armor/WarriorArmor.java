@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.items.armor;
 
+import com.watabou.pixeldungeon.sprites.HeroSprite;
 import com.watabou.noosa.Camera;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Actor;
@@ -34,11 +35,9 @@ import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.mechanics.Ballistica;
 import com.watabou.pixeldungeon.scenes.CellSelector;
 import com.watabou.pixeldungeon.scenes.GameScene;
-import com.watabou.pixeldungeon.sprites.HeroSprite;
 import com.watabou.pixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.pixeldungeon.utils.GLog;
 import com.watabou.utils.Callback;
-
 public class WarriorArmor extends ClassArmor {
 	
 	private static int LEAP_TIME	= 1;
@@ -90,36 +89,36 @@ public class WarriorArmor extends ClassArmor {
 				if (Actor.findChar( cell ) != null && cell != curUser.pos) {
 					cell = Ballistica.trace[Ballistica.distance - 2];
 				}
-				
-				curUser.HP -= (curUser.HP / 3);
+
+                curUser.HP -= (curUser.HP / 3);
 				if (curUser.subClass == HeroSubClass.BERSERKER && curUser.HP <= curUser.HT * Fury.LEVEL) {
 					Buff.affect( curUser, Fury.class );
 				}
 				
 				Invisibility.dispel();
-				
-				final int dest = cell;
-				curUser.busy();
-				((HeroSprite)curUser.sprite).jump( curUser.pos, cell, new Callback() {
-					@Override
-					public void call() {
-						curUser.move( dest );
-						Dungeon.level.press( dest, curUser );
-						Dungeon.observe();
-						
-						for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
-							Char mob = Actor.findChar( curUser.pos + Level.NEIGHBOURS8[i] );
-							if (mob != null && mob != curUser) {
-								Buff.prolong( mob, Paralysis.class, SHOCK_TIME );
-							}
-						}
-						
-						CellEmitter.center( dest ).burst( Speck.factory( Speck.DUST ), 10 );
-						Camera.main.shake( 2, 0.5f );
-						
-						curUser.spendAndNext( LEAP_TIME );
-					}
-				} );
+
+                final int dest = cell;
+                curUser.busy();
+                ((HeroSprite)curUser.sprite).jump(curUser.pos, cell, new Callback() {
+                    @Override
+                    public void call() {
+                        curUser.move(dest);
+                        Dungeon.level.press(dest, curUser);
+                        Dungeon.observe();
+
+                        for (int i = 0; i < Level.NEIGHBOURS8.length; i++) {
+                            Char mob = Actor.findChar(curUser.pos + Level.NEIGHBOURS8[i]);
+                            if (mob != null && mob != curUser) {
+                                Buff.prolong(mob, Paralysis.class, SHOCK_TIME);
+                            }
+                        }
+
+                        CellEmitter.center(dest).burst(Speck.factory(Speck.DUST), 10);
+                        Camera.main.shake(2, 0.5f);
+
+                        curUser.spendAndNext(LEAP_TIME);
+                    }
+                });
 			}
 		}
 		

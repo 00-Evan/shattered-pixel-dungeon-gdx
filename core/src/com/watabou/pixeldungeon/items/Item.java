@@ -64,7 +64,7 @@ public class Item implements Bundlable {
 	public String defaultAction;
 	
 	protected String name = "smth";
-	protected int image = 0;
+	public int image = 0;
 	
 	public boolean stackable = false;
 	protected int quantity = 1;
@@ -133,7 +133,7 @@ public class Item implements Bundlable {
 	public void execute( Hero hero ) {
 		execute( hero, defaultAction );
 	}
-
+	
 	protected void onThrow( int cell ) {
 		Heap heap = Dungeon.level.drop( this, cell );
 		if (!heap.isEmpty()) {
@@ -156,10 +156,8 @@ public class Item implements Bundlable {
 		}
 		
 		if (stackable) {
-			
-			Class<?>c = getClass();
 			for (Item item:items) {
-				if (item.getClass() == c) {
+				if (isSimilar( item )) {
 					item.quantity += quantity;
 					item.updateQuickslot();
 					return true;

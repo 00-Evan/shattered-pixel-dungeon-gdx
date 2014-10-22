@@ -27,7 +27,7 @@ import com.watabou.pixeldungeon.ui.BuffIndicator;
 import com.watabou.pixeldungeon.utils.Utils;
 
 public class WndInfoMob extends WndTitledMessage {
-
+	
 	public WndInfoMob( Mob mob ) {
 		
 		super( new MobTitle( mob ), desc( mob ) );
@@ -37,8 +37,8 @@ public class WndInfoMob extends WndTitledMessage {
 	private static String desc( Mob mob ) {
 		
 		StringBuilder builder = new StringBuilder( mob.description() );
-		
-		builder.append( "\n\n" + mob.state.status() + "." );
+
+        builder.append( "\n\n" + mob.state.status() + "." );
 		
 		return builder.toString();
 	}

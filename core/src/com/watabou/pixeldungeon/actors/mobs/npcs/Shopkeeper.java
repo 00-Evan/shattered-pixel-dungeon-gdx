@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.actors.mobs.npcs;
 
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
+import com.watabou.pixeldungeon.actors.mobs.Mob;
 import com.watabou.pixeldungeon.effects.CellEmitter;
 import com.watabou.pixeldungeon.effects.particles.ElmoParticle;
 import com.watabou.pixeldungeon.items.Heap;
@@ -29,6 +30,8 @@ import com.watabou.pixeldungeon.windows.WndBag;
 import com.watabou.pixeldungeon.windows.WndTradeItem;
 
 public class Shopkeeper extends NPC {
+
+    public static final String TXT_THIEF = "Thief, Thief!";
 
 	{
 		name = "shopkeeper";
@@ -55,7 +58,7 @@ public class Shopkeeper extends NPC {
 		flee();
 	}
 	
-	protected void flee() {
+	public void flee() {
 		for (Heap heap: Dungeon.level.heaps.values()) {
 			if (heap.type == Heap.Type.FOR_SALE) {
 				CellEmitter.get( heap.pos ).burst( ElmoParticle.FACTORY, 4 );

@@ -19,6 +19,7 @@ package com.watabou.pixeldungeon.items;
 
 import java.util.ArrayList;
 
+import com.watabou.pixeldungeon.items.artifacts.MasterThievesArmband;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Badges;
@@ -64,7 +65,11 @@ public class Gold extends Item {
 		Dungeon.gold += quantity;
 		Statistics.goldCollected += quantity;
 		Badges.validateGoldCollected();
-		
+
+        MasterThievesArmband.Thievery thievery = hero.buff(MasterThievesArmband.Thievery.class);
+		if (thievery != null)
+            thievery.collect(quantity);
+
 		GameScene.pickUp( this );
 		hero.sprite.showStatus( CharSprite.NEUTRAL, TXT_VALUE, quantity );
 		hero.spendAndNext( TIME_TO_PICK_UP );

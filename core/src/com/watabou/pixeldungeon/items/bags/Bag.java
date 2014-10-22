@@ -84,11 +84,11 @@ public class Bag extends Item implements Iterable<Item> {
 			return false;
 		}
 	}
-	
-	@Override
-	public void onDetach( ) {
-		this.owner = null;
-	}
+
+    @Override
+    public void onDetach( ) {
+        this.owner = null;
+    }
 	
 	@Override
 	public boolean isUpgradable() {
@@ -116,7 +116,7 @@ public class Bag extends Item implements Iterable<Item> {
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		for (Bundlable item : bundle.getCollection( ITEMS )) {
-			((Item)item).collect( this );
+			if (item != null) ((Item)item).collect( this );
 		};
 	}
 	

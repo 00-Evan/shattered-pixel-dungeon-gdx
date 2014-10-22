@@ -23,6 +23,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import com.watabou.pixeldungeon.items.food.Blandfruit;
+import com.watabou.pixeldungeon.items.potions.Potion;
+import com.watabou.pixeldungeon.items.potions.PotionOfMight;
+import com.watabou.pixeldungeon.items.rings.RingOfWealth;
+import com.watabou.pixeldungeon.items.scrolls.ScrollOfWeaponUpgrade;
+import com.watabou.pixeldungeon.plants.BlandfruitBush;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
@@ -85,6 +91,20 @@ public abstract class Level implements Bundlable {
 	public static final int[] NEIGHBOURS4 = {-WIDTH, +1, +WIDTH, -1}; 
 	public static final int[] NEIGHBOURS8 = {+1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
 	public static final int[] NEIGHBOURS9 = {0, +1, -1, +WIDTH, -WIDTH, +1+WIDTH, +1-WIDTH, -1+WIDTH, -1-WIDTH};
+
+    //Note that use of these without checking values is unsafe, mobs can be within 2 tiles of the
+    //edge of the map, unsafe use in that cause will cause an array out of bounds exception.
+    public static final int[] NEIGHBOURS8DIST2 = {+2+2*WIDTH, +1+2*WIDTH, 2*WIDTH, -1+2*WIDTH, -2+2*WIDTH,
+                                                    +2+WIDTH, +1+WIDTH, +WIDTH, -1+WIDTH, -2+WIDTH,
+                                                    +2, +1, -1, -2,
+                                                    +2-WIDTH, +1-WIDTH, -WIDTH, -1-WIDTH, -2-WIDTH,
+                                                    +2-2*WIDTH, +1-2*WIDTH, -2*WIDTH, -1-2*WIDTH, -2-2*WIDTH};
+    public static final int[] NEIGHBOURS9DIST2 = {+2+2*WIDTH, +1+2*WIDTH, 2*WIDTH, -1+2*WIDTH, -2+2*WIDTH,
+                                                    +2+WIDTH, +1+WIDTH, +WIDTH, -1+WIDTH, -2+WIDTH,
+                                                    +2, +1, 0, -1, -2,
+                                                    +2-WIDTH, +1-WIDTH, -WIDTH, -1-WIDTH, -2-WIDTH,
+                                                    +2-2*WIDTH, +1-2*WIDTH, -2*WIDTH, -1-2*WIDTH, -2-2*WIDTH};
+
 	
 	protected static final float TIME_TO_RESPAWN	= 50;
 	
@@ -98,8 +118,8 @@ public abstract class Level implements Bundlable {
 	public int[] map;
 	public boolean[] visited;
 	public boolean[] mapped;
-	
-	public int viewDistance = Dungeon.isChallenged( Challenges.DARKNESS ) ? 3: 8;
+
+    public int viewDistance = Dungeon.isChallenged( Challenges.DARKNESS ) ? 3: 8;
 	
 	public static boolean[] fieldOfView = new boolean[LENGTH];
 	
@@ -118,6 +138,9 @@ public abstract class Level implements Bundlable {
 	
 	public int entrance;
 	public int exit;
+
+    //when a boss level has become locked.
+    public boolean locked = false;
 	
 	public HashSet<Mob> mobs;
 	public SparseArray<Heap> heaps;
@@ -125,6 +148,9 @@ public abstract class Level implements Bundlable {
 	public SparseArray<Plant> plants;
 	
 	protected ArrayList<Item> itemsToSpawn = new ArrayList<Item>();
+
+    public ArrayList<Item> fallingItems = new ArrayList<Item>();
+    public ArrayList<Potion> fallingPotions = new ArrayList<Potion>();
 	
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
@@ -137,10 +163,12 @@ public abstract class Level implements Bundlable {
 	private static final String MAPPED		= "mapped";
 	private static final String ENTRANCE	= "entrance";
 	private static final String EXIT		= "exit";
+    private static final String LOCKED      = "locked";
 	private static final String HEAPS		= "heaps";
 	private static final String PLANTS		= "plants";
 	private static final String MOBS		= "mobs";
 	private static final String BLOBS		= "blobs";
+    private static final String FALLING		= "falling";
 	
 	public void create() {
 		
@@ -171,6 +199,17 @@ public abstract class Level implements Bundlable {
 				addItemToSpawn( new Stylus() );
 				Dungeon.arcaneStyli++;
 			}
+
+            int bonus = 0;
+            for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
+                bonus += ((RingOfWealth.Wealth) buff).level;
+            }
+            if (Random.Float() > Math.pow(0.95, bonus)){
+                if (Random.Int(2) == 0)
+                     addItemToSpawn( new ScrollOfWeaponUpgrade() );
+                else
+                    addItemToSpawn( new PotionOfMight() );
+            }
 			
 			if (Dungeon.depth > 1) {
 				switch (Random.Int( 10 )) {
@@ -231,6 +270,8 @@ public abstract class Level implements Bundlable {
 		
 		entrance	= bundle.getInt( ENTRANCE );
 		exit		= bundle.getInt( EXIT );
+
+        locked      = bundle.getBoolean( LOCKED );
 		
 		weakFloorCreated = false;
 		
@@ -242,7 +283,8 @@ public abstract class Level implements Bundlable {
 			if (resizingNeeded) {
 				heap.pos = adjustPos( heap.pos );
 			}
-			heaps.put( heap.pos, heap );
+            if (!heap.isEmpty())
+			    heaps.put( heap.pos, heap );
 		}
 		
 		collection = bundle.getCollection( PLANTS );
@@ -270,6 +312,8 @@ public abstract class Level implements Bundlable {
 			Blob blob = (Blob)b;
 			blobs.put( blob.getClass(), blob );
 		}
+
+        fallingItems = (ArrayList)bundle.getCollection( FALLING );
 		
 		buildFlagMaps();
 		cleanWalls();
@@ -508,18 +552,19 @@ public abstract class Level implements Bundlable {
 	}
 	
 	public Heap drop( Item item, int cell ) {
-		
-		if (Dungeon.isChallenged( Challenges.NO_FOOD ) && item instanceof Food) {
-			item = new Gold( item.price() );
-		} else
-		if (Dungeon.isChallenged( Challenges.NO_ARMOR ) && item instanceof Armor) {
-			item = new Gold( item.price() );
-		} else
-		if (Dungeon.isChallenged( Challenges.NO_HEALING ) && item instanceof PotionOfHealing) {
-			item = new Gold( item.price() );
-		}
-		
-		if ((map[cell] == Terrain.ALCHEMY) && !(item instanceof Plant.Seed)) {
+
+        if (Dungeon.isChallenged( Challenges.NO_FOOD ) && item instanceof Food) {
+            item = new Gold( item.price() );
+        } else
+        if (Dungeon.isChallenged( Challenges.NO_ARMOR ) && item instanceof Armor) {
+            item = new Gold( item.price() );
+        } else
+        if (Dungeon.isChallenged( Challenges.NO_HEALING ) && item instanceof PotionOfHealing) {
+            item = new Gold( item.price() );
+        }
+
+		if ((map[cell] == Terrain.ALCHEMY) && (item instanceof BlandfruitBush.Seed || !(item instanceof Plant.Seed ||
+                (item instanceof Blandfruit && ((Blandfruit) item).potionAttrib == null && heaps.get(cell) == null)))) {
 			int n;
 			do {
 				n = cell + NEIGHBOURS8[Random.Int( 8 )];
@@ -534,6 +579,7 @@ public abstract class Level implements Bundlable {
 			heap.pos = cell;
 			if (map[cell] == Terrain.CHASM || (Dungeon.level != null && pit[cell])) {
 				GameScene.discard( heap );
+                fallingItems.add(item);
 			} else {
 				heaps.put( cell, heap );
 				GameScene.add( heap );

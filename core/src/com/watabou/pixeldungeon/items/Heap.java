@@ -138,9 +138,8 @@ public class Heap implements Bundlable {
 		
 		if (item.stackable) {
 			
-			Class<?> c = item.getClass();
 			for (Item i : items) {
-				if (i.getClass() == c) {
+				if (i.isSimilar( item )) {
 					i.quantity += item.quantity;
 					item = i;
 					break;
@@ -240,19 +239,34 @@ public class Heap implements Bundlable {
 		
 		float chances[] = new float[items.size()];
 		int count = 0;
+
+
+        if (items.size() == 2 && items.get(0) instanceof Seed && items.get(1) instanceof Blandfruit ) {
+
+            Sample.INSTANCE.play( Assets.SND_PUFF );
+            CellEmitter.center( pos ).burst( Speck.factory( Speck.EVOKE ), 3 );
+
+            Blandfruit result = new Blandfruit();
+            result.cook((Seed)items.get(0));
+
+            destroy();
+
+            return result;
+
+        }
 		
 		int index = 0;
 		for (Item item : items) {
 			if (item instanceof Seed) {
 				count += item.quantity;
 				chances[index++] = item.quantity;
-			} else {
+			}  else{
 				count = 0;
 				break;
 			}
 		}
-		
-		if (count >= SEEDS_TO_POTION) {
+
+         if (count >= SEEDS_TO_POTION) {
 			
 			CellEmitter.get( pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 			Sample.INSTANCE.play( Assets.SND_PUFF );

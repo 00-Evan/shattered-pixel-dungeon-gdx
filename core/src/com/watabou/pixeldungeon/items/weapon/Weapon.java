@@ -42,14 +42,14 @@ public class Weapon extends KindOfWeapon {
 	private static final String TXT_TO_STRING		= "%s :%d";
 	
 	public int		STR	= 10;
-	public float	ACU	= 1;
-	public float	DLY	= 1f;
-	
-	public enum Imbue {
-		NONE, SPEED, ACCURACY
-	}
-	public Imbue imbue = Imbue.NONE;
-	
+	public float	ACU	= 1;	// Accuracy modifier
+	public float	DLY	= 1f;	// Speed modifier
+
+    public enum Imbue {
+        NONE, SPEED, ACCURACY
+    }
+    public Imbue imbue = Imbue.NONE;
+
 	private int hitsToKnow = 20;
 	
 	protected Enchantment enchantment;
@@ -71,26 +71,28 @@ public class Weapon extends KindOfWeapon {
 	}
 	
 	private static final String ENCHANTMENT	= "enchantment";
-	private static final String IMBUE		= "imbue";
+    private static final String IMBUE		= "imbue";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
 		bundle.put( ENCHANTMENT, enchantment );
-		bundle.put( IMBUE, imbue );
+        bundle.put( IMBUE, imbue );
 	}
 	
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
-		imbue = bundle.getEnum( IMBUE, Imbue.class );
+        imbue = bundle.getEnum( IMBUE, Imbue.class );
 	}
 	
 	@Override
 	public float acuracyFactor( Hero hero ) {
 		
 		int encumbrance = STR - hero.STR();
+
+        float ACU = this.ACU;
 		
 		if (this instanceof MissileWeapon) {
 			switch (hero.heroClass) {
@@ -102,11 +104,16 @@ public class Weapon extends KindOfWeapon {
 				break;
 			default:
 			}
+            int bonus = 0;
+            for (Buff buff : hero.buffs(RingOfSharpshooting.Aim.class)) {
+                bonus += ((RingOfSharpshooting.Aim)buff).level;
+            }
+            ACU *= (float)(Math.pow(1.1, bonus));
 		}
-		
-		return 
-			(encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU) *
-			(imbue == Imbue.ACCURACY ? 1.5f : 1.0f);
+
+        return
+                (encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU) *
+                        (imbue == Imbue.ACCURACY ? 1.5f : 1.0f);
 	}
 	
 	@Override
@@ -116,10 +123,17 @@ public class Weapon extends KindOfWeapon {
 		if (this instanceof MissileWeapon && hero.heroClass == HeroClass.HUNTRESS) {
 			encumrance -= 2;
 		}
-		
-		return 
-			(encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY) * 
-			(imbue == Imbue.SPEED ? 0.6f : 1.0f);
+
+        int bonus = 0;
+        for (Buff buff : hero.buffs(RingOfFuror.Furor.class)) {
+            bonus += ((RingOfFuror.Furor)buff).level;
+        }
+
+        float DLY = (float)(0.25 + (this.DLY - 0.25)*Math.pow(0.8, bonus));
+
+        return
+                (encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY) *
+                        (imbue == Imbue.SPEED ? 0.6f : 1.0f);
 	}
 	
 	@Override

@@ -37,12 +37,13 @@ public class IconTitle extends Component {
 	
 	public IconTitle() {
 		super();
-	}
-	
-	public IconTitle( Item item ) {
-		this( 
-			new ItemSprite( item.image(), item.glowing() ), 
-			Utils.capitalize( item.toString() ) );
+    }
+
+    public IconTitle( Item item ) {
+        this(
+                new ItemSprite( item.image(), item.glowing() ),
+                Utils.capitalize( item.toString() ) );
+
 	}
 	
 	public IconTitle( Image icon, String label ) {

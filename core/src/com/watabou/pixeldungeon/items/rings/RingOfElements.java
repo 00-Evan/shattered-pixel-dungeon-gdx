@@ -63,7 +63,7 @@ public class RingOfElements extends Ring {
 	public class Resistance extends RingBuff {
 		
 		public HashSet<Class<?>> resistances() {
-			if (Random.Int( level + 3 ) >= 3) {
+			if (Random.Int( level + 2 ) >= 2) {
 				return FULL;
 			} else {
 				return EMPTY;
@@ -71,7 +71,7 @@ public class RingOfElements extends Ring {
 		}
 		
 		public float durationFactor() {
-			return level < 0 ? 1 : (2 + 0.5f * level) / (2 + level);
+			return level < 0 ? 1 : (1 + 0.5f * level) / (1 + level);
 		}
 	}
 }

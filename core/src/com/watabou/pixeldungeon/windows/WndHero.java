@@ -114,14 +114,15 @@ public class WndHero extends WndTabbed {
 		
 		public StatsTab() {
 			
-			Hero hero = Dungeon.hero; 
+			Hero hero = Dungeon.hero;
 
-			BitmapText title = PixelScene.createText( 
-				Utils.format( TXT_TITLE, hero.lvl, hero.className() ).toUpperCase( Locale.ENGLISH ), 9 );
-			title.hardlight( TITLE_COLOR );
-			title.measure();
-			add( title );
-			
+            IconTitle title = new IconTitle();
+            title.icon( HeroSprite.avatar(hero.heroClass, hero.tier()) );
+            title.label(Utils.format( TXT_TITLE, hero.lvl, hero.className() ).toUpperCase( Locale.ENGLISH ), 9);
+            title.color(Window.SHPX_COLOR);
+            title.setRect( 0, 0, WIDTH, 0 );
+			add(title);
+
 			RedButton btnCatalogus = new RedButton( TXT_CATALOGUS ) {
 				@Override
 				protected void onClick() {

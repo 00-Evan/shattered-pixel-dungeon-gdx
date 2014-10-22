@@ -41,12 +41,12 @@ public class Horror extends Weapon.Enchantment {
 		int level = Math.max( 0, weapon.level );
 		
 		if (Random.Int( level + 5 ) >= 4) {
-			
-			if (defender == Dungeon.hero) {
-				Buff.affect( defender, Vertigo.class, Vertigo.duration( defender ) );
-			} else {
-				Buff.affect( defender, Terror.class, Terror.DURATION ).source = attacker;
-			}
+
+            if (defender == Dungeon.hero) {
+                Buff.affect( defender, Vertigo.class, Vertigo.duration(defender) );
+            } else {
+                Buff.affect( defender, Terror.class, Terror.DURATION ).source = attacker;
+            }
 			
 			return true;
 		} else {

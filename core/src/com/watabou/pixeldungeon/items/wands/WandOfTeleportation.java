@@ -17,6 +17,7 @@
  */
 package com.watabou.pixeldungeon.items.wands;
 
+import com.watabou.pixeldungeon.actors.mobs.npcs.NPC;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Dungeon;
@@ -43,7 +44,7 @@ public class WandOfTeleportation extends Wand {
 			setKnown();
 			ScrollOfTeleportation.teleportHero( curUser );
 			
-		} else if (ch != null) {
+		} else if (ch != null && !(ch instanceof NPC)) {
 			
 			int count = 10;
 			int pos;

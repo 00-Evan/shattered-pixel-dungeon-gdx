@@ -17,39 +17,53 @@
  */
 package com.watabou.pixeldungeon.actors.mobs.npcs;
 
-import java.util.HashSet;
-
-import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.Challenges;
 import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.Journal;
 import com.watabou.pixeldungeon.actors.Actor;
 import com.watabou.pixeldungeon.actors.Char;
 import com.watabou.pixeldungeon.actors.blobs.Blob;
-import com.watabou.pixeldungeon.actors.blobs.ParalyticGas;
+import com.watabou.pixeldungeon.actors.blobs.Fire;
+import com.watabou.pixeldungeon.actors.blobs.StenchGas;
 import com.watabou.pixeldungeon.actors.buffs.Buff;
+import com.watabou.pixeldungeon.actors.buffs.Burning;
+import com.watabou.pixeldungeon.actors.buffs.Ooze;
 import com.watabou.pixeldungeon.actors.buffs.Paralysis;
+import com.watabou.pixeldungeon.actors.buffs.Poison;
 import com.watabou.pixeldungeon.actors.buffs.Roots;
+import com.watabou.pixeldungeon.actors.mobs.Crab;
+import com.watabou.pixeldungeon.actors.mobs.Gnoll;
 import com.watabou.pixeldungeon.actors.mobs.Mob;
+import com.watabou.pixeldungeon.actors.mobs.Rat;
 import com.watabou.pixeldungeon.effects.CellEmitter;
 import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.items.Generator;
 import com.watabou.pixeldungeon.items.Item;
 import com.watabou.pixeldungeon.items.armor.Armor;
-import com.watabou.pixeldungeon.items.armor.ClothArmor;
-import com.watabou.pixeldungeon.items.quest.DriedRose;
+import com.watabou.pixeldungeon.items.food.MysteryMeat;
 import com.watabou.pixeldungeon.items.quest.RatSkull;
+import com.watabou.pixeldungeon.items.wands.Wand;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
+import com.watabou.pixeldungeon.items.weapon.missiles.CurareDart;
 import com.watabou.pixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.watabou.pixeldungeon.levels.Level;
 import com.watabou.pixeldungeon.levels.SewerLevel;
+import com.watabou.pixeldungeon.levels.traps.LightningTrap;
+import com.watabou.pixeldungeon.mechanics.Ballistica;
 import com.watabou.pixeldungeon.scenes.GameScene;
+import com.watabou.pixeldungeon.sprites.CharSprite;
 import com.watabou.pixeldungeon.sprites.FetidRatSprite;
 import com.watabou.pixeldungeon.sprites.GhostSprite;
+import com.watabou.pixeldungeon.sprites.GnollTricksterSprite;
+import com.watabou.pixeldungeon.sprites.GreatCrabSprite;
+import com.watabou.pixeldungeon.utils.GLog;
 import com.watabou.pixeldungeon.windows.WndQuest;
 import com.watabou.pixeldungeon.windows.WndSadGhost;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Ghost extends NPC {
 
@@ -62,22 +76,38 @@ public class Ghost extends NPC {
 		state = WANDERING;
 	}
 	
-	private static final String TXT_ROSE1	=
-		"Hello adventurer... Once I was like you - strong and confident... " +
-		"And now I'm dead... But I can't leave this place... Not until I have my _dried rose_... " +
-		"It's very important to me... Some monster stole it from my body...";
-	
-	private static final String TXT_ROSE2	=
-		"Please... Help me... Find the rose...";
-	
 	private static final String TXT_RAT1	=
-		"Hello adventurer... Once I was like you - strong and confident... " +
-		"And now I'm dead... But I can't leave this place... Not until I have my revenge... " +
-		"Slay the _fetid rat_, that has taken my life...";
-		
-	private static final String TXT_RAT2	=
-		"Please... Help me... Slay the abomination...";
+            "Hello adventurer... Once I was like you - strong and confident... " +
+            "But I was slain by a foul beast... I can't leave this place... Not until I have my revenge... " +
+            "Slay the _fetid rat_, that has taken my life...\n\n" +
+            "It stalks this floor... Spreading filth everywhere... " +
+            "_Beware its cloud of stink and corrosive bite, the acid dissolves in water..._ ";
 
+    private static final String TXT_RAT2	=
+            "Please... Help me... Slay the abomination...\n\n" +
+            "_Fight it near water... Avoid the stench..._";
+
+    private static final String TXT_GNOLL1	=
+            "Hello adventurer... Once I was like you - strong and confident... " +
+            "But I was slain by a devious foe... I can't leave this place... Not until I have my revenge... " +
+            "Slay the _gnoll trickster_, that has taken my life...\n\n" +
+            "It is not like the other gnolls... It hides and uses thrown weapons... " +
+            "_Beware its poisonous and incendiary darts, don't attack from a distance..._";
+
+    private static final String TXT_GNOLL2	=
+            "Please... Help me... Slay the trickster...\n\n" +
+            "_Don't let it hit you... Get near to it..._";
+
+    private static final String TXT_CRAB1	=
+            "Hello adventurer... Once I was like you - strong and confident... " +
+            "But I was slain by an ancient creature... I can't leave this place... Not until I have my revenge... " +
+            "Slay the _great crab_, that has taken my life...\n\n" +
+            "It is unnaturally old... With a massive single claw and a thick shell... " +
+            "_Beware its claw, you must surprise the crab or it will block with it..._";
+
+    private static final String TXT_CRAB2	=
+            "Please... Help me... Slay the Crustacean...\n\n" +
+            "_It will always block... When it sees you coming..._";
 	
 	public Ghost() {
 		super();
@@ -126,13 +156,17 @@ public class Ghost extends NPC {
 		
 		if (Quest.given) {
 			
-			Item item = Quest.alternative ?
-				Dungeon.hero.belongings.getItem( RatSkull.class ) :
-				Dungeon.hero.belongings.getItem( DriedRose.class );	
-			if (item != null) {
-				GameScene.show( new WndSadGhost( this, item ) );
+			if (Quest.processed || Dungeon.hero.belongings.getItem( RatSkull.class ) != null){
+				GameScene.show( new WndSadGhost( this, Quest.type ) );
 			} else {
-				GameScene.show( new WndQuest( this, Quest.alternative ? TXT_RAT2 : TXT_ROSE2 ) );
+                switch (Quest.type){
+                    case 1: default:
+                        GameScene.show( new WndQuest( this, TXT_RAT2 ) ); break;
+                    case 2:
+                        GameScene.show( new WndQuest( this, TXT_GNOLL2 ) ); break;
+                    case 3:
+                        GameScene.show( new WndQuest( this, TXT_CRAB2 ) ); break;
+                }
 				
 				int newPos = -1;
 				for (int i=0; i < 10; i++) {
@@ -153,10 +187,30 @@ public class Ghost extends NPC {
 			}
 			
 		} else {
-			GameScene.show( new WndQuest( this, Quest.alternative ? TXT_RAT1 : TXT_ROSE1 ) );
-			Quest.given = true;
-			
-			Journal.add( Journal.Feature.GHOST );
+            Mob questBoss;
+            String txt_quest;
+
+            switch (Quest.type){
+                case 1: default:
+                    questBoss = new FetidRat();
+                    txt_quest = TXT_RAT1; break;
+                case 2:
+                    questBoss = new GnollTrickster();
+                    txt_quest = TXT_GNOLL1; break;
+                case 3:
+                    questBoss = new GreatCrab();
+                    txt_quest = TXT_CRAB1; break;
+            }
+
+            questBoss.pos = Dungeon.level.randomRespawnCell();
+
+            if (questBoss.pos != -1) {
+                GameScene.add(questBoss);
+                GameScene.show( new WndQuest( this, txt_quest ) );
+                Quest.given = true;
+                Journal.add( Journal.Feature.GHOST );
+            }
+
 		}
 	}
 	
@@ -177,20 +231,20 @@ public class Ghost extends NPC {
 	public HashSet<Class<?>> immunities() {
 		return IMMUNITIES;
 	}
-	
+
+
+
 	public static class Quest {
 		
 		private static boolean spawned;
-		
-		private static boolean alternative;
-		
+
+        private static int type;
+
 		private static boolean given;
-
-		private static boolean processed;
-
-		private static int depth;
 		
-		private static int left2kill;
+		private static boolean processed;
+		
+		private static int depth;
 		
 		public static Weapon weapon;
 		public static Armor armor;
@@ -205,13 +259,15 @@ public class Ghost extends NPC {
 		private static final String NODE		= "sadGhost";
 		
 		private static final String SPAWNED		= "spawned";
-		private static final String ALTERNATIVE	= "alternative";
-		private static final String LEFT2KILL	= "left2kill";
+        private static final String TYPE        = "type";
 		private static final String GIVEN		= "given";
 		private static final String PROCESSED	= "processed";
 		private static final String DEPTH		= "depth";
 		private static final String WEAPON		= "weapon";
 		private static final String ARMOR		= "armor";
+
+        //for pre-0.2.1 saves, used when restoring quest
+        private static final String ALTERNATIVE	= "alternative";
 		
 		public static void storeInBundle( Bundle bundle ) {
 			
@@ -221,14 +277,11 @@ public class Ghost extends NPC {
 			
 			if (spawned) {
 				
-				node.put( ALTERNATIVE, alternative );
-				if (!alternative) {
-					node.put( LEFT2KILL, left2kill );
-				}
+				node.put( TYPE, type );
 				
 				node.put( GIVEN, given );
 				node.put( DEPTH, depth );
-				node.put( PROCESSED, processed );
+				node.put( PROCESSED, processed);
 				
 				node.put( WEAPON, weapon );
 				node.put( ARMOR, armor );
@@ -240,17 +293,26 @@ public class Ghost extends NPC {
 		public static void restoreFromBundle( Bundle bundle ) {
 			
 			Bundle node = bundle.getBundle( NODE );
-			
+
 			if (!node.isNull() && (spawned = node.getBoolean( SPAWNED ))) {
-				
-				alternative	=  node.getBoolean( ALTERNATIVE );
-				if (!alternative) {
-					left2kill = node.getInt( LEFT2KILL );
-				}
-				
-				given	= node.getBoolean( GIVEN );
+                //logic for pre- 2.1.0 quests
+                if (node.contains( ALTERNATIVE )){
+                    if (node.getBoolean( ALTERNATIVE)){
+                        given = node.getBoolean( GIVEN );
+                        type = 1;
+                        processed = false;
+                    } else {
+                        type = 1;
+                        given = false;
+                        processed = false;
+                    }
+                } else {
+                    type = node.getInt(TYPE);
+                    processed = node.getBoolean( PROCESSED );
+                    given	= node.getBoolean( GIVEN );
+                }
+
 				depth	= node.getInt( DEPTH );
-				processed	= node.getBoolean( PROCESSED );
 				
 				weapon	= (Weapon)node.get( WEAPON );
 				armor	= (Armor)node.get( ARMOR );
@@ -270,64 +332,43 @@ public class Ghost extends NPC {
 				Actor.occupyCell( ghost );
 				
 				spawned = true;
-				alternative = Random.Int( 2 ) == 0;
-				if (!alternative) {
-					left2kill = 8;
-				}
+                //dungeon depth determines type of quest.
+                //depth2=fetid rat, 3=gnoll trickster, 4=great crab
+				type = Dungeon.depth-1;
 				
 				given = false;
 				processed = false;
 				depth = Dungeon.depth;
-				
-				do {
-					weapon = (Weapon)Generator.random( Generator.Category.WEAPON );
-				} while (weapon instanceof MissileWeapon);
-				
-				if (Dungeon.isChallenged( Challenges.NO_ARMOR )) {
-					armor = (Armor)new ClothArmor().degrade();
-				} else {
-					armor = (Armor)Generator.random( Generator.Category.ARMOR );
-				}
-					
-				for (int i=0; i < 3; i++) {
-					Item another;
-					do {
-						another = Generator.random( Generator.Category.WEAPON );
-					} while (another instanceof MissileWeapon);
-					if (another.level > weapon.level) {
-						weapon = (Weapon)another;
-					}
-					another = Generator.random( Generator.Category.ARMOR );
-					if (another.level > armor.level) {
-						armor = (Armor)another;
-					}
-				}
+
+                do {
+                    weapon = Generator.randomWeapon(10);
+                } while (weapon instanceof MissileWeapon);
+                armor = Generator.randomArmor(10);
+
+                for (int i = 1; i <= 3; i++) {
+                    Item another;
+                    do {
+                        another = Generator.randomWeapon(10+i);
+                    } while (another instanceof MissileWeapon);
+                    if (another.level >= weapon.level) {
+                        weapon = (Weapon) another;
+                    }
+                    another = Generator.randomArmor(10+i);
+                    if (another.level >= armor.level) {
+                        armor = (Armor) another;
+                    }
+                }
+
 				weapon.identify();
 				armor.identify();
 			}
 		}
-
-		public static void process( int pos ) {
+		
+		public static void process() {
 			if (spawned && given && !processed && (depth == Dungeon.depth)) {
-				if (alternative) {
-					
-					FetidRat rat = new FetidRat();
-					rat.pos = Dungeon.level.randomRespawnCell();
-					if (rat.pos != -1) {
-						GameScene.add( rat );
-						processed = true;
-					}
-					
-				} else {
-					
-					if (Random.Int( left2kill ) == 0) {
-						Dungeon.level.drop( new DriedRose(), pos ).sprite.drop();
-						processed = true;
-					} else {
-						left2kill--;
-					}
-					
-				}
+				GLog.n("Sad ghost: Thank you... come find me...");
+                Sample.INSTANCE.play( Assets.SND_GHOST );
+                processed = true;
 			}
 		}
 		
@@ -338,25 +379,21 @@ public class Ghost extends NPC {
 			Journal.remove( Journal.Feature.GHOST );
 		}
 	}
+
+
 	
-	public static class FetidRat extends Mob {
+	public static class FetidRat extends Rat {
 
 		{
 			name = "fetid rat";
 			spriteClass = FetidRatSprite.class;
 			
-			HP = HT = 15;
+			HP = HT = 20;
 			defenseSkill = 5;
 			
-			EXP = 0;
-			maxLvl = 5;	
-			
-			state = WANDERING;
-		}
-		
-		@Override
-		public int damageRoll() {
-			return Random.NormalIntRange( 2, 6 );
+			EXP = 4;
+
+            state = WANDERING;
 		}
 		
 		@Override
@@ -368,11 +405,20 @@ public class Ghost extends NPC {
 		public int dr() {
 			return 2;
 		}
+
+        @Override
+        public int attackProc( Char enemy, int damage ) {
+            if (Random.Int( 3 ) == 0) {
+                Buff.affect(enemy, Ooze.class);
+            }
+
+            return damage;
+        }
 		
 		@Override
 		public int defenseProc( Char enemy, int damage ) {
 			
-			GameScene.add( Blob.seed( pos, 20, ParalyticGas.class ) );
+			GameScene.add( Blob.seed( pos, 20, StenchGas.class ) );
 			
 			return super.defenseProc(enemy, damage);
 		}
@@ -381,23 +427,180 @@ public class Ghost extends NPC {
 		public void die( Object cause ) {
 			super.die( cause );
 			
-			Dungeon.level.drop( new RatSkull(), pos ).sprite.drop();
+			Quest.process();
 		}
 		
 		@Override
 		public String description() {
 			return
-				"This marsupial rat is much larger, than a regular one. It is surrounded by a foul cloud.";
-		}
-		
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-		static {
-			IMMUNITIES.add( Paralysis.class );
-		}
-		
-		@Override
-		public HashSet<Class<?>> immunities() {
-			return IMMUNITIES;
+				"Something is clearly wrong with this rat. Its greasy black fur and rotting skin are very " +
+                "different from the healthy rats you've seen previously. It's blood red eyes " +
+                "make it seem especially menacing.\n\n" +
+                "The rat carries a cloud of horrible stench with it, it's overpoweringly strong up close.\n\n" +
+                "Dark ooze dribbles from the rat's mouth, it eats through the floor but seems to dissolve in water.";
 		}
 	}
+
+
+
+    public static class GnollTrickster extends Gnoll {
+        {
+            name = "gnoll trickster";
+            spriteClass = GnollTricksterSprite.class;
+
+            HP = HT = 20;
+            defenseSkill = 5;
+
+            EXP = 5;
+
+            state = WANDERING;
+
+            loot = Generator.random(CurareDart.class);
+            lootChance = 1f;
+        }
+
+        private int combo = 0;
+
+        @Override
+        public int attackSkill( Char target ) {
+            return 16;
+        }
+
+        @Override
+        protected boolean canAttack( Char enemy ) {
+            if (!Level.adjacent(pos, enemy.pos) && Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos){
+                combo++;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int attackProc( Char enemy, int damage ) {
+            //The gnoll's attacks get more severe the more the player lets it hit them
+            int effect = Random.Int(4)+combo;
+
+            if (effect > 2) {
+
+                if (effect >=5 && enemy.buff(Burning.class) == null){
+
+                    if (Level.flamable[enemy.pos])
+                        GameScene.add( Blob.seed( enemy.pos, 4, Fire.class ) );
+                    Buff.affect( enemy, Burning.class ).reignite( enemy );
+
+                } else
+                    Buff.affect( enemy, Poison.class).set((effect-2) * Poison.durationFactor(enemy));
+
+            }
+            return damage;
+        }
+
+        @Override
+        protected boolean getCloser( int target ) {
+            combo = 0; //if he's moving, he isn't attacking, reset combo.
+            if (state == HUNTING) {
+                return enemySeen && getFurther( target );
+            } else {
+                return super.getCloser( target );
+            }
+        }
+
+        @Override
+        public void die( Object cause ) {
+            super.die( cause );
+
+            Quest.process();
+        }
+
+        @Override
+        public String description() {
+            return
+                    "A strange looking creature, even by gnoll standards. It hunches forward with a wicked grin, " +
+                    "almost cradling the satchel hanging over its shoulder. Its eyes are wide with a strange mix of " +
+                    "fear and excitement.\n\n" +
+                    "There is a large collection of poorly made darts in its satchel, they all seem to be " +
+                    "tipped with various harmful substances.";
+        }
+
+        private static final String COMBO = "combo";
+
+        @Override
+        public void storeInBundle( Bundle bundle ) {
+            super.storeInBundle(bundle);
+            bundle.put(COMBO, combo);
+        }
+
+        @Override
+        public void restoreFromBundle( Bundle bundle ) {
+            super.restoreFromBundle( bundle );
+            combo = bundle.getInt( COMBO );
+        }
+
+    }
+
+
+
+    public static class GreatCrab extends Crab {
+        {
+            name = "great crab";
+            spriteClass = GreatCrabSprite.class;
+
+            HP = HT = 30;
+            defenseSkill = 0; //see damage()
+            baseSpeed = 1f;
+
+            EXP = 6;
+
+            state = WANDERING;
+        }
+
+        private boolean moving = true;
+
+        @Override
+        protected boolean getCloser( int target ) {
+            //this is used so that the crab remains slow, but still detects the player at the expected rate.
+            if (moving) {
+                moving = false;
+                return super.getCloser( target );
+            } else {
+                moving = true;
+                return true;
+            }
+
+        }
+
+        @Override
+        public void damage( int dmg, Object src ){
+            //crab blocks all attacks originating from the hero or enemy characters or traps if it is alerted.
+            //All direct damage from these sources is negated, no exceptions. blob/debuff effects go through as normal.
+            if (enemySeen && (src instanceof Wand || src instanceof LightningTrap.Electricity || src instanceof Char)){
+                GLog.n("The crab notices the attack and blocks with its massive claw.");
+                sprite.showStatus( CharSprite.NEUTRAL, "blocked" );
+            } else {
+                super.damage( dmg, src );
+            }
+        }
+
+        @Override
+        public void die( Object cause ) {
+            super.die( cause );
+
+            Quest.process();
+
+            Dungeon.level.drop( new MysteryMeat(), pos );
+            Dungeon.level.drop( new MysteryMeat(), pos ).sprite.drop();
+        }
+
+        @Override
+        public String description() {
+            return
+                    "This crab is gigantic, even compared to other sewer crabs. " +
+                    "Its blue shell is covered in cracks and barnacles, showing great age. " +
+                    "It lumbers around slowly, barely keeping balance with its massive claw.\n\n" +
+                    "While the crab only has one claw, its size easily compensates. " +
+                    "The crab holds the claw infront of itself whenever it sees a threat, shielding " +
+                    "itself behind an impenetrable wall of carapace.";
+        }
+    }
 }

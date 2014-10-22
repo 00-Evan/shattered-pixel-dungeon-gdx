@@ -86,6 +86,8 @@ public class Potion extends Item {
 	private static ItemStatusHandler<Potion> handler;
 	
 	private String color;
+
+    public boolean ownedByFruit = false;
 	
 	{	
 		stackable = true;		
@@ -208,7 +210,7 @@ public class Potion extends Item {
 		}
 	}
 	
-	protected void apply( Hero hero ) {
+	public void apply( Hero hero ) {
 		shatter( hero.pos );
 	}
 	
@@ -217,21 +219,29 @@ public class Potion extends Item {
 		Sample.INSTANCE.play( Assets.SND_SHATTER );
 		splash( cell );
 	}
+
+    @Override
+    public void cast( final Hero user, int dst ) {
+            super.cast(user, dst);
+    }
 	
 	public boolean isKnown() {
 		return handler.isKnown( this );
 	}
 	
 	public void setKnown() {
-		if (!isKnown()) {
-			handler.know( this );
-		}
-		
-		Badges.validateAllPotionsIdentified();
+        if (!ownedByFruit) {
+            if (!isKnown()) {
+                handler.know(this);
+            }
+
+            Badges.validateAllPotionsIdentified();
+        }
 	}
 	
 	@Override
 	public Item identify() {
+
 		setKnown();
 		return this;
 	}
