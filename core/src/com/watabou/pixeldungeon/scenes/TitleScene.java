@@ -49,12 +49,13 @@ public class TitleScene extends PixelScene {
 
         int gameversion = PixelDungeon.version();
 
-        if (gameversion != Game.versionCode) {
-            //new intro, make older players see it again.
-            if (gameversion < 9)
-                PixelDungeon.intro(true);
-            Game.switchScene(WelcomeScene.class);
-        }
+        /* if (gameversion != Game.versionCode) {
+         *     //new intro, make older players see it again.
+         *     if (gameversion < 9)
+         *         PixelDungeon.intro(true);
+         *     Game.switchScene(WelcomeScene.class);
+         * }
+         */
 		
 		Music.INSTANCE.play( Assets.THEME, true );
 		Music.INSTANCE.volume( 1f );

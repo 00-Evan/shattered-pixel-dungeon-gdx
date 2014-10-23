@@ -1,9 +1,7 @@
 //TODO: update this class with relevant info as new versions come out.
 package com.watabou.pixeldungeon.scenes;
 
-import android.content.Intent;
-import android.net.Uri;
-
+import com.badlogic.gdx.Gdx;
 import com.watabou.pixeldungeon.GamesInProgress;
 import com.watabou.pixeldungeon.PixelDungeon;
 import com.watabou.pixeldungeon.actors.hero.HeroClass;
@@ -72,10 +70,10 @@ public class WelcomeScene extends PixelScene {
             text = createMultiline(TXT_SameVer, 6 );
             title = createMultiline(TTL_SameVer, 12 );
 
-        } else if (gameversion <= Game.versionCode) {
-
-            text = createMultiline(TXT_LastVer, 6 );
-            title = createMultiline(TTL_LastVer, 12 );
+        /* } else if (gameversion <= Game.versionCode){
+         *     text = createMultiline(TXT_LastVer, 6 );
+         *     title = createMultiline(TTL_LastVer, 12 );
+         */
 
         } else {
 
@@ -103,7 +101,7 @@ public class WelcomeScene extends PixelScene {
         RedButton okay = new RedButton("Okay!") {
             @Override
             protected void onClick() {
-                PixelDungeon.version(Game.versionCode);
+                // PixelDungeon.version(Game.versionCode);
                 Game.switchScene(TitleScene.class);
             }
         };
