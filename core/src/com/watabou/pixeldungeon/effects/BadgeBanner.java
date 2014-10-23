@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.effects;
+package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.pixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.watabou.utils.PointF;
 
 public class BadgeBanner extends Image {

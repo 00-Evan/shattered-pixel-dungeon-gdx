@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.mechanics;
+package com.shatteredpixel.shatteredpixeldungeon.mechanics;
 
 import java.util.Arrays;
 
-import com.watabou.pixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 
 public final class ShadowCaster {
 

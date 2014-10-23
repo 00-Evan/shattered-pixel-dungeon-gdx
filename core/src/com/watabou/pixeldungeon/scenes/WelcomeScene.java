@@ -1,17 +1,17 @@
 //TODO: update this class with relevant info as new versions come out.
-package com.watabou.pixeldungeon.scenes;
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.badlogic.gdx.Gdx;
-import com.watabou.pixeldungeon.GamesInProgress;
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.actors.hero.HeroClass;
-import com.watabou.pixeldungeon.ui.RedButton;
-import com.watabou.pixeldungeon.windows.WndChanges;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndChanges;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
-import com.watabou.pixeldungeon.ui.Archs;
-import com.watabou.pixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 public class WelcomeScene extends PixelScene {
 
@@ -55,7 +55,7 @@ public class WelcomeScene extends PixelScene {
     public void create() {
         super.create();
 
-        int gameversion = PixelDungeon.version();
+        int gameversion = ShatteredPixelDungeon.version();
 
         BitmapTextMultiline text;
         BitmapTextMultiline title;
@@ -101,7 +101,7 @@ public class WelcomeScene extends PixelScene {
         RedButton okay = new RedButton("Okay!") {
             @Override
             protected void onClick() {
-                // PixelDungeon.version(Game.versionCode);
+                // ShatteredPixelDungeon.version(Game.versionCode);
                 Game.switchScene(TitleScene.class);
             }
         };

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon;
+package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
@@ -24,16 +24,16 @@ import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.pixeldungeon.input.GameAction;
-import com.watabou.pixeldungeon.scenes.GameScene;
-import com.watabou.pixeldungeon.scenes.PixelScene;
-import com.watabou.pixeldungeon.scenes.TitleScene;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
 import com.watabou.utils.PDPlatformSupport;
 import com.watabou.utils.Signal;
 
-public class PixelDungeon extends Game<GameAction> {
+public class ShatteredPixelDungeon extends Game<GameAction> {
 
-	public PixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
+	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super( TitleScene.class, platformSupport );
 
 		Game.version = platformSupport.getVersion();
@@ -41,11 +41,11 @@ public class PixelDungeon extends Game<GameAction> {
 		/*
         // 1.7.2
         com.watabou.utils.Bundle.addAlias(
-                com.watabou.pixeldungeon.plants.Dreamweed.class,
-                "com.watabou.pixeldungeon.plants.Blindweed" );
+                com.shatteredpixel.shatteredpixeldungeon.plants.Dreamweed.class,
+                "com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed" );
         com.watabou.utils.Bundle.addAlias(
-                com.watabou.pixeldungeon.plants.Dreamweed.Seed.class,
-                "com.watabou.pixeldungeon.plants.Blindweed$Seed" );
+                com.shatteredpixel.shatteredpixeldungeon.plants.Dreamweed.Seed.class,
+                "com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed$Seed" );
         */
 	}
 	

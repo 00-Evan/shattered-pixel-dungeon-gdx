@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.levels;
+package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.levels.painters.*;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.*;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Graph;
@@ -81,7 +81,7 @@ public class Room extends Rect implements Graph.Node, Bundlable {
 			try {
 				paint.invoke( null, level, room );
 			} catch (Exception e) {
-				PixelDungeon.reportException(e);
+				ShatteredPixelDungeon.reportException(e);
 			}
 		}
 	};

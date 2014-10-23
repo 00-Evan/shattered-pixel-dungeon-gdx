@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.scenes;
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.watabou.pixeldungeon.PixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.*;
 import com.watabou.noosa.BitmapText.Font;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.Badges;
-import com.watabou.pixeldungeon.effects.BadgeBanner;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
 import com.watabou.utils.BitmapCache;
 
 public class PixelScene extends Scene {
@@ -68,7 +68,7 @@ public class PixelScene extends Scene {
 			Game.height / defaultZoom >= MIN_WIDTH && 
 			Game.width / defaultZoom >= MIN_HEIGHT;
 			
-		if (PixelDungeon.scaleUp()) {
+		if (ShatteredPixelDungeon.scaleUp()) {
 			while ((Game.width / (defaultZoom + 1) >= MIN_WIDTH && Game.height / (defaultZoom + 1) >= MIN_HEIGHT)) {
 				defaultZoom++;
 			}	

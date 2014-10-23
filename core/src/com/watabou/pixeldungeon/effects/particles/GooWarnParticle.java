@@ -1,4 +1,4 @@
-package com.watabou.pixeldungeon.effects.particles;
+package com.shatteredpixel.shatteredpixeldungeon.effects.particles;
 
 import com.watabou.noosa.particles.Emitter;
 

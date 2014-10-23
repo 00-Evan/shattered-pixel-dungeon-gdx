@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.scenes;
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
@@ -24,14 +24,14 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.effects.BannerSprites;
-import com.watabou.pixeldungeon.effects.Fireball;
-import com.watabou.pixeldungeon.input.GameAction;
-import com.watabou.pixeldungeon.ui.Archs;
-import com.watabou.pixeldungeon.ui.ExitButton;
-import com.watabou.pixeldungeon.ui.PrefsButton;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
 
 public class TitleScene extends PixelScene {
 
@@ -47,12 +47,12 @@ public class TitleScene extends PixelScene {
 
 
 
-        int gameversion = PixelDungeon.version();
+        int gameversion = ShatteredPixelDungeon.version();
 
         /* if (gameversion != Game.versionCode) {
          *     //new intro, make older players see it again.
          *     if (gameversion < 9)
-         *         PixelDungeon.intro(true);
+         *         ShatteredPixelDungeon.intro(true);
          *     Game.switchScene(WelcomeScene.class);
          * }
          */
@@ -83,7 +83,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnBadges = new DashboardItem( TXT_BADGES, 3 ) {
 			@Override
 			protected void onClick() {
-                PixelDungeon.switchNoFade( BadgesScene.class );
+                ShatteredPixelDungeon.switchNoFade( BadgesScene.class );
 			}
 		};
 		btnBadges.setPos( w / 2 - btnBadges.width(), (h + height) / 2 - DashboardItem.SIZE );
@@ -92,7 +92,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnAbout = new DashboardItem( TXT_ABOUT, 1 ) {
 			@Override
 			protected void onClick() {
-                PixelDungeon.switchNoFade( AboutScene.class );
+                ShatteredPixelDungeon.switchNoFade( AboutScene.class );
 			}
 		};
 		btnAbout.setPos( w / 2, (h + height) / 2 - DashboardItem.SIZE );
@@ -101,7 +101,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
 			@Override
 			protected void onClick() {
-                PixelDungeon.switchNoFade( StartScene.class );
+                ShatteredPixelDungeon.switchNoFade( StartScene.class );
 			}
 		};
 		btnPlay.setPos( w / 2 - btnPlay.width(), btnAbout.top() - DashboardItem.SIZE );
@@ -110,7 +110,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnHighscores = new DashboardItem( TXT_HIGHSCORES, 2 ) {
 			@Override
 			protected void onClick() {
-                PixelDungeon.switchNoFade( RankingsScene.class );
+                ShatteredPixelDungeon.switchNoFade( RankingsScene.class );
 			}
 		};
 		btnHighscores.setPos( w / 2, btnPlay.top() );

@@ -1,4 +1,4 @@
-package com.watabou.pixeldungeon.input;
+package com.shatteredpixel.shatteredpixeldungeon.input;
 
 import com.badlogic.gdx.Input;
 import com.watabou.input.NoosaInputProcessor;

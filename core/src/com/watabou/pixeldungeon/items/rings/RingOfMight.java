@@ -1,4 +1,4 @@
-package com.watabou.pixeldungeon.items.rings;
+package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 
 /**

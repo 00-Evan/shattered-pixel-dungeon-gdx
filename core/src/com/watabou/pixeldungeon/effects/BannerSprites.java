@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.effects;
+package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.watabou.noosa.Image;
-import com.watabou.pixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 
 public class BannerSprites {
 

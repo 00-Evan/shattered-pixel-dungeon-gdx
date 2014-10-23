@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.scenes;
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.watabou.pixeldungeon.PixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.TouchArea;
-import com.watabou.pixeldungeon.Dungeon;
-import com.watabou.pixeldungeon.DungeonTilemap;
-import com.watabou.pixeldungeon.input.GameAction;
-import com.watabou.pixeldungeon.input.PDInputProcessor;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
@@ -137,7 +137,7 @@ public class CellSelector extends TouchArea<GameAction> {
     private float zoom( float value ) {
 
         value = GameMath.gate( PixelScene.minZoom, value, PixelScene.maxZoom );
-        PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
+        ShatteredPixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
         camera.zoom( value );
 
         return value;
@@ -190,7 +190,7 @@ public class CellSelector extends TouchArea<GameAction> {
 			
 			int zoom = Math.round( camera.zoom );
 			camera.zoom( zoom );
-			PixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
+			ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
 			
 			dragging = true;
 			if (t == touch) {

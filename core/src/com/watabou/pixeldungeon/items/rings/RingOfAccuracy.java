@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.items.rings;
+package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 public class RingOfAccuracy extends Ring {
 

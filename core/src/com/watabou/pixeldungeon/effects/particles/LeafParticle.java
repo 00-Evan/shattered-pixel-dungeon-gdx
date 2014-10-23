@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.effects.particles;
+package com.shatteredpixel.shatteredpixeldungeon.effects.particles;
 
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.particles.PixelParticle;
 import com.watabou.noosa.particles.Emitter.Factory;
-import com.watabou.pixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.watabou.utils.ColorMath;
 import com.watabou.utils.Random;
 

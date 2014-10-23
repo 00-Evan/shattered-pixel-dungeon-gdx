@@ -15,19 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.windows;
+package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.watabou.pixeldungeon.PixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.scenes.PixelScene;
-import com.watabou.pixeldungeon.ui.CheckBox;
-import com.watabou.pixeldungeon.ui.RedButton;
-import com.watabou.pixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 
 public class WndSettings extends Window {
 	
@@ -98,11 +98,11 @@ public class WndSettings extends Window {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					PixelDungeon.scaleUp(checked());
+					ShatteredPixelDungeon.scaleUp(checked());
 				}
 			};
 			btnScaleUp.setRect( 0, 0, WIDTH, BTN_HEIGHT );
-			btnScaleUp.checked( PixelDungeon.scaleUp() );
+			btnScaleUp.checked( ShatteredPixelDungeon.scaleUp() );
 			add( btnScaleUp );
 			
 		}
@@ -111,23 +111,23 @@ public class WndSettings extends Window {
 			@Override
 			protected void onClick() {
 				super.onClick();
-				PixelDungeon.music(checked());
+				ShatteredPixelDungeon.music(checked());
 			}
 		};
 		btnMusic.setRect( 0, BTN_HEIGHT + GAP, WIDTH, BTN_HEIGHT );
-		btnMusic.checked( PixelDungeon.music() );
+		btnMusic.checked( ShatteredPixelDungeon.music() );
 		add( btnMusic );
 		
 		CheckBox btnSound = new CheckBox( TXT_SOUND ) {
 			@Override
 			protected void onClick() {
 				super.onClick();
-				PixelDungeon.soundFx(checked());
+				ShatteredPixelDungeon.soundFx(checked());
 				Sample.INSTANCE.play( Assets.SND_CLICK );
 			}
 		};
 		btnSound.setRect( 0, btnMusic.bottom() + GAP, WIDTH, BTN_HEIGHT );
-		btnSound.checked( PixelDungeon.soundFx() );
+		btnSound.checked( ShatteredPixelDungeon.soundFx() );
 		add( btnSound );
 
 		Button lastBtn = btnSound;
@@ -137,7 +137,7 @@ public class WndSettings extends Window {
 				RedButton btnOrientation = new RedButton(orientationText()) {
 					@Override
 					protected void onClick() {
-						PixelDungeon.landscape(!PixelDungeon.landscape());
+						ShatteredPixelDungeon.landscape(!ShatteredPixelDungeon.landscape());
 					}
 				};
 				btnOrientation.setRect(0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT);
@@ -158,10 +158,10 @@ public class WndSettings extends Window {
 				RedButton btnResolution = new RedButton(resolutionText()) {
 					@Override
 					protected void onClick() {
-						PixelDungeon.fullscreen(!PixelDungeon.fullscreen());
+						ShatteredPixelDungeon.fullscreen(!ShatteredPixelDungeon.fullscreen());
 					}
 				};
-				btnResolution.enable( PixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
+				btnResolution.enable( ShatteredPixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
 				btnResolution.setRect(0, btnKeymap.bottom() + GAP, WIDTH, BTN_HEIGHT);
 				add(btnResolution);
 
@@ -173,11 +173,11 @@ public class WndSettings extends Window {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					PixelDungeon.brightness(checked());
+					ShatteredPixelDungeon.brightness(checked());
 				}
 			};
 			btnBrightness.setRect( 0, btnSound.bottom() + GAP, WIDTH, BTN_HEIGHT );
-			btnBrightness.checked(PixelDungeon.brightness());
+			btnBrightness.checked(ShatteredPixelDungeon.brightness());
 			add( btnBrightness );
 			
 			lastBtn = btnBrightness;
@@ -189,7 +189,7 @@ public class WndSettings extends Window {
 	private void zoom( float value ) {
 
 		Camera.main.zoom( value );
-		PixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
+		ShatteredPixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
 
 		updateEnabled();
 	}
@@ -201,7 +201,7 @@ public class WndSettings extends Window {
 	}
 	
 	private String orientationText() {
-		return PixelDungeon.landscape() ? TXT_SWITCH_PORT : TXT_SWITCH_LAND;
+		return ShatteredPixelDungeon.landscape() ? TXT_SWITCH_PORT : TXT_SWITCH_LAND;
 	}
 
 	private String resolutionText() {

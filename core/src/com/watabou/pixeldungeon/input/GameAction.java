@@ -1,4 +1,4 @@
-package com.watabou.pixeldungeon.input;
+package com.shatteredpixel.shatteredpixeldungeon.input;
 
 public enum GameAction {
 	BACK( null ),

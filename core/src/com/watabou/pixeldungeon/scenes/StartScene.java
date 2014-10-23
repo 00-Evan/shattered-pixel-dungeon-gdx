@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.scenes;
+package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import java.util.HashMap;
 
@@ -28,25 +28,25 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.ui.Button;
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.Badges;
-import com.watabou.pixeldungeon.Dungeon;
-import com.watabou.pixeldungeon.GamesInProgress;
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.actors.hero.HeroClass;
-import com.watabou.pixeldungeon.effects.BannerSprites;
-import com.watabou.pixeldungeon.effects.Speck;
-import com.watabou.pixeldungeon.effects.BannerSprites.Type;
-import com.watabou.pixeldungeon.input.GameAction;
-import com.watabou.pixeldungeon.ui.Archs;
-import com.watabou.pixeldungeon.ui.ExitButton;
-import com.watabou.pixeldungeon.ui.Icons;
-import com.watabou.pixeldungeon.ui.RedButton;
-import com.watabou.pixeldungeon.utils.Utils;
-import com.watabou.pixeldungeon.windows.WndChallenges;
-import com.watabou.pixeldungeon.windows.WndClass;
-import com.watabou.pixeldungeon.windows.WndMessage;
-import com.watabou.pixeldungeon.windows.WndOptions;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites.Type;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndClass;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 
 public class StartScene extends PixelScene {
 
@@ -185,7 +185,7 @@ public class StartScene extends PixelScene {
         add( btnExit );
 
         curClass = null;
-        updateClass( HeroClass.values()[PixelDungeon.lastClass()] );
+        updateClass( HeroClass.values()[ShatteredPixelDungeon.lastClass()] );
 
         fadeIn();
     }
@@ -247,8 +247,8 @@ public class StartScene extends PixelScene {
         Dungeon.hero = null;
         InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
 
-        if (PixelDungeon.intro()) {
-            PixelDungeon.intro( false );
+        if (ShatteredPixelDungeon.intro()) {
+            ShatteredPixelDungeon.intro( false );
             Game.switchScene( IntroScene.class );
         } else {
             Game.switchScene( InterlevelScene.class );
@@ -257,7 +257,7 @@ public class StartScene extends PixelScene {
 
     @Override
     protected void onBackPressed() {
-        PixelDungeon.switchNoFade( TitleScene.class );
+        ShatteredPixelDungeon.switchNoFade( TitleScene.class );
     }
 
     private static class GameButton extends RedButton {
@@ -418,7 +418,7 @@ public class StartScene extends PixelScene {
 
             super.createChildren();
 
-            image = Icons.get( PixelDungeon.challenges() > 0 ? Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF );
+            image = Icons.get( ShatteredPixelDungeon.challenges() > 0 ? Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF );
             add( image );
         }
 
@@ -434,10 +434,10 @@ public class StartScene extends PixelScene {
         @Override
         protected void onClick() {
             if (Badges.isUnlocked( Badges.Badge.VICTORY )) {
-                add( new WndChallenges( PixelDungeon.challenges(), true ) {
+                add( new WndChallenges( ShatteredPixelDungeon.challenges(), true ) {
                     public void onBackPressed() {
                         super.onBackPressed();
-                        image.copy( Icons.get( PixelDungeon.challenges() > 0 ?
+                        image.copy( Icons.get( ShatteredPixelDungeon.challenges() > 0 ?
                                 Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF ) );
                     };
                 } );

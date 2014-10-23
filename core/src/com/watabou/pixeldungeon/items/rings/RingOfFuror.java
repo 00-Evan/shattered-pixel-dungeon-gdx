@@ -1,4 +1,4 @@
-package com.watabou.pixeldungeon.items.rings;
+package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 /**
  * Created by debenhame on 10/09/2014.

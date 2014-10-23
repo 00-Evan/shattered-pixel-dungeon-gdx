@@ -1,6 +1,6 @@
-package com.watabou.pixeldungeon.sprites;
+package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
-import com.watabou.pixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.watabou.noosa.MovieClip;
 import com.watabou.noosa.TextureFilm;
 

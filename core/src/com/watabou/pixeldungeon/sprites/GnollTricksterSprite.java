@@ -1,8 +1,8 @@
-package com.watabou.pixeldungeon.sprites;
+package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
-import com.watabou.pixeldungeon.Assets;
-import com.watabou.pixeldungeon.items.weapon.missiles.CurareDart;
-import com.watabou.pixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.CurareDart;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.noosa.MovieClip;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.utils.Callback;

@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.watabou.pixeldungeon.sprites;
+package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.watabou.noosa.TextureFilm;
-import com.watabou.pixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 
 public class StatueSprite extends MobSprite {
 	
