@@ -17,9 +17,11 @@
  */
 package com.watabou.pixeldungeon.items;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.watabou.pixeldungeon.items.food.Blandfruit;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.pixeldungeon.Assets;
 import com.watabou.pixeldungeon.Badges;
@@ -340,6 +342,7 @@ public class Heap implements Bundlable {
 		pos = bundle.getInt( POS );
 		type = Type.valueOf( bundle.getString( TYPE ) );
 		items = new LinkedList( bundle.getCollection( ITEMS ) );
+        items.removeAll(Collections.singleton(null));
 	}
 
 	@Override
