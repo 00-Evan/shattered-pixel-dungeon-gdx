@@ -509,8 +509,7 @@ public class Dungeon {
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, level );
 		
-		OutputStream output = Game.instance.openFileOutput( 
-			Utils.format( depthFile( hero.heroClass ), depth ), Game.MODE_PRIVATE );
+		OutputStream output = Game.instance.openFileOutput( Utils.format( depthFile( hero.heroClass ), depth ) );
 		Bundle.write( bundle, output );
 		output.close();
 	}
