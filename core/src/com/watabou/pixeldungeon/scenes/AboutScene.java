@@ -86,11 +86,18 @@ public class AboutScene extends PixelScene {
 
         TouchArea shpxhotArea = new TouchArea( shpxlink ) {
             @Override
-            protected void onClick( Touch touch ) {
+            protected void onClick( NoosaInputProcessor.Touch touch ) {
 				Gdx.net.openURI("http://" + LNK_WATA);
             }
         };
         add( shpxhotArea );
+
+        Image wata = Icons.WATA.get();
+        wata.x = align( (Camera.main.width - wata.width()) / 2 );
+        wata.y = shpxlink.y + wata.height + 25;
+        add( wata );
+
+        new Flare( 7, 64 ).color( 0x112233, true ).show( wata, 0 ).angularSpeed = +20;
 
         BitmapTextMultiline title = createMultiline( TTL_WATA, 8 );
         title.maxWidth = Math.min( Camera.main.width, 120 );
@@ -125,13 +132,7 @@ public class AboutScene extends PixelScene {
 			}
 		};
 		add( hotArea );
-		
-		Image wata = Icons.WATA.get();
-		wata.x = align( text.x + (text.width() - wata.width) / 2 );
-		wata.y = text.y - wata.height - 8;
-		add( wata );
-		
-		new Flare( 7, 64 ).color( 0x112233, true ).show( wata, 0 ).angularSpeed = +20;
+
 		
 		Archs archs = new Archs();
 		archs.setSize( Camera.main.width, Camera.main.height );
@@ -141,7 +142,6 @@ public class AboutScene extends PixelScene {
         btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
         add( btnExit );
 
-		
 		fadeIn();
 	}
 	
