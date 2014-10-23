@@ -1,6 +1,6 @@
 package com.watabou.pd;
 
-import com.watabou.pixeldungeon.input.PDInputProcessor;
+import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 
 public class IOSInputProcessor extends PDInputProcessor {
 	@Override

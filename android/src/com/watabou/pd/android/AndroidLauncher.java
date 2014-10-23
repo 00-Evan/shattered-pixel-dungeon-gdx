@@ -4,8 +4,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.watabou.utils.PDPlatformSupport;
 
 public class AndroidLauncher extends AndroidApplication {
@@ -19,6 +19,6 @@ public class AndroidLauncher extends AndroidApplication {
 		} catch (PackageManager.NameNotFoundException e) {
 			version = "???";
 		}
-		initialize(new PixelDungeon(new PDPlatformSupport<GameAction>(version, null, new AndroidInputProcessor())), config);
+		initialize(new ShatteredPixelDungeon(new PDPlatformSupport<GameAction>(version, null, new AndroidInputProcessor())), config);
 	}
 }

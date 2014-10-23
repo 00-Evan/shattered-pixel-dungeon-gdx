@@ -6,8 +6,8 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.watabou.input.NoosaInputProcessor;
-import com.watabou.pixeldungeon.PixelDungeon;
-import com.watabou.pixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Preferences;
 import com.watabou.utils.PDPlatformSupport;
 
 import org.lwjgl.opengl.Display;
@@ -21,9 +21,9 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
 		if (SharedLibraryLoader.isMac) {
-			config.preferencesDirectory = "Library/Application Support/Pixel Dungeon/";
+			config.preferencesDirectory = "Library/Application Support/Shattered Pixel Dungeon/";
 		} else if (SharedLibraryLoader.isLinux) {
-			config.preferencesDirectory = ".watabou/pixel-dungeon/";
+			config.preferencesDirectory = ".shatteredpixel/shattered-pixel-dungeon/";
 		} else if (SharedLibraryLoader.isWindows) {
 			config.preferencesDirectory = "Saved Games/";
 		}
@@ -42,9 +42,9 @@ public class DesktopLauncher {
 		config.addIcon( "ic_launcher_16.png", Files.FileType.Internal );
 
 		// TODO: It have to be pulled from build.gradle, but I don't know how it can be done
-		config.title = "Pixel Dungeon";
+		config.title = "Shattered Pixel Dungeon";
 
-		new LwjglApplication(new PixelDungeon(
+		new LwjglApplication(new ShatteredPixelDungeon(
 				new DesktopSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
 		), config);
 	}

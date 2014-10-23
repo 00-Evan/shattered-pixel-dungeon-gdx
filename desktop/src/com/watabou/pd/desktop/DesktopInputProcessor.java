@@ -2,9 +2,9 @@ package com.watabou.pd.desktop;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.IntMap;
-import com.watabou.pixeldungeon.Preferences;
-import com.watabou.pixeldungeon.input.GameAction;
-import com.watabou.pixeldungeon.input.PDInputProcessor;
+import com.shatteredpixel.shatteredpixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,8 +5,8 @@
 	<inherits name='com.badlogic.gdx.controllers.controllers-gwt' />
 
     <inherits name='PD-classes' />
-    <inherits name='PixelDungeon' />
-	<entry-point class='com.watabou.pixeldungeon.client.HtmlLauncher' />
+    <inherits name='ShatteredPixelDungeon' />
+	<entry-point class='com.shatteredpixel.shatteredpixeldungeon.client.HtmlLauncher' />
 	
 	<add-linker name="xsiframe"/>
 	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>

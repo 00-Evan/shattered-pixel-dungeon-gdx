@@ -7,8 +7,8 @@ gwt {
     minHeapSize="1G"
 
     src = files(file("src/")) // Needs to be in front of "modules" below.
-    modules 'com.watabou.pixeldungeon.GdxDefinition'
-    devModules 'com.watabou.pixeldungeon.GdxDefinitionSuperdev'
+    modules 'com.shatteredpixel.shatteredpixeldungeon.GdxDefinition'
+    devModules 'com.shatteredpixel.shatteredpixeldungeon.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
 
     compiler {

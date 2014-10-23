@@ -1,9 +1,9 @@
-package com.watabou.pixeldungeon.client;
+package com.shatteredpixel.shatteredpixeldungeon.client;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.watabou.pixeldungeon.PixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.utils.PDPlatformSupport;
 
 public class HtmlLauncher extends GwtApplication {
@@ -16,6 +16,6 @@ public class HtmlLauncher extends GwtApplication {
         @Override
         public ApplicationListener getApplicationListener () {
 	        String version = "???";
-            return new PixelDungeon(new PDPlatformSupport(version, null, null));
+            return new ShatteredPixelDungeon(new PDPlatformSupport(version, null, null));
         }
 }
