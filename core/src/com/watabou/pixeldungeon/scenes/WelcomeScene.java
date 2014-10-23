@@ -49,7 +49,7 @@ public class WelcomeScene extends PixelScene {
             "Regardless, tread with caution! Your saves may contain things which don't exist in this version, "+
             "this could cause some very weird errors to occur.";
 
-    private static final String LNK = "https://play.google.com/store/apps/details?id=com.watabou.pixeldungeon";
+    private static final String LNK = "https://play.google.com/store/apps/details?id=com.shatteredpixel.shatteredpixeldungeon";
 
     @Override
     public void create() {
