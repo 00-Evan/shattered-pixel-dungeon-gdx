@@ -25,7 +25,12 @@ public class DesktopLauncher {
 		} else if (SharedLibraryLoader.isLinux) {
 			config.preferencesDirectory = ".shatteredpixel/shattered-pixel-dungeon/";
 		} else if (SharedLibraryLoader.isWindows) {
-			config.preferencesDirectory = "Saved Games/";
+            String winVer = System.getProperties().getProperty("os.name");
+            if (winVer.contains("XP")) {
+                config.preferencesDirectory = "Application Data/.shatteredpixel/Shattered Pixel Dungeon/";
+            } else {
+                config.preferencesDirectory = "AppData/Roaming/.shatteredpixel/Shattered Pixel Dungeon/";
+            }
 		}
 		// FIXME: This is a hack to get access to the preferences before we have an application setup
 		com.badlogic.gdx.Preferences prefs = new LwjglPreferences(Preferences.FILE_NAME, config.preferencesDirectory);
