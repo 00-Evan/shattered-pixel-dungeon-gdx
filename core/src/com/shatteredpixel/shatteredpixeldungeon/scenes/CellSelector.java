@@ -224,7 +224,7 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (pinching) {
 
 			float curSpan = PointF.distance( touch.current, another.current );
-			if (startSpan > 0){
+			if (startSpan != 0){
 				camera.zoom( GameMath.gate(
 					PixelScene.minZoom,
 					startZoom * curSpan / startSpan,
