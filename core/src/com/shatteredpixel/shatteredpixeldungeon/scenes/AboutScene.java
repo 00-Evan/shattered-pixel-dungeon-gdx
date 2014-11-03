@@ -33,6 +33,7 @@ public class AboutScene extends PixelScene {
 
     private static final String TXT_SHPX =
             "Design, Code, & Graphics: Evan\n\n" +
+            "LibGDX port: Pururigro\n\n" +
             "Shattered Pixel is Evan's online home, check it out:";
 
     private static final String LNK_SHPX = "ShatteredPixel.com";
@@ -42,6 +43,7 @@ public class AboutScene extends PixelScene {
 
 	private static final String TXT_WATA =
 		    "Code & Graphics: Watabou\n" +
+            "LibGDX port: Arcnor\n" +
 		    "Music: Cube_Code\n\n" +
 		    "Visit Watabou for more info:";
 	
@@ -53,7 +55,7 @@ public class AboutScene extends PixelScene {
 
         Image shpx = Icons.SHPX.get();
         shpx.x = align( (Camera.main.width - shpx.width()) / 2 );
-        shpx.y = align( 30 );
+        shpx.y = align( 20 );
         add( shpx );
 
         new Flare( 7, 64 ).color( 0x225511, true ).show( shpx, 0 ).angularSpeed = +20;
@@ -94,7 +96,7 @@ public class AboutScene extends PixelScene {
 
         Image wata = Icons.WATA.get();
         wata.x = align( (Camera.main.width - wata.width()) / 2 );
-        wata.y = shpxlink.y + wata.height + 25;
+        wata.y = shpxlink.y + wata.height + 15;
         add( wata );
 
         new Flare( 7, 64 ).color( 0x112233, true ).show( wata, 0 ).angularSpeed = +20;
