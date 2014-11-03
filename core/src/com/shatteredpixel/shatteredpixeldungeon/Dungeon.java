@@ -450,8 +450,7 @@ public class Dungeon {
 		try {
 			Bundle bundle = new Bundle();
 			
-			// bundle.put( VERSION, Game.versionCode );
-			bundle.put( VERSION, Game.version );
+			bundle.put( VERSION, Game.versionCode );
             bundle.put( CHALLENGES, challenges );
 			bundle.put( HERO, hero );
 			bundle.put( GOLD, gold );

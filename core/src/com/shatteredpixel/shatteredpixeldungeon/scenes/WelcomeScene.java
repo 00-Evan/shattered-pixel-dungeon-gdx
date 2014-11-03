@@ -70,10 +70,9 @@ public class WelcomeScene extends PixelScene {
             text = createMultiline(TXT_SameVer, 6 );
             title = createMultiline(TTL_SameVer, 12 );
 
-        /* } else if (gameversion <= Game.versionCode){
-         *     text = createMultiline(TXT_LastVer, 6 );
-         *     title = createMultiline(TTL_LastVer, 12 );
-         */
+        } else if (gameversion <= Game.versionCode){
+             text = createMultiline(TXT_LastVer, 6 );
+             title = createMultiline(TTL_LastVer, 12 );
 
         } else {
 
@@ -101,7 +100,7 @@ public class WelcomeScene extends PixelScene {
         RedButton okay = new RedButton("Okay!") {
             @Override
             protected void onClick() {
-                // ShatteredPixelDungeon.version(Game.versionCode);
+                ShatteredPixelDungeon.version(Game.versionCode);
                 Game.switchScene(TitleScene.class);
             }
         };

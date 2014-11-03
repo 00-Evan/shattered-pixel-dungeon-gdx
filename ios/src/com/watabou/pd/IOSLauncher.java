@@ -14,7 +14,8 @@ public class IOSLauncher extends IOSApplication.Delegate {
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
 	    final String version = NSBundle.getMainBundle().getInfoDictionaryObject("CFBundleShortVersionString").toString();
-        return new IOSApplication(new ShatteredPixelDungeon(new PDPlatformSupport(version, null, new IOSInputProcessor())), config);
+        final int versionCode = Integer.parseInt(NSBundle.getMainBundle().getInfoDictionaryObject("CFBundleVersion").toString());
+        return new IOSApplication(new ShatteredPixelDungeon(new PDPlatformSupport(version, versionCode, null, new IOSInputProcessor())), config);
     }
 
     public static void main(String[] argv) {

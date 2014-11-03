@@ -14,11 +14,14 @@ public class AndroidLauncher extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		String version;
+        int versionCode;
 		try {
 			version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
+            versionCode = getPackageManager.getPackageInfo( getPackageName(), 0  ).versionCode;
 		} catch (PackageManager.NameNotFoundException e) {
 			version = "???";
+            versionCode = 0;
 		}
-		initialize(new ShatteredPixelDungeon(new PDPlatformSupport<GameAction>(version, null, new AndroidInputProcessor())), config);
+		initialize(new ShatteredPixelDungeon(new PDPlatformSupport<GameAction>(version, versionCode, null, new AndroidInputProcessor())), config);
 	}
 }

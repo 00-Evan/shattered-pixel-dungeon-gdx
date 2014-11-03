@@ -48,6 +48,9 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	public static float density = 1;
 	
 	public static String version;
+    public static int versionCode;
+
+
 	private final String basePath;
 	private final NoosaInputProcessor<GameActionType> inputProcessor;
 	private final PDPlatformSupport platformSupport;

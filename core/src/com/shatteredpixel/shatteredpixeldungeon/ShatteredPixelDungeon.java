@@ -38,15 +38,8 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 		Game.version = platformSupport.getVersion();
 
-		/*
-        // 1.7.2
-        com.watabou.utils.Bundle.addAlias(
-                com.shatteredpixel.shatteredpixeldungeon.plants.Dreamweed.class,
-                "com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed" );
-        com.watabou.utils.Bundle.addAlias(
-                com.shatteredpixel.shatteredpixeldungeon.plants.Dreamweed.Seed.class,
-                "com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed$Seed" );
-        */
+        Game.versionCode = platformSupport.getVersionCode();
+
 	}
 	
 	@SuppressWarnings("deprecation")

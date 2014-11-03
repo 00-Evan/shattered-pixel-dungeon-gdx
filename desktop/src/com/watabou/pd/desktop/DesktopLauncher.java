@@ -18,6 +18,14 @@ public class DesktopLauncher {
 		if (version == null) {
 			version = "???";
 		}
+
+        int versionCode;
+        try {
+            versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
+        } catch (NumberFormatException e) {
+            versionCode = 0;
+        }
+
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
 		if (SharedLibraryLoader.isMac) {
@@ -50,13 +58,13 @@ public class DesktopLauncher {
 		config.title = "Shattered Pixel Dungeon";
 
 		new LwjglApplication(new ShatteredPixelDungeon(
-				new DesktopSupport(version, config.preferencesDirectory, new DesktopInputProcessor())
+				new DesktopSupport(version, versionCode, config.preferencesDirectory, new DesktopInputProcessor())
 		), config);
 	}
 
 	private static class DesktopSupport extends PDPlatformSupport {
-		public DesktopSupport( String version, String basePath, NoosaInputProcessor inputProcessor ) {
-			super( version, basePath, inputProcessor );
+		public DesktopSupport( String version, int versionCode, String basePath, NoosaInputProcessor inputProcessor ) {
+			super( version, versionCode, basePath, inputProcessor );
 		}
 
 		@Override
