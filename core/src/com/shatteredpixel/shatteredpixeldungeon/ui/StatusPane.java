@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogus;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndSettings;
 
 public class StatusPane extends Component {
 	
@@ -271,6 +272,12 @@ public class StatusPane extends Component {
 		@Override
 		protected void onClick() {
 			GameScene.show( new WndGame() );
+		}
+
+		@Override
+		protected boolean onLongClick() {
+			GameScene.show( new WndSettings( true ) );
+			return true;
 		}
 	}
 }

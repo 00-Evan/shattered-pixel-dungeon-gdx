@@ -52,7 +52,11 @@ public class Button<T> extends Component {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
 				if (!processed) {
-					Button.this.onClick();
+					if (NoosaInputProcessor.modifier && onLongClick()) {
+					// Do nothing
+					} else {
+						Button.this.onClick();
+					}
 				}
 			};
 			@Override
