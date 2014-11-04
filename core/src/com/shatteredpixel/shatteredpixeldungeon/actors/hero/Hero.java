@@ -637,7 +637,7 @@ public class Hero extends Char {
 			Heap heap = Dungeon.level.heaps.get( dst );
 			if (heap != null && 
 				(heap.type == Type.CHEST || heap.type == Type.TOMB || heap.type == Type.SKELETON ||
-				heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST)) {
+                    heap.type == Type.REMAINS || heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST)) {
 				
 				theKey = null;
 				
@@ -658,6 +658,7 @@ public class Hero extends Char {
 					Camera.main.shake( 1, 0.5f );
 					break;
 				case SKELETON:
+                case REMAINS:
 					break;
 				default:
 					Sample.INSTANCE.play( Assets.SND_UNLOCK );
@@ -1181,8 +1182,17 @@ public class Hero extends Char {
 		
 		curAction = null;
 
-        //todo: investigate this, what would happen if the player has a blessed & unblessed ankh?
-        Ankh ankh = (Ankh)belongings.getItem( Ankh.class );
+        Ankh ankh = null;
+
+        //look for ankhs in player inventory, prioritize ones which are blessed.
+        for (Item item : belongings){
+            if (item instanceof Ankh) {
+                if (ankh == null || ((Ankh) item).isBlessed()) {
+                    ankh = (Ankh) item;
+                }
+            }
+        }
+
         if (ankh != null && ankh.isBlessed()) {
             this.HP = HT;
 
@@ -1309,7 +1319,7 @@ public class Hero extends Char {
 			}
 			
 			Heap heap = Dungeon.level.heaps.get( ((HeroAction.OpenChest)curAction).dst ); 
-			if (heap.type == Type.SKELETON) {
+			if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
 				Sample.INSTANCE.play( Assets.SND_BONES );
 			}
 			heap.open( this );

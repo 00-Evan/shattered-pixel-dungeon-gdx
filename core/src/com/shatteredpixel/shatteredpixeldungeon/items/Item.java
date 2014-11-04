@@ -112,8 +112,12 @@ public class Item implements Bundlable {
 		hero.spendAndNext( TIME_TO_DROP );			
 		Dungeon.level.drop( detachAll( hero.belongings.backpack ), hero.pos ).sprite.drop( hero.pos );	
 	}
-	
-	public void doThrow( Hero hero ) {
+
+    public void syncVisuals(){
+        //do nothing by default, as most items need no visual syncing.
+    }
+
+    public void doThrow( Hero hero ) {
 		GameScene.selectCell( thrower );
 	}
 	
@@ -190,32 +194,39 @@ public class Item implements Bundlable {
 	public boolean collect() {
 		return collect( Dungeon.hero.belongings.backpack );
 	}
-	
-	public final Item detach( Bag container ) {
-		
-		if (quantity <= 0) {
-			
-			return null;
-			
-		} else
-		if (quantity == 1) {
 
-			return detachAll( container );
-			
-		} else {
-			
-			quantity--;
-			updateQuickslot();
-			
-			try { 
-				Item detached = ClassReflection.newInstance(getClass());
-				detached.onDetach( );
-				return detached;
-			} catch (Exception e) {
-				return null;
-			}
-		}
-	}
+    public final Item detach( Bag container ) {
+
+        if (quantity <= 0) {
+
+            return null;
+
+        } else
+        if (quantity == 1) {
+
+            return detachAll( container );
+
+        } else {
+
+            quantity--;
+            updateQuickslot();
+
+            try {
+
+                //pssh, who needs copy constructors?
+                Item detached = getClass().newInstance();
+                Bundle copy = new Bundle();
+                this.storeInBundle(copy);
+                detached.restoreFromBundle(copy);
+                detached.quantity(1);
+
+                detached.onDetach( );
+                return detached;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
 	
 	public final Item detachAll( Bag container ) {
 		for (Item item : container.items) {

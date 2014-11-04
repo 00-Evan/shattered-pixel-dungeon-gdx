@@ -17,21 +17,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.ui.Button;
 
 public class ItemSlot extends Button<GameAction> {
 
@@ -49,8 +48,8 @@ public class ItemSlot extends Button<GameAction> {
 	
 	private static final String TXT_STRENGTH	= ":%d";
 	private static final String TXT_TYPICAL_STR	= "%d?";
-    private static final String TXT_KEY_DEPTH	= "*%d";
-	
+    private static final String TXT_KEY_DEPTH	= "\u007F%d";
+
 	private static final String TXT_LEVEL	= "%+d";
 	
 	// Special items for containers
@@ -69,6 +68,9 @@ public class ItemSlot extends Button<GameAction> {
 	public static final Item SKELETON = new Item() {
 		public int image() { return ItemSpriteSheet.BONES; };
 	};
+    public static final Item REMAINS = new Item() {
+        public int image() { return ItemSpriteSheet.REMAINS; };
+    };
 	
 	public ItemSlot() {
 		super();

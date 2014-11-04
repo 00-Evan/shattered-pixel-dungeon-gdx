@@ -16,23 +16,17 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Blindweed;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Dreamfoil;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Fadeleaf;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Firebloom;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Icecap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sorrowmoss;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Stormvine;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -170,11 +164,11 @@ public class Blandfruit extends Food {
     }
 
     public Item cook(Seed seed){
-        Class<? extends Item> plant = seed.alchemyClass;
+        Class<? extends Item> potion = seed.alchemyClass;
 
 
         try {
-            potionAttrib = (Potion)plant.newInstance();
+            potionAttrib = (Potion)potion.newInstance();
             potionAttrib.ownedByFruit = true;
         } catch (Exception e) {
             return null;
@@ -184,7 +178,7 @@ public class Blandfruit extends Food {
 
 
         info = "The fruit has plumped up from its time soaking in the pot and has even absorbed the properties "+
-               "of the " + seed.name() + " seed it was cooked with.\n\n";
+               "of the " + seed.name() + " it was cooked with.\n\n";
 
         if (potionAttrib instanceof PotionOfHealing){
 
@@ -234,6 +228,18 @@ public class Blandfruit extends Food {
             potionGlow = new ItemSprite.Glowing( 0xA15CE5 );
             info += "It looks crisp and volatile, eating this might be unsafe.";
 
+        } else if (potionAttrib instanceof PotionOfLevitation) {
+
+            name = "Floatfruit";
+            potionGlow = new ItemSprite.Glowing( 0x1C3A57 );
+            info += "It looks delicious and lightweight, ready to be eaten!";
+
+        } else if (potionAttrib instanceof PotionOfPurity) {
+
+            name = "Purefruit";
+            potionGlow = new ItemSprite.Glowing( 0x8E2975 );
+            info += "It looks delicious and clean, ready to be eaten!";
+
         }
 
         return this;
@@ -246,7 +252,9 @@ public class Blandfruit extends Food {
         if (potionAttrib instanceof PotionOfLiquidFlame ||
                 potionAttrib instanceof PotionOfToxicGas ||
                 potionAttrib instanceof PotionOfParalyticGas ||
-                potionAttrib instanceof PotionOfFrost) {
+                potionAttrib instanceof PotionOfFrost ||
+                potionAttrib instanceof PotionOfLevitation ||
+                potionAttrib instanceof PotionOfPurity) {
             potionAttrib.cast(user, dst);
             detach( user.belongings.backpack );
         } else {
@@ -282,6 +290,10 @@ public class Blandfruit extends Food {
             cook(new Fadeleaf.Seed());
         else if (name.equals("Toxicfruit"))
             cook(new Sorrowmoss.Seed());
+        else if (name.equals("Floatfruit"))
+            cook(new Stormvine.Seed());
+        else if (name.equals("Purefruit"))
+            cook(new Dreamfoil.Seed());
 
     }
 

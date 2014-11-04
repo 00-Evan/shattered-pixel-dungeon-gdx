@@ -49,7 +49,7 @@ public class Weapon extends KindOfWeapon {
 	public float	DLY	= 1f;	// Speed modifier
 
     public enum Imbue {
-        NONE, SPEED, ACCURACY
+        NONE, LIGHT, HEAVY
     }
     public Imbue imbue = Imbue.NONE;
 
@@ -114,9 +114,7 @@ public class Weapon extends KindOfWeapon {
             ACU *= (float)(Math.pow(1.1, bonus));
 		}
 
-        return
-                (encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU) *
-                        (imbue == Imbue.ACCURACY ? 1.5f : 1.0f);
+        return encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU;
 	}
 	
 	@Override
@@ -127,16 +125,17 @@ public class Weapon extends KindOfWeapon {
 			encumrance -= 2;
 		}
 
+        float DLY = this.DLY * (imbue == Imbue.LIGHT ? 0.667f : (imbue == Imbue.HEAVY ? 1.667f : 1.0f));
+
         int bonus = 0;
         for (Buff buff : hero.buffs(RingOfFuror.Furor.class)) {
             bonus += ((RingOfFuror.Furor)buff).level;
         }
 
-        float DLY = (float)(0.25 + (this.DLY - 0.25)*Math.pow(0.8, bonus));
+        DLY = (float)(0.25 + (DLY - 0.25)*Math.pow(0.8, bonus));
 
         return
-                (encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY) *
-                        (imbue == Imbue.SPEED ? 0.6f : 1.0f);
+                (encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY);
 	}
 	
 	@Override
@@ -151,7 +150,7 @@ public class Weapon extends KindOfWeapon {
 			}
 		}
 		
-		return damage;
+		return Math.round(damage * (imbue == Imbue.LIGHT ? 0.7f : (imbue == Imbue.HEAVY ? 1.5f : 1f)));
 	}
 	
 	public Item upgrade( boolean enchant ) {		

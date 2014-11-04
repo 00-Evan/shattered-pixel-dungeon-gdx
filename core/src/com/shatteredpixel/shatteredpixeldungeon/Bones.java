@@ -18,10 +18,9 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
@@ -44,11 +43,14 @@ public class Bones {
 	private static Item item;
 	
 	public static void leave() {
-		
-		item = pickItem(Dungeon.hero);
 
-		
-		depth = Dungeon.depth;
+        depth = Dungeon.depth;
+
+        //heroes which have won the game, who die far above their farthest depth, or who are challenged drop no bones.
+        if (Statistics.amuletObtained || (Statistics.deepestFloor - 5) >= depth || Dungeon.challenges > 0)
+            return;
+
+		item = pickItem(Dungeon.hero);
 		
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, depth );
@@ -92,22 +94,26 @@ public class Bones {
             ArrayList<Item> items = new ArrayList<Item>();
             while (iterator.hasNext()){
                 curItem = iterator.next();
-                if (curItem.bones && !(curItem instanceof EquipableItem))
+                if (curItem.bones)
                     items.add(curItem);
             }
 
-            if (!items.isEmpty()) {
+            if (Random.Int(3) < items.size()) {
                 item = Random.element(items);
                 if (item.stackable){
-                    item.quantity(Random.NormalIntRange(1, (int)Math.sqrt(item.quantity())));
+                    if (item instanceof MissileWeapon){
+                        item.quantity(Random.NormalIntRange(1, item.quantity()));
+                    } else {
+                        item.quantity(Random.NormalIntRange(1, (item.quantity() + 1) / 2));
+                    }
                 }
             }
         }
         if (item == null) {
-            if (Dungeon.gold > 0) {
-                item = new Gold( Random.NormalIntRange( 1, Dungeon.gold ) );
+            if (Dungeon.gold > 50) {
+                item = new Gold( Random.NormalIntRange( 50, Dungeon.gold ) );
             } else {
-                item = new Gold( 1 );
+                item = new Gold( 50 );
             }
         }
         return item;
@@ -115,7 +121,11 @@ public class Bones {
 	
 	public static Item get() {
 		if (depth == -1) {
-			
+
+            //challenged heroes cannot find bones.
+            if (Dungeon.challenges > 0)
+                return null;
+
 			try {
 				InputStream input = Game.instance.openFileInput( BONES_FILE ) ;
 				Bundle bundle = Bundle.read( input );
@@ -139,7 +149,8 @@ public class Bones {
 					item.cursed = true;
 					item.cursedKnown = true;
 					if (item.isUpgradable()) {
-						int lvl = (Dungeon.depth - 1) * 3 / 5 + 1;
+                        //gain 1 level every 3.333 floors down plus one additional level.
+						int lvl = 1 + ((Dungeon.depth * 3) / 10);
 						if (lvl < item.level) {
 							item.degrade( item.level - lvl );
 						}
@@ -147,9 +158,7 @@ public class Bones {
 					}
 				}
 				
-				if (item instanceof Ring) {
-					((Ring)item).syncGem();
-				}
+				item.syncVisuals();
 				
 				return item;
 			} else {

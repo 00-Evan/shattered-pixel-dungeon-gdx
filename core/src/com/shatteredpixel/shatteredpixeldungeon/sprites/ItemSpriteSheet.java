@@ -43,15 +43,16 @@ public class ItemSpriteSheet {
     public static final int DEWDROP	    = ROW1+1;
     // Heaps (containers)
     public static final int BONES			= ROW1+2;
-    public static final int TOMB			= ROW1+3;
-    public static final int CHEST			= ROW1+4;
-    public static final int LOCKED_CHEST	= ROW1+5;
-    public static final int CRYSTAL_CHEST	= ROW1+6;
+    public static final int REMAINS         = ROW1+3;
+    public static final int TOMB			= ROW1+4;
+    public static final int CHEST			= ROW1+5;
+    public static final int LOCKED_CHEST	= ROW1+6;
+    public static final int CRYSTAL_CHEST	= ROW1+7;
     // Placeholders
-    public static final int WEAPON	= ROW1+7;
-    public static final int ARMOR	= ROW1+8;
-    public static final int RING	= ROW1+9;
-    public static final int SMTH	= ROW1+10;
+    public static final int WEAPON	= ROW1+8;
+    public static final int ARMOR	= ROW1+9;
+    public static final int RING	= ROW1+10;
+    public static final int SMTH	= ROW1+11;
 
     //Row Two: Miscellaneous single use items
     public static final int GOLD	= ROW2+0;
@@ -183,15 +184,16 @@ public class ItemSpriteSheet {
     public static final int SEED_ROTBERRY	= ROW12+0;
     public static final int SEED_FIREBLOOM	= ROW12+1;
     public static final int SEED_BLINDWEED	= ROW12+2;
-    public static final int SEED_DREAMWEED	= ROW12+2;
     public static final int SEED_SUNGRASS	= ROW12+3;
     public static final int SEED_ICECAP		= ROW12+4;
-    public static final int SEED_SORROWMOSS	= ROW12+5;
-    public static final int SEED_EARTHROOT	= ROW12+6;
-    public static final int SEED_FADELEAF	= ROW12+7;
-    public static final int SEED_BLANDFRUIT	= ROW12+8;
+    public static final int SEED_STORMVINE	= ROW12+5;
+    public static final int SEED_SORROWMOSS	= ROW12+6;
+    public static final int SEED_DREAMFOIL	= ROW12+7;
+    public static final int SEED_EARTHROOT	= ROW12+8;
+    public static final int SEED_FADELEAF	= ROW12+9;
+    public static final int SEED_BLANDFRUIT	= ROW12+10;
 
-    //Row Theirteen: Food
+    //Row Thirteen: Food
     public static final int MEAT		= ROW13+0;
     public static final int STEAK		= ROW13+1;
     public static final int OVERPRICED	= ROW13+2;

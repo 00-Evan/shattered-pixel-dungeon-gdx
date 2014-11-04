@@ -155,37 +155,41 @@ public class Ghost extends NPC {
 		Sample.INSTANCE.play( Assets.SND_GHOST );
 		
 		if (Quest.given) {
-			
-			if (Quest.processed || Dungeon.hero.belongings.getItem( RatSkull.class ) != null){
-				GameScene.show( new WndSadGhost( this, Quest.type ) );
-			} else {
-                switch (Quest.type){
-                    case 1: default:
-                        GameScene.show( new WndQuest( this, TXT_RAT2 ) ); break;
-                    case 2:
-                        GameScene.show( new WndQuest( this, TXT_GNOLL2 ) ); break;
-                    case 3:
-                        GameScene.show( new WndQuest( this, TXT_CRAB2 ) ); break;
+			if (Quest.weapon != null) {
+                if (Quest.processed || Dungeon.hero.belongings.getItem(RatSkull.class) != null) {
+                    GameScene.show(new WndSadGhost(this, Quest.type));
+                } else {
+                    switch (Quest.type) {
+                        case 1:
+                        default:
+                            GameScene.show(new WndQuest(this, TXT_RAT2));
+                            break;
+                        case 2:
+                            GameScene.show(new WndQuest(this, TXT_GNOLL2));
+                            break;
+                        case 3:
+                            GameScene.show(new WndQuest(this, TXT_CRAB2));
+                            break;
+                    }
+
+                    int newPos = -1;
+                    for (int i = 0; i < 10; i++) {
+                        newPos = Dungeon.level.randomRespawnCell();
+                        if (newPos != -1) {
+                            break;
+                        }
+                    }
+                    if (newPos != -1) {
+
+                        Actor.freeCell(pos);
+
+                        CellEmitter.get(pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
+                        pos = newPos;
+                        sprite.place(pos);
+                        sprite.visible = Dungeon.visible[pos];
+                    }
                 }
-				
-				int newPos = -1;
-				for (int i=0; i < 10; i++) {
-					newPos = Dungeon.level.randomRespawnCell();
-					if (newPos != -1) {
-						break;
-					}
-				}
-				if (newPos != -1) {
-					
-					Actor.freeCell( pos );
-					
-					CellEmitter.get( pos ).start( Speck.factory( Speck.LIGHT ), 0.2f, 3 );
-					pos = newPos;
-					sprite.place( pos );
-					sprite.visible = Dungeon.visible[pos];
-				}
-			}
-			
+            }
 		} else {
             Mob questBoss;
             String txt_quest;
@@ -439,6 +443,16 @@ public class Ghost extends NPC {
                 "The rat carries a cloud of horrible stench with it, it's overpoweringly strong up close.\n\n" +
                 "Dark ooze dribbles from the rat's mouth, it eats through the floor but seems to dissolve in water.";
 		}
+
+        private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+        static {
+            IMMUNITIES.add( StenchGas.class );
+        }
+
+        @Override
+        public HashSet<Class<?>> immunities() {
+            return IMMUNITIES;
+        }
 	}
 
 
@@ -483,7 +497,7 @@ public class Ghost extends NPC {
 
             if (effect > 2) {
 
-                if (effect >=5 && enemy.buff(Burning.class) == null){
+                if (effect >=6 && enemy.buff(Burning.class) == null){
 
                     if (Level.flamable[enemy.pos])
                         GameScene.add( Blob.seed( enemy.pos, 4, Fire.class ) );
@@ -499,8 +513,8 @@ public class Ghost extends NPC {
         @Override
         protected boolean getCloser( int target ) {
             combo = 0; //if he's moving, he isn't attacking, reset combo.
-            if (state == HUNTING) {
-                return enemySeen && getFurther( target );
+            if (Level.adjacent(pos, enemy.pos)) {
+                return getFurther( target );
             } else {
                 return super.getCloser( target );
             }
@@ -555,16 +569,16 @@ public class Ghost extends NPC {
             state = WANDERING;
         }
 
-        private boolean moving = true;
+        private int moving = 0;
 
         @Override
         protected boolean getCloser( int target ) {
-            //this is used so that the crab remains slow, but still detects the player at the expected rate.
-            if (moving) {
-                moving = false;
+            //this is used so that the crab remains slower, but still detects the player at the expected rate.
+            moving++;
+            if (moving < 3) {
                 return super.getCloser( target );
             } else {
-                moving = true;
+                moving = 0;
                 return true;
             }
 

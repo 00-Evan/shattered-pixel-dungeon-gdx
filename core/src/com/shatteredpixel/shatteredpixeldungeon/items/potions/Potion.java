@@ -110,9 +110,14 @@ public class Potion extends Item {
 	
 	public Potion() {
 		super();
-		image = handler.image( this );
-		color = handler.label( this );
+		syncVisuals();
 	}
+
+    @Override
+    public void syncVisuals(){
+        image = handler.image( this );
+        color = handler.label( this );
+    };
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -157,8 +162,7 @@ public class Potion extends Item {
 
 		if (isKnown() && (
 			this instanceof PotionOfExperience || 
-			this instanceof PotionOfHealing || 
-			this instanceof PotionOfLevitation ||
+			this instanceof PotionOfHealing ||
 			this instanceof PotionOfMindVision ||
 			this instanceof PotionOfStrength ||
 			this instanceof PotionOfInvisibility || 
