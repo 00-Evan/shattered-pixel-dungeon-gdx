@@ -39,8 +39,8 @@ public class WndKeymap extends Window {
 
 	public WndKeymap() {
 
-		int ww = Math.min( 160, Camera.main.width - 16 );
-		int wh = Camera.main.height - 24;
+		int ww = Math.min( 160, PixelScene.uiCamera.width - 16 );
+		int wh = PixelScene.uiCamera.height - 24;
 
 		resize( ww, wh );
 
