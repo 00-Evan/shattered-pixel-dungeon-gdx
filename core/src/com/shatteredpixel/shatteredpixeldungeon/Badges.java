@@ -711,7 +711,7 @@ public class Badges {
 		}
 	}
 
-    //TODO: Replace this badge, Delayed to 0.2.1
+    //TODO: Replace this badge, Delayed to 0.2.3, for real this time
 	public static void validateRingOfHaggler() {
 		if (!local.contains( Badge.RING_OF_HAGGLER )/* && new RingOfThorns().isKnown()*/) {
 			Badge badge = Badge.RING_OF_HAGGLER;
@@ -720,7 +720,7 @@ public class Badges {
 		}
 	}
 
-    //TODO: Replace this badge, Delayed to 0.2.1
+    //TODO: Replace this badge, Delayed to 0.2.3, for real this time
 	public static void validateRingOfThorns() {
 		if (!local.contains( Badge.RING_OF_THORNS )/* && new RingOfThorns().isKnown()*/) {
 			Badge badge = Badge.RING_OF_THORNS;

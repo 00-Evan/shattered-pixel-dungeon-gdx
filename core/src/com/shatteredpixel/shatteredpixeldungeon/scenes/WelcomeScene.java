@@ -28,18 +28,20 @@ public class WelcomeScene extends PixelScene {
             "Happy Dungeoneering!";
 
     private static final String TXT_LastVer =
-            "This update brings improvements from the Pixel Dungeon source, and various small improvements.\n\n" +
-            "There are now two new plants, look out for dreamfoil and stormvine! potion of levitation has been buffed as well.\n\n" +
+            "This update brings improvements from the Pixel Dungeon source, and various small tweaks.\n\n" +
+            "There are now two new plants, look out for dreamfoil and stormvine! Potions of levitation has been buffed as well.\n\n" +
             "The heroes remains system has been reworked to be more helpful and less exploitable.\n\n" +
             "Weightstones have been added, but they are reworked from the base game.\n\n" +
             "There are various other small tweaks and improvements, for example, falling items will now appear on the next depth!";
 
     private static final String TXT_SameVer =
-            "no patches at present";
+            "v0.2.2a addresses an issue players were having when they tried to start a new game, " +
+            "corrects a few small inconsistencies with challenges, and makes a few small improvements to " +
+            "level generation.\n\nHappy Dungeoneering!";
 
     private static final String TXT_Future =
-            "It seems that your current saves are from a future version of Shattered Pixel Dungeon.\n\n"+
-            "You have either been messing around with backup software, or something has gone buggy.\n\n"+
+            "It seems that your current saves are from a future version of Shattered Pixel Dungeon!\n\n"+
+            "Either you're messing around with older versions of the app, or something has gone buggy.\n\n"+
             "Regardless, tread with caution! Your saves may contain things which don't exist in this version, "+
             "this could cause some very weird errors to occur.";
 
@@ -49,7 +51,7 @@ public class WelcomeScene extends PixelScene {
     public void create() {
         super.create();
 
-        int gameversion = ShatteredPixelDungeon.version();
+        final int gameversion = ShatteredPixelDungeon.version();
 
         BitmapTextMultiline text;
         BitmapTextMultiline title;
@@ -59,10 +61,16 @@ public class WelcomeScene extends PixelScene {
             text = createMultiline(TXT_Welcome, 8);
             title = createMultiline(TTL_Welcome, 16);
 
-        } else if (gameversion <= Game.versionCode){
+        } else if (gameversion < 13){
+        
              text = createMultiline(TXT_LastVer, 6 );
              title = createMultiline(TTL_LastVer, 12 );
 
+        } else if (gameversion <= Game.versionCode) {
+
+            text = createMultiline(TXT_SameVer, 6 );
+            title = createMultiline(TTL_SameVer, 12 );
+            
         } else {
 
             text = createMultiline( TXT_Future, 8 );
