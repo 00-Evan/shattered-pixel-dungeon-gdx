@@ -118,8 +118,13 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		eventTouch.dispatch(pointers.remove(button).up());
-		return true;
+		Touch touch = pointers.remove(button);
+		if(touch != null) {
+			eventTouch.dispatch(touch.up());
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
