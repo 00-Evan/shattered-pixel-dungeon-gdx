@@ -33,7 +33,7 @@ public class AboutScene extends PixelScene {
 
     private static final String TXT_SHPX =
             "Design, Code, & Graphics: Evan\n\n" +
-            "LibGDX port: Pururigro\n\n" +
+            "LibGDX port: Prurigro\n\n" +
             "Shattered Pixel is Evan's online home, check it out:";
 
     private static final String LNK_SHPX = "ShatteredPixel.com";
