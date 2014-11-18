@@ -17,6 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import android.os.Build;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -25,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndStory;
 import com.watabou.noosa.BitmapText;
@@ -34,6 +36,7 @@ import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class InterlevelScene extends PixelScene {
@@ -43,6 +46,8 @@ public class InterlevelScene extends PixelScene {
 	private static final String TXT_DESCENDING	= "Descending...";
 	private static final String TXT_ASCENDING	= "Ascending...";
 	private static final String TXT_LOADING		= "Loading...";
+    private static final String TXT_L		    = "\n\n\nDue to an issue with Android L,\nThe game may need some\n" +
+            "extra time to load initially.\n\nSorry for any inconvenience,\nGoogle should fix this shortly.";
 	private static final String TXT_RESURRECTING= "Resurrecting...";
 	private static final String TXT_RETURNING	= "Returning...";
 	private static final String TXT_FALLING		= "Falling...";
@@ -76,7 +81,7 @@ public class InterlevelScene extends PixelScene {
 	@Override
 	public void create() {
 		super.create();
-		
+
 		String text = "";
 		switch (mode) {
 		case DESCEND:
@@ -104,10 +109,19 @@ public class InterlevelScene extends PixelScene {
 		message.x = (Camera.main.width - message.width()) / 2; 
 		message.y = (Camera.main.height - message.height()) / 2;
 		add( message );
+
+        if (Build.VERSION.RELEASE.equals("5.0") && Dungeon.hero == null && Dungeon.depth == 0){
+            BitmapText Lwarn = PixelScene.createMultiline(TXT_L, 9);
+            Lwarn.hardlight(Window.TITLE_COLOR);
+            Lwarn.measure();
+            Lwarn.x = (Camera.main.width - Lwarn.width()) / 2;
+            Lwarn.y = message.y;
+            add( Lwarn );
+        }
 		
 		phase = Phase.FADE_IN;
 		timeLeft = TIME_TO_FADE;
-		
+
 		thread = new Thread() {
 			@Override
 			public void run() {
@@ -115,13 +129,13 @@ public class InterlevelScene extends PixelScene {
 				try {
 					
 					Generator.reset();
-					
-					Sample.INSTANCE.load( 
+
+					Sample.INSTANCE.load(
 						Assets.SND_OPEN,
 						Assets.SND_UNLOCK,
 						Assets.SND_ITEM,
-						Assets.SND_DEWDROP, 
-						Assets.SND_HIT, 
+						Assets.SND_DEWDROP,
+						Assets.SND_HIT,
 						Assets.SND_MISS,
 						Assets.SND_STEP,
 						Assets.SND_WATER,
@@ -157,7 +171,7 @@ public class InterlevelScene extends PixelScene {
 						Assets.SND_GHOST,
 						Assets.SND_SECRET,
 						Assets.SND_BONES );
-					
+
 					switch (mode) {
 					case DESCEND:
 						descend();
@@ -186,11 +200,11 @@ public class InterlevelScene extends PixelScene {
 				} catch (FileNotFoundException e) {
 					
 					error = ERR_FILE_NOT_FOUND;
-					
-				} catch (Exception e ) {
-					
+
+				} catch (IOException e ) {
+
 					error = ERR_GENERIC;
-					
+
 				}
 				
 				if (phase == Phase.STATIC && error == null) {
@@ -246,8 +260,8 @@ public class InterlevelScene extends PixelScene {
 			break;
 		}
 	}
-	
-	private void descend() throws Exception {
+
+	private void descend() throws IOException {
 
         Level level;
         ArrayList<Item> fallingItems = new ArrayList<Item>();
@@ -290,7 +304,7 @@ public class InterlevelScene extends PixelScene {
 
 	}
 	
-	private void fall() throws Exception {
+	private void fall() throws IOException {
 
         Level level = Dungeon.level;
 
@@ -321,7 +335,7 @@ public class InterlevelScene extends PixelScene {
 		Dungeon.switchLevel( level, fallIntoPit ? level.pitCell() : level.randomRespawnCell() );
 	}
 	
-	private void ascend() throws Exception {
+	private void ascend() throws IOException {
 		Actor.fixTime();
 		
 		Dungeon.saveLevel();
@@ -330,7 +344,7 @@ public class InterlevelScene extends PixelScene {
 		Dungeon.switchLevel( level, level.exit );
 	}
 	
-	private void returnTo() throws Exception {
+	private void returnTo() throws IOException {
 		
 		Actor.fixTime();
 		
@@ -340,7 +354,7 @@ public class InterlevelScene extends PixelScene {
 		Dungeon.switchLevel( level, Level.resizingNeeded ? level.adjustPos( returnPos ) : returnPos );
 	}
 	
-	private void restore() throws Exception {
+	private void restore() throws IOException {
 		
 		Actor.fixTime();
 		
@@ -354,7 +368,7 @@ public class InterlevelScene extends PixelScene {
 		}
 	}
 	
-	private void resurrect() throws Exception {
+	private void resurrect() throws IOException {
 		
 		Actor.fixTime(); 
 		
