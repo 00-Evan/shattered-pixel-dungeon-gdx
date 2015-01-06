@@ -35,7 +35,7 @@ public enum Rankings {
 	
 	INSTANCE;
 	
-	public static final int TABLE_SIZE	= 6;
+	public static final int TABLE_SIZE	= 11;
 	
 	public static final String RANKINGS_FILE = "rankings.dat";
 	public static final String DETAILS_FILE = "game_%d.dat";
@@ -54,6 +54,8 @@ public enum Rankings {
 		rec.win		= win;
 		rec.heroClass	= Dungeon.hero.heroClass;
 		rec.armorTier	= Dungeon.hero.tier();
+		rec.herolevel	= Dungeon.hero.lvl;
+		rec.depth		= Dungeon.depth;
 		rec.score	= score( win );
 		
 		String gameFile = Utils.format( DETAILS_FILE, SystemTime.now );
@@ -70,7 +72,7 @@ public enum Rankings {
 		
 		lastRecord = records.indexOf( rec );
 		int size = records.size();
-		if (size > TABLE_SIZE) {
+		while (size > TABLE_SIZE) {
 			
 			Record removedGame;
 			if (lastRecord == size - 1) {
@@ -83,6 +85,8 @@ public enum Rankings {
 			if (removedGame.gameFile.length() > 0) {
 				Game.instance.deleteFile( removedGame.gameFile );
 			}
+
+			size = records.size();
 		}
 		
 		totalNumber++;
@@ -110,7 +114,7 @@ public enum Rankings {
 			OutputStream output = Game.instance.openFileOutput( RANKINGS_FILE );
 			Bundle.write( bundle, output );
 			output.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 		}
 	}
 	
@@ -136,8 +140,8 @@ public enum Rankings {
 			if (totalNumber == 0) {
 				totalNumber = records.size();
 			}
-			
-		} catch (Exception e) {
+
+		} catch (IOException e) {
 		}
 	}
 	
@@ -147,6 +151,8 @@ public enum Rankings {
 		private static final String WIN		= "win";
 		private static final String SCORE	= "score";
 		private static final String TIER	= "tier";
+		private static final String LEVEL	= "level";
+		private static final String DEPTH	= "depth";
 		private static final String GAME	= "gameFile";
 		
 		public String info;
@@ -154,6 +160,8 @@ public enum Rankings {
 		
 		public HeroClass heroClass;
 		public int armorTier;
+		public int herolevel; //not currently used, but I may want this here in the future.
+		public int depth;
 		
 		public int score;
 		
@@ -170,6 +178,25 @@ public enum Rankings {
 			armorTier	= bundle.getInt( TIER );
 			
 			gameFile	= bundle.getString( GAME );
+
+			//for pre 0.2.3 saves
+			if (!bundle.contains(LEVEL)){
+				try {
+					depth = Integer.parseInt(info.replaceAll("[\\D]", ""));
+				} catch (Exception e) {
+					depth = 0;
+				}
+				info = info.split("on level")[0].trim();
+				try {
+					Dungeon.loadGame(gameFile);
+					herolevel = Dungeon.hero.lvl;
+				} catch (Exception e){
+					herolevel = 0;
+				}
+			} else {
+				depth = bundle.getInt( DEPTH );
+				herolevel = bundle.getInt( LEVEL );
+			}
 		}
 		
 		@Override
@@ -181,6 +208,8 @@ public enum Rankings {
 			
 			heroClass.storeInBundle( bundle );
 			bundle.put( TIER, armorTier );
+			bundle.put( LEVEL, herolevel );
+			bundle.put( DEPTH, depth );
 			
 			bundle.put( GAME, gameFile );
 		}

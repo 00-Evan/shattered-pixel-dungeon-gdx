@@ -63,7 +63,7 @@ public enum HeroClass {
 	};
 	
 	public static final String[] ROG_PERKS = {
-		"Rogues start with a Cloak of Shadows.",
+		"Rogues start with a unique Cloak of Shadows.",
 		"Rogues identify a type of a ring on equipping it.",
 		"Rogues are proficient with light armor, dodging better while wearing one.",
 		"Rogues are proficient in detecting hidden doors and traps.",
@@ -158,7 +158,7 @@ public enum HeroClass {
         (hero.belongings.weapon = new Dagger()).identify();
 
         CloakOfShadows cloak = new CloakOfShadows();
-        hero.belongings.misc1 = cloak;
+        (hero.belongings.misc1 = cloak).identify();
         hero.belongings.misc1.activate( hero );
 
         new Dart( 8 ).identify().collect();

@@ -75,12 +75,10 @@ public class AttackIndicator extends Tag {
 		super.update();
 		
 		if (Dungeon.hero.isAlive()) {
-			
-			if (!Dungeon.hero.ready) {
-				enable( false );
-			}		
-			
-		} else {
+
+            enable(Dungeon.hero.ready);
+
+        } else {
 			visible( false );
 			enable( false );
 		}
@@ -140,6 +138,7 @@ public class AttackIndicator extends Tag {
 	private boolean enabled = true;
 	private void enable( boolean value ) {
 		enabled = value;
+        active = value;
 		if (sprite != null) {
 			sprite.alpha( value ? ENABLED : DISABLED );
 		}

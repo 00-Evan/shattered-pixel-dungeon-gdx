@@ -37,7 +37,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.*;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.*;
 import com.shatteredpixel.shatteredpixeldungeon.plants.*;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class Generator {
 
@@ -48,7 +53,7 @@ public class Generator {
 		SCROLL	( 400,	Scroll.class ),
 		WAND	( 40,	Wand.class ),
 		RING	( 15,	Ring.class ),
-        ARTIFACT( 20,    Artifact.class),
+        ARTIFACT( 20,   Artifact.class),
 		SEED	( 50,	Plant.Seed.class ),
 		FOOD	( 0,	Food.class ),
 		GOLD	( 500,	Gold.class );
@@ -185,8 +190,13 @@ public class Generator {
             HornOfPlenty.class,
             MasterThievesArmband.class,
             SandalsOfNature.class,
-            TalismanOfForesight.class};
-        Category.ARTIFACT.probs = new float[]{ 0, 1, 1, 1, 0, 1, 1 };
+            TalismanOfForesight.class,
+            TimekeepersHourglass.class,
+            UnstableSpellbook.class,
+            AlchemistsToolkit.class,
+            DriedRose.class //starts with no chance of spawning, chance is set directly after beating ghost quest.
+            };
+        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0 };
 		
 		Category.SEED.classes = new Class<?>[]{ 
 			Firebloom.Seed.class,
@@ -223,6 +233,10 @@ public class Generator {
 				return randomArmor();
 			case WEAPON:
 				return randomWeapon();
+            case ARTIFACT:
+                Item item = randomArtifact();
+                //if we're out of artifacts, return a ring instead.
+                return item != null ? item : random(Category.RING);
 			default:
 				return ((Item)cat.classes[Random.chances( cat.probs )].newInstance()).random();
 			}
@@ -247,7 +261,7 @@ public class Generator {
 	}
 
     public static Armor randomArmor(){
-        int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
+        int curStr = Hero.STARTING_STR + Dungeon.limitedDrops.strengthPotions.count;
 
         return randomArmor(curStr);
     }
@@ -270,7 +284,7 @@ public class Generator {
 	}
 
     public static Weapon randomWeapon(){
-        int curStr = Hero.STARTING_STR + Dungeon.potionOfStrength;
+        int curStr = Hero.STARTING_STR + Dungeon.limitedDrops.strengthPotions.count;
 
         return randomWeapon(curStr);
     }
@@ -291,4 +305,78 @@ public class Generator {
             return null;
         }
 	}
+
+    //enforces uniqueness of artifacts throughout a run.
+    public static Artifact randomArtifact() {
+
+        try {
+            Category cat = Category.ARTIFACT;
+            int i = Random.chances( cat.probs );
+
+            //if no artifacts are left, return null
+            if (i == -1){
+                return null;
+            }
+
+            Artifact artifact = (Artifact)cat.classes[i].newInstance();
+
+            //remove the chance of spawning this artifact.
+            cat.probs[i] = 0;
+            spawnedArtifacts.add(cat.classes[i].getSimpleName());
+
+            artifact.random();
+
+            return artifact;
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static boolean removeArtifact(Artifact artifact) {
+        if (spawnedArtifacts.contains(artifact.getClass().getSimpleName()))
+            return false;
+
+        Category cat = Category.ARTIFACT;
+        for (int i = 0; i < cat.classes.length; i++)
+            if (cat.classes[i].equals(artifact.getClass())) {
+                if (cat.probs[i] == 1){
+					cat.probs[i] = 0;
+					spawnedArtifacts.add(artifact.getClass().getSimpleName());
+					return true;
+				} else
+					return false;
+            }
+
+        return false;
+    }
+
+    //resets artifact probabilities, for new dungeons
+    public static void initArtifacts() {
+        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0 };
+        spawnedArtifacts = new ArrayList<String>();
+    }
+
+    private static ArrayList<String> spawnedArtifacts = new ArrayList<String>();
+
+    private static final String ARTIFACTS = "artifacts";
+
+    //used to store information on which artifacts have been spawned.
+    public static void storeInBundle(Bundle bundle) {
+        bundle.put( ARTIFACTS, spawnedArtifacts.toArray(new String[spawnedArtifacts.size()]));
+    }
+
+    public static void restoreFromBundle(Bundle bundle) {
+        initArtifacts();
+
+        if (bundle.contains(ARTIFACTS)) {
+            Collections.addAll(spawnedArtifacts, bundle.getStringArray(ARTIFACTS));
+            Category cat = Category.ARTIFACT;
+
+            for (String artifact : spawnedArtifacts)
+                for (int i = 0; i < cat.classes.length; i++)
+                    if (cat.classes[i].getSimpleName().equals(artifact))
+                        cat.probs[i] = 0;
+        }
+    }
 }

@@ -22,6 +22,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
@@ -64,11 +66,9 @@ public class Hunger extends Buff implements Hero.Doom {
 			if (isStarving()) {
 
 				if (Random.Float() < 0.3f && (target.HP > 1 || !target.paralysed)) {
-					
-					GLog.n( TXT_STARVING );
+
 					hero.damage( 1, this );
-					
-					hero.interrupt();
+
 				}
 			} else {
 				
@@ -77,6 +77,7 @@ public class Hunger extends Buff implements Hero.Doom {
 				if (newLevel >= STARVING) {
 					
 					GLog.n( TXT_STARVING );
+					hero.damage( 1, this );
 					statusUpdated = true;
 					
 					hero.interrupt();
@@ -108,6 +109,11 @@ public class Hunger extends Buff implements Hero.Doom {
 	}
 	
 	public void satisfy( float energy ) {
+		Artifact.ArtifactBuff buff = target.buff( HornOfPlenty.hornRecharge.class );
+		if (buff != null && buff.isCursed()){
+			energy = Math.round(energy*0.67f);
+			GLog.n("The cursed horn steals some of the food energy as you eat.");
+		}
 		level -= energy;
 		if (level < 0) {
 			level = 0;
@@ -147,7 +153,7 @@ public class Hunger extends Buff implements Hero.Doom {
 		
 		Badges.validateDeathFromHunger();
 		
-		Dungeon.fail( Utils.format( ResultDescriptions.HUNGER, Dungeon.depth ) );
+		Dungeon.fail( ResultDescriptions.HUNGER );
 		GLog.n( TXT_DEATH );
 	}
 }

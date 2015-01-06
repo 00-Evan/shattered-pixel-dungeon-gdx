@@ -5,18 +5,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
-import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
@@ -28,12 +23,16 @@ public class TalismanOfForesight extends Artifact {
     {
         name = "Talisman of Foresight";
         image = ItemSpriteSheet.ARTIFACT_TALISMAN;
+
         level = 0;
-        levelCap = 10;
-        charge = 0;
         exp = 0;
+        levelCap = 10;
+
+        charge = 0;
         partialCharge = 0;
         chargeCap = 100;
+
+        defaultAction = AC_SCRY;
     }
 
     public static final String AC_SCRY = "SCRY";
@@ -41,7 +40,7 @@ public class TalismanOfForesight extends Artifact {
     @Override
     public ArrayList<String> actions( Hero hero ) {
         ArrayList<String> actions = super.actions( hero );
-        if (isEquipped( hero ) && charge == 100)
+        if (isEquipped( hero ) && charge == 100 && !cursed)
             actions.add(AC_SCRY);
         return actions;
     }
@@ -50,34 +49,33 @@ public class TalismanOfForesight extends Artifact {
     public void execute( Hero hero, String action ) {
         super.execute(hero, action);
         if (action.equals(AC_SCRY)){
-            hero.sprite.operate( hero.pos );
-            hero.busy();
-            Sample.INSTANCE.play( Assets.SND_BEACON );
-            charge = 0;
-            for (int i=0; i < Level.LENGTH; i++) {
 
-                int terr = Dungeon.level.map[i];
-                if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
+            if (!isEquipped(hero))        GLog.i("You need to equip your talisman to do that.");
+            else if (charge != chargeCap) GLog.i("Your talisman isn't full charged yet.");
+            else {
+                hero.sprite.operate(hero.pos);
+                hero.busy();
+                Sample.INSTANCE.play(Assets.SND_BEACON);
+                charge = 0;
+                for (int i = 0; i < Level.LENGTH; i++) {
 
-                    GameScene.updateMap( i );
+                    int terr = Dungeon.level.map[i];
+                    if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
 
-                    if (Dungeon.visible[i]) {
-                        GameScene.discoverTile( i, terr );
+                        GameScene.updateMap(i);
+
+                        if (Dungeon.visible[i]) {
+                            GameScene.discoverTile(i, terr);
+                        }
                     }
                 }
+
+                GLog.p("The Talisman floods your mind with knowledge about the current floor.");
+
+                Buff.affect(hero, Awareness.class, Awareness.DURATION);
+                Dungeon.observe();
             }
-
-            GLog.p ("The Talisman floods your mind with knowledge about the current floor.");
-
-            Buff.affect(hero, Awareness.class, Awareness.DURATION);
-            Dungeon.observe();
-
         }
-    }
-
-    @Override
-    public String status() {
-            return Utils.format("%d%%", charge);
     }
 
     @Override
@@ -90,10 +88,14 @@ public class TalismanOfForesight extends Artifact {
         String desc = "A smooth stone, almost too big for your pocket or hand, with strange engravings on it. " +
                 "You feel like it's watching you, assessing your every move.";
         if ( isEquipped( Dungeon.hero ) ){
-            desc += "\n\nWhen you hold the talisman you feel like your senses are heightened.";
-            if (charge == 100)
-                desc += "\n\nThe talisman is radiating energy, prodding at your mind. You wonder what would " +
-                        "happen if you let it in.";
+            if (!cursed) {
+                desc += "\n\nWhen you hold the talisman you feel like your senses are heightened.";
+                if (charge == 100)
+                    desc += "\n\nThe talisman is radiating energy, prodding at your mind. You wonder what would " +
+                            "happen if you let it in.";
+            } else {
+                desc += "\n\nThe cursed talisman is intently staring into you, making it impossible to concentrate.";
+            }
         }
 
         return desc;
@@ -137,7 +139,7 @@ public class TalismanOfForesight extends Artifact {
                 }
             }
 
-            if (smthFound == true){
+            if (smthFound == true && !cursed){
                 if (warn == 0){
                     GLog.w("You feel uneasy.");
                     if (target instanceof Hero){
@@ -152,10 +154,9 @@ public class TalismanOfForesight extends Artifact {
             }
             BuffIndicator.refreshHero();
 
-            //fully charges in 2400 turns at lvl=0, scaling to 800 turns at lvl = 10.
-            if (charge < 100) {
-                partialCharge += (1f / 24) + (((float) level) / 80);
-
+            //fully charges in 2500 turns at lvl=0, scaling to 1000 turns at lvl = 10.
+            if (charge < 100 && !cursed) {
+                partialCharge += 0.04+(level*0.006);
 
                 if (partialCharge > 1 && charge < 100) {
                     partialCharge--;
@@ -170,12 +171,12 @@ public class TalismanOfForesight extends Artifact {
         }
 
         public void charge(){
-            charge = Math.min(charge+4, chargeCap);
+            charge = Math.min(charge+(2+(level/3)), chargeCap);
             exp++;
-            if (exp >= 5 && level < levelCap) {
+            if (exp >= 4 && level < levelCap) {
                 upgrade();
                 GLog.p("Your Talisman grows stronger!");
-                exp -= 5;
+                exp -= 4;
             }
         }
 

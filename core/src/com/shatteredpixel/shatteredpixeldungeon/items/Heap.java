@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
@@ -34,16 +35,26 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 public class Heap implements Bundlable {
 
@@ -272,43 +283,63 @@ public class Heap implements Bundlable {
 			}
 		}
 
-         if (count >= SEEDS_TO_POTION) {
-			
+		//alchemists toolkit gives a chance to cook a potion in two or even one seeds
+		AlchemistsToolkit.alchemy alchemy = Dungeon.hero.buff(AlchemistsToolkit.alchemy.class);
+		int bonus = alchemy != null ? alchemy.level() : -1;
+
+		if (bonus != -1 ? alchemy.tryCook(count) : count >= SEEDS_TO_POTION) {
+
 			CellEmitter.get( pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 			Sample.INSTANCE.play( Assets.SND_PUFF );
-			
-			if (Random.Int( count ) == 0) {
-				
+
+            Item potion;
+
+			if (Random.Int( count + bonus ) == 0) {
+
 				CellEmitter.center( pos ).burst( Speck.factory( Speck.EVOKE ), 3 );
-				
+
 				destroy();
-				
+
 				Statistics.potionsCooked++;
 				Badges.validatePotionsCooked();
-				
-				return Generator.random( Generator.Category.POTION );
-				
+
+                potion = Generator.random( Generator.Category.POTION );
+
 			} else {
-				
+
 				Seed proto = (Seed)items.get( Random.chances( chances ) );
 				Class<? extends Item> itemClass = proto.alchemyClass;
-				
+
 				destroy();
-				
+
 				Statistics.potionsCooked++;
 				Badges.validatePotionsCooked();
-				
+
 				if (itemClass == null) {
-					return Generator.random( Generator.Category.POTION );
+                    potion =  Generator.random( Generator.Category.POTION );
 				} else {
 					try {
+                        potion =  itemClass.newInstance();
 						return ClassReflection.newInstance(itemClass);
 					} catch (Exception e) {
 						return null;
 					}
 				}
-			}		
-			
+			}
+
+			//not a buff per-se, meant to cancel out higher potion accuracy when ppl are farming for potions of exp.
+			if (bonus > 0)
+				if (Random.Int(1000/bonus) == 0)
+					return new PotionOfExperience();
+
+            while (potion instanceof PotionOfHealing && Random.Int(15) - Dungeon.limitedDrops.cookingHP.count >= 0)
+                potion = Generator.random( Generator.Category.POTION );
+
+            if (potion instanceof PotionOfHealing)
+                Dungeon.limitedDrops.cookingHP.count++;
+
+            return potion;
+
 		} else {
 			return null;
 		}

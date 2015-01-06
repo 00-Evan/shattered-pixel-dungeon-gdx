@@ -22,9 +22,15 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
+import java.util.HashSet;
+
 public class Buff extends Actor {
 	
 	public Char target;
+
+    public HashSet<Class<?>> resistances = new HashSet<Class<?>>();
+
+    public HashSet<Class<?>> immunities = new HashSet<Class<?>>();
 	
 	public boolean attachTo( Char target ) {
 

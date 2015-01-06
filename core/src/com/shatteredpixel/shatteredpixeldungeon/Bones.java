@@ -18,8 +18,10 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
 import com.watabou.noosa.Game;
@@ -143,6 +145,26 @@ public class Bones {
 			if (depth == Dungeon.depth && Dungeon.challenges == 0) {
 				Game.instance.deleteFile( BONES_FILE );
 				depth = 0;
+
+                if (item instanceof Artifact){
+                    if (Generator.removeArtifact((Artifact)item)) {
+                        try {
+                            Artifact artifact = (Artifact)item.getClass().newInstance();
+                            artifact.cursed = true;
+                            artifact.cursedKnown = true;
+                            //caps displayed artifact level
+                            artifact.transferUpgrade(Math.min(
+                                    item.visiblyUpgraded(),
+                                    1 + ((Dungeon.depth * 3) / 10)));
+
+                            return item;
+                        } catch (Exception e) {
+                            return new Gold(item.price());
+                        }
+                    } else {
+                        return new Gold(item.price());
+                    }
+                }
 				
 				if (item.isUpgradable()) {
 					item.cursed = true;

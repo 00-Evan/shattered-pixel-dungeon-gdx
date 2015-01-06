@@ -17,6 +17,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.features;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Sample;
@@ -67,6 +69,12 @@ public class Chasm {
 		jumpConfirmed = false;
 				
 		Sample.INSTANCE.play( Assets.SND_FALLING );
+
+		Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+		if (buff != null) buff.detach();
+
+        for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
+            if (mob instanceof DriedRose.GhostHero) mob.destroy();
 		
 		if (Dungeon.hero.isAlive()) {
 			Dungeon.hero.interrupt();
@@ -96,7 +104,7 @@ public class Chasm {
 			public void onDeath() {
 				Badges.validateDeathFromFalling();
 				
-				Dungeon.fail( Utils.format( ResultDescriptions.FALL, Dungeon.depth ) );
+				Dungeon.fail( ResultDescriptions.FALL );
 				GLog.n( "You fell to death..." );
 			}
 		} );

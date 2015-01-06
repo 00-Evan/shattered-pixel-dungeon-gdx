@@ -12,7 +12,6 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.Camera;
 import com.watabou.utils.Bundle;
@@ -28,10 +27,13 @@ public class SandalsOfNature extends Artifact {
     {
         name = "Sandals of Nature";
         image = ItemSpriteSheet.ARTIFACT_SANDALS;
+
         level = 0;
         levelCap = 3;
+
         charge = 0;
-        //partialcharge, chargeCap and exp are unused
+
+        defaultAction = AC_ROOT;
     }
 
     public static final String[] NAMES = {"Sandals of Nature", "Shoes of Nature",
@@ -48,7 +50,7 @@ public class SandalsOfNature extends Artifact {
     @Override
     public ArrayList<String> actions( Hero hero ) {
         ArrayList<String> actions = super.actions( hero );
-        if (isEquipped( hero ) && level < 3)
+        if (isEquipped( hero ) && level < 3 && !cursed)
             actions.add(AC_FEED);
         if (isEquipped( hero ) && charge > 0)
             actions.add(AC_ROOT);
@@ -60,23 +62,18 @@ public class SandalsOfNature extends Artifact {
         super.execute(hero, action);
         if (action.equals(AC_FEED)){
             GameScene.selectItem(itemSelector, mode, inventoryTitle);
-        } else if (action.equals(AC_ROOT)){
-            if (charge > 0){
-                Buff.prolong( hero, Roots.class, 5);
-                Buff.affect( hero, Earthroot.Armor.class ).level( charge );
+        } else if (action.equals(AC_ROOT) && level > 0){
+
+            if (!isEquipped( hero )) GLog.i("You need to equip them to do that.");
+            else if (charge == 0)    GLog.i("They have no energy right now.");
+            else {
+                Buff.prolong(hero, Roots.class, 5);
+                Buff.affect(hero, Earthroot.Armor.class).level(charge);
                 CellEmitter.bottom(hero.pos).start(EarthParticle.FACTORY, 0.05f, 8);
-                Camera.main.shake( 1, 0.4f );
+                Camera.main.shake(1, 0.4f);
                 charge = 0;
             }
         }
-    }
-
-    @Override
-    public String status() {
-        if (charge > 0)
-            return Utils.format("%d", charge);
-        else
-            return null;
     }
 
     @Override
@@ -104,8 +101,12 @@ public class SandalsOfNature extends Artifact {
 
         if ( isEquipped ( Dungeon.hero ) ){
             desc += "\n\n";
-            if (level == 0)
-                desc += "The sandals wrap snugly around your feet, they seem happy to be worn.";
+            if (level == 0) {
+                if (!cursed)
+                    desc += "The sandals wrap snugly around your feet, they seem happy to be worn.";
+                else
+                    desc += "The cursed sandals wrap tightly around your feet.";
+            }
             else if (level == 1)
                 desc += "The shoes fit on loosely but quickly tighten to make a perfect fit.";
             else if (level == 2)
@@ -113,7 +114,10 @@ public class SandalsOfNature extends Artifact {
             else
                 desc += "The greaves are thick and weighty, but very easy to move in, as if they are moving with you.";
 
-            desc += " You feel more attuned with nature while wearing them.";
+            if (!cursed)
+                desc += " You feel more attuned with nature while wearing them.";
+            else
+                desc += " They are blocking any attunement with nature.";
 
             if (level > 0)
                 desc += "\n\nThe footwear has gained the ability to form up into a sort of immobile natural armour, " +
@@ -131,6 +135,20 @@ public class SandalsOfNature extends Artifact {
         }
 
         return desc;
+    }
+
+    @Override
+    public Item upgrade() {
+        if (level < 0)
+            image = ItemSpriteSheet.ARTIFACT_SANDALS;
+        else if (level == 0)
+            image = ItemSpriteSheet.ARTIFACT_SHOES;
+        else if (level == 1)
+            image = ItemSpriteSheet.ARTIFACT_BOOTS;
+        else if (level >= 2)
+            image = ItemSpriteSheet.ARTIFACT_GREAVES;
+        name = NAMES[level+1];
+        return super.upgrade();
     }
 
 
@@ -153,11 +171,10 @@ public class SandalsOfNature extends Artifact {
     }
 
     public class Naturalism extends ArtifactBuff{
-        public int level() { return level; }
         public void charge() {
-            if (charge < 25*level){
-                charge++;
-
+            if (charge < target.HT){
+                //gain 1+(1*level)% of the difference between current charge and max HP.
+                charge+= (Math.round( (target.HT-charge) * (.01+ level*0.01) ));
             }
         }
     }
@@ -179,17 +196,9 @@ public class SandalsOfNature extends Artifact {
                         seeds.clear();
                         upgrade();
                         if (level >= 1 && level <= 3) {
-                            GLog.p("Your " + name + " surge in size, they are now " + NAMES[level] + "!");
-                            name = NAMES[level];
+                            GLog.p("Your " + NAMES[level-1] + " surge in size, they are now " + NAMES[level] + "!");
                         }
-                        if (level <= 0)
-                            image = ItemSpriteSheet.ARTIFACT_SANDALS;
-                        else if (level == 1)
-                            image = ItemSpriteSheet.ARTIFACT_SHOES;
-                        else if (level == 2)
-                            image = ItemSpriteSheet.ARTIFACT_BOOTS;
-                        else if (level >= 3)
-                            image = ItemSpriteSheet.ARTIFACT_GREAVES;
+
                     } else {
                         GLog.i("Your " + name + " absorb the seed, they seem healthier.");
                     }

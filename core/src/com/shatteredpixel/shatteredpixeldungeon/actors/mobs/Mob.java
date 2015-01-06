@@ -17,8 +17,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.HashSet;
-
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
@@ -34,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -41,6 +40,8 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public abstract class Mob extends Char {
 	
@@ -73,6 +74,7 @@ public abstract class Mob extends Char {
 	protected static final float TIME_TO_WAKE_UP = 1f;
 	
 	public boolean hostile = true;
+	public boolean ally = false;
 	
 	// Unreachable target
 	public static final Mob DUMMY = new Mob() {
@@ -101,6 +103,7 @@ public abstract class Mob extends Char {
         } else if (state == PASSIVE) {
             bundle.put( STATE, Passive.TAG );
         }
+		bundle.put( SEEN, enemySeen );
         bundle.put( TARGET, target );
 	}
 	
@@ -121,6 +124,8 @@ public abstract class Mob extends Char {
         } else if (state.equals( Passive.TAG )) {
             this.state = PASSIVE;
         }
+
+		enemySeen = bundle.getBoolean( SEEN );
 
         target = bundle.getInt( TARGET );
     }
@@ -158,31 +163,60 @@ public abstract class Mob extends Char {
 	}
 	
 	protected Char chooseEnemy() {
-		
-		if (buff( Amok.class ) != null) {
-			if (enemy == Dungeon.hero || enemy == null) {
-				
-				HashSet<Mob> enemies = new HashSet<Mob>();
-				for (Mob mob:Dungeon.level.mobs) {
-					if (mob != this && Level.fieldOfView[mob.pos]) {
-						enemies.add( mob );
-					}
-				}
-				if (enemies.size() > 0) {
-					return Random.element( enemies );
-				}
-				
-			} else {
-				return enemy;
-			}
-		}
-		
+
 		Terror terror = (Terror)buff( Terror.class );
 		if (terror != null) {
 			return terror.source;
 		}
-		
-		return Dungeon.hero;
+
+		//resets target if: the target is dead, the target has been lost (wandering)
+		//or if the mob is amoked and targeting a friendly (will try to target something else)
+		if ( enemy != null &&
+				!enemy.isAlive() || state == WANDERING ||
+				(buff( Amok.class ) != null && (enemy == Dungeon.hero || (enemy instanceof Mob && ((Mob)enemy).ally))))
+			enemy = null;
+
+		//if there is no current target, find a new one.
+		if (enemy == null) {
+
+			HashSet<Char> enemies = new HashSet<Char>();
+
+			//if the mob is amoked...
+			if ( buff(Amok.class) != null ) {
+
+				//try to find an enemy mob to attack first.
+				for (Mob mob : Dungeon.level.mobs)
+					if (mob != this && Level.fieldOfView[mob.pos] && mob.hostile)
+							enemies.add(mob);
+				if (enemies.size() > 0) return Random.element(enemies);
+
+				//try to find ally mobs to attack second.
+				for (Mob mob : Dungeon.level.mobs)
+					if (mob != this && Level.fieldOfView[mob.pos] && mob.ally)
+						enemies.add(mob);
+				if (enemies.size() > 0) return Random.element(enemies);
+
+				//if there is nothing, go for the hero.
+				return Dungeon.hero;
+
+			//if the mob is not amoked...
+			} else {
+
+				//try to find ally mobs to attack.
+				for (Mob mob : Dungeon.level.mobs)
+					if (mob != this && Level.fieldOfView[mob.pos] && mob.ally)
+						enemies.add(mob);
+
+				//and add the hero to the list of targets.
+				enemies.add(Dungeon.hero);
+
+				//target one at random.
+				return Random.element(enemies);
+
+			}
+
+		} else
+			return enemy;
 	}
 
 	protected boolean moveSprite( int from, int to ) {
@@ -254,8 +288,15 @@ public abstract class Mob extends Char {
 			return false;
 		}
 	}
-	
-	@Override
+
+    @Override
+    public void updateSpriteState() {
+        super.updateSpriteState();
+        if (Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class) != null)
+            sprite.add( CharSprite.State.PARALYSED );
+    }
+
+    @Override
 	public void move( int step ) {
 		super.move( step );
 		
@@ -297,7 +338,7 @@ public abstract class Mob extends Char {
             for (Buff buff : enemy.buffs(RingOfAccuracy.Accuracy.class)) {
                 penalty += ((RingOfAccuracy.Accuracy) buff).level;
             }
-            if (penalty != 0)
+            if (penalty != 0 && enemy == Dungeon.hero)
                 defenseSkill *= Math.pow(0.75, penalty);
             return defenseSkill;
         } else {
@@ -361,9 +402,19 @@ public abstract class Mob extends Char {
 	public void die( Object cause ) {
 		
 		super.die( cause );
+
+        float lootChance = this.lootChance;
+        int bonus = 0;
+        for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
+            bonus += ((RingOfWealth.Wealth) buff).level;
+        }
+
+        lootChance *= Math.pow(1.1, bonus);
 		
-		if (Dungeon.hero.lvl <= maxLvl + 2) {
-			dropLoot();
+		if (Random.Float() < lootChance && Dungeon.hero.lvl <= maxLvl + 2) {
+            Item loot = createLoot();
+            if (loot != null)
+                Dungeon.level.drop( loot , pos ).sprite.drop();
 		}
 		
 		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {	
@@ -375,32 +426,22 @@ public abstract class Mob extends Char {
 	protected float lootChance = 0;
 	
 	@SuppressWarnings("unchecked")
-	protected void dropLoot() {
-        float lootChance = this.lootChance;
-        int bonus = 0;
-        for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
-            bonus += ((RingOfWealth.Wealth) buff).level;
+	protected Item createLoot() {
+        Item item;
+        if (loot instanceof Generator.Category) {
+
+            item = Generator.random( (Generator.Category)loot );
+
+        } else if (loot instanceof Class<?>) {
+
+            item = Generator.random( (Class<? extends Item>)loot );
+
+        } else {
+
+            item = (Item)loot;
+
         }
-
-        lootChance *= Math.pow(1.1, bonus);
-
-		if (loot != null && Random.Float() < lootChance) {
-			Item item = null;
-			if (loot instanceof Generator.Category) {
-				
-				item = Generator.random( (Generator.Category)loot );
-				
-			} else if (loot instanceof Class<?>) {
-				
-				item = Generator.random( (Class<? extends Item>)loot );
-				
-			} else {
-				
-				item = (Item)loot;
-				
-			}
-			Dungeon.level.drop( item, pos ).sprite.drop();
-		}
+        return item;
 	}
 	
 	public boolean reset() {
@@ -427,6 +468,11 @@ public abstract class Mob extends Char {
 	
 	public void yell( String str ) {
 		GLog.n( "%s: \"%s\" ", name, str );
+	}
+
+	//returns true when a mob sees the hero, and is currently targeting them.
+	public boolean focusingHero() {
+		return enemySeen && (target == Dungeon.hero.pos);
 	}
 
     public interface AiState {

@@ -39,10 +39,9 @@ public enum Icons {
 	HUNTRESS,
 	CLOSE,
 	DEPTH,
+	DEPTH_LG,
 	SLEEP,
 	ALERT,
-	SUPPORT,
-	SUPPORTED,
 	BACKPACK,
 	SEED_POUCH,
 	SCROLL_HOLDER,
@@ -108,17 +107,14 @@ public enum Icons {
 		case DEPTH:
 			icon.frame( icon.texture.uvRect( 45, 12, 54, 20 ) );
 			break;
+		case DEPTH_LG:
+			icon.frame( icon.texture.uvRect( 34, 46, 50, 62 ) );
+			break;
 		case SLEEP:
 			icon.frame( icon.texture.uvRect( 13, 45, 22, 53 ) );
 			break;
 		case ALERT:
 			icon.frame( icon.texture.uvRect( 22, 45, 30, 53 ) );
-			break;
-		case SUPPORT:
-			icon.frame( icon.texture.uvRect( 30, 45, 46, 61 ) );
-			break;
-		case SUPPORTED:
-			icon.frame( icon.texture.uvRect( 46, 45, 62, 61 ) );
 			break;
 		case BACKPACK:
 			icon.frame( icon.texture.uvRect( 58, 0, 68, 10 ) );

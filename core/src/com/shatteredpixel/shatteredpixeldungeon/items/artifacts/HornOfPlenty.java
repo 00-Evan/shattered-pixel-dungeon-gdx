@@ -15,7 +15,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.noosa.audio.Sample;
 
@@ -30,10 +29,15 @@ public class HornOfPlenty extends Artifact {
     {
         name = "Horn of Plenty";
         image = ItemSpriteSheet.ARTIFACT_HORN1;
+
         level = 0;
         levelCap = 30;
+
         charge = 0;
+        partialCharge = 0;
         chargeCap = 10;
+
+        defaultAction = AC_EAT;
     }
 
     private static final float TIME_TO_EAT	= 3f;
@@ -46,14 +50,12 @@ public class HornOfPlenty extends Artifact {
     protected String inventoryTitle = "Select a piece of food";
     protected WndBag.Mode mode = WndBag.Mode.FOOD;
 
-    private static final String TXT_STATUS	= "%d/%d";
-
     @Override
     public ArrayList<String> actions( Hero hero ) {
         ArrayList<String> actions = super.actions( hero );
         if (isEquipped( hero ) && charge > 0)
             actions.add(AC_EAT);
-        if (isEquipped( hero ) && level < 30)
+        if (isEquipped( hero ) && level < 30 && !cursed)
             actions.add(AC_STORE);
         return actions;
     }
@@ -63,41 +65,46 @@ public class HornOfPlenty extends Artifact {
         super.execute(hero, action);
 
         if (action.equals(AC_EAT)){
-            ((Hunger)hero.buff( Hunger.class )).satisfy( energy*charge );
 
-            //if you get at least 100 food energy from the horn
-            if (charge >= 3){
-                switch (hero.heroClass) {
-                    case WARRIOR:
-                        if (hero.HP < hero.HT) {
-                            hero.HP = Math.min( hero.HP + 5, hero.HT );
-                            hero.sprite.emitter().burst( Speck.factory(Speck.HEALING), 1 );
-                        }
-                        break;
-                    case MAGE:
-                        hero.belongings.charge( false );
-                        ScrollOfRecharging.charge(hero);
-                        break;
-                    case ROGUE:
-                    case HUNTRESS:
-                        break;
+            if (!isEquipped(hero)) GLog.i("You need to equip your horn to do that.");
+            else if (charge == 0)  GLog.i("Your horn has no food in it to eat!");
+            else {
+                ((Hunger) hero.buff(Hunger.class)).satisfy(energy * charge);
+
+                //if you get at least 100 food energy from the horn
+                if (charge >= 3) {
+                    switch (hero.heroClass) {
+                        case WARRIOR:
+                            if (hero.HP < hero.HT) {
+                                hero.HP = Math.min(hero.HP + 5, hero.HT);
+                                hero.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);
+                            }
+                            break;
+                        case MAGE:
+                            hero.belongings.charge(false);
+                            ScrollOfRecharging.charge(hero);
+                            break;
+                        case ROGUE:
+                        case HUNTRESS:
+                            break;
+                    }
+
+                    Statistics.foodEaten++;
                 }
+                charge = 0;
 
-                Statistics.foodEaten++;
+                hero.sprite.operate(hero.pos);
+                hero.busy();
+                SpellSprite.show(hero, SpellSprite.FOOD);
+                Sample.INSTANCE.play(Assets.SND_EAT);
+                GLog.i("You eat from the horn.");
+
+                hero.spend(TIME_TO_EAT);
+
+                Badges.validateFoodEaten();
+
+                image = ItemSpriteSheet.ARTIFACT_HORN1;
             }
-            charge = 0;
-
-            hero.sprite.operate( hero.pos );
-            hero.busy();
-            SpellSprite.show(hero, SpellSprite.FOOD);
-            Sample.INSTANCE.play( Assets.SND_EAT );
-            GLog.i("You eat from the horn.");
-
-            hero.spend( TIME_TO_EAT );
-
-            Badges.validateFoodEaten();
-
-            image = ItemSpriteSheet.ARTIFACT_HORN1;
 
         } else if (action.equals(AC_STORE)){
 
@@ -126,29 +133,29 @@ public class HornOfPlenty extends Artifact {
             desc += "The horn is overflowing! A delicious array of fruit and veg is filling the horn up to its brim.";
 
         if ( isEquipped( Dungeon.hero ) ){
-            desc += "\n\nThe horn rests at your side and is surprisingly lightweight, even with food in it.";
+            if (!cursed) {
+                desc += "\n\nThe horn rests at your side and is surprisingly lightweight, even with food in it.";
 
-            if (level < 15)
-                desc += " Perhaps there is a way to increase the horn's power by giving it food energy.";
+                if (level < 15)
+                    desc += " Perhaps there is a way to increase the horn's power by giving it food energy.";
+            } else {
+                desc += "\n\nThe cursed horn has bound itself to your side, " +
+                        "it seems to be eager to take food rather than produce it.";
+            }
         }
 
         return desc;
-    }
-
-    @Override
-    public String status() {
-        return Utils.format(TXT_STATUS, charge, chargeCap);
     }
 
     public class hornRecharge extends ArtifactBuff{
 
         @Override
         public boolean act() {
-            if (charge < chargeCap) {
+            if (charge < chargeCap && !cursed) {
 
-                //generates 0.2 food value every round, +0.01667 value per level
-                //to a max of ~0.7 food value per round (0.2+~0.5, at level 30)
-                partialCharge += 0.2f + (0.01667f*level);
+                //generates 0.25 food value every round, +0.015 value per level
+                //to a max of 0.70 food value per round (0.25+0.5, at level 30)
+                partialCharge += 0.25f + (0.015f*level);
 
                 //charge is in increments of 36 food value.
                 if (partialCharge >= 36) {

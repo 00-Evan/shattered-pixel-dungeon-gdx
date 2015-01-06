@@ -1,11 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Random;
 
 /**
@@ -16,21 +12,14 @@ public class MasterThievesArmband extends Artifact {
     {
         name = "Master Thieves' Armband";
         image = ItemSpriteSheet.ARTIFACT_ARMBAND;
+
         level = 0;
         levelCap = 10;
+
         charge = 0;
-        //partialcharge and chargeCap are unused
     }
 
     private int exp = 0;
-
-    @Override
-    public String status() {
-        if (charge > 0)
-            return Utils.format("%d", charge);
-        else
-            return null;
-    }
 
     @Override
     protected ArtifactBuff passiveBuff() {
@@ -55,6 +44,12 @@ public class MasterThievesArmband extends Artifact {
             charge += gold/2;
         }
 
+        @Override
+        public void detach() {
+            charge /= 0.80;
+            super.detach();
+        }
+
         public boolean steal(int value){
             if (value <= charge){
                 charge -= value;
@@ -72,8 +67,8 @@ public class MasterThievesArmband extends Artifact {
                     exp += value;
                 }
             }
-            while(exp >= 500 && level < levelCap) {
-                exp -= 500;
+            while(exp >= 600 && level < levelCap) {
+                exp -= 600;
                 upgrade();
             }
             return true;

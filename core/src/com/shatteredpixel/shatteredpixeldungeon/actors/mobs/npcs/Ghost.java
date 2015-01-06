@@ -41,7 +41,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
-import com.shatteredpixel.shatteredpixeldungeon.items.quest.RatSkull;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.CurareDart;
@@ -57,6 +56,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.GhostSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GnollTricksterSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GreatCrabSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndSadGhost;
 import com.watabou.noosa.audio.Sample;
@@ -77,7 +77,7 @@ public class Ghost extends NPC {
 	}
 	
 	private static final String TXT_RAT1	=
-            "Hello adventurer... Once I was like you - strong and confident... " +
+            "Hello %s... Once I was like you - strong and confident... " +
             "But I was slain by a foul beast... I can't leave this place... Not until I have my revenge... " +
             "Slay the _fetid rat_, that has taken my life...\n\n" +
             "It stalks this floor... Spreading filth everywhere... " +
@@ -88,7 +88,7 @@ public class Ghost extends NPC {
             "_Fight it near water... Avoid the stench..._";
 
     private static final String TXT_GNOLL1	=
-            "Hello adventurer... Once I was like you - strong and confident... " +
+            "Hello %s... Once I was like you - strong and confident... " +
             "But I was slain by a devious foe... I can't leave this place... Not until I have my revenge... " +
             "Slay the _gnoll trickster_, that has taken my life...\n\n" +
             "It is not like the other gnolls... It hides and uses thrown weapons... " +
@@ -99,7 +99,7 @@ public class Ghost extends NPC {
             "_Don't let it hit you... Get near to it..._";
 
     private static final String TXT_CRAB1	=
-            "Hello adventurer... Once I was like you - strong and confident... " +
+            "Hello %s... Once I was like you - strong and confident... " +
             "But I was slain by an ancient creature... I can't leave this place... Not until I have my revenge... " +
             "Slay the _great crab_, that has taken my life...\n\n" +
             "It is unnaturally old... With a massive single claw and a thick shell... " +
@@ -156,7 +156,7 @@ public class Ghost extends NPC {
 		
 		if (Quest.given) {
 			if (Quest.weapon != null) {
-                if (Quest.processed || Dungeon.hero.belongings.getItem(RatSkull.class) != null) {
+                if (Quest.processed) {
                     GameScene.show(new WndSadGhost(this, Quest.type));
                 } else {
                     switch (Quest.type) {
@@ -197,13 +197,13 @@ public class Ghost extends NPC {
             switch (Quest.type){
                 case 1: default:
                     questBoss = new FetidRat();
-                    txt_quest = TXT_RAT1; break;
+                    txt_quest = Utils.format(TXT_RAT1, Dungeon.hero.givenName()); break;
                 case 2:
                     questBoss = new GnollTrickster();
-                    txt_quest = TXT_GNOLL1; break;
+                    txt_quest = Utils.format(TXT_GNOLL1, Dungeon.hero.givenName()); break;
                 case 3:
                     questBoss = new GreatCrab();
-                    txt_quest = TXT_CRAB1; break;
+                    txt_quest = Utils.format(TXT_CRAB1, Dungeon.hero.givenName()); break;
             }
 
             questBoss.pos = Dungeon.level.randomRespawnCell();
@@ -245,7 +245,6 @@ public class Ghost extends NPC {
         private static int type;
 
 		private static boolean given;
-		
 		private static boolean processed;
 		
 		private static int depth;
@@ -269,9 +268,6 @@ public class Ghost extends NPC {
 		private static final String DEPTH		= "depth";
 		private static final String WEAPON		= "weapon";
 		private static final String ARMOR		= "armor";
-
-        //for pre-0.2.1 saves, used when restoring quest
-        private static final String ALTERNATIVE	= "alternative";
 		
 		public static void storeInBundle( Bundle bundle ) {
 			
@@ -299,22 +295,10 @@ public class Ghost extends NPC {
 			Bundle node = bundle.getBundle( NODE );
 
 			if (!node.isNull() && (spawned = node.getBoolean( SPAWNED ))) {
-                //logic for pre- 2.1.0 quests
-                if (node.contains( ALTERNATIVE )){
-                    if (node.getBoolean( ALTERNATIVE)){
-                        given = node.getBoolean( GIVEN );
-                        type = 1;
-                        processed = false;
-                    } else {
-                        type = 1;
-                        given = false;
-                        processed = false;
-                    }
-                } else {
-                    type = node.getInt(TYPE);
-                    processed = node.getBoolean( PROCESSED );
-                    given	= node.getBoolean( GIVEN );
-                }
+
+                type = node.getInt(TYPE);
+                given	= node.getBoolean( GIVEN );
+                processed = node.getBoolean( PROCESSED );
 
 				depth	= node.getInt( DEPTH );
 				
@@ -370,9 +354,10 @@ public class Ghost extends NPC {
 		
 		public static void process() {
 			if (spawned && given && !processed && (depth == Dungeon.depth)) {
-				GLog.n("Sad ghost: Thank you... come find me...");
+				GLog.n("sad ghost: Thank you... come find me...");
                 Sample.INSTANCE.play( Assets.SND_GHOST );
                 processed = true;
+                Generator.Category.ARTIFACT.probs[10] = 1; //flags the dried rose as spawnable.
 			}
 		}
 		

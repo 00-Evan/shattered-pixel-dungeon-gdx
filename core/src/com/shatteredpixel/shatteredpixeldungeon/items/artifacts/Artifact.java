@@ -1,12 +1,15 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
@@ -14,10 +17,6 @@ import java.util.ArrayList;
  * Created by Evan on 24/08/2014.
  */
 public class Artifact extends KindofMisc {
-//TODO: add artifact transform method and tie it into well of transformation, scheduled for 0.2.3
-    {
-        levelKnown = true;
-    }
 
     private static final float TIME_TO_EQUIP = 1f;
 
@@ -44,6 +43,8 @@ public class Artifact extends KindofMisc {
     //the maximum charge, varies per artifact, not all artifacts use this.
     protected int chargeCap = 0;
 
+    //used by some artifacts to keep track of duration of effects or cooldowns to use.
+    protected int cooldown = 0;
 
 
     public Artifact(){
@@ -83,6 +84,13 @@ public class Artifact extends KindofMisc {
 
             activate( hero );
 
+            cursedKnown = true;
+            identify();
+            if (cursed) {
+                equipCursed( hero );
+                GLog.n( "the " + this.name + " painfully binds itself to you" );
+            }
+
             hero.spendAndNext( TIME_TO_EQUIP );
             return true;
 
@@ -108,6 +116,11 @@ public class Artifact extends KindofMisc {
         passiveBuff.detach();
         passiveBuff = null;
 
+        if (activeBuff != null){
+            activeBuff.detach();
+            activeBuff = null;
+        }
+
         return true;
 
         } else {
@@ -132,15 +145,28 @@ public class Artifact extends KindofMisc {
         return ((level*10)/levelCap);
     }
 
+    //transfers upgrades from another artifact, transfer level will equal the displayed level
+    public void transferUpgrade(int transferLvl) {
+        upgrade(Math.round((float)(transferLvl*levelCap)/10));
+    }
+
     @Override
-    public boolean isIdentified() {
-        return true;
+    public String info() {
+        if (cursed && cursedKnown && !isEquipped( Dungeon.hero )) {
+
+            return desc() + "\n\nYou can feel a malevolent magic lurking within the " + name() + ".";
+
+        } else {
+
+            return desc();
+
+        }
     }
 
     @Override
     public String toString() {
 
-        if (levelKnown && level != 0) {
+        if (levelKnown && level/levelCap != 0) {
             if (chargeCap > 0) {
                 return Utils.format( TXT_TO_STRING_LVL_CHARGE, name(), visiblyUpgraded(), charge, chargeCap );
             } else {
@@ -155,6 +181,64 @@ public class Artifact extends KindofMisc {
         }
     }
 
+    @Override
+    public String status() {
+
+        //display the current cooldown
+        if (cooldown != 0)
+            return Utils.format( "%d", cooldown );
+
+        //display as percent
+        if (chargeCap == 100)
+            return Utils.format( "%d%%", charge );
+
+        //display as #/#
+        if (chargeCap > 0)
+            return Utils.format( "%d/%d", charge, chargeCap );
+
+        //if there's no cap -
+        //- but there is charge anyway, display that charge
+        if (charge != 0)
+            return Utils.format( "%d", charge );
+
+        //otherwise, if there's no charge, return null.
+        return null;
+    }
+
+    //converts class names to be more concise and readable.
+    protected String convertName(String className){
+        //removes known redundant parts of names.
+        className = className.replaceFirst("ScrollOf|PotionOf", "");
+
+        //inserts a space infront of every uppercase character
+        className = className.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
+
+        return className;
+    };
+
+    @Override
+    public Item random() {
+        if (Random.Float() < 0.3f) {
+            cursed = true;
+        }
+        return this;
+    }
+
+    @Override
+    public int price() {
+        int price = 200;
+        if (level > 0)
+            price += 30*((level*10)/levelCap);
+        if (cursed && cursedKnown) {
+            price /= 2;
+        }
+        if (price < 1) {
+            price = 1;
+        }
+        return price;
+    }
+
+
     protected ArtifactBuff passiveBuff() {
         return null;
     }
@@ -162,6 +246,14 @@ public class Artifact extends KindofMisc {
     protected ArtifactBuff activeBuff() {return null; }
 
     public class ArtifactBuff extends Buff {
+
+        public int level() {
+            return level;
+        }
+
+        public boolean isCursed() {
+            return cursed;
+        }
 
     }
 
@@ -186,19 +278,5 @@ public class Artifact extends KindofMisc {
         exp = bundle.getInt( EXP );
         charge = bundle.getInt( CHARGE );
         partialCharge = bundle.getFloat( PARTIALCHARGE );
-    }
-
-    @Override
-    public int price() {
-        int price = 200;
-        if (level > 0)
-            price += 30*((level*10)/levelCap);
-        if (cursed && cursedKnown) {
-            price /= 2;
-        }
-        if (price < 1) {
-            price = 1;
-        }
-        return price;
     }
 }

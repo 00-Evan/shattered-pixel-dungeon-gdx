@@ -172,7 +172,7 @@ public class ItemSlot extends Button<GameAction> {
 	
 			int level = item.visiblyUpgraded(); 
 
-			if (level != 0 || (item.cursed && item.cursedKnown)) {
+			if (level != 0) {
 				bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : "" );
 				bottomRight.measure();
 				bottomRight.hardlight( level > 0 ? UPGRADED : DEGRADED );

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,6 +85,7 @@ public class Bundle {
 	}
 	
 	private Bundlable get() {
+		if (data == null) return null;
 		try {
 			String clName = getString( CLASS_NAME );
 			if (aliases.containsKey( clName )) {
@@ -98,10 +100,9 @@ public class Bundle {
 			} else {
 				return null;
 			}
-		} catch (Exception e) {
-			e = null;
+		} catch (ReflectionException e ) {
 			return null;
-		}	
+		}
 	}
 	
 	public Bundlable get( String key ) {
@@ -288,7 +289,7 @@ public class Bundle {
 		}
 	}
 
-    public static Bundle read( InputStream stream ) {
+    public static Bundle read( InputStream stream ) throws IOException {
 
         try {
             BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );

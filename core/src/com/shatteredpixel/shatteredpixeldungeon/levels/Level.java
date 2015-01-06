@@ -43,6 +43,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Stylus;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
@@ -189,15 +192,15 @@ public abstract class Level implements Bundlable {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
 			if (Dungeon.posNeeded()) {
 				addItemToSpawn( new PotionOfStrength() );
-				Dungeon.potionOfStrength++;
+				Dungeon.limitedDrops.strengthPotions.count++;
 			}
 			if (Dungeon.soeNeeded()) {
 				addItemToSpawn( new ScrollOfUpgrade() );
-				Dungeon.scrollsOfUpgrade++;
+                Dungeon.limitedDrops.upgradeScrolls.count++;
 			}
 			if (Dungeon.asNeeded()) {
 				addItemToSpawn( new Stylus() );
-				Dungeon.arcaneStyli++;
+                Dungeon.limitedDrops.arcaneStyli.count++;
 			}
 
             int bonus = 0;
@@ -209,6 +212,19 @@ public abstract class Level implements Bundlable {
                      addItemToSpawn( new ScrollOfWeaponUpgrade() );
                 else
                     addItemToSpawn( new PotionOfMight() );
+            }
+
+            DriedRose rose = Dungeon.hero.belongings.getItem( DriedRose.class );
+            if (rose != null && !rose.cursed){
+                //this way if a rose is dropped later in the game, player still has a chance to max it out.
+                int petalsNeeded = (int) Math.ceil((float)((Dungeon.depth / 2) - rose.droppedPetals) / 3);
+
+                for (int i=1; i <= petalsNeeded; i++) {
+                    if (rose.droppedPetals < 10) {
+                        addItemToSpawn(new DriedRose.Petal());
+                        rose.droppedPetals++;
+                    }
+                }
             }
 			
 			if (Dungeon.depth > 1) {
@@ -570,7 +586,8 @@ public abstract class Level implements Bundlable {
         if ((Dungeon.isChallenged( Challenges.NO_FOOD ) && (item instanceof Food || item instanceof BlandfruitBush.Seed)) ||
             (Dungeon.isChallenged( Challenges.NO_ARMOR ) && item instanceof Armor) ||
             (Dungeon.isChallenged( Challenges.NO_HEALING ) && item instanceof PotionOfHealing) ||
-            (Dungeon.isChallenged( Challenges.NO_HERBALISM ) && (item instanceof Plant.Seed || item instanceof Dewdrop))) {
+            (Dungeon.isChallenged( Challenges.NO_HERBALISM ) && (item instanceof Plant.Seed || item instanceof Dewdrop)) ||
+            item == null) {
 
             Heap heap = new Heap();
             GameScene.add( heap );
@@ -578,8 +595,11 @@ public abstract class Level implements Bundlable {
 
         }
 
-		if ((map[cell] == Terrain.ALCHEMY) && (item instanceof BlandfruitBush.Seed || !(item instanceof Plant.Seed ||
-                (item instanceof Blandfruit && ((Blandfruit) item).potionAttrib == null && heaps.get(cell) == null)))) {
+		if ((map[cell] == Terrain.ALCHEMY) && (
+				!(item instanceof Plant.Seed || item instanceof Blandfruit) ||
+				item instanceof BlandfruitBush.Seed ||
+                (item instanceof Blandfruit && (((Blandfruit) item).potionAttrib != null || heaps.get(cell) != null))||
+				Dungeon.hero.buff(AlchemistsToolkit.alchemy.class) != null && Dungeon.hero.buff(AlchemistsToolkit.alchemy.class).isCursed())) {
 			int n;
 			do {
 				n = cell + NEIGHBOURS8[Random.Int( 8 )];
@@ -629,7 +649,7 @@ public abstract class Level implements Bundlable {
                 map[pos] == Terrain.EMPTY ||
                 map[pos] == Terrain.EMBERS ||
                 map[pos] == Terrain.EMPTY_DECO) {
-            set(pos, Terrain.GRASS);
+            map[pos] = Terrain.GRASS;
             GameScene.updateMap( pos );
         }
 		
@@ -655,6 +675,13 @@ public abstract class Level implements Bundlable {
 			Chasm.heroFall( cell );
 			return;
 		}
+
+		TimekeepersHourglass.timeFreeze timeFreeze = null;
+
+		if (ch != null)
+			timeFreeze = ch.buff(TimekeepersHourglass.timeFreeze.class);
+
+		boolean frozen = timeFreeze != null;
 		
 		boolean trap = false;
 		
@@ -664,56 +691,56 @@ public abstract class Level implements Bundlable {
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.TOXIC_TRAP:
 			trap = true;
-			ToxicTrap.trigger( cell, ch );
+			if (!frozen) ToxicTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_FIRE_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.FIRE_TRAP:
 			trap = true;
-			FireTrap.trigger( cell, ch );
+			if (!frozen) FireTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_PARALYTIC_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.PARALYTIC_TRAP:
 			trap = true;
-			ParalyticTrap.trigger( cell,  ch );
+			if (!frozen) ParalyticTrap.trigger( cell,  ch );
 			break;
 			
 		case Terrain.SECRET_POISON_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.POISON_TRAP:
 			trap = true;
-			PoisonTrap.trigger( cell, ch );
+			if (!frozen) PoisonTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_ALARM_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.ALARM_TRAP:
 			trap = true;
-			AlarmTrap.trigger( cell, ch );
+			if (!frozen) AlarmTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_LIGHTNING_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.LIGHTNING_TRAP:
 			trap = true;
-			LightningTrap.trigger( cell, ch );
+			if (!frozen) LightningTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_GRIPPING_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.GRIPPING_TRAP:
 			trap = true;
-			GrippingTrap.trigger( cell, ch );
+			if (!frozen) GrippingTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.SECRET_SUMMONING_TRAP:
 			GLog.i( TXT_HIDDEN_PLATE_CLICKS );
 		case Terrain.SUMMONING_TRAP:
 			trap = true;
-			SummoningTrap.trigger( cell, ch );
+			if (!frozen) SummoningTrap.trigger( cell, ch );
 			break;
 			
 		case Terrain.HIGH_GRASS:
@@ -735,13 +762,26 @@ public abstract class Level implements Bundlable {
 			break;
 		}
 		
-		if (trap) {
-			Sample.INSTANCE.play( Assets.SND_TRAP );
-			if (ch == Dungeon.hero) {
+		if (trap && !frozen) {
+
+			if (Dungeon.visible[cell])
+				Sample.INSTANCE.play( Assets.SND_TRAP );
+
+			if (ch == Dungeon.hero)
 				Dungeon.hero.interrupt();
-			}
+
 			set( cell, Terrain.INACTIVE_TRAP );
 			GameScene.updateMap( cell );
+
+		} else if (trap && frozen){
+
+			Sample.INSTANCE.play( Assets.SND_TRAP );
+
+			Level.set( cell, Terrain.discover( map[cell] ) );
+			GameScene.updateMap( cell );
+
+			timeFreeze.setDelayedPress( cell );
+
 		}
 		
 		Plant plant = plants.get( cell );
@@ -820,7 +860,8 @@ public abstract class Level implements Bundlable {
 		int cx = c.pos % WIDTH;
 		int cy = c.pos / WIDTH;
 		
-		boolean sighted = c.buff( Blindness.class ) == null && c.buff( Shadows.class ) == null && c.isAlive();
+		boolean sighted = c.buff( Blindness.class ) == null && c.buff( Shadows.class ) == null
+						&& c.buff( TimekeepersHourglass.timeStasis.class ) == null && c.isAlive();
 		if (sighted) {
 			ShadowCaster.castShadow( cx, cy, fieldOfView, c.viewDistance );
 		} else {

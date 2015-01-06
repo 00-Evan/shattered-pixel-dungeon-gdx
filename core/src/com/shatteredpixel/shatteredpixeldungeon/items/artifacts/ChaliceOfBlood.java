@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -33,9 +34,9 @@ public class ChaliceOfBlood extends Artifact {
     {
         name = "Chalice of Blood";
         image = ItemSpriteSheet.ARTIFACT_CHALICE1;
+
         level = 0;
         levelCap = 10;
-        //charge & chargecap are unused
     }
 
     public static final String AC_PRICK = "PRICK";
@@ -43,7 +44,7 @@ public class ChaliceOfBlood extends Artifact {
     @Override
     public ArrayList<String> actions( Hero hero ) {
         ArrayList<String> actions = super.actions( hero );
-        if (isEquipped( hero ) && level < levelCap)
+        if (isEquipped( hero ) && level < levelCap && !cursed)
             actions.add(AC_PRICK);
         return actions;
     }
@@ -106,17 +107,21 @@ public class ChaliceOfBlood extends Artifact {
             hero.damage(damage, this);
 
         if (!hero.isAlive()) {
-            Dungeon.fail(Utils.format(ResultDescriptions.ITEM, name, Dungeon.depth));
+            Dungeon.fail(Utils.format( ResultDescriptions.ITEM, name ));
             GLog.n("The Chalice sucks your life essence dry...");
         } else {
             upgrade();
-            if (level >= 7)
-                image = ItemSpriteSheet.ARTIFACT_CHALICE3;
-            else if (level >= 3)
-                image = ItemSpriteSheet.ARTIFACT_CHALICE2;
         }
     }
 
+    @Override
+    public Item upgrade() {
+        if (level >= 6)
+            image = ItemSpriteSheet.ARTIFACT_CHALICE3;
+        else if (level >= 2)
+            image = ItemSpriteSheet.ARTIFACT_CHALICE2;
+        return super.upgrade();
+    }
 
     @Override
     protected ArtifactBuff passiveBuff() {
@@ -133,7 +138,9 @@ public class ChaliceOfBlood extends Artifact {
 
         if (isEquipped (Dungeon.hero)){
             desc += "\n\n";
-            if (level == 0)
+            if (cursed)
+                desc += "The cursed chalice has bound itself to your hand, and is slowly tugging at your life energy.";
+            else if (level == 0)
                 desc += "As you hold the chalice, you feel oddly compelled to prick yourself on the sharp gems.";
             else if (level < 3)
                 desc += "Some of your blood is pooled into the chalice, you can subtly feel the chalice feeding life " +
@@ -155,9 +162,7 @@ public class ChaliceOfBlood extends Artifact {
     }
 
     public class chaliceRegen extends ArtifactBuff {
-        public int level() {
-            return level;
-        }
+
     }
 
 }

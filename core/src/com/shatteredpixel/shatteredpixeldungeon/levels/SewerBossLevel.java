@@ -83,7 +83,7 @@ public class SewerBossLevel extends RegularLevel {
         for(int i = 0; i <= 4; i++){
             retry = 0;
             //find a suitable room the first four times
-            //sutiable room should be empty and have a distance of 2 from the current room
+            //suitable room should be empty, have a distance of 2 from the current room, and not be adjacent to the entrance.
             if (i < 4) {
                 do {
                     if (retry++ > 20) {
@@ -92,7 +92,7 @@ public class SewerBossLevel extends RegularLevel {
                     curRoom = Random.element(rooms);
                     Graph.buildDistanceMap(rooms, curRoom);
                     distance = lastRoom.distance();
-                } while (curRoom.type != Type.NULL || distance != 2);
+                } while (curRoom.type != Type.NULL || distance != 2 || curRoom.neigbours.contains(roomEntrance));
 
                 curRoom.type = Type.STANDARD;
 
@@ -122,7 +122,7 @@ public class SewerBossLevel extends RegularLevel {
                 //look at rooms adjacent to the final found room (likely to be furthest from start)
                 ArrayList<Room> candidates = new ArrayList<Room>();
                 for (Room r : lastRoom.neigbours) {
-                    if (r.type == Type.NULL && r.connected.size() == 0) {
+                    if (r.type == Type.NULL && r.connected.size() == 0 && !r.neigbours.contains(roomEntrance)) {
                         candidates.add(r);
                     }
                 }

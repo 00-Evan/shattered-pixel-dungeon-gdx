@@ -71,6 +71,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
+    public static float timeTotal = 0f;
 
 	public Game( Class<? extends Scene> c, PDPlatformSupport<GameActionType> platformSupport ) {
 		super();
@@ -225,6 +226,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	
 	protected void update() {
 		Game.elapsed = Game.timeScale * step * 0.001f;
+		Game.timeTotal += Game.elapsed;
 		
 		scene.update();		
 		Camera.updateAll();

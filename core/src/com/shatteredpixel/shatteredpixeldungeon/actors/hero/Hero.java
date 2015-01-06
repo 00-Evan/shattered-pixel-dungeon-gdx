@@ -17,27 +17,13 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
-import com.shatteredpixel.shatteredpixeldungeon.Statistics;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.*;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
@@ -45,10 +31,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GasesImmunity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
@@ -57,33 +44,46 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
-import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.DewVial;
+import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.AlchemyPot;
@@ -102,8 +102,14 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Hero extends Char {
 	
@@ -134,11 +140,12 @@ public class Hero extends Char {
 	
 	private int attackSkill = 10;
 	private int defenseSkill = 5;
-	
+
 	public boolean ready = false;
-	public HeroAction curAction = null;
+    private boolean damageInterrupt = true;
+    public HeroAction curAction = null;
 	public HeroAction lastAction = null;
-	
+
 	private Char enemy;
 	
 	public Armor.Glyph killerGlyph = null;
@@ -234,6 +241,10 @@ public class Hero extends Char {
 	public String className() {
 		return subClass == null || subClass == HeroSubClass.NONE ? heroClass.title() : subClass.title();
 	}
+
+	public String givenName(){
+		return name.equals("you") ? className() : name;
+	}
 	
 	public void live() {
 		Buff.affect( this, Regeneration.class );	
@@ -248,6 +259,7 @@ public class Hero extends Char {
 
         rangedWeapon = wep;
         boolean result = attack( enemy );
+        Invisibility.dispel();
         rangedWeapon = null;
 
         return result;
@@ -276,23 +288,18 @@ public class Hero extends Char {
 			bonus += ((RingOfEvasion.Evasion)buff).effectiveLevel;
 		}
 
-		float evasion = bonus == 0 ? 1 : (float)Math.pow( 1.15, bonus );
+		float evasion = (float)Math.pow( 1.15, bonus );
 		if (paralysed) {
 			evasion /= 2;
 		}
 		
-		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 0;
+		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 9 - STR();
 		
 		if (aEnc > 0) {
 			return (int)(defenseSkill * evasion / Math.pow( 1.5, aEnc ));
 		} else {
 			
 			if (heroClass == HeroClass.ROGUE) {
-				
-				if (curAction != null && subClass == HeroSubClass.FREERUNNER && !isStarving()) {
-					evasion *= 2;
-				}
-				
 				return (int)((defenseSkill - aEnc) * evasion);
 			} else {
 				return (int)(defenseSkill * evasion);
@@ -322,9 +329,14 @@ public class Hero extends Char {
 		if (wep != null) {
 			dmg = wep.damageRoll( this ) + bonus;
 		} else {
-            int bonusMax = 1 + (int)(bonus * (lvl/5f));
-			dmg = Random.NormalIntRange( 1+bonus, Math.max(1+bonus , STR()-9+bonusMax ) );
+			int str = STR() - 8;
+			dmg = bonus == 0 ?
+					str > 1 ? Random.NormalIntRange( 1, str ) : 1
+					: bonus > 0 ?
+							str > 0 ? Random.NormalIntRange( str/2+bonus, (int)(str*0.5f*bonus) + str*2 ) : 1
+							: 0;
 		}
+		if (dmg < 0) dmg = 0;
 		return buff( Fury.class ) != null ? (int)(dmg * 1.5f) : dmg;
 	}
 	
@@ -348,7 +360,11 @@ public class Hero extends Char {
 			
 		} else {
 
-			return ((HeroSprite)sprite).sprint( subClass == HeroSubClass.FREERUNNER && !isStarving() ) ? 1.6f * speed : speed;
+			return ((HeroSprite)sprite).sprint( subClass == HeroSubClass.FREERUNNER && !isStarving() ) ?
+					invisible > 0 ?
+							4f * speed :
+							1.5f * speed :
+					speed;
 			
 		}
 	}
@@ -373,7 +389,9 @@ public class Hero extends Char {
 
     @Override
     public void spend( float time ) {
-        super.spend( time );
+        TimekeepersHourglass.timeFreeze buff = buff(TimekeepersHourglass.timeFreeze.class);
+        if (!(buff != null && buff.processTime(time)))
+            super.spend( time );
     };
 	
 	public void spendAndNext( float time ) {
@@ -396,7 +414,7 @@ public class Hero extends Char {
 		}
 		
 		checkVisibleMobs();
-		AttackIndicator.updateState();
+
 		
 		if (curAction == null) {
 			
@@ -480,8 +498,10 @@ public class Hero extends Char {
 	private void ready() {
 		sprite.idle();
 		curAction = null;
+        damageInterrupt = true;
 		ready = true;
 
+        AttackIndicator.updateState();
 		GameScene.ready();
 	}
 	
@@ -495,6 +515,7 @@ public class Hero extends Char {
 	public void resume() {
 		curAction = lastAction;
 		lastAction = null;
+        damageInterrupt = false;
 		act();
 	}
 	
@@ -588,10 +609,12 @@ public class Hero extends Char {
 				Item item = heap.pickUp();
 				if (item.doPickUp( this )) {
 					
-					if (item instanceof Dewdrop) {
+					if (item instanceof Dewdrop
+                            || item instanceof TimekeepersHourglass.sandBag
+                            || item instanceof DriedRose.Petal) {
 						
 					} else {
-						
+
 						if ((item instanceof ScrollOfUpgrade && ((ScrollOfUpgrade)item).isKnown()) ||
 							(item instanceof PotionOfStrength && ((PotionOfStrength)item).isKnown())) {
 							GLog.p( TXT_YOU_NOW_HAVE, item.name() );
@@ -734,6 +757,12 @@ public class Hero extends Char {
 			if (hunger != null && !hunger.isStarving()) {
 				hunger.satisfy( -Hunger.STARVING / 10 );
 			}
+
+			Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
+			if (buff != null) buff.detach();
+
+            for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
+                if (mob instanceof DriedRose.GhostHero) mob.destroy();
 			
 			InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
             Game.switchScene( InterlevelScene.class );
@@ -773,6 +802,12 @@ public class Hero extends Char {
 				if (hunger != null && !hunger.isStarving()) {
 					hunger.satisfy( -Hunger.STARVING / 10 );
 				}
+
+				Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
+				if (buff != null) buff.detach();
+
+                for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
+                    if (mob instanceof DriedRose.GhostHero) mob.destroy();
 
 				InterlevelScene.mode = InterlevelScene.Mode.ASCEND;
 				Game.switchScene( InterlevelScene.class );
@@ -826,38 +861,37 @@ public class Hero extends Char {
 	@Override
 	public int attackProc( Char enemy, int damage ) {
         KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
-		if (wep != null) {
 
-            wep.proc( this, enemy, damage );
+		if (wep != null)  wep.proc( this, enemy, damage );
 			
-			switch (subClass) {
-			case GLADIATOR:
-				if (wep instanceof MeleeWeapon) {
-					damage += Buff.affect( this, Combo.class ).hit( enemy, damage );
-				}
-				break;
-			case BATTLEMAGE:
-				if (wep instanceof Wand) {
-					Wand wand = (Wand)wep;
-					if (wand.curCharges < wand.maxCharges && damage > 0) {
-						
-						wand.curCharges++;
-						if (Dungeon.quickslot == wand) {
-							QuickSlot.refresh();
-						}
-						
-						ScrollOfRecharging.charge( this );
-					}
-					damage += wand.curCharges;
-				}
-			case SNIPER:
-				if (rangedWeapon != null) {
-					Buff.prolong( enemy, SnipersMark.class, attackDelay() * 1.1f );
-				}
-				break;
-			default:
+		switch (subClass) {
+		case GLADIATOR:
+			if (wep instanceof MeleeWeapon || wep == null) {
+				damage += Buff.affect( this, Combo.class ).hit( enemy, damage );
 			}
+			break;
+		case BATTLEMAGE:
+			if (wep instanceof Wand) {
+				Wand wand = (Wand)wep;
+				if (wand.curCharges < wand.maxCharges && damage > 0) {
+
+					wand.curCharges++;
+					if (Dungeon.quickslot == wand) {
+						QuickSlot.refresh();
+					}
+
+					ScrollOfRecharging.charge( this );
+				}
+				damage += wand.curCharges;
+			}
+		case SNIPER:
+			if (rangedWeapon != null) {
+				Buff.prolong( enemy, SnipersMark.class, attackDelay() * 1.1f );
+			}
+			break;
+		default:
 		}
+
 		
 		return damage;
 	}
@@ -888,8 +922,15 @@ public class Hero extends Char {
 	}
 	
 	@Override
-	public void damage( int dmg, Object src ) {		
+	public void damage( int dmg, Object src ) {
+		if (buff(TimekeepersHourglass.timeStasis.class) != null)
+			return;
+
 		restoreHealth = false;
+
+		if (!(src instanceof Hunger) && damageInterrupt)
+        	interrupt();
+
         if (this.buff(Drowsy.class) != null){
             Buff.detach(this, Drowsy.class);
             GLog.w("The pain helps you resist the urge to sleep.");
@@ -1104,11 +1145,15 @@ public class Hero extends Char {
 	}
 	
 	public boolean isStarving() {
-		return ((Hunger)buff( Hunger.class )).isStarving();
+		return buff(Hunger.class) != null && ((Hunger)buff( Hunger.class )).isStarving();
 	}
 	
 	@Override
 	public void add( Buff buff ) {
+
+		if (buff(TimekeepersHourglass.timeStasis.class) != null)
+			return;
+
 		super.add( buff );
 		
 		if (sprite != null) {
@@ -1122,7 +1167,7 @@ public class Hero extends Char {
 				GLog.w( "You are poisoned!" );
 				interrupt();
 			} else if (buff instanceof Ooze) {
-				GLog.w( "Caustic ooze eats your flesh. Wash away it!" );
+				GLog.w( "Caustic ooze eats your flesh. Wash it away!" );
 			} else if (buff instanceof Roots) {
 				GLog.w( "You can't move!" );
 			} else if (buff instanceof Weakness) {
@@ -1173,8 +1218,11 @@ public class Hero extends Char {
 	
 	@Override
 	public int stealth() {
-		//no logic here since removal of Ring of Shadows, may do something here in future.
-		return super.stealth();
+		int stealth = super.stealth();
+		for (Buff buff : buffs( RingOfEvasion.Evasion.class )) {
+			stealth += ((RingOfEvasion.Evasion)buff).effectiveLevel;
+		}
+		return stealth;
 	}
 	
 	@Override
@@ -1368,7 +1416,7 @@ public class Hero extends Char {
 		for (int y = ay; y <= by; y++) {
 			for (int x = ax, p = ax + y * Level.WIDTH; x <= bx; x++, p++) {
 				
-				if (Dungeon.visible[p]) {
+				if (Dungeon.visible[p] && !(foresight != null && foresight.isCursed())) {
 					
 					if (intentional) {
 						sprite.parent.addToBack( new CheckedCell( p ) );
@@ -1435,8 +1483,12 @@ public class Hero extends Char {
 	
 	@Override
 	public HashSet<Class<?>> immunities() {
-		GasesImmunity buff = buff( GasesImmunity.class );
-		return buff == null ? super.immunities() : GasesImmunity.IMMUNITIES;
+        HashSet<Class<?>> immunities = new HashSet<Class<?>>();
+		for (Buff buff : buffs()){
+            for (Class<?> immunity : buff.immunities)
+                immunities.add(immunity);
+        }
+		return immunities;
 	}
 	
 	public static interface Doom {

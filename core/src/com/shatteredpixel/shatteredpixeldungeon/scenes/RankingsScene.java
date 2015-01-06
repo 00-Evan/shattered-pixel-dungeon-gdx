@@ -46,7 +46,7 @@ public class RankingsScene extends PixelScene {
 	
 	private static final String TXT_NO_INFO	= "No additional information";
 	
-	private static final float ROW_HEIGHT	= 30;
+	private static final float ROW_HEIGHT	= 18;
 	private static final float GAP	= 4;
 	
 	private Archs archs;
@@ -69,18 +69,18 @@ public class RankingsScene extends PixelScene {
 		add( archs );
 		
 		Rankings.INSTANCE.load();
+
+		BitmapText title = PixelScene.createText(TXT_TITLE, 9);
+		title.hardlight(Window.SHPX_COLOR);
+		title.measure();
+		title.x = align((w - title.width()) / 2);
+		title.y = align( GAP );
+		add(title);
 		
 		if (Rankings.INSTANCE.records.size() > 0) {
 			
 			float left = (w - Math.min( 160, w )) / 2 + GAP;
 			float top = align( (h - ROW_HEIGHT  * Rankings.INSTANCE.records.size()) / 2 );
-			
-			BitmapText title = PixelScene.createText( TXT_TITLE, 9 );
-			title.hardlight( Window.SHPX_COLOR );
-			title.measure();
-			title.x = align( (w - title.width()) / 2 );
-			title.y = align( top - title.height() - GAP );
-			add( title );
 			
 			int pos = 0;
 			
@@ -102,20 +102,20 @@ public class RankingsScene extends PixelScene {
 			}
 			
 		} else {
-			
-			BitmapText title = PixelScene.createText( TXT_NO_GAMES, 8 );
-			title.hardlight( Window.TITLE_COLOR );
-			title.measure();
-			title.x = align( (w - title.width()) / 2 );
-			title.y = align( (h - title.height()) / 2 );
-			add( title );
+
+			BitmapText noRec = PixelScene.createText(TXT_NO_GAMES, 8);
+			noRec.hardlight(Window.TITLE_COLOR);
+			noRec.measure();
+			noRec.x = align((w - noRec.width()) / 2);
+			noRec.y = align((h - noRec.height()) / 2);
+			add(noRec);
 			
 		}
 
         ExitButton btnExit = new ExitButton();
         btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
         add( btnExit );
-		
+
 		fadeIn();
 	}
 	
@@ -128,18 +128,21 @@ public class RankingsScene extends PixelScene {
 		
 		private static final float GAP	= 4;
 		
-		private static final int TEXT_WIN	= 0xFFFF88;
-		private static final int TEXT_LOSE	= 0xCCCCCC;
+		private static final int[] TEXT_WIN	= {0xFFFF88, 0xB2B25F};
+		private static final int[] TEXT_LOSE= {0xDDDDDD, 0x888888};
 		private static final int FLARE_WIN	= 0x888866;
 		private static final int FLARE_LOSE	= 0x666666;
 		
 		private Rankings.Record rec;
 		
-		private ItemSprite shield;
+		protected ItemSprite shield;
 		private Flare flare;
 		private BitmapText position;
 		private BitmapTextMultiline desc;
+		private Image steps;
+		private BitmapText depth;
 		private Image classIcon;
+		private BitmapText level;
 		
 		public Record( int pos, boolean latest, Rankings.Record rec ) {
 			super();
@@ -152,20 +155,46 @@ public class RankingsScene extends PixelScene {
 				flare.color( rec.win ? FLARE_WIN : FLARE_LOSE );
 				addToBack( flare );
 			}
-			
-			position.text( Integer.toString( pos+1 ) );
+
+			if (pos != Rankings.TABLE_SIZE-1) {
+				position.text(Integer.toString(pos + 1));
+			} else
+				position.text(" ");
 			position.measure();
 			
 			desc.text( rec.info );
+
 			desc.measure();
+
+			int odd = pos % 2;
 			
 			if (rec.win) {
 				shield.view( ItemSpriteSheet.AMULET, null );
-				position.hardlight( TEXT_WIN );
-				desc.hardlight( TEXT_WIN );
+				position.hardlight( TEXT_WIN[odd] );
+				desc.hardlight( TEXT_WIN[odd] );
+				depth.hardlight( TEXT_WIN[odd] );
+				level.hardlight( TEXT_WIN[odd] );
 			} else {
-				position.hardlight( TEXT_LOSE );
-				desc.hardlight( TEXT_LOSE );
+				position.hardlight( TEXT_LOSE[odd] );
+				desc.hardlight( TEXT_LOSE[odd] );
+				depth.hardlight( TEXT_LOSE[odd] );
+				level.hardlight( TEXT_LOSE[odd] );
+
+				if (rec.depth != 0){
+					depth.text( Integer.toString(rec.depth) );
+					depth.measure();
+					steps.copy(Icons.DEPTH_LG.get());
+
+					add(steps);
+					add(depth);
+				}
+
+			}
+
+			if (rec.herolevel != 0){
+				level.text( Integer.toString(rec.herolevel) );
+				level.measure();
+				add(level);
 			}
 			
 			classIcon.copy( Icons.get( rec.heroClass ) );
@@ -180,13 +209,22 @@ public class RankingsScene extends PixelScene {
 			add( shield );
 			
 			position = new BitmapText( PixelScene.font1x );
+			position.alpha(0.8f);
 			add( position );
 			
-			desc = createMultiline( 9 );		
+			desc = createMultiline( 7 );
 			add( desc );
+
+			depth = new BitmapText( PixelScene.font1x );
+			depth.alpha(0.8f);
+
+			steps = new Image();
 			
 			classIcon = new Image();
 			add( classIcon );
+
+			level = new BitmapText( PixelScene.font1x );
+			level.alpha(0.8f);
 		}
 		
 		@Override
@@ -203,14 +241,23 @@ public class RankingsScene extends PixelScene {
 			if (flare != null) {
 				flare.point( shield.center() );
 			}
-			
-			classIcon.x = align( x + width - classIcon.width );
+
+			classIcon.x = align(x + width - classIcon.width);
 			classIcon.y = shield.y;
-			
+
+			level.x = align( classIcon.x + (classIcon.width - level.width()) / 2 );
+			level.y = align( classIcon.y + (classIcon.height - level.height()) / 2 + 1 );
+
+			steps.x = align(x + width - steps.width - classIcon.width);
+			steps.y = shield.y;
+
+			depth.x = align( steps.x + (steps.width - depth.width()) / 2 );
+			depth.y = align( steps.y + (steps.height - depth.height()) / 2 + 1 );
+
 			desc.x = shield.x + shield.width + GAP;
-			desc.maxWidth = (int)(classIcon.x - desc.x);
+			desc.maxWidth = (int)(steps.x - desc.x);
 			desc.measure();
-			desc.y = position.y + position.baseLine() - desc.baseLine();
+			desc.y = align( shield.y + (shield.height - desc.height()) / 2 + 1 );
 		}
 		
 		@Override
