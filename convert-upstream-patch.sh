@@ -1,15 +1,26 @@
 #!/usr/bin/env bash
 
-function exit_error() {
-    echo "$1"
-    exit 1
+function echo_exit() {
+    echo -e "$1\n"
+    exit $2
 }
 
 # Exit with instructions on how to use if a valid file isn't supplied as input
-[[ ! -f "$1" ]] && echo 'Run with patch from non-GDX version as input' && exit
+[[ ! -f "$1" ]] && echo_exit 'Run with patch from non-GDX version as input' 0
+
+# Set the backup name and if it already exists, increment the backup number and try again
+COUNT=1
+BACKUP="${1}.${COUNT}.bak"
+while [[ -f "$BACKUP" ]]; do
+    COUNT=$(expr $COUNT + 1)
+    BACKUP="${1}.${COUNT}.bak"
+done
 
 # Create a backup of the patch before converting
-cp "$1" "$1".bak && echo "A backup has been created of your patch @ ${1}.bak" || exit_error "A backup couldn't be created @ ${1}.bak"
+echo
+cp "$1" "$BACKUP" \
+    && echo "Created backup @ $BACKUP" \
+    || echo_exit "Error: Couldn't create backup @ $BACKUP" 1
 
 # Convert /src/com/* to /core/src/com/*
 sed -i -re 's|([ab])(/src/com/)|\1/core\2|g' "$1"
@@ -20,4 +31,11 @@ sed -i -re 's|([ab])(/assets/)|\1/android\2|g' "$1"
 # Convert /res/* to /android/res/*
 sed -i -re 's|([ab])(/res/)|\1/android\2|g' "$1"
 
-[[ $(diff "$1" "$1".bak) ]] && echo "Your patch has been successfully updated" || exit_error "No changes were made to your patch"
+# Convert pixeldungeon locations to shatteredpixeldungeon ones
+sed -i 's|com/watabou/pixeldungeon|com/shatteredpixel/shatteredpixeldungeon|g' "$1"
+
+# Exit and report whether updates have been made, deleting the backup if they haven't
+[[ ! $(diff "$1" "$BACKUP") ]] \
+    && rm "$BACKUP" \
+    && echo_exit "Deleting backup as no changes were made when converting" 0 \
+    || echo "Your patch has been successfully updated"
