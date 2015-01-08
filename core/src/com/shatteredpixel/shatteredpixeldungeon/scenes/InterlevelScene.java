@@ -74,7 +74,7 @@ public class InterlevelScene extends PixelScene {
 	private BitmapText message;
 	
 	private Thread thread;
-	private String error = null;
+	private Exception error = null;
 	
 	@Override
 	public void create() {
@@ -186,16 +186,12 @@ public class InterlevelScene extends PixelScene {
 						Sample.INSTANCE.load( Assets.SND_BOSS );
 					}
 					
-				} catch (FileNotFoundException e) {
+				} catch (Exception e) {
 					
-					error = ERR_FILE_NOT_FOUND;
-
-				} catch (IOException e ) {
-
-					error = ERR_IO;
+					error = e;
 
 				}
-				
+
 				if (phase == Phase.STATIC && error == null) {
 					phase = Phase.FADE_OUT;
 					timeLeft = TIME_TO_FADE;
@@ -238,7 +234,13 @@ public class InterlevelScene extends PixelScene {
 			
 		case STATIC:
 			if (error != null) {
-				add( new WndError( error ) {
+				String errorMsg;
+				if (error instanceof FileNotFoundException) errorMsg = ERR_FILE_NOT_FOUND;
+				else if (error instanceof IOException) errorMsg = ERR_IO;
+
+				else throw new RuntimeException("fatal error occured while moving between floors", error);
+
+				add( new WndError( errorMsg ) {
 					public void onBackPressed() {
 						super.onBackPressed();
 						Game.switchScene( StartScene.class );
