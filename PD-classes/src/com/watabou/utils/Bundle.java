@@ -308,8 +308,8 @@ public class Bundle {
 			JSONObject json = (JSONObject)new JSONTokener( new String( bytes ) ).nextValue();
 			return new Bundle( json );
 			
-		} catch (JSONException e) {
-			return null;
+		} catch (Exception e) {
+			throw new IOException();
 		}
 	}
 

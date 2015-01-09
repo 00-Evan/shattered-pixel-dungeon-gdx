@@ -410,7 +410,7 @@ public class WndBag extends WndTabbed {
 		protected boolean onLongClick() {
 			if (listener == null && item.defaultAction != null) {
 				hide();
-				Dungeon.quickslot = item.stackable ? item.getClass() : item;
+				Dungeon.quickslot = (item instanceof EquipableItem && !item.stackable) ? item : item.getClass();
 				QuickSlot.refresh();
 				return true;
 			} else {
