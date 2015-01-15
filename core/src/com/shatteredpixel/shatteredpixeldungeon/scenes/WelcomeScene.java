@@ -1,6 +1,7 @@
 //TODO: update this class with relevant info as new versions come out.
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -34,7 +35,8 @@ public class WelcomeScene extends PixelScene {
 
     private static final String TXT_SameVer =
             "v0.2.3a and v0.2.3b fix some crash bugs players were experiencing, make sure to report any issues if you are still having them!\n\n" +
-            "v0.2.3c fixes numerous issues, and gives some buffs to two of the new artifacts.";
+            "v0.2.3c fixes numerous issues, and gives some buffs to two of the new artifacts.\n\n" +
+            "v0.2.3d fixes numerous bugs, both from this release and older ones.";
 
     private static final String TXT_Future =
             "It seems that your current saves are from a future version of Shattered Pixel Dungeon!\n\n"+
@@ -94,6 +96,11 @@ public class WelcomeScene extends PixelScene {
         RedButton okay = new RedButton("Okay!") {
             @Override
             protected void onClick() {
+                //imports new ranking data for pre-0.2.3 saves.
+                if (gameversion < 30){
+                    Rankings.INSTANCE.load();
+                    Rankings.INSTANCE.save();
+                }
                 ShatteredPixelDungeon.version(Game.versionCode);
                 Game.switchScene(TitleScene.class);
             }
@@ -124,5 +131,4 @@ public class WelcomeScene extends PixelScene {
         fadeIn();
     }
 }
-
 

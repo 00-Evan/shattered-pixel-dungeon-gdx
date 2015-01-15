@@ -55,7 +55,7 @@ public class PrisonLevel extends RegularLevel {
 	}
 	
 	@Override
-	protected void assignRoomType() {
+	protected boolean assignRoomType() {
 		super.assignRoomType();
 		
 		for (Room r : rooms) {
@@ -63,11 +63,13 @@ public class PrisonLevel extends RegularLevel {
 				r.type = Type.PASSAGE;
 			}
 		}
+
+		return true;
 	}
 	
 	@Override
-	protected void createMobs() {
-		super.createMobs();
+	protected void createItems() {
+		super.createItems();
 		
 		Wandmaker.Quest.spawn( this, roomEntrance );
 	}

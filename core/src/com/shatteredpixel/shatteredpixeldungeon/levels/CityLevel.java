@@ -54,7 +54,7 @@ public class CityLevel extends RegularLevel {
 	}
 	
 	@Override
-	protected void assignRoomType() {
+	protected boolean assignRoomType() {
 		super.assignRoomType();
 		
 		for (Room r : rooms) {
@@ -62,6 +62,8 @@ public class CityLevel extends RegularLevel {
 				r.type = Type.PASSAGE;
 			}
 		}
+
+		return true;
 	}
 	
 	@Override
@@ -88,7 +90,7 @@ public class CityLevel extends RegularLevel {
 	protected void createItems() {
 		super.createItems();
 		
-		Imp.Quest.spawn( this, roomEntrance );
+		Imp.Quest.spawn( this );
 	}
 	
 	@Override
