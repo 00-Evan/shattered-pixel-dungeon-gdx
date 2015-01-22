@@ -157,9 +157,8 @@ public class Dungeon {
 
 	public static Hero hero;
 	public static Level level;
-	
-	// Either Item or Class<? extends Item>
-	public static Object quickslot;
+
+	public static QuickSlot quickslot = new QuickSlot();
 	
 	public static int depth;
 	public static int gold;
@@ -170,8 +169,6 @@ public class Dungeon {
 	
 	// Hero's field of view
 	public static boolean[] visible = new boolean[Level.LENGTH];
-	
-	public static boolean nightMode;
 
     public static int version;
 	
@@ -192,6 +189,8 @@ public class Dungeon {
 		
 		Statistics.reset();
 		Journal.reset();
+
+		quickslot.reset();
 		
 		depth = 0;
 		gold = 0;
@@ -348,8 +347,6 @@ public class Dungeon {
 	@SuppressWarnings("deprecation")
 	public static void switchLevel( final Level level, int pos ) {
 		
-		nightMode = new Date().getHours() < 7;
-		
 		Dungeon.level = level;
 		Actor.init();
 		
@@ -484,6 +481,8 @@ public class Dungeon {
 			bundle.put( GOLD, gold );
 			bundle.put( DEPTH, depth );
 
+			quickslot.storePlaceholders( bundle );
+
 			bundle.put( DV, dewVial );
 			bundle.put( WT, transmutation );
 
@@ -511,10 +510,6 @@ public class Dungeon {
 			Statistics.storeInBundle( bundle );
 			Journal.storeInBundle( bundle );
             Generator.storeInBundle( bundle );
-			
-			if (quickslot instanceof Class) {
-				bundle.put( QUICKSLOT, ((Class<?>)quickslot).getName() );
-			}
 			
 			Scroll.save( bundle );
 			Potion.save( bundle );
@@ -577,6 +572,9 @@ public class Dungeon {
 
 		Generator.reset();
 
+		quickslot.reset();
+		quickslot.restorePlaceholders( bundle );
+
         Dungeon.challenges = bundle.getInt( CHALLENGES );
 		
 		Dungeon.level = null;
@@ -631,24 +629,14 @@ public class Dungeon {
 				Imp.Quest.reset();
 			}
 			
-			Room.restoreRoomsFromBundle( bundle );
+			Room.restoreRoomsFromBundle(bundle);
 		}
 		
-		Bundle badges = bundle.getBundle( BADGES );
+		Bundle badges = bundle.getBundle(BADGES);
 		if (!badges.isNull()) {
 			Badges.loadLocal( badges );
 		} else {
 			Badges.reset();
-		}
-		
-		String qsClass = bundle.getString( QUICKSLOT );
-		if (qsClass != null) {
-			try {
-				quickslot = Class.forName( qsClass );
-			} catch (ClassNotFoundException e) {
-			}
-		} else {
-			quickslot = null;
 		}
 		
 		hero = null;

@@ -48,7 +48,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ItemSlot;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.RectF;
 
@@ -410,8 +410,8 @@ public class WndBag extends WndTabbed {
 		protected boolean onLongClick() {
 			if (listener == null && item.defaultAction != null) {
 				hide();
-				Dungeon.quickslot = (item instanceof EquipableItem && !item.stackable) ? item : item.getClass();
-				QuickSlot.refresh();
+				Dungeon.quickslot.setSlot( 0 , item );
+				QuickSlotButton.refresh();
 				return true;
 			} else {
 				return false;

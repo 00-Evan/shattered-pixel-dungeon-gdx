@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.SkinnedBlock;
 import com.watabou.noosa.Visual;
@@ -59,7 +58,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BusyIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toast;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -82,11 +81,11 @@ public class GameScene extends PixelScene {
 	
 	private static final String TXT_WELCOME			= "Welcome to the level %d of Pixel Dungeon!";
 	private static final String TXT_WELCOME_BACK	= "Welcome back to the level %d of Pixel Dungeon!";
-	private static final String TXT_NIGHT_MODE		= "Be cautious, since the dungeon is even more dangerous at night!";
 	
 	private static final String TXT_CHASM	= "Your steps echo across the dungeon.";
 	private static final String TXT_WATER	= "You hear water splashing around you.";
 	private static final String TXT_GRASS	= "The smell of vegetation is thick in the air.";
+	private static final String TXT_DARK	= "You can hear enemies moving in the darkness...";
 	private static final String TXT_SECRETS	= "The atmosphere hints that this floor hides many secrets.";
 	
 	static GameScene scene;
@@ -246,16 +245,16 @@ public class GameScene extends PixelScene {
 		case GRASS:
 			GLog.w( TXT_GRASS );
 			break;
+		case DARK:
+			GLog.w( TXT_DARK );
+			break;
 		default:
 		}
 		if (Dungeon.level instanceof RegularLevel && 
 			((RegularLevel)Dungeon.level).secretDoors > Random.IntRange( 3, 4 )) {
 			GLog.w( TXT_SECRETS );
 		}
-		if (Dungeon.nightMode && !Dungeon.bossLevel()) {
-			GLog.w( TXT_NIGHT_MODE );
-		}
-		
+
 		busy = new BusyIndicator();
 		busy.camera = uiCamera;
 		busy.x = 1;
@@ -605,7 +604,7 @@ public class GameScene extends PixelScene {
 	
 	public static void ready() {
 		selectCell( defaultCellListener );
-		QuickSlot.cancel();
+		QuickSlotButton.cancel();
 	}
 
     public static void examineCell( Integer cell ) {

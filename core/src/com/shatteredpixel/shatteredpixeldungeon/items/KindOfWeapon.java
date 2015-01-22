@@ -19,9 +19,10 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Random;
 
@@ -48,15 +49,19 @@ public class KindOfWeapon extends EquipableItem {
 	
 	@Override
 	public boolean doEquip( Hero hero ) {
-		
+
+		int slot = Dungeon.quickslot.getSlot( this );
+
 		detachAll( hero.belongings.backpack );
+
+		if (slot != -1) Dungeon.quickslot.setSlot( slot, this );
 		
 		if (hero.belongings.weapon == null || hero.belongings.weapon.doUnequip( hero, true )) {
 			
 			hero.belongings.weapon = this;
 			activate( hero );
 			
-			QuickSlot.refresh();
+			QuickSlotButton.refresh();
 			
 			cursedKnown = true;
 			if (cursed) {

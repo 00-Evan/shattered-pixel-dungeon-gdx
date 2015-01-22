@@ -27,13 +27,14 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.audio.Sample;
@@ -178,8 +179,9 @@ public class Item implements Bundlable {
 				Badges.validateItemLevelAquired( this );
 			}
 			
-			items.add( this );	
-			QuickSlot.refresh();
+			items.add( this );
+			Dungeon.quickslot.replaceSimilar(this);
+			QuickSlotButton.refresh();
 			Collections.sort( items, itemComparator );
 			return true;
 			
@@ -204,6 +206,9 @@ public class Item implements Bundlable {
         } else
         if (quantity == 1) {
 
+			if (stackable == true || this instanceof Boomerang){
+				Dungeon.quickslot.convertToPlaceholder(this);
+			}
             return detachAll( container );
 
         } else {
@@ -229,12 +234,14 @@ public class Item implements Bundlable {
     }
 	
 	public final Item detachAll( Bag container ) {
+		Dungeon.quickslot.clearItem( this );
+		QuickSlotButton.refresh();
+
 		for (Item item : container.items) {
 			if (item == this) {
-				container.items.remove( this );
-				item.onDetach( );
-				QuickSlot.refresh();
-				return this;
+				container.items.remove(this);
+                item.onDetach();
+                return this;
 			} else if (item instanceof Bag) {
 				Bag bag = (Bag)item;
 				if (bag.contains( this )) {
@@ -391,8 +398,8 @@ public class Item implements Bundlable {
 	}
 	
 	public void updateQuickslot() {
-		if ((stackable && Dungeon.quickslot == getClass()) || Dungeon.quickslot == this) {
-			QuickSlot.refresh();
+		if (Dungeon.quickslot.contains( this )) {
+			QuickSlotButton.refresh();
 		}
 	}
 	
@@ -401,7 +408,8 @@ public class Item implements Bundlable {
 	private static final String LEVEL_KNOWN		= "levelKnown";
 	private static final String CURSED			= "cursed";
 	private static final String CURSED_KNOWN	= "cursedKnown";
-	private static final String QUICKSLOT		= "quickslot";
+	private static final String OLDSLOT			= "quickslot";
+	private static final String QUICKSLOT		= "quickslotpos";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -410,8 +418,8 @@ public class Item implements Bundlable {
 		bundle.put( LEVEL_KNOWN, levelKnown );
 		bundle.put( CURSED, cursed );
 		bundle.put( CURSED_KNOWN, cursedKnown );
-		if (this == Dungeon.quickslot) {
-			bundle.put( QUICKSLOT, true );
+		if (Dungeon.quickslot.contains(this)) {
+			bundle.put( QUICKSLOT, Dungeon.quickslot.getSlot(this) );
 		}
 	}
 	
@@ -429,9 +437,15 @@ public class Item implements Bundlable {
 		}
 		
 		cursed	= bundle.getBoolean( CURSED );
-		
-		if (bundle.getBoolean( QUICKSLOT )) {
-			Dungeon.quickslot = this;
+
+		//only want to populate slot on first load.
+		if (Dungeon.hero == null) {
+			//support for pre-0.2.3 saves and rankings
+			if (bundle.contains(OLDSLOT)) {
+				Dungeon.quickslot.setSlot(0, this);
+			} else if (bundle.contains(QUICKSLOT)) {
+				Dungeon.quickslot.setSlot(bundle.getInt(QUICKSLOT), this);
+			}
 		}
 	}
 	
@@ -442,7 +456,7 @@ public class Item implements Bundlable {
 		user.busy();
 		
 		Char enemy = Actor.findChar( cell );
-		QuickSlot.target( this, enemy );
+		QuickSlotButton.target(enemy);
 		
 		float delay = TIME_TO_THROW;
 		if (this instanceof MissileWeapon) {

@@ -32,9 +32,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.ShopPainter;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Graph;
 import com.watabou.utils.Random;
@@ -122,7 +123,7 @@ public abstract class RegularLevel extends Level {
 		if (Dungeon.shopOnLevel()) {
 			Room shop = null;
 			for (Room r : roomEntrance.connected.keySet()) {
-				if (r.connected.size() == 1 && r.width() >= 5 && r.height() >= 5) {
+				if (r.connected.size() == 1 && ((r.width()-1)*(r.height()-1) >= ShopPainter.spaceNeeded())) {
 					shop = r;
 					break;
 				}
@@ -633,7 +634,7 @@ public abstract class RegularLevel extends Level {
 
 		for (Item item : itemsToSpawn) {
 			int cell = randomDropCell();
-			if (item instanceof ScrollOfUpgrade) {
+			if (item instanceof Scroll) {
 				while (map[cell] == Terrain.FIRE_TRAP || map[cell] == Terrain.SECRET_FIRE_TRAP) {
 					cell = randomDropCell();
 				}

@@ -52,7 +52,7 @@ public class WndRanking extends WndTabbed {
 	private static final String TXT_ITEMS	= "Items";
 	private static final String TXT_BADGES	= "Badges";
 	
-	private static final int WIDTH			= 112;
+	private static final int WIDTH			= 115;
 	private static final int HEIGHT			= 144;
 	
 	private static final int TAB_WIDTH	= 40;
@@ -247,17 +247,23 @@ public class WndRanking extends WndTabbed {
 			if (stuff.misc2 != null) {
 				addItem( stuff.misc2);
 			}
-			
-			if (Dungeon.quickslot instanceof Item && 
-				Dungeon.hero.belongings.backpack.contains( (Item)Dungeon.quickslot )) {
-				
-				addItem( (Item)Dungeon.quickslot );
-			} else if (Dungeon.quickslot instanceof Class){
-				@SuppressWarnings("unchecked")
-				Item item = Dungeon.hero.belongings.getItem( (Class<? extends Item>)Dungeon.quickslot );
-				if (item != null) {
-					addItem( item );
+
+			pos = 29;
+			for (int i = 0; i < 2; i++){
+				if (Dungeon.quickslot.getItem(i) != null){
+					QuickSlotButton slot = new QuickSlotButton(Dungeon.quickslot.getItem(i));
+
+					slot.setRect( pos, 116, 28, 28 );
+
+					add(slot);
+
+				} else {
+					ColorBlock bg = new ColorBlock( 28, 28, 0xFF4A4D44);
+					bg.x = pos;
+					bg.y = 116;
+					add(bg);
 				}
+				pos += 29;
 			}
 		}
 		
@@ -362,6 +368,50 @@ public class WndRanking extends WndTabbed {
 		@Override
 		protected void onClick() {
 			Game.scene().add( new WndItem( null, item ) );
+		}
+	}
+
+	private class QuickSlotButton extends ItemSlot{
+
+		public static final int HEIGHT	= 28;
+
+		private Item item;
+		private ColorBlock bg;
+
+		QuickSlotButton(Item item){
+			super(item);
+			this.item = item;
+		}
+
+		@Override
+		protected void createChildren() {
+			bg = new ColorBlock( HEIGHT, HEIGHT, 0xFF4A4D44 );
+			add( bg );
+
+			super.createChildren();
+		}
+
+		@Override
+		protected void layout() {
+			bg.x = x;
+			bg.y = y;
+
+			super.layout();
+		}
+
+		@Override
+		protected void onTouchDown() {
+			bg.brightness( 1.5f );
+			Sample.INSTANCE.play( Assets.SND_CLICK, 0.7f, 0.7f, 1.2f );
+		};
+
+		protected void onTouchUp() {
+			bg.brightness( 1.0f );
+		};
+
+		@Override
+		protected void onClick() {
+			Game.scene().add(new WndItem(null, item));
 		}
 	}
 }

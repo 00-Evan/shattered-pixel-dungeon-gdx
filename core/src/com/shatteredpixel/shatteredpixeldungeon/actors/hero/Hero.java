@@ -98,7 +98,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlot;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
@@ -877,8 +877,8 @@ public class Hero extends Char {
 				if (wand.curCharges < wand.maxCharges && damage > 0) {
 
 					wand.curCharges++;
-					if (Dungeon.quickslot == wand) {
-						QuickSlot.refresh();
+					if (Dungeon.quickslot.contains(wand)) {
+						QuickSlotButton.refresh();
 					}
 
 					ScrollOfRecharging.charge( this );
