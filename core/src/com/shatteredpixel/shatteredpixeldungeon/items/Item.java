@@ -180,8 +180,8 @@ public class Item implements Bundlable {
 			}
 			
 			items.add( this );
-			Dungeon.quickslot.replaceSimilar(this);
-			QuickSlotButton.refresh();
+			if (stackable || this instanceof Boomerang) Dungeon.quickslot.replaceSimilar(this);
+			updateQuickslot();
 			Collections.sort( items, itemComparator );
 			return true;
 			
@@ -206,7 +206,7 @@ public class Item implements Bundlable {
         } else
         if (quantity == 1) {
 
-			if (stackable == true || this instanceof Boomerang){
+			if (stackable || this instanceof Boomerang){
 				Dungeon.quickslot.convertToPlaceholder(this);
 			}
             return detachAll( container );
@@ -235,7 +235,7 @@ public class Item implements Bundlable {
 	
 	public final Item detachAll( Bag container ) {
 		Dungeon.quickslot.clearItem( this );
-		QuickSlotButton.refresh();
+		updateQuickslot();
 
 		for (Item item : container.items) {
 			if (item == this) {
@@ -264,6 +264,8 @@ public class Item implements Bundlable {
 		cursed = false;
 		cursedKnown = true;
 		this.level++;
+
+		updateQuickslot();
 		
 		return this;
 	}
@@ -398,9 +400,7 @@ public class Item implements Bundlable {
 	}
 	
 	public void updateQuickslot() {
-		if (Dungeon.quickslot.contains( this )) {
 			QuickSlotButton.refresh();
-		}
 	}
 	
 	private static final String QUANTITY		= "quantity";

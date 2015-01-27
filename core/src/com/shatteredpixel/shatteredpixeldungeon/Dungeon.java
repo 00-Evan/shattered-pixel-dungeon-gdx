@@ -573,7 +573,6 @@ public class Dungeon {
 		Generator.reset();
 
 		quickslot.reset();
-		quickslot.restorePlaceholders( bundle );
 
         Dungeon.challenges = bundle.getInt( CHALLENGES );
 		
@@ -589,6 +588,7 @@ public class Dungeon {
 		Wand.restore( bundle );
 		Ring.restore( bundle );
 
+		quickslot.restorePlaceholders( bundle );
 		
 		if (fullLoad) {
 

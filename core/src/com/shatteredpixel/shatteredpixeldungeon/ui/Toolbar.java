@@ -17,27 +17,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
-import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoCell;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoItem;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoMob;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoPlant;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -71,56 +60,82 @@ public class Toolbar extends Component {
 
 	@Override
 	protected void createChildren() {
-
-		add(btnWait = new Tool(0, 7, 20, 24) {
+		
+		add( btnWait = new Tool( 0, 7, 20, 24, GameAction.REST ) {
+			
 			@Override
 			protected void onClick() {
-				Dungeon.hero.rest(false);
+                restOneTurn();
 			}
-
-			;
-
 			protected boolean onLongClick() {
-				Dungeon.hero.rest(true);
+				restFull();
 				return true;
 			}
 
-			;
-		});
+			private void restOneTurn() {
+				Dungeon.hero.rest( false );
+			}
 
-		add( btnSearch = new Tool( 20, 7, 20, 24 ) {
+			private void restFull() {
+				Dungeon.hero.rest( true );
+			}
+		} );
+		
+		add( btnSearch = new Tool( 20, 7, 20, 24, GameAction.SEARCH ) {
 			@Override
 			protected void onClick() {
+				doSearch();
+			}
+
+			private void doSearch() {
 				Dungeon.hero.search( true );
 			}
 		} );
-
-		add( btnInfo = new Tool( 40, 7, 21, 24 ) {
+		
+		add( btnInfo = new Tool( 40, 7, 21, 24, GameAction.CELL_INFO) {
 			@Override
 			protected void onClick() {
-				GameScene.selectCell( informer );
+				getCellInfo();
+			}
+
+			private void getCellInfo() {
+				GameScene.selectCell(informer);
 			}
 		} );
 
 		/*
-		add( btnResume = new Tool( 61, 7, 21, 24 ) {
+		add( btnResume = new Tool( 61, 7, 21, 24, GameAction.RESUME ) {
 			@Override
 			protected void onClick() {
+				resume();
+			}
+
+			private void resume() {
 				Dungeon.hero.resume();
 			}
 		} );
 		*/
-
-		add( btnInventory = new Tool( 82, 7, 23, 24 ) {
+		
+		add( btnInventory = new Tool( 82, 7, 23, 24, GameAction.BACKPACK ) {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
+                showBackpack();
+			}
+
+            @Override
+			protected boolean onLongClick() {
+				showCatalogus();
+				return true;
+			}
+
+			private void showBackpack() {
 				GameScene.show(new WndBag(Dungeon.hero.belongings.backpack, null, WndBag.Mode.ALL, null));
 			}
-			protected boolean onLongClick() {
+			private void showCatalogus() {
 				GameScene.show(new WndCatalogus());
-				return true;
-			};
+			}
+
 			@Override
 			protected void createChildren() {
 				super.createChildren();
@@ -195,71 +210,31 @@ public class Toolbar extends Component {
 	private static CellSelector.Listener informer = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
-
-			if (cell == null) {
-				return;
-			}
-
-			if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
-				GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
-				return;
-			}
-
-			if (!Dungeon.visible[cell]) {
-				GameScene.show( new WndInfoCell( cell ) );
-				return;
-			}
-
-			if (cell == Dungeon.hero.pos) {
-				GameScene.show( new WndHero() );
-				return;
-			}
-
-			Mob mob = (Mob) Actor.findChar(cell);
-			if (mob != null) {
-				GameScene.show( new WndInfoMob( mob ) );
-				return;
-			}
-
-			Heap heap = Dungeon.level.heaps.get( cell );
-			if (heap != null) {
-				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-					GameScene.show( new WndTradeItem( heap, false ) );
-				} else {
-					GameScene.show( new WndInfoItem( heap ) );
-				}
-				return;
-			}
-
-			Plant plant = Dungeon.level.plants.get( cell );
-			if (plant != null) {
-				GameScene.show( new WndInfoPlant( plant ) );
-				return;
-			}
-
-			GameScene.show(new WndInfoCell(cell));
-		}
+            GameScene.examineCell( cell );
+		}	
 		@Override
 		public String prompt() {
 			return "Select a cell to examine";
 		}
 	};
-
-	private static class Tool extends Button {
-
+	
+	private static class Tool extends Button<GameAction> {
+		
 		private static final int BGCOLOR = 0x7B8073;
 
 		private Image base;
-
-		public Tool( int x, int y, int width, int height ) {
+		
+		public Tool(int x, int y, int width, int height, GameAction hotKey ) {
 			super();
 
 			base.frame( x, y, width, height );
 
 			this.width = width;
 			this.height = height;
-		}
 
+            this.hotKey = hotKey;
+		}
+		
 		@Override
 		protected void createChildren() {
 			super.createChildren();
@@ -306,8 +281,8 @@ public class Toolbar extends Component {
 
 		private QuickSlotButton slot;
 
-		public QuickslotTool( int x, int y, int width, int height, int slotNum ) {
-			super( x, y, width, height );
+		public QuickslotTool( int x, int y, int width, int height, int slotNum) {
+			super(x, y, width, height, GameAction.QUICKSLOT);
 
 			slot = new QuickSlotButton( slotNum );
 			add(slot);

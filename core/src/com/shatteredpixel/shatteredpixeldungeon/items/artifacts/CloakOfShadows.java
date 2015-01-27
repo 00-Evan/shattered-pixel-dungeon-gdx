@@ -8,7 +8,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.tweeners.AlphaTweener;
@@ -185,7 +184,7 @@ public class CloakOfShadows extends Artifact {
             if (cooldown > 0)
                 cooldown --;
 
-            QuickSlotButton.refresh();
+            updateQuickslot();
 
             spend( TICK );
 
@@ -224,10 +223,10 @@ public class CloakOfShadows extends Artifact {
             if (exp >= (level+1)*50 && level < levelCap) {
                 upgrade();
                 exp -= level*50;
-                GLog.p("Your Cloak Grows Stronger!");
+                GLog.p("Your cloak grows stronger!");
             }
 
-            QuickSlotButton.refresh();
+            updateQuickslot();
 
             spend( TICK );
 
@@ -247,7 +246,7 @@ public class CloakOfShadows extends Artifact {
             cooldown = 10 - (level / 3);
 
 
-            QuickSlotButton.refresh();
+            updateQuickslot();
             super.detach();
         }
     }
