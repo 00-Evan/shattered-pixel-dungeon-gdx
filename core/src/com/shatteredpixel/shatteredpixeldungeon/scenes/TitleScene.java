@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.UpdateNotification;
 
 public class TitleScene extends PixelScene {
 
@@ -137,7 +138,11 @@ public class TitleScene extends PixelScene {
         ExitButton btnExit = new ExitButton();
         btnExit.setPos( w - btnExit.width(), 0 );
         add( btnExit );
-		
+
+        UpdateNotification updInfo = new UpdateNotification();
+        updInfo.setPos(0, h-17);
+        add(updInfo);
+
 		fadeIn();
 	}
 	
