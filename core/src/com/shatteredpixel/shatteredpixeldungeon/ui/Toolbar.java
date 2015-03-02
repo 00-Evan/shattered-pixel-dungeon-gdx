@@ -149,9 +149,9 @@ public class Toolbar extends Component {
 			};
 		} );
 
-		add( btnQuick = new QuickslotTool( 105, 7, 22, 24, 0) );
+		add( btnQuick = new QuickslotTool( 105, 7, 22, 24, 0, GameAction.QUICKSLOT_1) );
 
-		btnQuick2 = new QuickslotTool( 105, 7, 22, 24, 1);
+		add( btnQuick2 = new QuickslotTool( 105, 7, 22, 24, 1, GameAction.QUICKSLOT_2) );
 
 		add( pickedUp = new PickedUpItem() );
 	}
@@ -162,17 +162,9 @@ public class Toolbar extends Component {
 		btnSearch.setPos( btnWait.right(), y );
 		btnInfo.setPos( btnSearch.right(), y );
 		//btnResume.setPos( btnInfo.right(), y );
-		btnQuick.setPos( width - btnQuick.width(), y );
-		btnQuick2.setPos( btnQuick.left() - btnQuick2.width(), y );
-		if (QuickSlots == 2){
-			add(btnQuick2);
-			btnQuick2.visible = btnQuick2.active = true;
-			btnInventory.setPos( btnQuick2.left() - btnInventory.width(), y );
-		} else {
-			remove(btnQuick2);
-			btnQuick2.visible = btnQuick2.active = false;
-			btnInventory.setPos( btnQuick.left() - btnInventory.width(), y );
-		}
+		btnQuick2.setPos( width - btnQuick2.width(), y );
+        btnQuick.setPos( btnQuick2.left() - btnQuick.width(), y );
+        btnInventory.setPos( btnQuick.left() - btnInventory.width(), y );
 	}
 
 	@Override
@@ -281,10 +273,10 @@ public class Toolbar extends Component {
 
 		private QuickSlotButton slot;
 
-		public QuickslotTool( int x, int y, int width, int height, int slotNum) {
-			super(x, y, width, height, GameAction.QUICKSLOT);
+		public QuickslotTool( int x, int y, int width, int height, int slotNum, GameAction hotKey) {
+			super(x, y, width, height, null);
 
-			slot = new QuickSlotButton( slotNum );
+			slot = new QuickSlotButton( slotNum, hotKey );
 			add(slot);
 		}
 

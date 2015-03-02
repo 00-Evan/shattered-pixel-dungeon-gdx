@@ -175,7 +175,7 @@ public class WndSettings extends Window {
 			btnBrightness.checked( ShatteredPixelDungeon.brightness() );
 			add( btnBrightness );
 
-			CheckBox btnQuickSlot = new CheckBox( TXT_QUICKSLOT ) {
+			/*CheckBox btnQuickSlot = new CheckBox( TXT_QUICKSLOT ) {
 				@Override
 				protected void onClick() {
 					super.onClick();
@@ -185,9 +185,9 @@ public class WndSettings extends Window {
 			};
 			btnQuickSlot.setRect( 0, btnBrightness.bottom() + GAP, WIDTH, BTN_HEIGHT );
 			btnQuickSlot.checked( ShatteredPixelDungeon.quickSlots() == 2 );
-			add( btnQuickSlot );
+			add( btnQuickSlot );*/
 
-			lastBtn = btnQuickSlot;
+			lastBtn = btnBrightness;
 			
 		}
 

@@ -51,12 +51,13 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	private Item lastItem = null;
 	private static Char lastTarget= null;
 
-	public QuickSlotButton( int slotNum ) {
+	public QuickSlotButton( int slotNum, GameAction hotKey ) {
 		super();
 		this.slotNum = slotNum;
 		item(select(slotNum));
 
 		instance[slotNum] = this;
+        slot.hotKey = this.hotKey = hotKey;
 	}
 
 	@Override
@@ -76,6 +77,12 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 		slot = new ItemSlot() {
 			@Override
 			protected void onClick() {
+
+                if (NoosaInputProcessor.modifier) {
+                    onLongClick();
+                    return;
+                }
+
 				if (targeting) {
 					GameScene.handleCell( lastTarget.pos );
 				} else {

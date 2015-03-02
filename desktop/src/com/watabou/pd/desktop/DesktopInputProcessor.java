@@ -161,13 +161,14 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		DEFAULTS.put( GameAction.CATALOGUS, new KeyPair( Input.Keys.C ) );
 		DEFAULTS.put( GameAction.JOURNAL, new KeyPair( Input.Keys.J ) );
 
-		DEFAULTS.put( GameAction.REST, new KeyPair( Input.Keys.SPACE ) );
+		DEFAULTS.put( GameAction.REST, new KeyPair( Input.Keys.SPACE, Input.Keys.NUMPAD_5 ) );
 		DEFAULTS.put( GameAction.SEARCH, new KeyPair( Input.Keys.S ) );
 		DEFAULTS.put( GameAction.CELL_INFO, new KeyPair( Input.Keys.V ) );
 		DEFAULTS.put(GameAction.RESUME, new KeyPair( Input.Keys.R ) );
 
 		DEFAULTS.put( GameAction.BACKPACK, new KeyPair( Input.Keys.I ) );
-		DEFAULTS.put( GameAction.QUICKSLOT, new KeyPair( Input.Keys.Q ) );
+		DEFAULTS.put( GameAction.QUICKSLOT_1, new KeyPair( Input.Keys.Q ) );
+        DEFAULTS.put( GameAction.QUICKSLOT_2, new KeyPair( Input.Keys.W ) );
 
 		DEFAULTS.put( GameAction.TAG_ATTACK, new KeyPair( Input.Keys.A ) );
 		DEFAULTS.put( GameAction.TAG_DANGER, new KeyPair( Input.Keys.TAB ) );

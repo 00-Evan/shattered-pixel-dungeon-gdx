@@ -13,7 +13,8 @@ public enum GameAction {
 	RESUME("Resume motion"),
 
 	BACKPACK("Backpack"),
-	QUICKSLOT("Quickslot"),
+	QUICKSLOT_1("Left Quickslot"),
+    QUICKSLOT_2("Right Quickslot"),
 
 	TAG_ATTACK("Attack"),
 	TAG_DANGER("Visible Enemies"),
