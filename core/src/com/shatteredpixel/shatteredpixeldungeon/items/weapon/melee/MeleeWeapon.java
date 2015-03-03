@@ -153,7 +153,7 @@ public class MeleeWeapon extends Weapon {
 		} else {
 			if (cursedKnown && cursed) {
 				info.append( p );
-				info.append( "You can feel a malevolent magic lurking within " + name +"." );
+				info.append( "You can feel a malevolent magic lurking within the " + name +"." );
 			}
 		}
 		
@@ -187,7 +187,7 @@ public class MeleeWeapon extends Weapon {
 		super.random();
 		
 		if (Random.Int( 10 + level ) == 0) {
-			enchant( Enchantment.random() );
+			enchant();
 		}
 		
 		return this;

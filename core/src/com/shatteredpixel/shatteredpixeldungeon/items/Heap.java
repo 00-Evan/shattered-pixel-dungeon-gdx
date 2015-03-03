@@ -28,25 +28,32 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
@@ -58,6 +65,8 @@ import java.util.LinkedList;
 
 public class Heap implements Bundlable {
 
+	private static final String TXT_MIMIC = "This is a mimic!";
+
 	private static final int SEEDS_TO_POTION = 3;
 	
 	public enum Type {
@@ -68,7 +77,8 @@ public class Heap implements Bundlable {
 		CRYSTAL_CHEST,
 		TOMB, 
 		SKELETON,
-        REMAINS
+        REMAINS,
+		MIMIC
 	}
 	public Type type = Type.HEAP;
 	
@@ -76,7 +86,7 @@ public class Heap implements Bundlable {
 	
 	public ItemSprite sprite;
 	
-	protected LinkedList<Item> items = new LinkedList<Item>();
+	public LinkedList<Item> items = new LinkedList<Item>();
 	
 	public int image() {
 		switch (type) {
@@ -84,6 +94,7 @@ public class Heap implements Bundlable {
 		case FOR_SALE:
 			return size() > 0 ? items.peek().image() : 0;
 		case CHEST:
+		case MIMIC:
 			return ItemSpriteSheet.CHEST;
 		case LOCKED_CHEST:
 			return ItemSpriteSheet.LOCKED_CHEST;
@@ -106,6 +117,14 @@ public class Heap implements Bundlable {
 	
 	public void open( Hero hero ) {
 		switch (type) {
+		case MIMIC:
+			if (Mimic.spawnAt(pos, items) != null) {
+				GLog.n(TXT_MIMIC);
+				destroy();
+			} else {
+				type = Type.CHEST;
+			}
+			break;
 		case TOMB:
 			Wraith.spawnAround( hero.pos );
 			break;
@@ -125,10 +144,12 @@ public class Heap implements Bundlable {
 			break;
 		default:
 		}
-		
-		type = Type.HEAP;
-		sprite.link();
-		sprite.drop();
+
+		if (type != Type.MIMIC) {
+			type = Type.HEAP;
+			sprite.link();
+			sprite.drop();
+		}
 	}
 	
 	public int size() {
@@ -186,7 +207,16 @@ public class Heap implements Bundlable {
 	}
 	
 	public void burn() {
-		
+
+		if (type == Type.MIMIC) {
+			Mimic m = Mimic.spawnAt( pos, items );
+			if (m != null) {
+				Buff.affect( m, Burning.class ).reignite( m );
+				m.sprite.emitter().burst( FlameParticle.FACTORY, 5 );
+				destroy();
+			}
+		}
+
 		if (type != Type.HEAP) {
 			return;
 		}
@@ -204,6 +234,11 @@ public class Heap implements Bundlable {
 			} else if (item instanceof MysteryMeat) {
 				replace( item, ChargrilledMeat.cook( (MysteryMeat)item ) );
 				burnt = true;
+			} else if (item instanceof Bomb) {
+				items.remove( item );
+				((Bomb) item).explode( pos );
+				//stop processing the burning, it will be replaced by the explosion.
+				return;
 			}
 		}
 		
@@ -225,9 +260,57 @@ public class Heap implements Bundlable {
 			
 		}
 	}
+
+	//Note: should not be called to initiate an explosion, but rather by an explosion that is happening.
+	public void explode() {
+
+        //breaks open most standard containers, mimics die.
+		if (type == Type.MIMIC || type == Type.CHEST || type == Type.SKELETON) {
+            type = Type.HEAP;
+            sprite.link();
+            sprite.drop();
+            return;
+		}
+
+		if (type != Type.HEAP) {
+
+			return;
+
+		} else {
+
+			for (Item item : items.toArray( new Item[0] )) {
+
+				if (item instanceof Potion) {
+					items.remove( item );
+					((Potion) item).shatter(pos);
+
+				} else if (item instanceof Bomb) {
+					items.remove( item );
+					((Bomb) item).explode(pos);
+					//stop processing current explosion, it will be replaced by the new one.
+					return;
+
+				//unique and upgraded items can endure the blast
+				} else if (!(item.level > 0 || item.unique))
+					items.remove( item );
+
+			}
+
+			if (items.isEmpty())
+                destroy();
+		}
+	}
 	
 	public void freeze() {
-		
+
+		if (type == Type.MIMIC) {
+			Mimic m = Mimic.spawnAt( pos, items );
+			if (m != null) {
+				Buff.prolong( m, Frost.class, Frost.duration( m ) * Random.Float( 1.0f, 1.5f ) );
+				destroy();
+			}
+		}
+
 		if (type != Type.HEAP) {
 			return;
 		}
@@ -236,6 +319,12 @@ public class Heap implements Bundlable {
 		for (Item item : items.toArray( new Item[0] )) {
 			if (item instanceof MysteryMeat) {
 				replace( item, FrozenCarpaccio.cook( (MysteryMeat)item ) );
+				frozen = true;
+			} else if (item instanceof Potion) {
+				((Potion) item).shatter(pos);
+				frozen = true;
+			} else if (item instanceof Bomb){
+				((Bomb) item).fuse = null;
 				frozen = true;
 			}
 		}

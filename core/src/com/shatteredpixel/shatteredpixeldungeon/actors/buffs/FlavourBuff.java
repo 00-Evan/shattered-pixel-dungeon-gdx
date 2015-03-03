@@ -17,7 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
-//Special kind of buff, that doesn't perform any kind actions
+//buff whose only logic is to wait and detach after a time.
 public class FlavourBuff extends Buff {
 	
 	@Override

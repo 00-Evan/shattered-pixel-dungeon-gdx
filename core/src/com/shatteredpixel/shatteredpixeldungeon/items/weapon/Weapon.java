@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.*;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -38,7 +39,9 @@ import com.watabou.utils.Random;
 
 public class Weapon extends KindOfWeapon {
 
-	private static final String TXT_IDENTIFY		= 
+	private static final int HITS_TO_KNOW    = 20;
+
+	private static final String TXT_IDENTIFY		=
 		"You are now familiar enough with your %s to identify it. It is %s.";
 	private static final String TXT_INCOMPATIBLE	= 
 		"Interaction of different types of magic has negated the enchantment on this weapon!";
@@ -53,9 +56,9 @@ public class Weapon extends KindOfWeapon {
     }
     public Imbue imbue = Imbue.NONE;
 
-	private int hitsToKnow = 20;
+	private int hitsToKnow = HITS_TO_KNOW;
 	
-	protected Enchantment enchantment;
+	public Enchantment enchantment;
 	
 	@Override
 	public void proc( Char attacker, Char defender, int damage ) {
@@ -72,13 +75,15 @@ public class Weapon extends KindOfWeapon {
 			}
 		}
 	}
-	
-	private static final String ENCHANTMENT	= "enchantment";
-    private static final String IMBUE		= "imbue";
-	
+
+	private static final String UNFAMILIRIARITY	= "unfamiliarity";
+	private static final String ENCHANTMENT		= "enchantment";
+	private static final String IMBUE			= "imbue";
+
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
+		bundle.put( UNFAMILIRIARITY, hitsToKnow );
 		bundle.put( ENCHANTMENT, enchantment );
         bundle.put( IMBUE, imbue );
 	}
@@ -86,6 +91,9 @@ public class Weapon extends KindOfWeapon {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
+		if ((hitsToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
+			hitsToKnow = HITS_TO_KNOW;
+		}
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
         imbue = bundle.getEnum( IMBUE, Imbue.class );
 	}
@@ -143,7 +151,7 @@ public class Weapon extends KindOfWeapon {
 		
 		int damage = super.damageRoll( hero );
 		
-		if ((hero.rangedWeapon != null) == (hero.heroClass == HeroClass.HUNTRESS)) {
+		if (this instanceof MeleeWeapon || (this instanceof MissileWeapon && hero.heroClass == HeroClass.HUNTRESS)) {
 			int exStr = hero.STR() - STR;
 			if (exStr > 0) {
 				damage += Random.IntRange( 0, exStr );
@@ -161,7 +169,7 @@ public class Weapon extends KindOfWeapon {
 			}
 		} else {
 			if (enchant) {
-				enchant( Enchantment.random() );
+				enchant( );
 			}
 		}
 		
@@ -199,25 +207,36 @@ public class Weapon extends KindOfWeapon {
 	}
 	
 	public Weapon enchant( Enchantment ench ) {
-		this.enchantment = ench;
+		enchantment = ench;
 		return this;
 	}
-	
+
+	public Weapon enchant() {
+
+		Class<? extends Enchantment> oldEnchantment = enchantment != null ? enchantment.getClass() : null;
+		Enchantment ench = Enchantment.random();
+		while (ench.getClass() == oldEnchantment) {
+			ench = Enchantment.random();
+		}
+
+		return enchant( ench );
+	}
+
 	public boolean isEnchanted() {
 		return enchantment != null;
 	}
-	
+
 	@Override
 	public ItemSprite.Glowing glowing() {
 		return enchantment != null ? enchantment.glowing() : null;
 	}
 	
 	public static abstract class Enchantment implements Bundlable {
-		
+
 		private static final Class<?>[] enchants = new Class<?>[]{ 
 			Fire.class, Poison.class, Death.class, Paralysis.class, Leech.class, 
-			Slow.class, Swing.class, Piercing.class, Instability.class, Horror.class, Luck.class };
-		private static final float[] chances= new float[]{ 10, 10, 1, 2, 1, 2, 3, 3, 3, 2, 2 };
+			Slow.class, Shock.class, Instability.class, Horror.class, Luck.class };
+		private static final float[] chances= new float[]{ 10, 10, 1, 2, 1, 2, 6, 3, 2, 2 };
 			
 		public abstract boolean proc( Weapon weapon, Char attacker, Char defender, int damage );
 		

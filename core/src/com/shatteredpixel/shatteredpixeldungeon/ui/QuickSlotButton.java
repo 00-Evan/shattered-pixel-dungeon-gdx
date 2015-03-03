@@ -32,28 +32,25 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 
-//TODO: investigate targeting with multiple quickslots
 public class QuickSlotButton extends Button<GameAction> implements WndBag.Listener {
 
 	private static final String TXT_SELECT_ITEM = "Select an item for the quickslot";
 	
 	private static QuickSlotButton[] instance = new QuickSlotButton[4];
 	private int slotNum;
-	
-	private Item itemInSlot;
+
 	private ItemSlot slot;
 
 	private static Image crossB;
 	private static Image crossM;
 
 	private static boolean targeting = false;
-	private Item lastItem = null;
 	private static Char lastTarget= null;
 
 	public QuickSlotButton( int slotNum, GameAction hotKey ) {
 		super();
 		this.slotNum = slotNum;
-		item(select(slotNum));
+		item( select( slotNum ) );
 
 		instance[slotNum] = this;
         slot.hotKey = this.hotKey = hotKey;
@@ -63,12 +60,14 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	public void destroy() {
 		super.destroy();
 
-		instance = new QuickSlotButton[4];
-
-		lastItem = null;
-		lastTarget = null;
+		reset();
 	}
 
+    public static void reset() {
+        instance = new QuickSlotButton[4];
+
+        lastTarget = null;
+    }
 	@Override
 	protected void createChildren() {
 		super.createChildren();
@@ -114,7 +113,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 		add( crossB );
 
 		crossM = new Image();
-		crossM.copy(crossB);
+		crossM.copy( crossB );
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 
 	@Override
 	protected boolean onLongClick() {
-		GameScene.selectItem(this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM);
+		GameScene.selectItem( this, WndBag.Mode.QUICKSLOT, TXT_SELECT_ITEM );
 		return true;
 	}
 
@@ -152,7 +151,6 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 
 	public void item( Item item ) {
 		slot.item( item );
-		itemInSlot = item;
 		enableSlot();
 	}
 
@@ -166,10 +164,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	}
 
 	private void enableSlot() {
-		slot.enable(
-				itemInSlot != null &&
-						itemInSlot.quantity() > 0 &&
-						(Dungeon.hero.belongings.backpack.contains( itemInSlot ) || itemInSlot.isEquipped( Dungeon.hero )));
+		slot.enable(Dungeon.quickslot.isNonePlaceholder( slotNum ));
 	}
 
 	private void useTargeting() {

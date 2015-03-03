@@ -17,6 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Game;
@@ -29,8 +30,9 @@ import com.watabou.utils.SparseArray;
 
 public class WndStory extends Window {
 
-	private static final int WIDTH = 120;
-	private static final int MARGIN = 6;
+	private static final int WIDTH_P = 120;
+    private static final int WIDTH_L = 144;
+    private static final int MARGIN = 6;
 	
 	private static final float bgR	= 0.77f;
 	private static final float bgG	= 0.73f;
@@ -83,7 +85,9 @@ public class WndStory extends Window {
 		super( 0, 0, Chrome.get( Chrome.Type.SCROLL ) );
 		
 		tf = PixelScene.createMultiline( text, 7 );
-		tf.maxWidth = WIDTH - MARGIN * 2;
+		tf.maxWidth = ShatteredPixelDungeon.landscape() ?
+                    WIDTH_L - MARGIN * 2:
+                    WIDTH_P - MARGIN *2;
 		tf.measure();
 		tf.ra = bgR;
 		tf.ga = bgG;
@@ -109,7 +113,7 @@ public class WndStory extends Window {
 		super.update();
 		
 		if (delay > 0 && (delay -= Game.elapsed) <= 0) {
-			chrome.visible = tf.visible = true;
+			shadow.visible = chrome.visible = tf.visible = true;
 		}
 	}
 	
@@ -123,7 +127,7 @@ public class WndStory extends Window {
 		if (text != null) {
 			WndStory wnd = new WndStory( text );
 			if ((wnd.delay = 0.6f) > 0) {
-				wnd.chrome.visible = wnd.tf.visible = false;
+				wnd.shadow.visible = wnd.chrome.visible = wnd.tf.visible = false;
 			}
 			
 			Game.scene().add( wnd );

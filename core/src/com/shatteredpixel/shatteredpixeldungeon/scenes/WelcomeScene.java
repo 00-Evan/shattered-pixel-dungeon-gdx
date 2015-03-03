@@ -1,22 +1,25 @@
-//TODO: update this class with relevant info as new versions come out.
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.NinePatch;
+import com.watabou.noosa.ui.Component;
 
+//TODO: update this class with relevant info as new versions come out.
 public class WelcomeScene extends PixelScene {
 
     private static final String TTL_Welcome = "Welcome!";
 
-    private static final String TTL_LastVer = "v0.2.3 Update!";
-
-    private static final String TTL_SameVer = "v0.2.3 Patched!";
+    private static final String TTL_Update = "v0.2.4: PD 1.7.5 and Some Extras!";
 
     private static final String TTL_Future = "Wait What?";
 
@@ -26,19 +29,52 @@ public class WelcomeScene extends PixelScene {
                     "Shattered Pixel Dungeon is being constantly updated, so expect more new content soon!\n\n"+
                     "Happy Dungeoneering!";
 
-    private static final String TXT_LastVer =
-            "The Artifact Booster Pack! This update brings a variety of tweaks, improvements, and new content!\n\n" +
-            "-4 new Artifacts!\n-Artifacts are now unique!\n-Artifacts can now be cursed!\n-Artifact balance tweaks\n\n" +
-            "-Cloak of Shadows is now Rogue Exclusive\n-Freerunner now runs MUCH faster while invisible\n\n" +
-            "-Dangerous blandfruit effects reworked, now more positive.\n\n-Ring of Force buffed, Ring of Evasion reworked\n\n" +
-            "-Second QuickSlot!\n\n-Rankings Page Reworked\n\n-You can now donate to support the game, press the donate button for more info!";
-
-    private static final String TXT_SameVer =
-            "v0.2.3a and v0.2.3b fix some crash bugs players were experiencing.\n\n" +
-            "v0.2.3c fixes numerous issues, and gives some buffs to two of the new artifacts.\n\n" +
-            "v0.2.3d fixes numerous bugs, both from this release and older ones.\n\n" +
-            "v0.2.3e fixes some bugs, and adds a couple new features!\n-Second QuickSlot!\n-night mode is now a level feel, time of day no longer affects gameplay.\n\n" +
-            "v0.2.3f fixes more bugs. Next update is 0.2.4, which will incorporate the new 1.7.5 source, degredation will not be included.";
+    private static final String TXT_Update =
+            "V0.2.4b:\n" +
+                    "-Fixed some crash issues.\n" +
+                    "-Fixed a bug with the unstable spellbook.\n" +
+                    "-Fixed some hiccups with touch input.\n" +
+                    "\n" +
+                    "v0.2.4a:\n" +
+                    "-Fixed bugs with floor 26.\n" +
+                    "-Fixed bombs destroying items they shouldn't.\n" +
+                    "-Fixed dew vial rarely spawning twice.\n" +
+                    "-Fixed a bug with transmuting wands.\n" +
+                    "-Lloyd's beacon does not need to be re-set.\n" +
+                    "-Fixed a bug with renaming the sandals of nature.\n" +
+                    "\n" +
+                    "V0.2.4:\n" +
+                    "v1.7.5 Source Implemented, with exceptions:\n" +
+                    "\n" +
+                    "- Degredation not implemented.\n" +
+                    "\n" +
+                    "- Badge syncing not implemented.\n" +
+                    "\n" +
+                    "- Scroll of Weapon Upgrade renamed to Magical Infusion, works on armor.\n" +
+                    "\n" +
+                    "- Scroll of Enchantment not implemented, Arcane stylus has not been removed.\n" +
+                    "\n" +
+                    "- Honey pots now shatter in a new item: shattered honeypot. A bee will defend its shattered pot to the death against anything that gets near.\n" +
+                    "\n" +
+                    "- Bombs have been reworked/nerfed: they explode after a delay, no longer stun, deal more damage at the center of the blast, affect the world (destroy items, blow up other bombs).\n" +
+                    "\n" +
+                    "\n" +
+                    "In addition, this update features the following changes:\n" +
+                    "\n" +
+                    "- The huntress has been buffed: starts with Potion of Mind Vision identified, now benefits from strength on melee attacks, and has a chance to reclaim a single used ranged weapon from each defeated enemy. \n" +
+                    "\n" +
+                    "- A new container: The Potion Bandolier! Potions can now shatter from frost, but the bandolier can protect them.\n" +
+                    "\n" +
+                    "- Shops now stock a much greater variety of items, some item prices have been rebalanced.\n" +
+                    "\n" +
+                    "- Going down stairs no longer increases hunger, going up still does.\n" +
+                    "\n" +
+                    "-Many, many bugfixes.\n" +
+                    "-Some UI improvements.\n" +
+                    "-Ingame audio quality improved.\n" +
+                    "-Unstable spellbook buffed.\n" +
+                    "-Psionic blasts deal less self-damage.\n" +
+                    "-Potions of liquid flame affect a 3x3 grid.";
 
     private static final String TXT_Future =
             "It seems that your current saves are from a future version of Shattered Pixel Dungeon!\n\n"+
@@ -54,23 +90,18 @@ public class WelcomeScene extends PixelScene {
 
         final int gameversion = ShatteredPixelDungeon.version();
 
-        BitmapTextMultiline text;
         BitmapTextMultiline title;
+        BitmapTextMultiline text;
 
         if (gameversion == 0) {
 
             text = createMultiline(TXT_Welcome, 8);
             title = createMultiline(TTL_Welcome, 16);
 
-        } else if (gameversion < 26) {
-
-            text = createMultiline(TXT_LastVer, 6 );
-            title = createMultiline(TTL_LastVer, 12 );
-
         } else if (gameversion <= Game.versionCode) {
 
-            text = createMultiline(TXT_SameVer, 6 );
-            title = createMultiline(TTL_SameVer, 12 );
+            text = createMultiline(TXT_Update, 6 );
+            title = createMultiline(TTL_Update, 9 );
 
         } else {
 
@@ -79,36 +110,68 @@ public class WelcomeScene extends PixelScene {
 
         }
 
+        int w = Camera.main.width;
+        int h = Camera.main.height;
 
-        text.maxWidth = 120;
-        text.measure();
-        add( text );
+        int pw = w - 10;
+        int ph = h - 50;
 
-        text.x = align( (Camera.main.width - text.width()) / 2 );
-        text.y = align( (Camera.main.height - text.height()) / 2 );
-
-        title.maxWidth = text.maxWidth;
+        title.maxWidth = pw;
         title.measure();
-        title.hardlight(Window.TITLE_COLOR);
+        title.hardlight(Window.SHPX_COLOR);
+
+        title.x = align( (w - title.width()) / 2 );
+        title.y = align( 8 );
         add( title );
 
-        title.x = align( (Camera.main.width - title.width()) / 2 );
-        title.y = align( text.y - title.height() - 10 );
+        NinePatch panel = Chrome.get(Chrome.Type.WINDOW);
+        panel.size( pw, ph );
+        panel.x = (w - pw) / 2;
+        panel.y = (h - ph) / 2;
+        add( panel );
+
+        ScrollPane list = new ScrollPane( new Component() );
+        add( list );
+        list.setRect(
+                panel.x + panel.marginLeft(),
+                panel.y + panel.marginTop(),
+                panel.innerWidth(),
+                panel.innerHeight());
+        list.scrollTo( 0, 0 );
+
+        Component content = list.content();
+        content.clear();
+
+        text.maxWidth = (int) panel.innerWidth();
+        text.measure();
+
+        content.add(text);
+
+        content.setSize( panel.innerWidth(), text.height() );
 
         RedButton okay = new RedButton("Okay!") {
             @Override
             protected void onClick() {
-                //imports new ranking data for pre-0.2.3 saves.
-                if (gameversion < 30){
-                    Rankings.INSTANCE.load();
-                    Rankings.INSTANCE.save();
-                }
+
+
+	            if (gameversion <= 32){
+		            //removes all bags bought badge from pre-0.2.4 saves.
+		            Badges.disown(Badges.Badge.ALL_BAGS_BOUGHT);
+		            Badges.saveGlobal();
+
+		            //imports new ranking data for pre-0.2.3 saves.
+		            if (gameversion <= 29){
+			            Rankings.INSTANCE.load();
+			            Rankings.INSTANCE.save();
+		            }
+	            }
+
                 ShatteredPixelDungeon.version(Game.versionCode);
                 Game.switchScene(TitleScene.class);
             }
         };
 
-        /* to be added in a later update
+        /*
         okay.setRect(text.x, text.y + text.height() + 5, 55, 18);
         add(okay);
 
@@ -122,9 +185,8 @@ public class WelcomeScene extends PixelScene {
         changes.setRect(text.x + 65, text.y + text.height() + 5, 55, 18);
         add(changes);*/
 
-        okay.setRect(text.x, text.y + text.height() + 5, text.width(), 18);
+        okay.setRect((w - pw) / 2, h - 22, pw, 18);
         add(okay);
-
 
         Archs archs = new Archs();
         archs.setSize( Camera.main.width, Camera.main.height );

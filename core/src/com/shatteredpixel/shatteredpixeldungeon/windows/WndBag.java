@@ -26,6 +26,7 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
@@ -34,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
@@ -62,6 +64,7 @@ public class WndBag extends WndTabbed {
 		FOR_SALE,
 		WEAPON,
 		ARMOR,
+		ENCHANTABLE,
 		WAND,
 		SEED,
         FOOD,
@@ -69,24 +72,22 @@ public class WndBag extends WndTabbed {
 		SCROLL,
 		EQUIPMENT
 	}
-	
-	protected static final int COLS	= 4;
-	
+
+	protected static final int COLS_P    = 4;
+	protected static final int COLS_L    = 6;
+
 	protected static final int SLOT_SIZE	= 28;
 	protected static final int SLOT_MARGIN	= 1;
 	
-	protected static final int TAB_WIDTH	= 30;
-	
 	protected static final int TITLE_HEIGHT	= 12;
-	
-	@SuppressWarnings("unused")
-	protected static final int ROWS = 
-		(Belongings.BACKPACK_SIZE + 4 + 1) / COLS + ((Belongings.BACKPACK_SIZE + 4 + 1) % COLS > 0 ? 1 : 0);
 	
 	private Listener listener;
 	private WndBag.Mode mode;
 	private String title;
-	
+
+	private int nCols;
+	private int nRows;
+
 	protected int count;
 	protected int col;
 	protected int row;
@@ -104,36 +105,41 @@ public class WndBag extends WndTabbed {
 		
 		lastMode = mode;
 		lastBag = bag;
-		
+
+		nCols = ShatteredPixelDungeon.landscape() ? COLS_L : COLS_P;
+		nRows = (Belongings.BACKPACK_SIZE + 4 + 1) / nCols + ((Belongings.BACKPACK_SIZE + 4 + 1) % nCols > 0 ? 1 : 0);
+
+		int slotsWidth = SLOT_SIZE * nCols + SLOT_MARGIN * (nCols - 1);
+		int slotsHeight = SLOT_SIZE * nRows + SLOT_MARGIN * (nRows - 1);
+
 		BitmapText txtTitle = PixelScene.createText( title != null ? title : Utils.capitalize( bag.name() ), 9 );
 		txtTitle.hardlight( TITLE_COLOR );
 		txtTitle.measure();
-		txtTitle.x = (int)(SLOT_SIZE * COLS + SLOT_MARGIN * (COLS - 1) - txtTitle.width()) / 2;
+		txtTitle.x = (int)(slotsWidth - txtTitle.width()) / 2;
 		txtTitle.y = (int)(TITLE_HEIGHT - txtTitle.height()) / 2;
 		add( txtTitle );
 		
 		placeItems( bag );
-		
-		resize( 
-			SLOT_SIZE * COLS + SLOT_MARGIN * (COLS - 1), 
-			SLOT_SIZE * ROWS + SLOT_MARGIN * (ROWS - 1) + TITLE_HEIGHT );
-		
+
+		resize( slotsWidth, slotsHeight + TITLE_HEIGHT );
+
 		Belongings stuff = Dungeon.hero.belongings;
 		Bag[] bags = {
 			stuff.backpack, 
 			stuff.getItem( SeedPouch.class ), 
 			stuff.getItem( ScrollHolder.class ),
+			stuff.getItem( PotionBandolier.class ),
 			stuff.getItem( WandHolster.class )};
-		
+
 		for (Bag b : bags) {
 			if (b != null) {
 				BagTab tab = new BagTab( b );
-				tab.setSize( TAB_WIDTH, tabHeight() );
 				add( tab );
-				
 				tab.select( b == bag );
 			}
 		}
+
+		layoutTabs();
 	}
 
 	@Override
@@ -158,12 +164,12 @@ public class WndBag extends WndTabbed {
 			
 		}
 	}
-	
-	public static WndBag seedPouch( Listener listener, Mode mode, String title ) {
-		SeedPouch pouch = Dungeon.hero.belongings.getItem( SeedPouch.class );
-		return pouch != null ?
-			new WndBag( pouch, listener, mode, title ) :
-			new WndBag( Dungeon.hero.belongings.backpack, listener, mode, title );
+
+	public static WndBag getBag( Class<? extends Bag> bagClass, Listener listener, Mode mode, String title ) {
+		Bag bag = Dungeon.hero.belongings.getItem( bagClass );
+		return bag != null ?
+				new WndBag( bag, listener, mode, title ) :
+				lastBag( listener, mode, title );
 	}
 	
 	protected void placeItems( Bag container ) {
@@ -174,21 +180,28 @@ public class WndBag extends WndTabbed {
 		placeItem( stuff.armor != null ? stuff.armor : new Placeholder( ItemSpriteSheet.ARMOR ) );
 		placeItem( stuff.misc1 != null ? stuff.misc1 : new Placeholder( ItemSpriteSheet.RING ) );
 		placeItem( stuff.misc2 != null ? stuff.misc2 : new Placeholder( ItemSpriteSheet.RING ) );
-		
-		// Unequipped items
+
+		boolean backpack = (container == Dungeon.hero.belongings.backpack);
+		if (!backpack) {
+			count = nCols;
+			col = 0;
+			row = 1;
+		}
+
+		// Items in the bag
 		for (Item item : container.items) {
 			placeItem( item );
 		}
 		
-		// Empty slots
-		while (count-4 < container.size) {
+		// Free Space
+		while (count-(backpack ? 4 : nCols) < container.size) {
 			placeItem( null );
 		}
 		
 		// Gold
 		if (container == Dungeon.hero.belongings.backpack) {
-			row = ROWS - 1;
-			col = COLS - 1;
+			row = nRows - 1;
+			col = nCols - 1;
 			placeItem( new Gold( Dungeon.gold ) );
 		}
 	}
@@ -200,7 +213,7 @@ public class WndBag extends WndTabbed {
 		
 		add( new ItemButton( item ).setPos( x, y ) );
 		
-		if (++col >= COLS) {
+		if (++col >= nCols) {
 			col = 0;
 			row++;
 		}
@@ -277,6 +290,8 @@ public class WndBag extends WndTabbed {
 				return Icons.get( Icons.SCROLL_HOLDER );
 			} else if (bag instanceof WandHolster) {
 				return Icons.get( Icons.WAND_HOLSTER );
+			} else if (bag instanceof PotionBandolier) {
+				return Icons.get( Icons.POTION_BANDOLIER );
 			} else {
 				return Icons.get( Icons.BACKPACK );
 			}
@@ -364,6 +379,7 @@ public class WndBag extends WndTabbed {
 						mode == Mode.QUICKSLOT && (item.defaultAction != null) ||
 						mode == Mode.WEAPON && (item instanceof MeleeWeapon || item instanceof Boomerang) ||
 						mode == Mode.ARMOR && (item instanceof Armor) ||
+						mode == Mode.ENCHANTABLE && (item instanceof MeleeWeapon || item instanceof Boomerang || item instanceof Armor) ||
 						mode == Mode.WAND && (item instanceof Wand) ||
 						mode == Mode.SEED && (item instanceof Seed) ||
                         mode == Mode.FOOD && (item instanceof Food) ||

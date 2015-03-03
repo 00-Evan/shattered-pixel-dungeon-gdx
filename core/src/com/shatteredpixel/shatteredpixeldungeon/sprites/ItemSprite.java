@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
@@ -156,22 +157,30 @@ public class ItemSprite extends MovieClip {
 	public void update() {
 		super.update();
 
-		// Visibility
-		visible = heap == null || Dungeon.visible[heap.pos];
-		
-		// Dropping
+		visible = (heap == null || Dungeon.visible[heap.pos]);
+
 		if (dropInterval > 0 && (dropInterval -= Game.elapsed) <= 0) {
 			
 			speed.set( 0 );
 			acc.set( 0 );
 			place( heap.pos );
-			
-			if (Level.water[heap.pos]) {
-				GameScene.ripple( heap.pos );
+
+			if (visible) {
+				boolean water = Level.water[heap.pos];
+
+				if (water) {
+					GameScene.ripple(heap.pos);
+				} else {
+					int cell = Dungeon.level.map[heap.pos];
+					water = (cell == Terrain.WELL || cell == Terrain.ALCHEMY);
+				}
+
+				if (!(heap.peek() instanceof Gold)) {
+					Sample.INSTANCE.play(water ? Assets.SND_WATER : Assets.SND_STEP, 0.8f, 0.8f, 1.2f);
+				}
 			}
 		}
-		
-		// Glowing
+
 		if (visible && glowing != null) {
 			if (glowUp && (phase += Game.elapsed) > glowing.period) {
 				

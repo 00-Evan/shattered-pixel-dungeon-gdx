@@ -80,11 +80,7 @@ public class Artifact extends KindofMisc {
                 hero.belongings.misc2 = this;
             }
 
-            int slot = Dungeon.quickslot.getSlot( this );
-
             detach( hero.belongings.backpack );
-
-            if (slot != -1) Dungeon.quickslot.setSlot( slot, this );
 
             activate( hero );
 
@@ -230,9 +226,9 @@ public class Artifact extends KindofMisc {
 
     @Override
     public int price() {
-        int price = 200;
+        int price = 100;
         if (level > 0)
-            price += 30*((level*10)/levelCap);
+            price += 50*((level*10)/levelCap);
         if (cursed && cursedKnown) {
             price /= 2;
         }

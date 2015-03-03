@@ -28,6 +28,7 @@ import com.watabou.noosa.Group;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.TouchArea;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.effects.ShadowBox;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.utils.Signal;
@@ -38,7 +39,8 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 	protected int height;
 	
 	protected TouchArea blocker;
-	protected NinePatch chrome;
+    protected ShadowBox shadow;
+    protected NinePatch chrome;
 	
 	public static final int TITLE_COLOR = 0xFFFF44;
     public static final int SHPX_COLOR = 0x33BB33;
@@ -69,10 +71,16 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 		add( blocker );
 		
 		this.chrome = chrome;
-		
+
 		this.width = width;
 		this.height = height;
-		
+
+        shadow = new ShadowBox();
+        shadow.am = 0.5f;
+        shadow.camera = PixelScene.uiCamera.visible ?
+                PixelScene.uiCamera : Camera.main;
+        add( shadow );
+
 		chrome.x = -chrome.marginLeft();
 		chrome.y = -chrome.marginTop();
 		chrome.size( 
@@ -89,20 +97,27 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 		camera.scroll.set( chrome.x, chrome.y );
 		Camera.add( camera );
 
-		Game.instance.getInputProcessor().addKeyListener(this);
+		shadow.boxRect(
+				camera.x / camera.zoom,
+				camera.y / camera.zoom,
+				chrome.width(), chrome.height );
+
+        Game.instance.getInputProcessor().addKeyListener(this);
 	}
 	
 	public void resize( int w, int h ) {
 		this.width = w;
 		this.height = h;
-		
-		chrome.size( 
+
+		chrome.size(
 			width + chrome.marginHor(),
 			height + chrome.marginVer() );
 		
 		camera.resize( (int)chrome.width, (int)chrome.height );
 		camera.x = (int)(Game.width - camera.screenWidth()) / 2;
 		camera.y = (int)(Game.height - camera.screenHeight()) / 2;
+
+		shadow.boxRect( camera.x / camera.zoom, camera.y / camera.zoom, chrome.width(), chrome.height );
 	}
 	
 	public void hide() {

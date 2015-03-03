@@ -162,7 +162,9 @@ public class Plant implements Bundlable {
 		
 		public Plant couch( int pos ) {
 			try {
-				Sample.INSTANCE.play( Assets.SND_PLANT );
+				if (Dungeon.visible[pos]) {
+					Sample.INSTANCE.play(Assets.SND_PLANT);
+				}
 				Plant plant = ClassReflection.newInstance(plantClass);
 				plant.pos = pos;
 				return plant;

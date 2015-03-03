@@ -34,9 +34,9 @@ public class UnstableSpellbook extends Artifact {
         level = 0;
         levelCap = 10;
 
-        charge = ((level/2)+1);
+        charge = ((level/2)+3);
         partialCharge = 0;
-        chargeCap = ((level/2)+1);
+        chargeCap = ((level/2)+3);
 
         defaultAction = AC_READ;
     }
@@ -69,7 +69,7 @@ public class UnstableSpellbook extends Artifact {
         ArrayList<String> actions = super.actions( hero );
         if (isEquipped( hero ) && charge > 0 && !cursed)
             actions.add(AC_READ);
-        if (level < levelCap && !cursed)
+        if (isEquipped( hero ) && level < levelCap && !cursed)
             actions.add(AC_ADD);
         return actions;
     }
@@ -111,7 +111,7 @@ public class UnstableSpellbook extends Artifact {
 
     @Override
     public Item upgrade() {
-        chargeCap = (((level+1)/2)+1);
+        chargeCap = (((level+1)/2)+3);
 
         //for artifact transmutation.
         while (scrolls.size() > (levelCap-1-level))
@@ -161,21 +161,17 @@ public class UnstableSpellbook extends Artifact {
         return desc;
     }
 
-    //needs to bundle chargecap as it is dynamic.
-    private static final String CHARGECAP = "chargecap";
     private static final String SCROLLS =   "scrolls";
 
     @Override
     public void storeInBundle( Bundle bundle ) {
         super.storeInBundle(bundle);
-        bundle.put( CHARGECAP, chargeCap );
         bundle.put( SCROLLS, scrolls.toArray(new String[scrolls.size()]) );
     }
 
     @Override
     public void restoreFromBundle( Bundle bundle ) {
         super.restoreFromBundle(bundle);
-        chargeCap = bundle.getInt( CHARGECAP );
         scrolls.clear();
         Collections.addAll(scrolls, bundle.getStringArray(SCROLLS));
     }
@@ -184,7 +180,7 @@ public class UnstableSpellbook extends Artifact {
         @Override
         public boolean act() {
             if (charge < chargeCap && !cursed) {
-                partialCharge += 1 / (200f - (chargeCap - charge)*20f);
+                partialCharge += 1 / (200f - (chargeCap - charge)*15f);
 
                 if (partialCharge >= 1) {
                     partialCharge --;

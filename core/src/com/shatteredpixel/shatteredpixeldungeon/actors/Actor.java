@@ -29,13 +29,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.SparseArray;
 
 public abstract class Actor implements Bundlable {
 	
 	public static final float TICK	= 1f;
 
 	private float time;
-	
+
+	private int id = 0;
+
 	protected abstract boolean act();
 	
 	protected void spend( float time ) {
@@ -59,25 +62,39 @@ public abstract class Actor implements Bundlable {
 	protected void onAdd() {}
 	
 	protected void onRemove() {}
-	
-	private static final String TIME = "time";
-	
+
+	private static final String TIME    = "time";
+	private static final String ID      = "id";
+
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( TIME, time );
+		bundle.put( ID, id );
 	}
-	
+
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		time = bundle.getFloat( TIME );
+		id = bundle.getInt( ID );
 	}
-	
+
+    private static int nextID = 1;
+	public int id() {
+		if (id > 0) {
+			return id;
+		} else {
+			return (id = nextID++);
+		}
+	}
+
 	// **********************
 	// *** Static members ***
 	
 	private static HashSet<Actor> all = new HashSet<Actor>();
 	private static Actor current;
-	
+
+	private static SparseArray<Actor> ids = new SparseArray<Actor>();
+
 	private static float now = 0;
 	
 	private static Char[] chars = new Char[Level.LENGTH];
@@ -88,6 +105,8 @@ public abstract class Actor implements Bundlable {
 		
 		Arrays.fill( chars, null );
 		all.clear();
+
+		ids.clear();
 	}
 	
 	public static void fixTime() {
@@ -122,6 +141,20 @@ public abstract class Actor implements Bundlable {
 		
 		current = null;
 	}
+
+    private static final String NEXTID = "nextid";
+
+    public static void storeNextID( Bundle bundle){
+        bundle.put( NEXTID, nextID );
+    }
+
+    public static void restoreNextID( Bundle bundle){
+        nextID = bundle.getInt( NEXTID );
+    }
+
+    public static void resetNextID(){
+        nextID = 1;
+    }
 	
 	public static void occupyCell( Char ch ) {
 		chars[ch.pos] = ch;
@@ -202,9 +235,11 @@ public abstract class Actor implements Bundlable {
 		if (all.contains( actor )) {
 			return;
 		}
-		
+
+		ids.put( actor.id(),  actor );
+
 		all.add( actor );
-		actor.time += time;	// (+=) => (=) ?
+		actor.time += time;
 		actor.onAdd();
 		
 		if (actor instanceof Char) {
@@ -222,13 +257,21 @@ public abstract class Actor implements Bundlable {
 		if (actor != null) {
 			all.remove( actor );
 			actor.onRemove();
+
+			if (actor.id > 0) {
+				ids.remove( actor.id );
+			}
 		}
 	}
 	
 	public static Char findChar( int pos ) {
 		return chars[pos];
 	}
-	
+
+	public static Actor findById( int id ) {
+		return ids.get( id );
+	}
+
 	public static HashSet<Actor> all() {
 		return all;
 	}

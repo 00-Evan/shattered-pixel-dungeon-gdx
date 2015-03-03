@@ -35,6 +35,8 @@ import com.watabou.utils.Random;
 
 public class Ring extends KindofMisc {
 
+	private static final int TICKS_TO_KNOW    = 200;
+
 	private static final float TIME_TO_EQUIP = 1f;
 	
 	private static final String TXT_IDENTIFY = 
@@ -75,7 +77,7 @@ public class Ring extends KindofMisc {
 	
 	private String gem;
 	
-	private int ticksToKnow = 200;
+	private int ticksToKnow = TICKS_TO_KNOW;
 	
 	@SuppressWarnings("unchecked")
 	public static void initGems() {
@@ -124,11 +126,7 @@ public class Ring extends KindofMisc {
 				hero.belongings.misc2 = this;
 			}
 
-			int slot = Dungeon.quickslot.getSlot( this );
-
 			detach( hero.belongings.backpack );
-
-			if (slot != -1) Dungeon.quickslot.setSlot( slot, this );
 			
 			activate( hero );
 			
@@ -263,7 +261,7 @@ public class Ring extends KindofMisc {
 	
 	@Override
 	public int price() {
-		int price = 120;
+		int price = 75;
 		if (cursed && cursedKnown) {
 			price /= 2;
 		}
@@ -283,7 +281,23 @@ public class Ring extends KindofMisc {
 	protected RingBuff buff() {
 		return null;
 	}
-	
+
+	private static final String UNFAMILIRIARITY    = "unfamiliarity";
+
+	@Override
+	public void storeInBundle( Bundle bundle ) {
+		super.storeInBundle( bundle );
+		bundle.put( UNFAMILIRIARITY, ticksToKnow );
+	}
+
+	@Override
+	public void restoreFromBundle( Bundle bundle ) {
+		super.restoreFromBundle( bundle );
+		if ((ticksToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
+			ticksToKnow = TICKS_TO_KNOW;
+		}
+	}
+
 	public class RingBuff extends Buff {
 		
 		private static final String TXT_KNOWN = "This is a %s"; 

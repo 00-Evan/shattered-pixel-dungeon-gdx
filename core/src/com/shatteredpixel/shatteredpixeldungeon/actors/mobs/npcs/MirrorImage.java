@@ -38,8 +38,7 @@ public class MirrorImage extends NPC {
 		spriteClass = MirrorSprite.class;
 		
 		state = HUNTING;
-		
-		enemy = DUMMY;
+
 	}
 	
 	public int tier;
@@ -95,7 +94,7 @@ public class MirrorImage extends NPC {
 	
 	protected Char chooseEnemy() {
 		
-		if (enemy == DUMMY || !enemy.isAlive()) {
+		if (enemy == null || !enemy.isAlive()) {
 			HashSet<Mob> enemies = new HashSet<Mob>();
 			for (Mob mob:Dungeon.level.mobs) {
 				if (mob.hostile && Level.fieldOfView[mob.pos]) {
@@ -103,7 +102,7 @@ public class MirrorImage extends NPC {
 				}
 			}
 			
-			enemy = enemies.size() > 0 ? Random.element( enemies ) : DUMMY;
+			enemy = enemies.size() > 0 ? Random.element( enemies ) : null;
 		}
 		
 		return enemy;

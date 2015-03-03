@@ -19,11 +19,6 @@ package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ConfusionGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ParalyticGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -34,11 +29,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -59,82 +51,32 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.watabou.noosa.Game;
+import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+import com.watabou.utils.SparseArray;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 
 public class Dungeon {
-	
-	private static final String NO_TIPS = "The text  is indecipherable...";
-	private static final String[] TIPS = {
-		"Almost all equipment has a strength requirement. Don't overestimate your strength, using equipment you can't " +
-                "handle has big penalties!\n\nRaising your strength is not the only way to access better equipment, " +
-                "you can also lower equipment strength requirements with Scrolls of Upgrade.\n\n\n" +
-                "Items found in the dungeon will often be unidentified. Some items will have unknown effects, others " +
-                "may be upgraded, or degraded and cursed! Unidentified items are unpredictable, so be careful!",
-		"Charging forward recklessly is a great way to get killed.\n\n" +
-                "Slowing down a bit to examine enemies and use the environment and items to your advantage can make a" +
-                " big difference.\n\nThe dungeon is full of traps and hidden passageways as well, keep your eyes open!",
-		"Levelling up is important!\n\nBeing at least the same level as the floor you are on is a good idea. " +
-                "Don't be afraid to slow down a little and train yourself up.",
-        "The rogue isn't the only character that benefits from being sneaky. You can retreat to the other side of a " +
-                "door to ambush a chasing opponent for a guaranteed hit!" +
-                "\n\nAny attack on an unaware opponent is guaranteed to hit them.",
-			
-		"Note to all sewer maintenance & cleaning crews: TURN BACK NOW. Some sort of sludge monster has made its home" +
-                " here and several crews have been lost trying to deal with it.\n\n" +
-                "Approval has been given to seal off the lower sewers, this area has been condemned, LEAVE NOW.",
-		
-		"Pixel-Mart - all you need for successful adventure!",
-		"Identify your potions and scrolls as soon as possible. Don't put it off to the moment " +
-			"when you actually need them.",
-		"Being hungry doesn't hurt, but starving does hurt.",
-		"Surprise attack has a better chance to hit. For example, you can ambush your enemy behind " +
-			"a closed door when you know it is approaching.",
-		
-		"Don't let The Tengu out!",
-		
-		"Pixel-Mart. Spend money. Live longer.",
-		"When you're attacked by several monsters at the same time, try to retreat behind a door.",
-		"If you are burning, you can't put out the fire in the water while levitating.",
-		"There is no sense in possessing more than one unblessed Ankh at the same time, " +
-                "because you will lose them upon resurrecting.",
-		
-		"DANGER! Heavy machinery can cause injury, loss of limbs or death!",
-		
-		"Pixel-Mart. A safer life in dungeon.",
-		"When you upgrade an enchanted weapon, there is a chance to destroy that enchantment.",
-		"In a Well of Transmutation you can get an item, that cannot be obtained otherwise.",
-		"The only way to enchant a weapon is by upgrading it with a Scroll of Weapon Upgrade.",
-		
-		"No weapons allowed in the presence of His Majesty!",
-		
-		"Pixel-Mart. Special prices for demon hunters!",
-		"The text is written in demonic language.",
-		"The text is written in demonic language.",
-		"The text is written in demonic language."
-	};
-	
-	private static final String TXT_DEAD_END = 
-		"What are you doing here?!";
 
-	public static boolean dewVial;		// true if the dew vial can be spawned
 	public static int transmutation;	// depth number for a well of transmutation
 
     //enum of items which have limited spawns, records how many have spawned
-    //could all be their own separate ints, but this allows iterating, much nicer for bundling/initializing.
+    //could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
 	public static enum limitedDrops{
+	    //limited world drops
         strengthPotions,
         upgradeScrolls,
         arcaneStyli,
@@ -145,12 +87,28 @@ public class Dungeon {
 		warlockHP,
 		scorpioHP,
 		cookingHP,
-        
+	    //blandfruit, which can technically be an unlimited health potion source
 		blandfruitSeed,
 
-		armband;
+	    //doesn't use Generator, so we have to enforce one armband drop here
+		armband,
+
+	    //containers
+	    dewVial,
+	    seedBag,
+	    scrollBag,
+	    potionBag,
+	    wandBag;
 
 		public int count = 0;
+
+	    //for items which can only be dropped once, should directly access count otherwise.
+	    public boolean dropped(){
+		    return count != 0;
+	    }
+	    public void drop(){
+		    count = 1;
+	    }
 	}
 
     public static int challenges;
@@ -170,6 +128,8 @@ public class Dungeon {
 	// Hero's field of view
 	public static boolean[] visible = new boolean[Level.LENGTH];
 
+	public static SparseArray<ArrayList<Item>> droppedItems;
+
     public static int version;
 	
 	public static void init() {
@@ -179,6 +139,7 @@ public class Dungeon {
         Generator.initArtifacts();
 
 		Actor.clear();
+        Actor.resetNextID();
 		
 		PathFinder.setMapSize( Level.WIDTH, Level.HEIGHT );
 		
@@ -191,14 +152,16 @@ public class Dungeon {
 		Journal.reset();
 
 		quickslot.reset();
+        QuickSlotButton.reset();
 		
 		depth = 0;
 		gold = 0;
-		
+
+		droppedItems = new SparseArray<ArrayList<Item>>();
+
 		for (limitedDrops a : limitedDrops.values())
             a.count = 0;
 
-		dewVial = true;
 		transmutation = Random.IntRange( 6, 14 );
 		
 		chapters = new HashSet<Integer>();
@@ -314,24 +277,6 @@ public class Dungeon {
 		switchLevel( level, level.entrance );
 	}
 	
-	public static String tip() {
-		
-		if (level instanceof DeadEndLevel) {
-			
-			return TXT_DEAD_END;
-			
-		} else {
-			
-			int index = depth - 1;
-			
-			if (index < TIPS.length) {
-				return TIPS[index];
-			} else {
-				return NO_TIPS;
-			}
-		}
-	}
-	
 	public static boolean shopOnLevel() {
 		return depth == 6 || depth == 11 || depth == 16;
 	}
@@ -355,24 +300,6 @@ public class Dungeon {
 			Actor.add( level.respawner() );
 		}
 
-        for (Potion potion : level.fallingPotions){
-
-            int cell = level.randomRespawnCell();
-            while (cell == -1)
-                cell = level.randomRespawnCell();
-
-            if (potion instanceof PotionOfLiquidFlame)
-                GameScene.add( Blob.seed( cell, 2, Fire.class));
-            else if (potion instanceof PotionOfToxicGas)
-                GameScene.add( Blob.seed( cell, 1000, ToxicGas.class ) );
-            else if (potion instanceof PotionOfParalyticGas)
-                GameScene.add( Blob.seed( cell, 1000, ParalyticGas.class ) );
-            else if (potion instanceof PotionOfLevitation)
-                GameScene.add( Blob.seed( cell, 1000, ConfusionGas.class ) );
-
-        }
-        level.fallingPotions.clear();
-		
 		hero.pos = pos != -1 ? pos : level.exit;
 		
 		Light light = hero.buff( Light.class );
@@ -382,17 +309,26 @@ public class Dungeon {
         try {
             saveAll();
         } catch (IOException e) {
-			/*This only catches IO errors. Yes, this means things can do wrong, and they can go wrong catastrophically.
+			/*This only catches IO errors. Yes, this means things can go wrong, and they can go wrong catastrophically.
 			But when they do the user will get a nice 'report this issue' dialogue, and I can fix the bug.*/
         }
 	}
-	
+
+	public static void dropToChasm( Item item ) {
+		int depth = Dungeon.depth + 1;
+		ArrayList<Item> dropped = (ArrayList<Item>)Dungeon.droppedItems.get( depth );
+		if (dropped == null) {
+			Dungeon.droppedItems.put( depth, dropped = new ArrayList<Item>() );
+		}
+		dropped.add( item );
+	}
+
 	public static boolean posNeeded() {
 		int[] quota = {4, 2, 9, 4, 14, 6, 19, 8, 24, 9};
 		return chance( quota, limitedDrops.strengthPotions.count );
 	}
 	
-	public static boolean soeNeeded() {
+	public static boolean souNeeded() {
 		int[] quota = {5, 3, 10, 6, 15, 9, 20, 12, 25, 13};
 		return chance( quota, limitedDrops.upgradeScrolls.count );
 	}
@@ -431,7 +367,7 @@ public class Dungeon {
 	private static final String HERO		= "hero";
 	private static final String GOLD		= "gold";
 	private static final String DEPTH		= "depth";
-	private static final String QUICKSLOT	= "quickslot";
+	private static final String DROPPED     = "dropped%d";
 	private static final String LEVEL		= "level";
     private static final String LIMDROPS    = "limiteddrops";
 	private static final String DV			= "dewVial";
@@ -481,9 +417,12 @@ public class Dungeon {
 			bundle.put( GOLD, gold );
 			bundle.put( DEPTH, depth );
 
+			for (int d : droppedItems.keyArray()) {
+				bundle.put(String.format(DROPPED, d), droppedItems.get(d));
+			}
+
 			quickslot.storePlaceholders( bundle );
 
-			bundle.put( DV, dewVial );
 			bundle.put( WT, transmutation );
 
             int[] dropValues = new int[limitedDrops.values().length];
@@ -515,6 +454,8 @@ public class Dungeon {
 			Potion.save( bundle );
 			Wand.save( bundle );
 			Ring.save( bundle );
+
+            Actor.storeNextID( bundle );
 			
 			Bundle badges = new Bundle();
 			Badges.saveLocal( badges );
@@ -546,8 +487,8 @@ public class Dungeon {
 			saveGame( gameFile( hero.heroClass ) );
 			saveLevel();
 
-            GamesInProgress.set( hero.heroClass, depth, hero.lvl );
-			
+			GamesInProgress.set( hero.heroClass, depth, hero.lvl, challenges != 0 );
+
 		} else if (WndResurrect.instance != null) {
 			
 			WndResurrect.instance.hide();
@@ -559,7 +500,7 @@ public class Dungeon {
 	public static void loadGame( HeroClass cl ) throws IOException {
 		loadGame( gameFile( cl ), true );
 	}
-	
+
 	public static void loadGame( String fileName ) throws IOException {
 		loadGame( fileName, false );
 	}
@@ -572,7 +513,10 @@ public class Dungeon {
 
 		Generator.reset();
 
+        Actor.restoreNextID( bundle );
+
 		quickslot.reset();
+        QuickSlotButton.reset();
 
         Dungeon.challenges = bundle.getInt( CHALLENGES );
 		
@@ -591,8 +535,6 @@ public class Dungeon {
 		quickslot.restorePlaceholders( bundle );
 		
 		if (fullLoad) {
-
-            dewVial = bundle.getBoolean( DV );
             transmutation = bundle.getInt( WT );
 
             //TODO: adjust this when dropping support for pre-0.2.3 saves
@@ -608,6 +550,9 @@ public class Dungeon {
                 limitedDrops.upgradeScrolls.count = bundle.getInt(SOU);
                 limitedDrops.arcaneStyli.count = bundle.getInt(AS);
             }
+            //for pre-0.2.4 saves
+            if (bundle.getBoolean(DV)) limitedDrops.dewVial.drop();
+
 			chapters = new HashSet<Integer>();
 			int ids[] = bundle.getIntArray( CHAPTERS );
 			if (ids != null) {
@@ -648,6 +593,25 @@ public class Dungeon {
 		Statistics.restoreFromBundle( bundle );
 		Journal.restoreFromBundle( bundle );
         Generator.restoreFromBundle( bundle );
+
+		droppedItems = new SparseArray<ArrayList<Item>>();
+		for (int i=2; i <= Statistics.deepestFloor + 1; i++) {
+			ArrayList<Item> dropped = new ArrayList<Item>();
+			for (Bundlable b : bundle.getCollection( String.format( DROPPED, i ) ) ) {
+				dropped.add( (Item)b );
+			}
+			if (!dropped.isEmpty()) {
+				droppedItems.put( i, dropped );
+			}
+		}
+
+		//logic for pre 0.2.4 bags, remove when no longer supporting those saves.
+		if (version <= 32){
+			int deepest = Statistics.deepestFloor;
+			if (deepest > 15) limitedDrops.wandBag.count = 1;
+			if (deepest > 10) limitedDrops.scrollBag.count = 1;
+			if (deepest > 5)  limitedDrops.seedBag.count = 1;
+		}
 	}
 	
 	public static Level loadLevel( HeroClass cl ) throws IOException {
@@ -687,6 +651,7 @@ public class Dungeon {
 	
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.depth = bundle.getInt( DEPTH );
+		info.challenges = (bundle.getInt( CHALLENGES ) != 0);
 		if (info.depth == -1) {
 			info.depth = bundle.getInt( "maxDepth" );	// FIXME
 		}
@@ -701,6 +666,8 @@ public class Dungeon {
 	}
 	
 	public static void win( String desc ) {
+
+		hero.belongings.identify();
 
         if (challenges != 0) {
             Badges.validateChampion();

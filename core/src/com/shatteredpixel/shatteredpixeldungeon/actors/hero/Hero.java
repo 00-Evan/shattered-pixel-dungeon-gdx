@@ -61,7 +61,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
@@ -71,6 +70,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
@@ -79,9 +80,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
@@ -89,6 +92,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.AlchemyPot;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.Sign;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -110,6 +114,7 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class Hero extends Char {
@@ -148,8 +153,6 @@ public class Hero extends Char {
 	public HeroAction lastAction = null;
 
 	private Char enemy;
-	
-	public Armor.Glyph killerGlyph = null;
 	
 	private Item theKey;
 	
@@ -212,7 +215,7 @@ public class Hero extends Char {
 		
 		bundle.put( LEVEL, lvl );
 		bundle.put( EXPERIENCE, exp );
-		
+
 		belongings.storeInBundle( bundle );
 	}
 	
@@ -511,7 +514,7 @@ public class Hero extends Char {
 	}
 	
 	public void interrupt() {
-		if (curAction != null && curAction.dst != pos) {
+		if (isAlive() && curAction != null && curAction instanceof HeroAction.Move && curAction.dst != pos) {
 			lastAction = curAction;
 		}
 		curAction = null;
@@ -534,9 +537,10 @@ public class Hero extends Char {
 
 		} else {
 			if (Dungeon.level.map[pos] == Terrain.SIGN) {
-				GameScene.show( new WndMessage( Dungeon.tip() ) );
+				Sign.read(pos);
 			}
 			ready();
+
             return false;
 		}
 	}
@@ -619,11 +623,13 @@ public class Hero extends Char {
 					if (item instanceof Dewdrop
                             || item instanceof TimekeepersHourglass.sandBag
                             || item instanceof DriedRose.Petal) {
-						
+						//Do Nothing
 					} else {
 
-						if ((item instanceof ScrollOfUpgrade && ((ScrollOfUpgrade)item).isKnown()) ||
-							(item instanceof PotionOfStrength && ((PotionOfStrength)item).isKnown())) {
+						boolean important =
+								((item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion) && ((Scroll)item).isKnown()) ||
+								((item instanceof PotionOfStrength || item instanceof PotionOfMight) && ((Potion)item).isKnown());
+						if (important) {
 							GLog.p( TXT_YOU_NOW_HAVE, item.name() );
 						} else {
 							GLog.i( TXT_YOU_NOW_HAVE, item.name() );
@@ -665,10 +671,8 @@ public class Hero extends Char {
 		if (Level.adjacent( pos, dst ) || pos == dst) {
 			
 			Heap heap = Dungeon.level.heaps.get( dst );
-			if (heap != null && 
-				(heap.type == Type.CHEST || heap.type == Type.TOMB || heap.type == Type.SKELETON ||
-                    heap.type == Type.REMAINS || heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST)) {
-				
+			if (heap != null && (heap.type != Type.HEAP && heap.type != Type.FOR_SALE)) {
+
 				theKey = null;
 				
 				if (heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST) {
@@ -759,11 +763,6 @@ public class Hero extends Char {
 		if (pos == stairs && pos == Dungeon.level.exit) {
 			
 			curAction = null;
-			
-			Hunger hunger = buff( Hunger.class );
-			if (hunger != null && !hunger.isStarving()) {
-				hunger.satisfy( -Hunger.STARVING / 10 );
-			}
 
 			Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
 			if (buff != null) buff.detach();
@@ -836,7 +835,7 @@ public class Hero extends Char {
 
 		enemy = action.target;
 
-		if (Level.adjacent( pos, enemy.pos ) && enemy.isAlive() && !pacified) {
+		if (Level.adjacent( pos, enemy.pos ) && enemy.isAlive() && !isCharmedBy( enemy )) {
 			
 			spend( attackDelay() );
             sprite.attack( enemy.pos );
@@ -893,7 +892,7 @@ public class Hero extends Char {
 			}
 		case SNIPER:
 			if (rangedWeapon != null) {
-				Buff.prolong( enemy, SnipersMark.class, attackDelay() * 1.1f );
+				Buff.prolong( this, SnipersMark.class, attackDelay() * 1.1f ).object = enemy.id();
 			}
 			break;
 		default:
@@ -990,6 +989,7 @@ public class Hero extends Char {
 	private boolean getCloser( final int target ) {
 		
 		if (rooted) {
+			Camera.main.shake( 1, 1f );
 			return false;
 		}
 		
@@ -999,8 +999,10 @@ public class Hero extends Char {
 			
 			if (Actor.findChar( target ) == null) {
 				if (Level.pit[target] && !flying && !Chasm.jumpConfirmed) {
-					Chasm.heroJump( this );
-					interrupt();
+					if (!Level.solid[target]) {
+                        Chasm.heroJump(this);
+                        interrupt();
+                    }
 					return false;
 				}
 				if (Level.passable[target] || Level.avoid[target]) {
@@ -1052,9 +1054,8 @@ public class Hero extends Char {
 			
 			curAction = new HeroAction.Cook( cell );
 			
-		} else
-		if (Level.fieldOfView[cell] && (ch = Actor.findChar( cell )) instanceof Mob) {
-			
+		} else if (Level.fieldOfView[cell] && (ch = Actor.findChar( cell )) instanceof Mob) {
+
 			if (ch instanceof NPC) {
 				curAction = new HeroAction.Interact( (NPC)ch );
 			} else {
@@ -1080,7 +1081,7 @@ public class Hero extends Char {
 			
 			curAction = new HeroAction.Unlock( cell );
 			
-		} else if (cell == Dungeon.level.exit) {
+		} else if (cell == Dungeon.level.exit && Dungeon.depth < 26) {
 			
 			curAction = new HeroAction.Descend( cell );
 			
@@ -1307,7 +1308,29 @@ public class Hero extends Char {
 		Dungeon.observe();
 				
 		Dungeon.hero.belongings.identify();
-		
+
+		int pos = Dungeon.hero.pos;
+
+		ArrayList<Integer> passable = new ArrayList<Integer>();
+		for (Integer ofs : Level.NEIGHBOURS8) {
+			int cell = pos + ofs;
+			if ((Level.passable[cell] || Level.avoid[cell]) && Dungeon.level.heaps.get( cell ) == null) {
+				passable.add( cell );
+			}
+		}
+		Collections.shuffle( passable );
+
+		ArrayList<Item> items = new ArrayList<Item>( Dungeon.hero.belongings.backpack.items );
+		for (Integer cell : passable) {
+			if (items.isEmpty()) {
+				break;
+			}
+
+			Item item = Random.element( items );
+			Dungeon.level.drop( item, cell ).sprite.drop( pos );
+			items.remove( item );
+		}
+
 		GameScene.gameOver();
 		
 		if (cause instanceof Hero.Doom) {
@@ -1506,7 +1529,12 @@ public class Hero extends Char {
         }
 		return immunities;
 	}
-	
+
+	@Override
+	public void next() {
+		super.next();
+	}
+
 	public static interface Doom {
 		public void onDeath();
 	}

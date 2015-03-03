@@ -22,6 +22,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class PointF {
 	
 	public static final float PI	= 3.1415926f;
+	public static final float PI2	= PI * 2;
 	public static final float G2R	= PI / 180;
 	
 	public float x;

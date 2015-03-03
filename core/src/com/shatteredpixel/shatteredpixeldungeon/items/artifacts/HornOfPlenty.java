@@ -104,6 +104,8 @@ public class HornOfPlenty extends Artifact {
                 Badges.validateFoodEaten();
 
                 image = ItemSpriteSheet.ARTIFACT_HORN1;
+
+	            updateQuickslot();
             }
 
         } else if (action.equals(AC_STORE)){

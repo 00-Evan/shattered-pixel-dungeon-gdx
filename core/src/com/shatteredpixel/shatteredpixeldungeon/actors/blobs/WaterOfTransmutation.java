@@ -31,9 +31,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfWeaponUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon.Enchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.*;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 
@@ -43,41 +42,29 @@ public class WaterOfTransmutation extends WellWater {
 	protected Item affectItem( Item item ) {
 		
 		if (item instanceof MeleeWeapon) {
-			
-			return changeWeapon( (MeleeWeapon)item );
-			
+			item = changeWeapon( (MeleeWeapon)item );
 		} else if (item instanceof Scroll) {
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
-			return changeScroll( (Scroll)item );
-			
+			item = changeScroll( (Scroll)item );
 		} else if (item instanceof Potion) {
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
-			return changePotion( (Potion)item );
-			
+			item = changePotion( (Potion)item );
 		} else if (item instanceof Ring) {
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
-			return changeRing( (Ring)item );
-			
-		} else if (item instanceof Wand) {	
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
-			return changeWand( (Wand)item );
-			
+			item = changeRing( (Ring)item );
+		} else if (item instanceof Wand) {
+			item = changeWand( (Wand)item );
 		} else if (item instanceof Plant.Seed) {
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
-			return changeSeed( (Plant.Seed)item );
-			
+			item = changeSeed( (Plant.Seed)item );
 		} else if (item instanceof Artifact) {
-
-            return changeArtifact( (Artifact)item );
-
+			item = changeArtifact( (Artifact)item );
         } else {
-			return null;
+			item = null;
 		}
+
+		if (item != null) {
+			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
+		}
+
+		return item;
+
 	}
 	
 	@Override
@@ -128,16 +115,11 @@ public class WaterOfTransmutation extends WellWater {
 			} else if (level < 0) {
 				n.degrade( -level );
 			}
-			
-			if (w.isEnchanted()) {
-				n.enchant( Enchantment.random() );
-			}
-			
+
+			n.enchantment = w.enchantment;
 			n.levelKnown = w.levelKnown;
 			n.cursedKnown = w.cursedKnown;
 			n.cursed = w.cursed;
-			
-			Journal.remove( Feature.WELL_OF_TRANSMUTATION );
 			
 			return n;
 		} else {
@@ -175,7 +157,6 @@ public class WaterOfTransmutation extends WellWater {
             n.cursed = a.cursed;
             n.levelKnown = a.levelKnown;
 			n.transferUpgrade(a.visiblyUpgraded());
-            Journal.remove( Feature.WELL_OF_TRANSMUTATION );
         }
 
         return n;
@@ -189,6 +170,7 @@ public class WaterOfTransmutation extends WellWater {
 		} while (n.getClass() == w.getClass());
 		
 		n.level = 0;
+		n.updateLevel();
 		n.upgrade( w.level );
 		
 		n.levelKnown = w.levelKnown;
@@ -212,9 +194,9 @@ public class WaterOfTransmutation extends WellWater {
 	private Scroll changeScroll( Scroll s ) {
 		if (s instanceof ScrollOfUpgrade) {
 			
-			return new ScrollOfWeaponUpgrade();
+			return new ScrollOfMagicalInfusion();
 			
-		} else if (s instanceof ScrollOfWeaponUpgrade) {
+		} else if (s instanceof ScrollOfMagicalInfusion) {
 			
 			return new ScrollOfUpgrade();
 			

@@ -42,9 +42,9 @@ public class WndTabbed extends Window {
 	}
 	
 	protected Tab add( Tab tab ) {
-		
+
 		tab.setPos( tabs.size() == 0 ? 
-			-chrome.marginLeft() + 1 : 
+			-chrome.marginLeft() + 1 :
 			tabs.get( tabs.size() - 1 ).right(), height );
 		tab.select( false );
 		super.add( tab );
@@ -85,6 +85,11 @@ public class WndTabbed extends Window {
 		camera.resize( (int)chrome.width, chrome.marginTop() + height + tabHeight());
 		camera.x = (int)(Game.width - camera.screenWidth()) / 2;
 		camera.y = (int)(Game.height - camera.screenHeight()) / 2;
+
+		shadow.boxRect(
+				camera.x / camera.zoom,
+				camera.y / camera.zoom,
+				chrome.width(), chrome.height );
 		// <- super.resize(...)
 		
 		for (Tab tab : tabs) {
@@ -97,6 +102,42 @@ public class WndTabbed extends Window {
 		for (Tab tab : tabs) {
 			add( tab );
 		}
+	}
+
+	public void layoutTabs(){
+        //subract two as there's extra horizontal space for those nobs on the top.
+		int fullWidth = width+chrome.marginHor()-2;
+		int numTabs = tabs.size();
+
+		if (numTabs == 0)
+			return;
+		if (numTabs == 1) {
+			tabs.get(0).setSize(fullWidth, tabHeight());
+			return;
+		}
+
+		int spaces = numTabs-1;
+		int spacing = -1;
+
+		while (spacing == -1) {
+			for (int i = 0; i <= 3; i++){
+				if ((fullWidth - i*(spaces)) % numTabs == 0) {
+					spacing = i;
+					break;
+				}
+			}
+			if (spacing == -1) fullWidth--;
+		}
+
+		int tabWidth = (fullWidth - spacing*(numTabs-1)) / numTabs;
+
+		for (int i = 0; i < tabs.size(); i++){
+			tabs.get(i).setSize(tabWidth, tabHeight());
+			tabs.get(i).setPos( i == 0 ?
+					-chrome.marginLeft() + 1 :
+					tabs.get( i - 1 ).right() + spacing, height );
+		}
+
 	}
 	
 	protected int tabHeight() {

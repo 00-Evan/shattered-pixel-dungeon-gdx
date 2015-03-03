@@ -79,7 +79,7 @@ public class WndRanking extends WndTabbed {
 			}
 		};
 		thread.start();
-		
+
 		busy = Icons.BUSY.get();	
 		busy.origin.set( busy.width / 2, busy.height / 2 );
 		busy.angularSpeed = 720;
@@ -103,7 +103,7 @@ public class WndRanking extends WndTabbed {
 			}
 		}
 	}
-	
+
 	private void createControls() {
 		
 		String[] labels = 
@@ -116,9 +116,10 @@ public class WndRanking extends WndTabbed {
 			add( pages[i] );
 			
 			Tab tab = new RankingTab( labels[i], pages[i] );
-			tab.setSize( TAB_WIDTH, tabHeight() );
 			add( tab );
 		}
+
+		layoutTabs();
 		
 		select( 0 );
 	}

@@ -37,7 +37,7 @@ public class FloatingText extends BitmapText {
 	private int key = -1;
 
 	private float cameraZoom = -1;
-	
+
 	private static SparseArray<ArrayList<FloatingText>> stacks = new SparseArray<ArrayList<FloatingText>>();
 	
 	public FloatingText() {

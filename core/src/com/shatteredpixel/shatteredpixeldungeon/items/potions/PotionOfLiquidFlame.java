@@ -17,6 +17,11 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
@@ -30,15 +35,28 @@ public class PotionOfLiquidFlame extends Potion {
 	}
 	
 	@Override
-	protected void shatter( int cell ) {
-		
-		setKnown();
-		
-		splash( cell );
-		Sample.INSTANCE.play( Assets.SND_SHATTER );
-		
-		Fire fire = Blob.seed( cell, 2, Fire.class );
-		GameScene.add( fire );
+	public void shatter( int cell ) {
+
+		if (Dungeon.visible[cell]) {
+			setKnown();
+
+			splash( cell );
+			Sample.INSTANCE.play( Assets.SND_SHATTER );
+		}
+
+        for (int offset : Level.NEIGHBOURS9){
+            if (Level.flamable[cell+offset]
+                    || Actor.findChar(cell+offset) != null
+                    || Dungeon.level.heaps.get(cell+offset) != null) {
+
+                GameScene.add(Blob.seed(cell + offset, 2, Fire.class));
+
+            } else {
+
+                CellEmitter.get(cell+offset).burst(FlameParticle.FACTORY, 2);
+
+            }
+        }
 	}
 	
 	@Override

@@ -18,8 +18,17 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.*;
+import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
 import com.badlogic.gdx.utils.IntMap;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
@@ -115,6 +124,10 @@ public class GameScene extends PixelScene {
 	
 	private Toolbar toolbar;
 	private Toast prompt;
+
+	private AttackIndicator attack;
+	private LootIndicator loot;
+	private ResumeIndicator resume;
 	
 	@Override
 	public void create() {
@@ -204,6 +217,7 @@ public class GameScene extends PixelScene {
 		hero.updateArmor();
 		mobs.add( hero );
 
+
 		add( new HealthIndicator() );
 		
 		add( cellSelector = new CellSelector( tiles ) );
@@ -218,13 +232,23 @@ public class GameScene extends PixelScene {
 		toolbar.setRect( 0,uiCamera.height - toolbar.height(), uiCamera.width, toolbar.height() );
 		add( toolbar );
 		
-		AttackIndicator attack = new AttackIndicator();
+		attack = new AttackIndicator();
 		attack.camera = uiCamera;
-		attack.setPos( 
-			uiCamera.width - attack.width(), 
+		attack.setPos(
+			uiCamera.width - attack.width(),
 			toolbar.top() - attack.height() );
 		add( attack );
-		
+
+		loot = new LootIndicator();
+		loot.camera = uiCamera;
+		add( loot );
+
+		resume = new ResumeIndicator();
+		resume.camera = uiCamera;
+		add( resume );
+
+		layoutTags();
+
 		log = new GameLog();
 		log.camera = uiCamera;
 		log.setRect( 0, toolbar.top(), attack.left(),  0 );
@@ -296,7 +320,24 @@ public class GameScene extends PixelScene {
 			break;
 		default:
 		}
-		
+
+		ArrayList<Item> dropped = Dungeon.droppedItems.get( Dungeon.depth );
+		if (dropped != null) {
+			for (Item item : dropped) {
+				int pos = Dungeon.level.randomRespawnCell();
+				if (item instanceof Potion) {
+					((Potion)item).shatter( pos );
+				} else if (item instanceof Plant.Seed) {
+					Dungeon.level.plant( (Plant.Seed)item, pos );
+				} else if (item instanceof Honeypot) {
+                    Dungeon.level.drop(((Honeypot) item).shatter(null, pos), pos);
+				} else {
+					Dungeon.level.drop( item, pos );
+				}
+			}
+			Dungeon.droppedItems.remove( Dungeon.depth );
+		}
+
 		Camera.main.target = hero;
 		fadeIn();
 
@@ -338,8 +379,35 @@ public class GameScene extends PixelScene {
 		if (Dungeon.hero.ready && !Dungeon.hero.paralysed) {
 			log.newLine();
 		}
-		
-		cellSelector.enabled = Dungeon.hero.ready;
+
+		if (tagAttack != attack.active || tagLoot != loot.visible || tagResume != resume.visible) {
+
+			tagAttack = attack.active;
+			tagLoot = loot.visible;
+			tagResume = resume.visible;
+
+			layoutTags();
+		}
+
+        cellSelector.enable(Dungeon.hero.ready);
+	}
+
+	private boolean tagAttack    = false;
+	private boolean tagLoot        = false;
+	private boolean tagResume    = false;
+
+	private void layoutTags() {
+
+		float pos = tagAttack ? attack.top() : toolbar.top();
+
+		if (tagLoot) {
+			loot.setPos( uiCamera.width - loot.width(), pos - loot.height() );
+			pos = loot.top();
+		}
+
+		if (tagResume) {
+			resume.setPos( uiCamera.width - resume.width(), pos - resume.height() );
+		}
 	}
 	
 	@Override
@@ -580,9 +648,17 @@ public class GameScene extends PixelScene {
 	public static WndBag selectItem( WndBag.Listener listener, WndBag.Mode mode, String title ) {
 		cancelCellSelector();
 		
-		WndBag wnd = mode == Mode.SEED ?
-			WndBag.seedPouch( listener, mode, title ) :
-			WndBag.lastBag( listener, mode, title );
+		WndBag wnd =
+				mode == Mode.SEED ?
+					WndBag.getBag( SeedPouch.class, listener, mode, title ) :
+				mode == Mode.SCROLL ?
+					WndBag.getBag( ScrollHolder.class, listener, mode, title ) :
+				mode == Mode.POTION ?
+					WndBag.getBag( PotionBandolier.class, listener, mode, title ) :
+				mode == Mode.WAND ?
+					WndBag.getBag( WandHolster.class, listener, mode, title ) :
+				WndBag.lastBag( listener, mode, title );
+
 		scene.add( wnd );
 		
 		return wnd;

@@ -160,14 +160,14 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (enabled && listener != null && cell != -1) {
 			
 			listener.onSelect( cell );
-			
+
 		} else {
 			
 			GameScene.cancel();
 			
 		}
 	}
-	
+
 	private boolean pinching = false;
 	private NoosaInputProcessor.Touch another;
 	private float startZoom;
@@ -191,7 +191,9 @@ public class CellSelector extends TouchArea<GameAction> {
 			startZoom = camera.zoom;
 
 			dragging = false;
-		}
+		} else if (t != touch) {
+            reset();
+        }
 	}
 	
 	@Override
@@ -261,11 +263,30 @@ public class CellSelector extends TouchArea<GameAction> {
 	public void cancel() {
 		
 		if (listener != null) {
-			listener.onSelect(null);
+			listener.onSelect( null );
 		}
 		
 		GameScene.ready();
 	}
+
+    @Override
+    public void reset() {
+        super.reset();
+        another = null;
+        if (pinching){
+            pinching = false;
+
+            int zoom = Math.round( camera.zoom );
+            camera.zoom( zoom );
+            ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
+        }
+    }
+
+    public void enable(boolean value){
+        if (enabled != value){
+            enabled = value;
+        }
+    }
 
 	public interface Listener {
 		void onSelect( Integer cell );

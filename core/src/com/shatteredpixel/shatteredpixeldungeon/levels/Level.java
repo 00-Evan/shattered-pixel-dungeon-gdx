@@ -47,15 +47,17 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfWeaponUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.HighGrass;
@@ -116,8 +118,6 @@ public abstract class Level implements Bundlable {
 	private static final String TXT_HIDDEN_PLATE_CLICKS = "A hidden pressure plate clicks!";
 	
 	public static boolean resizingNeeded;
-	// This one can be different from resizingNeeded if the level
-	// was created in the older version of the game
 	public static int loadedMapSize;
 	
 	public int[] map;
@@ -153,9 +153,6 @@ public abstract class Level implements Bundlable {
 	public SparseArray<Plant> plants;
 	
 	protected ArrayList<Item> itemsToSpawn = new ArrayList<Item>();
-
-    public ArrayList<Item> fallingItems = new ArrayList<Item>();
-    public ArrayList<Potion> fallingPotions = new ArrayList<Potion>();
 	
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
@@ -173,9 +170,8 @@ public abstract class Level implements Bundlable {
 	private static final String PLANTS		= "plants";
 	private static final String MOBS		= "mobs";
 	private static final String BLOBS		= "blobs";
-    private static final String FALLING		= "falling";
 	private static final String FEELING		= "feeling";
-	
+
 	public void create() {
 		
 		resizingNeeded = false;
@@ -197,7 +193,7 @@ public abstract class Level implements Bundlable {
 				addItemToSpawn( new PotionOfStrength() );
 				Dungeon.limitedDrops.strengthPotions.count++;
 			}
-			if (Dungeon.soeNeeded()) {
+			if (Dungeon.souNeeded()) {
 				addItemToSpawn( new ScrollOfUpgrade() );
                 Dungeon.limitedDrops.upgradeScrolls.count++;
 			}
@@ -212,7 +208,7 @@ public abstract class Level implements Bundlable {
             }
             if (Random.Float() > Math.pow(0.95, bonus)){
                 if (Random.Int(2) == 0)
-                     addItemToSpawn( new ScrollOfWeaponUpgrade() );
+                     addItemToSpawn( new ScrollOfMagicalInfusion() );
                 else
                     addItemToSpawn( new PotionOfMight() );
             }
@@ -338,12 +334,10 @@ public abstract class Level implements Bundlable {
 			blobs.put( blob.getClass(), blob );
 		}
 
-        fallingItems = (ArrayList)bundle.getCollection( FALLING );
-
 		feeling = bundle.getEnum( FEELING, Feeling.class );
 		if (feeling == Feeling.DARK)
 			viewDistance = (int)Math.ceil(viewDistance/3f);
-		
+
 		buildFlagMaps();
 		cleanWalls();
 	}
@@ -360,7 +354,6 @@ public abstract class Level implements Bundlable {
 		bundle.put( PLANTS, plants.valuesAsList() );
 		bundle.put( MOBS, mobs );
 		bundle.put( BLOBS, blobs.values() );
-        bundle.put( FALLING, fallingItems);
 		bundle.put( FEELING, feeling );
 	}
 	
@@ -369,7 +362,8 @@ public abstract class Level implements Bundlable {
 	}
 	
 	private void adjustMapSize() {
-		// For levels from older saves
+		// For levels saved before 1.6.3
+		// Seeing as shattered started on 1.7.1 this is never used, but the code may be resused in future.
 		if (map.length < LENGTH) {
 			
 			resizingNeeded = true;
@@ -414,10 +408,13 @@ public abstract class Level implements Bundlable {
 	}
 	
 	abstract protected boolean build();
+
 	abstract protected void decorate();
+
 	abstract protected void createMobs();
+
 	abstract protected void createItems();
-	
+
 	public void addVisuals( Scene scene ) {
 		for (int i=0; i < LENGTH; i++) {
 			if (pit[i]) {
@@ -597,11 +594,13 @@ public abstract class Level implements Bundlable {
 	
 	public Heap drop( Item item, int cell ) {
 
+		//This messy if statement deals will items which should not drop in challenges primarily.
         if ((Dungeon.isChallenged( Challenges.NO_FOOD ) && (item instanceof Food || item instanceof BlandfruitBush.Seed)) ||
             (Dungeon.isChallenged( Challenges.NO_ARMOR ) && item instanceof Armor) ||
             (Dungeon.isChallenged( Challenges.NO_HEALING ) && item instanceof PotionOfHealing) ||
-            (Dungeon.isChallenged( Challenges.NO_HERBALISM ) && (item instanceof Plant.Seed || item instanceof Dewdrop)) ||
-            item == null) {
+            (Dungeon.isChallenged( Challenges.NO_HERBALISM ) && (item instanceof Plant.Seed || item instanceof Dewdrop || item instanceof SeedPouch)) ||
+	        (Dungeon.isChallenged( Challenges.NO_SCROLLS ) && ((item instanceof Scroll && !(item instanceof ScrollOfUpgrade)) || item instanceof ScrollHolder)) ||
+			item == null) {
 
             Heap heap = new Heap();
             GameScene.add( heap );
@@ -627,8 +626,8 @@ public abstract class Level implements Bundlable {
 			heap = new Heap();
 			heap.pos = cell;
 			if (map[cell] == Terrain.CHASM || (Dungeon.level != null && pit[cell])) {
+				Dungeon.dropToChasm( item );
 				GameScene.discard( heap );
-                fallingItems.add(item);
 			} else {
 				heaps.put( cell, heap );
 				GameScene.add( heap );

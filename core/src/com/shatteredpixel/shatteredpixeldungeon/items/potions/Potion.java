@@ -20,6 +20,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -190,7 +195,7 @@ public class Potion extends Item {
 		
 		hero.spend( TIME_TO_DRINK );
 		hero.busy();
-		onThrow( hero.pos );
+		apply( hero );
 		
 		Sample.INSTANCE.play( Assets.SND_DRINK );
 		
@@ -199,11 +204,7 @@ public class Potion extends Item {
 	
 	@Override
 	protected void onThrow( int cell ) {
-		if (Dungeon.hero.pos == cell) {
-			
-			apply( Dungeon.hero );
-			
-		} else if (Dungeon.level.map[cell] == Terrain.WELL || Level.pit[cell]) {
+		if (Dungeon.level.map[cell] == Terrain.WELL || Level.pit[cell]) {
 			
 			super.onThrow( cell );
 			
@@ -218,10 +219,12 @@ public class Potion extends Item {
 		shatter( hero.pos );
 	}
 	
-	protected void shatter( int cell ) {
-		GLog.i( "The flask shatters and " + color() + " liquid splashes harmlessly" );
-		Sample.INSTANCE.play( Assets.SND_SHATTER );
-		splash( cell );
+	public void shatter( int cell ) {
+		if (Dungeon.visible[cell]) {
+			GLog.i( "The flask shatters and " + color() + " liquid splashes harmlessly" );
+			Sample.INSTANCE.play( Assets.SND_SHATTER );
+			splash( cell );
+		}
 	}
 
     @Override
@@ -289,10 +292,18 @@ public class Potion extends Item {
 		return handler.known().size() == potions.length;
 	}
 	
-	protected void splash( int cell ) {		
+	protected void splash( int cell ) {
 		final int color = ItemSprite.pick( image, 8, 10 );
 		Splash.at( cell, color, 5 );
-	}
+
+        Fire fire = (Fire)Dungeon.level.blobs.get( Fire.class );
+        if (fire != null)
+            fire.clear( cell );
+
+        Char ch = Actor.findChar(cell);
+        if (ch != null)
+            Buff.detach( ch, Burning.class );
+    }
 	
 	@Override
 	public int price() {
