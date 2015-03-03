@@ -36,6 +36,8 @@ public class CellSelector extends TouchArea<GameAction> {
     private float mouseZoom;
 	
 	private float dragThreshold;
+
+    private NoosaInputProcessor.Key<GameAction> pressedKey;
 	
 	public CellSelector( DungeonTilemap map ) {
 		super( map );
@@ -117,7 +119,8 @@ public class CellSelector extends TouchArea<GameAction> {
 			Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
 			point.x += x;
 			point.y += y;
-			select(DungeonTilemap.pointToTile(point));
+            pressedKey = key;
+            select(DungeonTilemap.pointToTile(point));
 		}
 
 		return handled;
@@ -125,12 +128,22 @@ public class CellSelector extends TouchArea<GameAction> {
 
     @Override
     public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
+        if (pressedKey != null && key.action == pressedKey.action) {
+            pressedKey = null;
+        }
         switch (key.code) {
 		case PDInputProcessor.MODIFIER_KEY:
 			mouseZoom = zoom( Math.round( mouseZoom ) );
 			return true;
 		default:
 			return false;
+        }
+    }
+
+    public void processKeyHold(){
+        if (pressedKey != null) {
+            enabled = true;
+            onKeyDown(pressedKey);
         }
     }
 
@@ -147,7 +160,6 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (enabled && listener != null && cell != -1) {
 			
 			listener.onSelect( cell );
-			GameScene.ready();
 			
 		} else {
 			

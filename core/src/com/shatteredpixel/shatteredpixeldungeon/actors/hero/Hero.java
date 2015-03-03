@@ -416,6 +416,10 @@ public class Hero extends Char {
 		
 		checkVisibleMobs();
 
+        if (moved) {
+            moved = false;
+            GameScene.checkKeyHold();
+        }
 		
 		if (curAction == null) {
 			
@@ -491,7 +495,7 @@ public class Hero extends Char {
 		
 		return false;
 	}
-	
+
 	public void busy() {
 		ready = false;
 	}
@@ -519,12 +523,14 @@ public class Hero extends Char {
         damageInterrupt = false;
 		act();
 	}
-	
+
+    private boolean moved;
+
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
 
-            return true;
+            return moved = true;
 
 		} else {
 			if (Dungeon.level.map[pos] == Terrain.SIGN) {
@@ -1034,7 +1040,7 @@ public class Hero extends Char {
 	}
 	
 	public boolean handle( int cell ) {
-		
+
 		if (cell == -1) {
 			return false;
 		}
@@ -1089,7 +1095,10 @@ public class Hero extends Char {
 			
 		}
 
-		return act();
+        if (ready)
+		    return act();
+        else
+            return false;
 	}
 	
 	public void earnExp( int exp ) {

@@ -607,6 +607,10 @@ public class GameScene extends PixelScene {
 		QuickSlotButton.cancel();
 	}
 
+    public static void checkKeyHold(){
+        cellSelector.processKeyHold();
+    }
+
     public static void examineCell( Integer cell ) {
         if (cell == null) {
             return;
