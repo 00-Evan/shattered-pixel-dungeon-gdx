@@ -30,7 +30,13 @@ public class WelcomeScene extends PixelScene {
                     "Happy Dungeoneering!";
 
     private static final String TXT_Update =
-            "V0.2.4b:\n" +
+            "Hey desktop users, Shattered PD 0.2.4 has a few desktop-specific improvements!:\n" +
+                    "\n" +
+                    "-There is now an update notification in the opening menu\n" +
+                    "-You can now hold arrow keys to move (a bit slippery atm, will improve control next patch)\n" +
+                    "-Hotkey corrections/improvements, reset your hotkeys to get these changes, or set them yourself.\n" +
+                    "\n" +
+                    "V0.2.4b:\n" +
                     "-Fixed some crash issues.\n" +
                     "-Fixed a bug with the unstable spellbook.\n" +
                     "-Fixed some hiccups with touch input.\n" +

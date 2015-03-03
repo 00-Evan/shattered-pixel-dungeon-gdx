@@ -1,5 +1,5 @@
-32
-26
-v0.2.3f
-v0.2.3: The Artifact Booster Pack!
-www.shatteredpixel.com
+35
+33
+v0.2.4b
+v0.2.4: PD 1.7.5 and Some Extras!
+goo.gl/bYVU5z
