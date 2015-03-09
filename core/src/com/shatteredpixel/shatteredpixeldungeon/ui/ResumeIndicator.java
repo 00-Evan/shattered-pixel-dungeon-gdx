@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Image;
 
@@ -13,6 +14,7 @@ public class ResumeIndicator extends Tag {
 
     public ResumeIndicator() {
         super(0xCDD5C0);
+        hotKey = GameAction.RESUME;
 
         setSize( 24, 24 );
 
