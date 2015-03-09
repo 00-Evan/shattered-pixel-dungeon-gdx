@@ -130,7 +130,7 @@ public class ScrollPane extends Component {
 		@Override
 		public boolean onMouseScroll(int scroll) {
 			PointF newPt = new PointF(lastPos);
-			newPt.y -= scroll * content.camera.zoom * 2;
+			newPt.y -= scroll * content.camera.zoom * 4;
 			doScroll(newPt);
 			return true;
 		}
