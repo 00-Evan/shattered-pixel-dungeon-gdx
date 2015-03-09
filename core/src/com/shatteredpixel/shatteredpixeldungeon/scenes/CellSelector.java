@@ -147,6 +147,10 @@ public class CellSelector extends TouchArea<GameAction> {
         }
     }
 
+    public void resetKeyHold(){
+        pressedKey = null;
+    }
+
     private float zoom( float value ) {
 
         value = GameMath.gate( PixelScene.minZoom, value, PixelScene.maxZoom );
