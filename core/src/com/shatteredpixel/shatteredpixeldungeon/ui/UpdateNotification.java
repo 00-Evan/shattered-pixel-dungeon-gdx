@@ -126,6 +126,8 @@ public class UpdateNotification extends Component {
         updateMessage.visible = updateAvailable || !quiet;
 
         panel.size( panel.marginHor()+updateMessage.width(), panel.marginVer()+updateMessage.height()-1);
+        this.width = panel.width();
+        this.height = panel.height();
 
     }
 
