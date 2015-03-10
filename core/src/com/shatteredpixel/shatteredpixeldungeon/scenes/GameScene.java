@@ -383,11 +383,16 @@ public class GameScene extends PixelScene {
 
 		if (tagAttack != attack.active || tagLoot != loot.visible || tagResume != resume.visible) {
 
+            boolean atkAppearing = attack.active && !tagAttack;
+            boolean lootAppearing = loot.visible && !tagLoot;
+            boolean resAppearing = resume.visible && !tagResume;
+
 			tagAttack = attack.active;
 			tagLoot = loot.visible;
 			tagResume = resume.visible;
 
-			layoutTags();
+			if (atkAppearing || lootAppearing || resAppearing)
+                layoutTags();
 		}
 
         cellSelector.enable(Dungeon.hero.ready);
