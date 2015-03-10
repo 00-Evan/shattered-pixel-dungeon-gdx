@@ -51,7 +51,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	public static final int WARNING		= 0xFF8800;
 	public static final int NEUTRAL		= 0xFFFF00;
 	
-	private static final float MOVE_INTERVAL	= 0.1f;
+	private static float moveInterval           = 0.1f;
 	private static final float FLASH_INTERVAL	= 0.05f;	
 	
 	public enum State {
@@ -137,7 +137,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	public void move( int from, int to ) {
 		play( run );
 		
-		motion = new PosTweener( this, worldToCamera( to ), MOVE_INTERVAL );
+		motion = new PosTweener( this, worldToCamera( to ), moveInterval);
 		motion.listener = this;
 		parent.add( motion );
 
@@ -151,6 +151,10 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
         ch.onMotionComplete();
 	}
+
+    public static void setMoveInterval( float interval){
+        moveInterval = interval;
+    }
 	
 	public void interruptMotion() {
 		if (motion != null) {

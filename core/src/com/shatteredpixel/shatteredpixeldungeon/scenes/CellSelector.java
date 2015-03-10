@@ -18,6 +18,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.TouchArea;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -38,6 +39,7 @@ public class CellSelector extends TouchArea<GameAction> {
 	private float dragThreshold;
 
     private NoosaInputProcessor.Key<GameAction> pressedKey;
+    private float pressedKeySpeedFactor = 0.05f;
 	
 	public CellSelector( DungeonTilemap map ) {
 		super( map );
@@ -116,7 +118,8 @@ public class CellSelector extends TouchArea<GameAction> {
 		}
 
 		if (handled) {
-			Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
+            CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
+            Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
 			point.x += x;
 			point.y += y;
             pressedKey = key;
@@ -129,7 +132,7 @@ public class CellSelector extends TouchArea<GameAction> {
     @Override
     public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
         if (pressedKey != null && key.action == pressedKey.action) {
-            pressedKey = null;
+            resetKeyHold();
         }
         switch (key.code) {
 		case PDInputProcessor.MODIFIER_KEY:
@@ -143,12 +146,16 @@ public class CellSelector extends TouchArea<GameAction> {
     public void processKeyHold(){
         if (pressedKey != null) {
             enabled = true;
+            pressedKeySpeedFactor -= 0.025f;
+            CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
             onKeyDown(pressedKey);
         }
     }
 
     public void resetKeyHold(){
+        pressedKeySpeedFactor = 0.05f;
         pressedKey = null;
+        CharSprite.setMoveInterval(0.1f);
     }
 
     private float zoom( float value ) {
