@@ -1,5 +1,5 @@
-36
+38
 33
-v0.2.4c
+v0.2.4d
 v0.2.4: PD 1.7.5 and Some Extras!
-goo.gl/XJnQDY
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.2.4d/ShatteredPD.Desktop.v0.2.4d.jar
