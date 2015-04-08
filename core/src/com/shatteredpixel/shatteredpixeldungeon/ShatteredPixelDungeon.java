@@ -48,6 +48,10 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfWeaponUpgrade" );
 
+		// 0.2.4d
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.LloydsBeacon" );
 
 		Game.version = platformSupport.getVersion();
 

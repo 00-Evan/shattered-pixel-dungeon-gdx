@@ -194,7 +194,7 @@ public abstract class Wand extends KindOfWeapon {
 		} else {
 			return false;
 		}
-	};
+	}
 	
 	public void charge( Char owner ) {
 		if (charger == null) (charger = new Charger()).attachTo( owner );
@@ -425,8 +425,9 @@ public abstract class Wand extends KindOfWeapon {
 				
 				final int cell = Ballistica.cast( curUser.pos, target, true, curWand.hitChars );
 				curUser.sprite.zap( cell );
-				
-				QuickSlotButton.target(Actor.findChar(cell));
+
+				//targets the enemy hit for char-hitting wands, or the cell aimed at for other wands.
+				QuickSlotButton.target(Actor.findChar(curWand.hitChars ? cell : target));
 				
 				if (curWand.curCharges > 0) {
 					

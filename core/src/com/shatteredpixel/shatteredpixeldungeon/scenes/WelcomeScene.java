@@ -30,13 +30,13 @@ public class WelcomeScene extends PixelScene {
                     "Happy Dungeoneering!";
 
     private static final String TXT_Update =
-                    "V0.2.4c:\n" +
-                    "-Various bug and crash fixes.\n" +
-                    "-Unstable spellbook buffed again.\n" +
-                    "-UI tabs no longer move as much after appearing.\n" +
-                    "-Various refinements to UI and controls for desktop." +
+            "v0.2.4d:\n" +
+                    "-Bugfixes and general improvements.\n" +
+                    "-Added Merchant's Beacon.\n" +
+                    "-Added initials for IDed scrolls/potions.\n" +
+                    "-Lloyd's beacon now has a new sprite.\n" +
                     "\n" +
-                    "v0.2.4a and v0.2.4b:\n" +
+                    "v0.2.4a, v0.2.4b, & v0.2.4c:\n" +
                     "-Various Bug fixes and small tweaks.\n" +
                     "-There is now an update notification in the opening menu.\n" +
                     "-You can now hold arrow keys to move.\n" +

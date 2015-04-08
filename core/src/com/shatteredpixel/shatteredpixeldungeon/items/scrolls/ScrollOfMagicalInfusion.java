@@ -32,6 +32,8 @@ public class ScrollOfMagicalInfusion extends InventoryScroll {
 	
 	{
 		name = "Scroll of Magical Infusion";
+		initials = "MaI";
+
 		inventoryTitle = "Select an item to infuse";
 		mode = WndBag.Mode.ENCHANTABLE;
 
@@ -59,6 +61,6 @@ public class ScrollOfMagicalInfusion extends InventoryScroll {
 		return
 			"This scroll will infuse a weapon or armor with powerful magical energy.\n\n" +
 			"In addition to being upgraded, A weapon will gain a magical enchantment, or armor will be imbued with a magical glyph.\n\n" +
-			"If the item already has an enchantment or glyph, it will never be erased by the upgrade.";
+			"If the item already has an enchantment or glyph, it will never be erased by this scroll.";
 	}
 }

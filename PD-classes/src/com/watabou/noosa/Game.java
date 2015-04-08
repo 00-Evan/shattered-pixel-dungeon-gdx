@@ -23,6 +23,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.watabou.glscripts.Script;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.input.NoosaInputProcessor;
@@ -198,7 +199,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 			try {
 				requestedScene = ClassReflection.newInstance(sceneClass);
 				switchScene();
-			} catch (Exception e) {
+            } catch (ReflectionException e) {
 				e.printStackTrace();
 			}
 		}

@@ -106,6 +106,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				icon.resetColor();
 			}
 		};
+        slot.showParams( true, false, true );
 		add( slot );
 
 		crossB = Icons.TARGET.get();

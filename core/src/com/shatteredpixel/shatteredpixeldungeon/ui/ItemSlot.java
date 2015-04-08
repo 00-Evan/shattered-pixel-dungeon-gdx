@@ -23,6 +23,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -36,6 +42,7 @@ public class ItemSlot extends Button<GameAction> {
 
 	public static final int DEGRADED	= 0xFF4444;
 	public static final int UPGRADED	= 0x44FF44;
+	public static final int FADED       = 0x999999;
 	public static final int WARNING		= 0xFF8800;
 	
 	private static final float ENABLED	= 1.0f;
@@ -177,6 +184,18 @@ public class ItemSlot extends Button<GameAction> {
                 bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );
                 bottomRight.measure();
 				bottomRight.hardlight( level > 0 ? UPGRADED : DEGRADED );
+			} else if (item instanceof Scroll || item instanceof Potion) {
+				if (item instanceof Scroll) bottomRight.text(((Scroll) item).initials());
+				else bottomRight.text(((Potion) item).initials());
+
+				bottomRight.measure();
+
+				if (item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion
+						|| item instanceof PotionOfStrength || item instanceof PotionOfMight)
+					bottomRight.hardlight( UPGRADED );
+				else
+					bottomRight.hardlight( FADED );
+
 			} else {
 				bottomRight.text( null );
 			}
@@ -195,14 +214,15 @@ public class ItemSlot extends Button<GameAction> {
 		topRight.alpha( alpha );
 		bottomRight.alpha( alpha );
 	}
-	
-	public void showParams( boolean value ) {
-		if (value) {
-			add( topRight );
-			add( bottomRight );
-		} else {
-			remove( topRight );
-			remove( bottomRight );
-		}
-	}
+
+    public void showParams( boolean TL, boolean TR, boolean BR ) {
+        if (TL) add( topLeft );
+        else remove( topLeft );
+
+        if (TR) add( topRight );
+        else remove( topRight );
+
+        if (BR) add( bottomRight );
+        else remove( bottomRight );
+    }
 }
