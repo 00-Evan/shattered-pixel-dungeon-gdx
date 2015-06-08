@@ -152,7 +152,8 @@ public class Blandfruit extends Food {
                         }
                         break;
                     case MAGE:
-                        hero.belongings.charge( false );
+                        //1 charge
+                        Buff.affect(hero, ScrollOfRecharging.Recharging.class, 4f);
                         ScrollOfRecharging.charge(hero);
                         break;
                     case ROGUE:
@@ -255,6 +256,12 @@ public class Blandfruit extends Food {
             name = "Dreamfruit";
             potionGlow = new ItemSprite.Glowing( 0x8E2975 );
             info += "It looks delicious and clean, ready to be eaten!";
+
+        } else if (potionAttrib instanceof PotionOfExperience) {
+
+            name = "Starfruit";
+            potionGlow = new ItemSprite.Glowing( 0xA79400 );
+            info += "It looks delicious and glorious, ready to be eaten!";
 
         }
 

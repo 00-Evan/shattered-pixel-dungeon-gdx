@@ -86,6 +86,8 @@ public class Thief extends Mob {
 
         if (item != null) {
             Dungeon.level.drop( item, pos ).sprite.drop();
+            //updates position
+            if (item instanceof Honeypot.ShatteredPot) ((Honeypot.ShatteredPot)item).setHolder( this );
         }
     }
 
@@ -123,7 +125,7 @@ public class Thief extends Mob {
             Dungeon.level.drop( new Gold(), pos ).sprite.drop();
         }
 
-        return damage;
+        return super.defenseProc(enemy, damage);
     }
 
     protected boolean steal( Hero hero ) {

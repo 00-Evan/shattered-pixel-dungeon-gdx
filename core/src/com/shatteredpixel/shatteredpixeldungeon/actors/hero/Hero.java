@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -38,7 +39,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -55,7 +55,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
-import com.shatteredpixel.shatteredpixeldungeon.items.DewVial;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
@@ -64,6 +63,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
@@ -82,10 +82,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -102,7 +100,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
@@ -118,13 +115,20 @@ import java.util.Collections;
 import java.util.HashSet;
 
 public class Hero extends Char {
+
+	{
+		actPriority = 0; //acts at priority 0, baseline for the rest of behaviour.
+	}
 	
 	private static final String TXT_LEAVE = "One does not simply leave Pixel Dungeon.";
 	
+	public static final int MAX_LEVEL = 30;
 	private static final String TXT_LEVEL_UP = "level up!";
 	private static final String TXT_NEW_LEVEL = 
 		"Welcome to level %d! Now you are healthier and more focused. " +
 		"It's easier for you to hit enemies and dodge their attacks.";
+	private static final String TXT_LEVEL_CAP =
+		"You can't gain any more levels, but your experiences still give you a burst of energy!";
 	
 	public static final String TXT_YOU_NOW_HAVE	= "You now have %s";
 	
@@ -396,7 +400,7 @@ public class Hero extends Char {
         TimekeepersHourglass.timeFreeze buff = buff(TimekeepersHourglass.timeFreeze.class);
         if (!(buff != null && buff.processTime(time)))
             super.spend( time );
-    };
+    }
 	
 	public void spendAndNext( float time ) {
 		busy();
@@ -427,7 +431,7 @@ public class Hero extends Char {
 		if (curAction == null) {
 			
 			if (restoreHealth) {
-				if (isStarving() || HP >= HT) {
+				if (isStarving() || HP >= HT || Dungeon.level.locked) {
 					restoreHealth = false;
 				} else {
 					spend( TIME_TO_REST ); next();
@@ -634,12 +638,6 @@ public class Hero extends Char {
 						} else {
 							GLog.i( TXT_YOU_NOW_HAVE, item.name() );
 						}
-
-                        //Alright, if anyone complains about not knowing the vial doesn't revive
-                        //after this... I'm done, I'm just done.
-                        if (item instanceof DewVial) {
-                            GLog.w("Its revival power seems to have faded.");
-                        }
 					}
 					
 					if (!heap.isEmpty()) {
@@ -806,7 +804,7 @@ public class Hero extends Char {
 				
 				Hunger hunger = buff( Hunger.class );
 				if (hunger != null && !hunger.isStarving()) {
-					hunger.satisfy( -Hunger.STARVING / 10 );
+					hunger.reduceHunger( -Hunger.STARVING / 10 );
 				}
 
 				Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
@@ -876,21 +874,6 @@ public class Hero extends Char {
 				damage += Buff.affect( this, Combo.class ).hit( enemy, damage );
 			}
 			break;
-		case BATTLEMAGE:
-			if (wep instanceof Wand) {
-				Wand wand = (Wand)wep;
-				if (wand.curCharges < wand.maxCharges && damage > 0) {
-
-					wand.curCharges++;
-					if (Dungeon.quickslot.contains(wand)) {
-						QuickSlotButton.refresh();
-					}
-
-					ScrollOfRecharging.charge( this );
-				}
-				damage += wand.curCharges;
-			}
-            break;
 		case SNIPER:
 			if (rangedWeapon != null) {
 				Buff.prolong( this, SnipersMark.class, attackDelay() * 1.1f ).object = enemy.id();
@@ -905,11 +888,6 @@ public class Hero extends Char {
 	
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
-		
-		CapeOfThorns.Thorns thorns = buff( CapeOfThorns.Thorns.class );
-		if (thorns != null) {
-			damage = thorns.proc(damage, enemy);
-		}
 		
 		Earthroot.Armor armor = buff( Earthroot.Armor.class );
 		if (armor != null) {
@@ -942,6 +920,11 @@ public class Hero extends Char {
             Buff.detach(this, Drowsy.class);
             GLog.w("The pain helps you resist the urge to sleep.");
         }
+
+		CapeOfThorns.Thorns thorns = buff( CapeOfThorns.Thorns.class );
+		if (thorns != null) {
+			dmg = thorns.proc(dmg, (src instanceof Char ? (Char)src : null),  this);
+		}
 
         int tenacity = 0;
         for (Buff buff : buffs(RingOfTenacity.Tenacity.class)) {
@@ -1106,22 +1089,45 @@ public class Hero extends Char {
 	public void earnExp( int exp ) {
 		
 		this.exp += exp;
+		float percent = exp/(float)maxExp();
+
+		EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class);
+		if (chains != null) chains.gainExp(percent);
+
+		if (subClass == HeroSubClass.WARLOCK) {
+
+			int healed = Math.round(Math.min(HT - HP, HT * percent * 0.3f));
+			if (healed > 0) {
+				HP += healed;
+				sprite.emitter().burst( Speck.factory( Speck.HEALING ), percent > 0.3f ? 2 : 1 );
+			}
+
+			(buff( Hunger.class )).consumeSoul( Hunger.STARVING*percent );
+		}
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
 			this.exp -= maxExp();
-			lvl++;
-			
-			HT += 5;
-			HP += 5;			
-			attackSkill++;
-			defenseSkill++;
+			if (lvl < MAX_LEVEL) {
+				lvl++;
+				levelUp = true;
+
+				HT += 5;
+				HP += 5;
+				attackSkill++;
+				defenseSkill++;
+
+			} else {
+				Buff.prolong(this, Bless.class, 30f);
+				this.exp = 0;
+
+				GLog.p( "You cannot grow stronger, but your experiences do give you a surge of power!");
+				Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			}
 			
 			if (lvl < 10) {
 				updateAwareness();
 			}
-			
-			levelUp = true;
 		}
 		
 		if (levelUp) {
@@ -1131,17 +1137,6 @@ public class Hero extends Char {
 			Sample.INSTANCE.play( Assets.SND_LEVELUP );
 			
 			Badges.validateLevelReached();
-		}
-		
-		if (subClass == HeroSubClass.WARLOCK) {
-			
-			int value = Math.min( HT - HP, 1 + (Dungeon.depth - 1) / 5 );
-			if (value > 0) {
-				HP += value;
-				sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
-			}
-			
-			((Hunger)buff( Hunger.class )).satisfy( 10 );
 		}
 	}
 	
@@ -1167,7 +1162,7 @@ public class Hero extends Char {
 			return;
 
 		super.add( buff );
-		
+
 		if (sprite != null) {
 			if (buff instanceof Burning) {
 				GLog.w( "You catch fire!" );
@@ -1188,7 +1183,6 @@ public class Hero extends Char {
 				GLog.w( "You are blinded!" );
 			} else if (buff instanceof Fury) {
 				GLog.w( "You become furious!" );
-				sprite.showStatus( CharSprite.POSITIVE, "furious" );
 			} else if (buff instanceof Charm) {
 				GLog.w( "You are charmed!" );
 			}  else if (buff instanceof Cripple) {
@@ -1203,10 +1197,7 @@ public class Hero extends Char {
                 GLog.w("Everything is spinning around you!");
                 interrupt();
             }
-			
-			else if (buff instanceof Light) {
-				sprite.add( CharSprite.State.ILLUMINATED );
-			}
+
 		}
 		
 		BuffIndicator.refreshHero();
@@ -1216,9 +1207,7 @@ public class Hero extends Char {
 	public void remove( Buff buff ) {
 		super.remove( buff );
 		
-		if (buff instanceof Light) {
-			sprite.remove( CharSprite.State.ILLUMINATED );
-		} else if (buff instanceof RingOfMight.Might){
+		if (buff instanceof RingOfMight.Might){
             if (((RingOfMight.Might)buff).level > 0){
                 HT -= ((RingOfMight.Might) buff).level * 5;
                 HP = Math.min(HT, HP);
@@ -1254,7 +1243,11 @@ public class Hero extends Char {
         }
 
         if (ankh != null && ankh.isBlessed()) {
-            this.HP = HT;
+            this.HP = HT/4;
+
+	        //ensures that you'll get to act first in almost any case, to prevent reviving and then instantly dieing again.
+	        Buff.detach(this, Paralysis.class);
+	        spend(-cooldown());
 
             new Flare(8, 32).color(0xFFFF66, true).show(sprite, 2f);
             CellEmitter.get(this.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
@@ -1298,8 +1291,7 @@ public class Hero extends Char {
 				
 				visited[i] = true;
 				if ((Terrain.flags[terr] & Terrain.SECRET) != 0) {
-					Level.set( i, Terrain.discover( terr ) );						
-					GameScene.updateMap( i );
+					Dungeon.level.discover( i );
 				}
 			}
 		}
@@ -1467,9 +1459,7 @@ public class Hero extends Char {
 						
 						GameScene.discoverTile( p, oldValue );
 						
-						Level.set( p, Terrain.discover( oldValue ) );	
-						
-						GameScene.updateMap( p );
+						Dungeon.level.discover( p );
 						
 						ScrollOfMagicMapping.discover( p );
 						

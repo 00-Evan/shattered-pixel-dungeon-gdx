@@ -23,6 +23,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Slow extends FlavourBuff {
 
+	{
+		type = buffType.NEGATIVE;
+	}
+
 	private static final float DURATION = 10f;
 
 	@Override
@@ -33,6 +37,15 @@ public class Slow extends FlavourBuff {
 	@Override
 	public String toString() {
 		return "Slowed";
+	}
+
+	@Override
+	public String desc() {
+		return "Slowing magic affects the target's rate of time, to them everything is moving super-fast.\n" +
+				"\n" +
+				"A slowed character performs all actions in twice the amount of time they would normally take.\n" +
+				"\n" +
+				"This slow will last for " + dispTurns() + ".";
 	}
 
 	public static float duration( Char ch ) {

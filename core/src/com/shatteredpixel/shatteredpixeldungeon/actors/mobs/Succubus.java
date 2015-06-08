@@ -17,8 +17,10 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -29,7 +31,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlink;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Leech;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -92,13 +93,28 @@ public class Succubus extends Mob {
 	
 	private void blink( int target ) {
 		
-		int cell = Ballistica.cast( pos, target, true, true );
-		
-		if (Actor.findChar( cell ) != null && Ballistica.distance > 1) {
-			cell = Ballistica.trace[Ballistica.distance - 2];
+		Ballistica route = new Ballistica( pos, target, Ballistica.PROJECTILE);
+		int cell = route.collisionPos;
+
+		//can't occupy the same cell as another char, so move back one.
+		if (Actor.findChar( cell ) != null && cell != this.pos)
+			cell = route.path.get(route.dist-1);
+
+		if (Level.avoid[ cell ]){
+			ArrayList<Integer> candidates = new ArrayList<Integer>();
+			for (int n : Level.NEIGHBOURS8) {
+				cell = route.collisionPos + n;
+				if (Level.passable[cell] && Actor.findChar( cell ) == null) {
+					candidates.add( cell );
+				}
+			}
+			if (candidates.size() > 0)
+				cell = Random.element(candidates);
+			else
+				return;
 		}
 		
-		WandOfBlink.appear( this, cell );
+		ScrollOfTeleportation.appear( this, cell );
 		
 		delay = BLINK_DELAY;
 	}

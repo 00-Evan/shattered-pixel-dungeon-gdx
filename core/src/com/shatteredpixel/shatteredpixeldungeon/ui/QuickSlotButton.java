@@ -17,8 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
@@ -88,7 +87,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 					GameScene.handleCell( lastTarget.pos );
 				} else {
 					Item item = select(slotNum);
-					if (item.stackable || item instanceof Wand || item instanceof Boomerang)
+					if (item instanceof EquipableItem)
 						useTargeting();
 					item.execute( Dungeon.hero );
 				}

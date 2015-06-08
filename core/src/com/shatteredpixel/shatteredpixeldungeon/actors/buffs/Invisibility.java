@@ -21,11 +21,16 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Invisibility extends FlavourBuff {
 
 	public static final float DURATION	= 15f;
+
+	{
+		type = buffType.POSITIVE;
+	}
 	
 	@Override
 	public boolean attachTo( Char target ) {
@@ -48,12 +53,28 @@ public class Invisibility extends FlavourBuff {
 	public int icon() {
 		return BuffIndicator.INVISIBLE;
 	}
-	
+
+	@Override
+	public void fx(boolean on) {
+		if (on) target.sprite.add( CharSprite.State.INVISIBLE );
+		else if (target.invisible == 0) target.sprite.remove( CharSprite.State.INVISIBLE );
+	}
+
 	@Override
 	public String toString() {
 		return "Invisible";
 	}
-	
+
+	@Override
+	public String desc() {
+		return "You are completely blended into the surrounding terrain, making you impossible to see.\n" +
+				"\n" +
+				"While you are invisible enemies are unable to attack or follow you. " +
+				"Physical attacks and magical effects (such as scrolls and wands) will immediately cancel invisibility.\n" +
+				"\n" +
+				"This invisibility will last for " + dispTurns() + ".";
+	}
+
 	public static void dispel() {
 		Invisibility buff = Dungeon.hero.buff( Invisibility.class );
 		if (buff != null) {

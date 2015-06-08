@@ -22,6 +22,7 @@ import com.watabou.noosa.Visual;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 
 public class Pushing extends Actor {
@@ -31,11 +32,23 @@ public class Pushing extends Actor {
 	private int to;
 	
 	private Effect effect;
+
+	private Callback callback;
+
+	{
+		actPriority = Integer.MIN_VALUE; //it's a visual effect, gets priority no matter what
+	}
 	
 	public Pushing( Char ch, int from, int to ) {
 		sprite = ch.sprite;
 		this.from = from;
 		this.to = to;
+		this.callback = null;
+	}
+
+	public Pushing( Char ch, int from, int to, Callback callback ) {
+		this(ch, from, to);
+		this.callback = callback;
 	}
 	
 	@Override
@@ -45,13 +58,17 @@ public class Pushing extends Actor {
 			if (effect == null) {
 				new Effect();
 			}
-			return false;
-			
-		} else {
-			
-			Actor.remove( Pushing.this );
-			return true;
 		}
+
+		Actor.remove( Pushing.this );
+
+		//so that all pushing effects at the same time go simultaneously
+		for ( Actor actor : Actor.all() ){
+			if (actor instanceof Pushing && ((Pushing) actor).cooldown() == 0)
+				return true;
+		}
+		return false;
+
 	}
 
 	public class Effect extends Visual {
@@ -88,10 +105,11 @@ public class Pushing extends Actor {
 				
 			} else {
 				
-				sprite.point( end );
+				sprite.point(end);
 				
 				killAndErase();
-				Actor.remove( Pushing.this );
+				Actor.remove(Pushing.this);
+				if (callback != null) callback.call();
 				
 				next();
 			}

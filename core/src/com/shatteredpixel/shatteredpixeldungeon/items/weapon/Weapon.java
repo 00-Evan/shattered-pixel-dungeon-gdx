@@ -192,7 +192,7 @@ public class Weapon extends KindOfWeapon {
 			int n = 1;
 			if (Random.Int( 3 ) == 0) {
 				n++;
-				if (Random.Int( 3 ) == 0) {
+				if (Random.Int( 5 ) == 0) {
 					n++;
 				}
 			}
@@ -230,7 +230,8 @@ public class Weapon extends KindOfWeapon {
 	public ItemSprite.Glowing glowing() {
 		return enchantment != null ? enchantment.glowing() : null;
 	}
-	
+
+	//FIXME: most enchantment names are pretty broken, should refactor
 	public static abstract class Enchantment implements Bundlable {
 
 		private static final Class<?>[] enchants = new Class<?>[]{ 

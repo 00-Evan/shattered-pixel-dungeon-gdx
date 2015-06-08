@@ -19,6 +19,7 @@ package com.shatteredpixel.shatteredpixeldungeon.plants;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
 import com.watabou.noosa.audio.Sample;
@@ -42,7 +43,7 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-public class Plant implements Bundlable {
+public abstract class Plant implements Bundlable {
 
 	public String plantName;
 	
@@ -50,15 +51,20 @@ public class Plant implements Bundlable {
 	public int pos;
 	
 	public PlantSprite sprite;
-	
-	public void activate( Char ch ) {
-		
+
+	public void trigger(){
+
+		Char ch = Actor.findChar(pos);
+
 		if (ch instanceof Hero && ((Hero)ch).subClass == HeroSubClass.WARDEN) {
 			Buff.affect( ch, Barkskin.class ).level( ch.HT / 3 );
 		}
-		
+
 		wither();
+		activate();
 	}
+	
+	public abstract void activate();
 	
 	public void wither() {
 		Dungeon.level.uproot( pos );

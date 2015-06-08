@@ -19,6 +19,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
@@ -36,6 +37,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.ShopPainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.AlarmTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.FireTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ParalyticTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ToxicTrap;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Graph;
 import com.watabou.utils.Random;
@@ -159,6 +167,16 @@ public abstract class RegularLevel extends Level {
 		
 		return true;
 	}
+
+	protected void placeSign(){
+		while (true) {
+			int pos = roomEntrance.random();
+			if (pos != entrance || traps.get(pos) == null) {
+				map[pos] = Terrain.SIGN;
+				break;
+			}
+		}
+	}
 	
 	protected boolean initRooms() {
 
@@ -260,7 +278,7 @@ public abstract class RegularLevel extends Level {
 			}
 		}
 		
-		while (count < 4) {
+		while (count < 6) {
 			Room r = randomRoom( Type.TUNNEL, 1 );
 			if (r != null) {
 				r.type = Type.STANDARD;
@@ -315,36 +333,37 @@ public abstract class RegularLevel extends Level {
 		
 		int nTraps = nTraps();
 		float[] trapChances = trapChances();
-		
+
 		for (int i=0; i < nTraps; i++) {
 			
 			int trapPos = Random.Int( LENGTH );
 			
 			if (map[trapPos] == Terrain.EMPTY) {
+				map[trapPos] = Terrain.SECRET_TRAP;
 				switch (Random.chances( trapChances )) {
 				case 0:
-					map[trapPos] = Terrain.SECRET_TOXIC_TRAP;
+					setTrap( new ToxicTrap().hide(), trapPos);
 					break;
 				case 1:
-					map[trapPos] = Terrain.SECRET_FIRE_TRAP;
+					setTrap( new FireTrap().hide(), trapPos);
 					break;
 				case 2:
-					map[trapPos] = Terrain.SECRET_PARALYTIC_TRAP;
+					setTrap( new ParalyticTrap().hide(), trapPos);
 					break;
 				case 3:
-					map[trapPos] = Terrain.SECRET_POISON_TRAP;
+					setTrap( new PoisonTrap().hide(), trapPos);
 					break;
 				case 4:
-					map[trapPos] = Terrain.SECRET_ALARM_TRAP;
+					setTrap( new AlarmTrap().hide(), trapPos);
 					break;
 				case 5:
-					map[trapPos] = Terrain.SECRET_LIGHTNING_TRAP;
+					setTrap( new LightningTrap().hide(), trapPos);
 					break;
 				case 6:
-					map[trapPos] = Terrain.SECRET_GRIPPING_TRAP;
+					setTrap( new GrippingTrap().hide(), trapPos);
 					break;
 				case 7:
-					map[trapPos] = Terrain.SECRET_SUMMONING_TRAP;
+					setTrap( new LightningTrap().hide(), trapPos);
 					break;
 				}
 			}
@@ -540,19 +559,49 @@ public abstract class RegularLevel extends Level {
 	
 	@Override
 	public int nMobs() {
-		return 2 + Dungeon.depth % 5 + Random.Int( 3 );
+		switch(Dungeon.depth) {
+			case 1:
+				//mobs are not randomly spawned on floor 1.
+				return 0;
+			default:
+				return 2 + Dungeon.depth % 5 + Random.Int(5);
+		}
 	}
 	
 	@Override
 	protected void createMobs() {
-		int nMobs = nMobs();
-		for (int i=0; i < nMobs; i++) {
+		//on floor 1, 10 rats are created so the player can get level 2.
+		int mobsToSpawn = Dungeon.depth == 1 ? 10 : nMobs();
+
+		HashSet<Room> stdRooms = new HashSet<>();
+		for (Room room : rooms) {
+			if (room.type == Type.STANDARD) stdRooms.add(room);
+		}
+		Iterator<Room> stdRoomIter = stdRooms.iterator();
+
+		while (mobsToSpawn > 0) {
+			if (!stdRoomIter.hasNext())
+				stdRoomIter = stdRooms.iterator();
+			Room roomToSpawn = stdRoomIter.next();
+
 			Mob mob = Bestiary.mob( Dungeon.depth );
-			do {
-				mob.pos = randomRespawnCell();
-			} while (mob.pos == -1);
-			mobs.add( mob );
-			Actor.occupyCell( mob );
+			mob.pos = roomToSpawn.random();
+
+			if (findMob(mob.pos) == null && Level.passable[mob.pos]) {
+				mobsToSpawn--;
+				mobs.add(mob);
+
+				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
+				if (mobsToSpawn > 0 && Random.Int(4) == 0){
+					mob = Bestiary.mob( Dungeon.depth );
+					mob.pos = roomToSpawn.random();
+
+					if (findMob(mob.pos)  == null && Level.passable[mob.pos]) {
+						mobsToSpawn--;
+						mobs.add(mob);
+					}
+				}
+			}
 		}
 	}
 	
@@ -638,7 +687,8 @@ public abstract class RegularLevel extends Level {
 		for (Item item : itemsToSpawn) {
 			int cell = randomDropCell();
 			if (item instanceof Scroll) {
-				while (map[cell] == Terrain.FIRE_TRAP || map[cell] == Terrain.SECRET_FIRE_TRAP) {
+				while ((map[cell] == Terrain.TRAP || map[cell] == Terrain.SECRET_TRAP)
+						&& traps.get( cell ) instanceof FireTrap) {
 					cell = randomDropCell();
 				}
 			}

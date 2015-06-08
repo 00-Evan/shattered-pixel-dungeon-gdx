@@ -20,6 +20,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -35,20 +36,9 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfAmok;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfAvalanche;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlink;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFirebolt;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPoison;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfSlowness;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTelekinesis;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -224,50 +214,18 @@ public class Wandmaker extends NPC {
 					npc.pos = room.random();
 				} while (level.map[npc.pos] == Terrain.ENTRANCE || level.map[npc.pos] == Terrain.SIGN);
 				level.mobs.add( npc );
-				Actor.occupyCell( npc );
 				
 				spawned = true;
 				alternative = Random.Int( 2 ) == 0;
 				
 				given = false;
-				
-				switch (Random.Int( 5 )) {
-				case 0:
-					wand1 = new WandOfAvalanche();
-					break;
-				case 1:
-					wand1 = new WandOfDisintegration();
-					break;
-				case 2:
-					wand1 = new WandOfFirebolt();
-					break;
-				case 3:
-					wand1 = new WandOfLightning();
-					break;
-				case 4:
-					wand1 = new WandOfPoison();
-					break;
-				}
-				wand1.random().upgrade();
-				
-				switch (Random.Int( 5 )) {
-				case 0:
-					wand2 = new WandOfAmok();
-					break;
-				case 1:
-					wand2 = new WandOfBlink();
-					break;
-				case 2:
-					wand2 = new WandOfRegrowth();
-					break;
-				case 3:
-					wand2 = new WandOfSlowness();
-					break;
-				case 4:
-					wand2 = new WandOfTelekinesis();
-					break;
-				}
-				wand2.random().upgrade();
+				wand1 = (Wand) Generator.random(Generator.Category.WAND);
+				wand1.upgrade();
+
+				do {
+					wand2 = (Wand) Generator.random(Generator.Category.WAND);
+				} while (wand2.getClass().equals(wand1.getClass()));
+				wand2.upgrade();
 			}
 		}
 		
@@ -332,8 +290,8 @@ public class Wandmaker extends NPC {
 		}
 		
 		@Override
-		public void activate( Char ch ) {
-			super.activate( ch );
+		public void activate() {
+			Char ch = Actor.findChar(pos);
 			
 			GameScene.add( Blob.seed( pos, 100, ToxicGas.class ) );
 			

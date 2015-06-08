@@ -69,9 +69,7 @@ public class Yog extends Mob {
 	private static final String TXT_DESC =
 		"Yog-Dzewa is an Old God, a powerful entity from the realms of chaos. A century ago, the ancient dwarves " +
 		"barely won the war against its army of demons, but were unable to kill the god itself. Instead, they then " +
-		"imprisoned it in the halls below their city, believing it to be too weak to rise ever again.";	
-	
-	private static int fistsCount = 0;
+		"imprisoned it in the halls below their city, believing it to be too weak to rise ever again.";
 	
 	public Yog() {
 		super();
@@ -89,20 +87,28 @@ public class Yog extends Mob {
 		GameScene.add( fist1 );
 		GameScene.add( fist2 );
 	}
-	
+
+	@Override
+	protected boolean act() {
+		//heals 1 health per turn
+		HP = Math.min( HT, HP+1 );
+
+		return super.act();
+	}
+
 	@Override
 	public void damage( int dmg, Object src ) {
-		
-		if (fistsCount > 0) {
-			
-			for (Mob mob : Dungeon.level.mobs) {
-				if (mob instanceof BurningFist || mob instanceof RottingFist) {
-					mob.beckon( pos );
-				}
-			}
-			
-			dmg >>= fistsCount;
-		}
+
+		HashSet<Mob> fists = new HashSet<>();
+
+		for (Mob mob : Dungeon.level.mobs)
+			if (mob instanceof RottingFist || mob instanceof BurningFist)
+				fists.add( mob );
+
+		for (Mob fist : fists)
+			fist.beckon( pos );
+
+		dmg >>= fists.size();
 		
 		super.damage( dmg, src );
 	}
@@ -204,17 +210,6 @@ public class Yog extends Mob {
 			state = WANDERING;
 		}
 		
-		public RottingFist() {
-			super();
-			fistsCount++;
-		}
-		
-		@Override
-		public void die( Object cause ) {
-			super.die( cause );
-			fistsCount--;
-		}
-		
 		@Override
 		public int attackSkill( Char target ) {
 			return 36;
@@ -298,17 +293,6 @@ public class Yog extends Mob {
 			state = WANDERING;
 		}
 		
-		public BurningFist() {
-			super();
-			fistsCount++;
-		}
-		
-		@Override
-		public void die( Object cause ) {
-			super.die( cause );
-			fistsCount--;
-		}
-		
 		@Override
 		public int attackSkill( Char target ) {
 			return 36;
@@ -326,7 +310,7 @@ public class Yog extends Mob {
 		
 		@Override
 		protected boolean canAttack( Char enemy ) {
-			return Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos;
+			return new Ballistica( pos, enemy.pos, Ballistica.MAGIC_BOLT).collisionPos == enemy.pos;
 		}
 		
 		@Override

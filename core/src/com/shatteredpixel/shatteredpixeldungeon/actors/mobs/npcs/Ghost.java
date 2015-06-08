@@ -181,8 +181,6 @@ public class Ghost extends NPC {
                     }
                     if (newPos != -1) {
 
-                        Actor.freeCell(pos);
-
                         CellEmitter.get(pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
                         pos = newPos;
                         sprite.place(pos);
@@ -317,7 +315,6 @@ public class Ghost extends NPC {
 					ghost.pos = level.randomRespawnCell();
 				} while (ghost.pos == -1);
 				level.mobs.add( ghost );
-				Actor.occupyCell( ghost );
 				
 				spawned = true;
                 //dungeon depth determines type of quest.
@@ -467,7 +464,8 @@ public class Ghost extends NPC {
 
         @Override
         protected boolean canAttack( Char enemy ) {
-            if (!Level.adjacent(pos, enemy.pos) && Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos){
+            Ballistica attack = new Ballistica( pos, enemy.pos, Ballistica.PROJECTILE );
+            if (!Level.adjacent(pos, enemy.pos) && attack.collisionPos == enemy.pos){
                 combo++;
                 return true;
             } else {
@@ -498,7 +496,7 @@ public class Ghost extends NPC {
         @Override
         protected boolean getCloser( int target ) {
             combo = 0; //if he's moving, he isn't attacking, reset combo.
-            if (Level.adjacent(pos, enemy.pos)) {
+            if (enemy != null && Level.adjacent(pos, enemy.pos)) {
                 return getFurther( target );
             } else {
                 return super.getCloser( target );

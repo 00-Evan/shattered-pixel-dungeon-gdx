@@ -19,6 +19,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Levitation extends FlavourBuff {
@@ -47,9 +48,26 @@ public class Levitation extends FlavourBuff {
 	public int icon() {
 		return BuffIndicator.LEVITATION;
 	}
-	
+
+	@Override
+	public void fx(boolean on) {
+		if (on) target.sprite.add(CharSprite.State.LEVITATING);
+		else target.sprite.remove(CharSprite.State.LEVITATING);
+	}
+
 	@Override
 	public String toString() {
 		return "Levitating";
+	}
+
+	@Override
+	public String desc() {
+		return "A magical force is levitating you over the ground, making you feel weightless.\n" +
+				"\n " +
+				"While levitating you ignore all ground-based effects. Traps won't trigger, water won't put out fire, " +
+				"plants won't be trampled, roots will miss you, and you will hover right over pits. " +
+				"Be careful, as all these things can come into effect the second the levitation ends!\n" +
+				"\n" +
+				"You are levitating for " + dispTurns() + ".";
 	}
 }

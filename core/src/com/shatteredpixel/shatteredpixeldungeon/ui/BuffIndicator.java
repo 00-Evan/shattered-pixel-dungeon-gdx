@@ -17,11 +17,14 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoBuff;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.tweeners.AlphaTweener;
+import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -67,7 +70,11 @@ public class BuffIndicator extends Component {
     public static final int THORNS      = 31;
     public static final int FORESIGHT   = 32;
     public static final int VERTIGO     = 33;
-	
+	public static final int RECHARGING 	= 34;
+	public static final int LOCKED_FLOOR= 35;
+	public static final int CORRUPT     = 36;
+	public static final int BLESS       = 37;
+
 	public static final int SIZE	= 7;
 	
 	private static BuffIndicator heroInstance;
@@ -75,7 +82,7 @@ public class BuffIndicator extends Component {
 	private SmartTexture texture;
 	private TextureFilm film;
 	
-	private SparseArray<Image> icons = new SparseArray<Image>();
+	private SparseArray<BuffIcon> icons = new SparseArray<BuffIcon>();
 	
 	private Char ch;
 	
@@ -107,24 +114,20 @@ public class BuffIndicator extends Component {
 	protected void layout() {
 		clear();
 		
-		SparseArray<Image> newIcons = new SparseArray<Image>();
+		SparseArray<BuffIcon> newIcons = new SparseArray<BuffIcon>();
 		
 		for (Buff buff : ch.buffs()) {
-			int icon = buff.icon();
-			if (icon != NONE) {
-				Image img = new Image( texture );
-				img.frame( film.get( icon ) );
-				img.x = x + members.size() * (SIZE + 2);
-				img.y = y;
-				add( img );
-				
-				newIcons.put( icon, img );
+			if (buff.icon() != NONE) {
+				BuffIcon icon = new BuffIcon( buff );
+				icon.setRect(x + members.size() * (SIZE + 2), y, 9, 12);
+				add(icon);
+				newIcons.put( buff.icon(), icon );
 			}
 		}
 		
 		for (Integer key : icons.keyArray()) {
 			if (newIcons.get( key ) == null) {
-				Image icon = icons.get( key );
+				Image icon = icons.get( key ).icon;
 				icon.origin.set( SIZE / 2 );
 				add( icon );
 				add( new AlphaTweener( icon, 0, 0.6f ) {
@@ -138,6 +141,34 @@ public class BuffIndicator extends Component {
 		}
 		
 		icons = newIcons;
+	}
+
+	private class BuffIcon extends Button {
+
+		private Buff buff;
+
+		public Image icon;
+
+		public BuffIcon( Buff buff ){
+			super();
+			this.buff = buff;
+
+			icon = new Image( texture );
+			icon.frame( film.get( buff.icon() ) );
+			add( icon );
+		}
+
+		@Override
+		protected void layout() {
+			super.layout();
+			icon.x = this.x+1;
+			icon.y = this.y+2;
+		}
+
+		@Override
+		protected void onClick() {
+			GameScene.show(new WndInfoBuff(buff));
+		}
 	}
 	
 	public static void refreshHero() {

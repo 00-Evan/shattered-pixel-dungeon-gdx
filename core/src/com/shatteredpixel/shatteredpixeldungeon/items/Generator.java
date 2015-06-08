@@ -53,7 +53,7 @@ public class Generator {
 		SCROLL	( 400,	Scroll.class ),
 		WAND	( 40,	Wand.class ),
 		RING	( 15,	Ring.class ),
-        ARTIFACT( 20,   Artifact.class),
+        ARTIFACT( 15,   Artifact.class),
 		SEED	( 50,	Plant.Seed.class ),
 		FOOD	( 0,	Food.class ),
 		GOLD	( 500,	Gold.class );
@@ -101,7 +101,7 @@ public class Generator {
 			ScrollOfMagicalInfusion.class,
 			ScrollOfPsionicBlast.class,
 			ScrollOfMirrorImage.class };
-		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 10, 15, 12, 8, 8, 0, 3, 6 };
+		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 15, 15, 12, 8, 8, 0, 4, 10 };
 		
 		Category.POTION.classes = new Class<?>[]{ 
 			PotionOfHealing.class, 
@@ -117,22 +117,23 @@ public class Generator {
 			PotionOfMight.class,
 			PotionOfFrost.class };
 		Category.POTION.probs = new float[]{ 45, 4, 15, 10, 15, 10, 0, 20, 12, 10, 0, 10 };
-		
-		Category.WAND.classes = new Class<?>[]{ 
-			WandOfTeleportation.class, 
-			WandOfSlowness.class,
-			WandOfFirebolt.class,
-			WandOfRegrowth.class,
-			WandOfPoison.class,
-			WandOfBlink.class,
-			WandOfLightning.class,
-			WandOfAmok.class,
-			WandOfTelekinesis.class,
-			WandOfFlock.class,
+
+		//TODO: add last ones when implemented
+		Category.WAND.classes = new Class<?>[]{
 			WandOfMagicMissile.class,
+			WandOfLightning.class,
 			WandOfDisintegration.class,
-			WandOfAvalanche.class };
-		Category.WAND.probs = new float[]{ 10, 10, 15, 6, 10, 11, 15, 10, 6, 10, 0, 5, 5 };
+			WandOfFireblast.class,
+			WandOfVenom.class,
+			WandOfBlastWave.class,
+			//WandOfLivingEarth.class,
+			WandOfFrost.class,
+			WandOfPrismaticLight.class,
+			//WandOfWarding.class,
+			WandOfTransfusion.class,
+			WandOfCorruption.class,
+			WandOfRegrowth.class };
+		Category.WAND.probs = new float[]{ 4, 4, 4, 4, 4, 3, /*3,*/ 3, 3, /*3,*/ 3, 3, 3 };
 		
 		Category.WEAPON.classes = new Class<?>[]{ 
 			Dagger.class, 
@@ -176,12 +177,12 @@ public class Generator {
             RingOfForce.class,
             RingOfFuror.class,
             RingOfHaste.class,
-            RingOfMagic.class,
+            RingOfMagic.class, //currently removed from drop tables, pending rework
             RingOfMight.class,
             RingOfSharpshooting.class,
             RingOfTenacity.class,
             RingOfWealth.class};
-		Category.RING.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+		Category.RING.probs = new float[]{ 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1 };
 
         Category.ARTIFACT.classes = new Class<?>[]{
             CapeOfThorns.class,
@@ -193,10 +194,12 @@ public class Generator {
             TalismanOfForesight.class,
             TimekeepersHourglass.class,
             UnstableSpellbook.class,
-            AlchemistsToolkit.class,
-            DriedRose.class //starts with no chance of spawning, chance is set directly after beating ghost quest.
+            AlchemistsToolkit.class, //currently removed from drop tables, pending rework.
+            DriedRose.class, //starts with no chance of spawning, chance is set directly after beating ghost quest.
+	        LloydsBeacon.class,
+	        EtherealChains.class
             };
-        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0 };
+        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1};
 		
 		Category.SEED.classes = new Class<?>[]{ 
 			Firebloom.Seed.class,
@@ -209,8 +212,9 @@ public class Generator {
             Rotberry.Seed.class,
 			BlandfruitBush.Seed.class,
             Dreamfoil.Seed.class,
-            Stormvine.Seed.class};
-		Category.SEED.probs = new float[]{ 3, 3, 3, 3, 3, 3, 3, 0, 1, 3, 3 };
+            Stormvine.Seed.class,
+			Starflower.Seed.class};
+		Category.SEED.probs = new float[]{ 12, 12, 12, 12, 12, 12, 12, 0, 4, 12, 12, 1 };
 	}
 	
 	public static void reset() {
@@ -353,7 +357,8 @@ public class Generator {
 
     //resets artifact probabilities, for new dungeons
     public static void initArtifacts() {
-        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0 };
+	    //FIXME: the duplicated logic here has caused 1 bug so far, should refactor.
+        Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1};
         spawnedArtifacts = new ArrayList<String>();
     }
 

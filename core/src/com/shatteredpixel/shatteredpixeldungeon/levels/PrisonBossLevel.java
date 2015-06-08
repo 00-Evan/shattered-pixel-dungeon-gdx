@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonTrap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.noosa.Scene;
 import com.watabou.utils.Bundle;
@@ -204,13 +205,14 @@ public class PrisonBossLevel extends RegularLevel {
 			int trapPos = Random.Int( LENGTH );
 			
 			if (map[trapPos] == Terrain.EMPTY) {
-				map[trapPos] = Terrain.POISON_TRAP;
+				map[trapPos] = Terrain.TRAP;
+				setTrap( new PoisonTrap().reveal(), trapPos );
 			}
 		}
 	}
 	
 	@Override
-	protected void decorate() {	
+	protected void decorate() {
 		
 		for (int i=WIDTH + 1; i < LENGTH - WIDTH - 1; i++) {
 			if (map[i] == Terrain.EMPTY) { 
@@ -254,13 +256,7 @@ public class PrisonBossLevel extends RegularLevel {
 			}
 		}
 		
-		while (true) {
-			int pos = roomEntrance.random();
-			if (pos != entrance) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
+		placeSign();
 		
 		Point door = roomExit.entrance();
 		arenaDoor = door.x + door.y * WIDTH;
@@ -309,7 +305,7 @@ public class PrisonBossLevel extends RegularLevel {
 		if (ch == Dungeon.hero && !enteredArena && roomExit.inside( cell )) {
 			
 			enteredArena = true;
-            locked = true;
+            seal();
 		
 			int pos;
 			do {
@@ -337,7 +333,7 @@ public class PrisonBossLevel extends RegularLevel {
 		if (!keyDropped && item instanceof SkeletonKey) {
 			
 			keyDropped = true;
-            locked = false;
+			unseal();
 			
 			set( arenaDoor, Terrain.DOOR );
 			GameScene.updateMap( arenaDoor );

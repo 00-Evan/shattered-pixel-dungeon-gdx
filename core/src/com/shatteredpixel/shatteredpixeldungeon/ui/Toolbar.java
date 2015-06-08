@@ -61,7 +61,7 @@ public class Toolbar extends Component {
 	@Override
 	protected void createChildren() {
 		
-		add( btnWait = new Tool( 0, 7, 20, 24, GameAction.REST ) {
+		add( btnWait = new Tool( 0, 7, 20, 25, GameAction.REST ) {
 			
 			@Override
 			protected void onClick() {
@@ -81,7 +81,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnSearch = new Tool( 20, 7, 20, 24, GameAction.SEARCH ) {
+		add( btnSearch = new Tool( 20, 7, 20, 25, GameAction.SEARCH ) {
 			@Override
 			protected void onClick() {
 				doSearch();
@@ -92,7 +92,7 @@ public class Toolbar extends Component {
 			}
 		} );
 		
-		add( btnInfo = new Tool( 40, 7, 21, 24, GameAction.CELL_INFO) {
+		add( btnInfo = new Tool( 40, 7, 21, 25, GameAction.CELL_INFO) {
 			@Override
 			protected void onClick() {
 				getCellInfo();
@@ -116,7 +116,7 @@ public class Toolbar extends Component {
 		} );
 		*/
 		
-		add( btnInventory = new Tool( 82, 7, 23, 24, GameAction.BACKPACK ) {
+		add( btnInventory = new Tool( 82, 7, 23, 25, GameAction.BACKPACK ) {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
@@ -149,9 +149,9 @@ public class Toolbar extends Component {
 			};
 		} );
 
-		add( btnQuick = new QuickslotTool( 105, 7, 22, 24, 0, GameAction.QUICKSLOT_1) );
+		add( btnQuick = new QuickslotTool( 105, 7, 22, 25, 0, GameAction.QUICKSLOT_1) );
 
-		add( btnQuick2 = new QuickslotTool( 105, 7, 22, 24, 1, GameAction.QUICKSLOT_2) );
+		add( btnQuick2 = new QuickslotTool( 105, 7, 22, 25, 1, GameAction.QUICKSLOT_2) );
 
 		add( pickedUp = new PickedUpItem() );
 	}
@@ -313,7 +313,7 @@ public class Toolbar extends Component {
 		}
 
 		public void reset( Item item, float dstX, float dstY ) {
-			view( item.image(), item.glowing() );
+			view( item );
 
 			active =
 					visible =
@@ -337,6 +337,7 @@ public class Toolbar extends Component {
 				visible =
 						active =
 								false;
+				if (emitter != null) emitter.on = false;
 
 			} else {
 				float p = left / DURATION;

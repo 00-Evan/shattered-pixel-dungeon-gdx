@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
@@ -50,6 +51,9 @@ public class ItemSprite extends MovieClip {
 	public Heap heap;
 	
 	private Glowing glowing;
+	//FIXME: a lot of this emitter functionality isn't very well implemented.
+	//right now I want to ship 0.3.0, but should refactor in the future.
+	protected Emitter emitter;
 	private float phase;
 	private boolean glowUp;
 	
@@ -60,7 +64,13 @@ public class ItemSprite extends MovieClip {
 	}
 	
 	public ItemSprite( Item item ) {
-		this( item.image(), item.glowing() );
+		super(Assets.ITEMS);
+
+		if (film == null) {
+			film = new TextureFilm( texture, SIZE, SIZE );
+		}
+
+		view (item);
 	}
 	
 	public ItemSprite( int image, Glowing glowing ) {
@@ -70,21 +80,21 @@ public class ItemSprite extends MovieClip {
 			film = new TextureFilm( texture, SIZE, SIZE );
 		}
 		
-		view( image, glowing );
+		view(image, glowing);
 	}
 	
 	public void originToCenter() {
-		origin.set(SIZE / 2 );
+		origin.set(SIZE / 2);
 	}
 	
 	public void link() {
-		link( heap );
+		link(heap);
 	}
 	
 	public void link( Heap heap ) {
 		this.heap = heap;
 		view( heap.image(), heap.glowing() );
-		place( heap.pos );
+		place(heap.pos);
 	}
 	
 	@Override
@@ -96,6 +106,18 @@ public class ItemSprite extends MovieClip {
 		dropInterval = 0;
 		
 		heap = null;
+		if (emitter != null) {
+			emitter.killAndErase();
+			emitter = null;
+		}
+	}
+
+	public void visible(boolean value){
+		this.visible = value;
+		if (emitter != null && !visible){
+			emitter.killAndErase();
+			emitter = null;
+		}
 	}
 	
 	public PointF worldToCamera( int cell ) {
@@ -120,7 +142,7 @@ public class ItemSprite extends MovieClip {
 		dropInterval = DROP_INTERVAL;
 		
 		speed.set( 0, -100 );
-		acc.set( 0, -speed.y / DROP_INTERVAL * 2 );
+		acc.set(0, -speed.y / DROP_INTERVAL * 2);
 		
 		if (visible && heap != null && heap.peek() instanceof Gold) {
 			CellEmitter.center( heap.pos ).burst( Speck.factory( Speck.COIN ), 5 );
@@ -138,21 +160,42 @@ public class ItemSprite extends MovieClip {
 			float py = y;		
 			drop();
 			
-			place( from );
+			place(from);
 	
-			speed.offset( (px-x) / DROP_INTERVAL, (py-y) / DROP_INTERVAL );
+			speed.offset((px - x) / DROP_INTERVAL, (py - y) / DROP_INTERVAL);
 			
 		}
 	}
+
+	public ItemSprite view(Item item){
+		view(item.image(), item.glowing());
+		if (this.emitter != null) this.emitter.killAndErase();
+		Emitter emitter = item.emitter();
+		if (emitter != null && parent != null) {
+			emitter.pos( this );
+			parent.add( emitter );
+			this.emitter = emitter;
+		}
+		return this;
+	}
 	
 	public ItemSprite view( int image, Glowing glowing ) {
+		if (this.emitter != null) this.emitter.on = false;
+		emitter = null;
 		frame( film.get( image ) );
 		if ((this.glowing = glowing) == null) {
 			resetColor();
 		}
 		return this;
 	}
-	
+
+	@Override
+	public void kill() {
+		super.kill();
+		if (emitter != null) emitter.killAndErase();
+		emitter = null;
+	}
+
 	@Override
 	public void update() {
 		super.update();
@@ -202,7 +245,7 @@ public class ItemSprite extends MovieClip {
 			ba = glowing.blue * value;
 		}
 	}
-	
+
 	public static int pick( int index, int x, int y ) {
 		GdxTexture bmp = TextureCache.get( Assets.ITEMS ).bitmap;
 		int rows = bmp.getWidth() / SIZE;

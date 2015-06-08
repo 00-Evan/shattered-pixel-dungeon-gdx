@@ -17,6 +17,8 @@
 
 package com.watabou.utils;
 
+import java.util.HashSet;
+
 public class Rect {
 
 	public int left;
@@ -113,6 +115,14 @@ public class Rect {
 	
 	public Rect shrink() {
 		return shrink( 1 );
+	}
+
+	public HashSet<Point> getPoints() {
+		HashSet<Point> points = new HashSet<>(square()*2);
+		for (int i = left; i <= right; i++)
+			for (int j = top; j <= bottom; j++)
+				points.add(new Point(i, j));
+		return points;
 	}
 	
 }

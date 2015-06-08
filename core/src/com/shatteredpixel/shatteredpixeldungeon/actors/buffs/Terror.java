@@ -29,6 +29,10 @@ public class Terror extends FlavourBuff {
 
 	private static final String OBJECT    = "object";
 
+	{
+		type = buffType.NEGATIVE;
+	}
+
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
@@ -48,9 +52,19 @@ public class Terror extends FlavourBuff {
 
 	@Override
 	public String toString() {
-		return "Terror";
+		return "Terrified";
 	}
-	
+
+	@Override
+	public String desc() {
+		return "Terror is manipulative magic which forces its target into an uncontrollable panic.\n" +
+				"\n" +
+				"Terrified characters are forced to run away from their opponent, trying to put as many doors and " +
+				"walls between them as  possible. The shock of pain is enough to break this effect, however.\n" +
+				"\n" +
+				"This terror will last for " + dispTurns() + ", or until the target takes damage.";
+	}
+
 	public static void recover( Char target ) {
 		Terror terror = target.buff( Terror.class );
 		if (terror != null && terror.cooldown() < DURATION) {

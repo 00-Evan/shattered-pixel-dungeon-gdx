@@ -21,15 +21,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
 import com.badlogic.gdx.utils.IntMap;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndInfoTrap;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -52,7 +58,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Ripple;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlink;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
@@ -114,6 +119,7 @@ public class GameScene extends PixelScene {
 	private Group terrain;
 	private Group ripples;
 	private Group plants;
+	private Group traps;
 	private Group heaps;
 	private Group mobs;
 	private Group emitters;
@@ -158,7 +164,14 @@ public class GameScene extends PixelScene {
 		tiles = new DungeonTilemap();
 		terrain.add( tiles );
 		
-		Dungeon.level.addVisuals( this );
+		Dungeon.level.addVisuals(this);
+
+		traps = new Group();
+		add(traps);
+		
+		for (IntMap.Entry<Trap> trap : Dungeon.level.traps) {
+			addTrapSprite( trap.value );
+		}
 		
 		plants = new Group();
 		add( plants );
@@ -288,11 +301,11 @@ public class GameScene extends PixelScene {
 		
 		switch (InterlevelScene.mode) {
 		case RESURRECT:
-			WandOfBlink.appear( Dungeon.hero, Dungeon.level.entrance );
+			ScrollOfTeleportation.appear( Dungeon.hero, Dungeon.level.entrance );
 			new Flare( 8, 32 ).color( 0xFFFF66, true ).show( hero, 2f ) ;
 			break;
 		case RETURN:
-			WandOfBlink.appear(  Dungeon.hero, Dungeon.hero.pos );
+			ScrollOfTeleportation.appear(  Dungeon.hero, Dungeon.hero.pos );
 			break;
 		case FALL:
 			Chasm.heroLand();
@@ -460,6 +473,11 @@ public class GameScene extends PixelScene {
 	private void addPlantSprite( Plant plant ) {
 		(plant.sprite = (PlantSprite)plants.recycle( PlantSprite.class )).reset( plant );
 	}
+
+	private void addTrapSprite( Trap trap ) {
+		(trap.sprite = (TrapSprite)traps.recycle( TrapSprite.class )).reset( trap );
+		trap.sprite.visible = trap.visible;
+	}
 	
 	private void addBlobSprite( final Blob gas ) {
 		if (gas.emitter == null) {
@@ -508,6 +526,12 @@ public class GameScene extends PixelScene {
 			scene.addPlantSprite( plant );
 		}
 	}
+
+	public static void add( Trap trap ) {
+		if (scene != null) {
+			scene.addTrapSprite( trap );
+		}
+	}
 	
 	public static void add( Blob gas ) {
 		Actor.add( gas );
@@ -531,14 +555,12 @@ public class GameScene extends PixelScene {
 	public static void add( Mob mob ) {
 		Dungeon.level.mobs.add( mob );
 		Actor.add( mob );
-		Actor.occupyCell( mob );
 		scene.addMobSprite( mob );
 	}
 	
 	public static void add( Mob mob, float delay ) {
 		Dungeon.level.mobs.add( mob );
 		Actor.addDelayed( mob, delay );
-		Actor.occupyCell( mob );
 		scene.addMobSprite( mob );
 	}
 	
@@ -704,39 +726,44 @@ public class GameScene extends PixelScene {
             return;
         }
 
-        if (!Dungeon.visible[cell]) {
-            GameScene.show( new WndInfoCell( cell ) );
-            return;
-        }
+	    if (cell == Dungeon.hero.pos) {
+		    GameScene.show( new WndHero() );
+		    return;
+	    }
 
-        if (cell == Dungeon.hero.pos) {
-            GameScene.show( new WndHero() );
-            return;
-        }
+	    if (Dungeon.visible[cell]) {
 
-        Mob mob = (Mob)Actor.findChar( cell );
-        if (mob != null) {
-            GameScene.show( new WndInfoMob( mob ) );
-            return;
-        }
+	        Mob mob = (Mob)Actor.findChar( cell );
+	        if (mob != null) {
+	            GameScene.show( new WndInfoMob( mob ) );
+	            return;
+	        }
 
-        Heap heap = Dungeon.level.heaps.get( cell );
-        if (heap != null) {
-            if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-                GameScene.show( new WndTradeItem( heap, false ) );
-            } else {
-                GameScene.show( new WndInfoItem( heap ) );
-            }
-            return;
-        }
+	        Heap heap = Dungeon.level.heaps.get( cell );
+	        if (heap != null) {
+	            if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
+	                GameScene.show( new WndTradeItem( heap, false ) );
+	            } else {
+	                GameScene.show( new WndInfoItem( heap ) );
+	            }
+	            return;
+	        }
 
-        Plant plant = Dungeon.level.plants.get( cell );
-        if (plant != null) {
-            GameScene.show( new WndInfoPlant( plant ) );
-            return;
-        }
+	    }
 
-        GameScene.show( new WndInfoCell( cell ) );
+	    Plant plant = Dungeon.level.plants.get( cell );
+	    if (plant != null) {
+		    GameScene.show( new WndInfoPlant( plant ) );
+		    return;
+	    }
+
+	    Trap trap = Dungeon.level.traps.get( cell );
+	    if (trap != null && trap.visible) {
+		    GameScene.show( new WndInfoTrap( trap ));
+		    return;
+	    }
+
+	    GameScene.show( new WndInfoCell( cell ) );
     }
 	
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {

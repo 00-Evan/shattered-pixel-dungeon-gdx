@@ -27,9 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PoisonParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
@@ -208,6 +205,8 @@ public abstract class Char extends Actor {
 	public static boolean hit( Char attacker, Char defender, boolean magic ) {
 		float acuRoll = Random.Float( attacker.attackSkill( defender ) );
 		float defRoll = Random.Float( defender.defenseSkill( attacker ) );
+		if (attacker.buff(Bless.class) != null) acuRoll *= 1.20f;
+		if (defender.buff(Bless.class) != null) defRoll *= 1.20f;
 		return (magic ? acuRoll * 2 : acuRoll) >= defRoll;
 	}
 	
@@ -250,9 +249,6 @@ public abstract class Char extends Actor {
 		}
 		if (this.buff(Frost.class) != null){
             Buff.detach( this, Frost.class );
-            if (Level.water[this.pos]) {
-                Buff.prolong(this, Paralysis.class, 1f);
-            }
         }
         if (this.buff(MagicalSleep.class) != null){
             Buff.detach(this, MagicalSleep.class);
@@ -289,7 +285,6 @@ public abstract class Char extends Actor {
 	public void destroy() {
 		HP = 0;
 		Actor.remove( this );
-		Actor.freeCell( pos );
 	}
 	
 	public void die( Object src ) {
@@ -307,6 +302,9 @@ public abstract class Char extends Actor {
 		float timeScale = 1f;
 		if (buff( Slow.class ) != null) {
 			timeScale *= 0.5f;
+			//slowed and chilled do not stack
+		} else if (buff( Chill.class ) != null) {
+			timeScale *= buff( Chill.class ).speedFactor();
 		}
 		if (buff( Speed.class ) != null) {
 			timeScale *= 2.0f;
@@ -354,86 +352,26 @@ public abstract class Char extends Actor {
 		
 		buffs.add( buff );
 		Actor.add( buff );
-		
-		if (sprite != null) {
-			if (buff instanceof Poison) {
-				
-				CellEmitter.center( pos ).burst( PoisonParticle.SPLASH, 5 );
-				sprite.showStatus( CharSprite.NEGATIVE, "poisoned" );
-				
-			} else if (buff instanceof Amok) {
-				
-				sprite.showStatus( CharSprite.NEGATIVE, "amok" );
 
-			} else if (buff instanceof Slow) {
-
-				sprite.showStatus( CharSprite.NEGATIVE, "slowed" );
-				
-			} else if (buff instanceof MindVision) {
-				
-				sprite.showStatus( CharSprite.POSITIVE, "mind" );
-				sprite.showStatus( CharSprite.POSITIVE, "vision" );
-				
-			} else if (buff instanceof Paralysis) {
-
-				sprite.add( CharSprite.State.PARALYSED );
-				sprite.showStatus( CharSprite.NEGATIVE, "paralysed" );
-				
-			} else if (buff instanceof Terror) {
-				
-				sprite.showStatus( CharSprite.NEGATIVE, "frightened" );
-				
-			} else if (buff instanceof Roots) {
-				
-				sprite.showStatus( CharSprite.NEGATIVE, "rooted" );
-				
-			} else if (buff instanceof Cripple) {
-
-				sprite.showStatus( CharSprite.NEGATIVE, "crippled" );
-				
-			} else if (buff instanceof Bleeding) {
-
-				sprite.showStatus( CharSprite.NEGATIVE, "bleeding" );
-
-            } else if (buff instanceof Vertigo) {
-
-                sprite.showStatus( CharSprite.NEGATIVE, "dizzy" );
-
-            } else if (buff instanceof Sleep) {
-				sprite.idle();
+		if (sprite != null)
+			switch(buff.type){
+				case POSITIVE:
+					sprite.showStatus(CharSprite.POSITIVE, buff.toString()); break;
+				case NEGATIVE:
+					sprite.showStatus(CharSprite.NEGATIVE, buff.toString());break;
+				case NEUTRAL:
+					sprite.showStatus(CharSprite.NEUTRAL, buff.toString()); break;
+				case SILENT: default:
+					break; //show nothing
 			}
-			
-			  else if (buff instanceof Burning) {
-				sprite.add( CharSprite.State.BURNING );
-			} else if (buff instanceof Levitation) {
-				sprite.add( CharSprite.State.LEVITATING );
-			} else if (buff instanceof Frost) {
-				sprite.add( CharSprite.State.FROZEN );
-			} else if (buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth) {
-				if (!(buff instanceof Shadows)) {
-					sprite.showStatus( CharSprite.POSITIVE, "invisible" );
-				}
-				sprite.add( CharSprite.State.INVISIBLE );
-			}
-		}
+
 	}
 	
 	public void remove( Buff buff ) {
 		
 		buffs.remove( buff );
 		Actor.remove( buff );
-		
-		if (buff instanceof Burning) {
-			sprite.remove( CharSprite.State.BURNING );
-		} else if (buff instanceof Levitation) {
-			sprite.remove( CharSprite.State.LEVITATING );
-		} else if ((buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth) && invisible <= 0) {
-			sprite.remove( CharSprite.State.INVISIBLE );
-		} else if (buff instanceof Paralysis) {
-			sprite.remove( CharSprite.State.PARALYSED );
-		} else if (buff instanceof Frost) {
-			sprite.remove( CharSprite.State.FROZEN );
-		} 
+
 	}
 	
 	public void remove( Class<? extends Buff> buffClass ) {
@@ -451,19 +389,7 @@ public abstract class Char extends Actor {
 	
 	public void updateSpriteState() {
 		for (Buff buff:buffs) {
-			if (buff instanceof Burning) {
-				sprite.add( CharSprite.State.BURNING );
-			} else if (buff instanceof Levitation) {
-				sprite.add( CharSprite.State.LEVITATING );
-			} else if (buff instanceof Invisibility || buff instanceof CloakOfShadows.cloakStealth)  {
-				sprite.add( CharSprite.State.INVISIBLE );
-			} else if (buff instanceof Paralysis) {
-				sprite.add( CharSprite.State.PARALYSED );
-			} else if (buff instanceof Frost) {
-				sprite.add( CharSprite.State.FROZEN );
-			} else if (buff instanceof Light) {
-				sprite.add( CharSprite.State.ILLUMINATED );
-			}
+			buff.fx( true );
 		}
 	}
 	
@@ -482,7 +408,7 @@ public abstract class Char extends Actor {
 		if (Dungeon.level.map[pos] == Terrain.OPEN_DOOR) {
 			Door.leave( pos );
 		}
-		
+
 		pos = step;
 		
 		if (flying && Dungeon.level.map[pos] == Terrain.DOOR) {

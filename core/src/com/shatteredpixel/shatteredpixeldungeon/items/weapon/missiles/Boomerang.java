@@ -33,10 +33,11 @@ public class Boomerang extends MissileWeapon {
 		STR = 10;
 		
 		MIN = 1;
-		MAX = 4;
+		MAX = 5;
 
 		stackable = false;
 
+        unique = true;
         bones = false;
 	}
 	

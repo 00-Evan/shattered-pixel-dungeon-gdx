@@ -39,6 +39,10 @@ public abstract class Actor implements Bundlable {
 
 	private int id = 0;
 
+	//used to determine what order actors act in.
+	//hero should always act on 0, therefore negative is before hero, positive is after hero
+	protected int actPriority = Integer.MAX_VALUE;
+
 	protected abstract boolean act();
 	
 	protected void spend( float time ) {
@@ -97,13 +101,10 @@ public abstract class Actor implements Bundlable {
 
 	private static float now = 0;
 	
-	private static Char[] chars = new Char[Level.LENGTH];
-	
 	public static void clear() {
 		
 		now = 0;
-		
-		Arrays.fill( chars, null );
+
 		all.clear();
 
 		ids.clear();
@@ -155,14 +156,6 @@ public abstract class Actor implements Bundlable {
     public static void resetNextID(){
         nextID = 1;
     }
-	
-	public static void occupyCell( Char ch ) {
-		chars[ch.pos] = ch;
-	}
-	
-	public static void freeCell( int pos ) {
-		chars[pos] = null;
-	}
 
     /*protected*/public void next() {
         if (current == this) {
@@ -181,24 +174,17 @@ public abstract class Actor implements Bundlable {
 		do {
 			now = Float.MAX_VALUE;
 			current = null;
-			
-			Arrays.fill( chars, null );
+
 			
 			for (Actor actor : all) {
-                //Order of actions when time is equal:
-                //1. Hero
-                //2. Other Chars
-                //3. Other Actors (e.g. blobs)
-				if (actor.time < now || (actor instanceof Hero && actor.time == now)
-                        || (actor instanceof Char && actor.time == now && !(current instanceof Hero))) {
+
+				//some actors will always go before others if time is equal.
+				if (actor.time < now ||
+						actor.time == now && (current == null || actor.actPriority < current.actPriority)) {
 					now = actor.time;
 					current = actor;
 				}
-				
-				if (actor instanceof Char) {
-					Char ch = (Char)actor;
-					chars[ch.pos] = ch;
-				}
+
 			}
 
 			if  (current != null) {
@@ -244,7 +230,6 @@ public abstract class Actor implements Bundlable {
 		
 		if (actor instanceof Char) {
 			Char ch = (Char)actor;
-			chars[ch.pos] = ch;
 			for (Buff buff : ch.buffs()) {
 				all.add( buff );
 				buff.onAdd();
@@ -265,7 +250,11 @@ public abstract class Actor implements Bundlable {
 	}
 	
 	public static Char findChar( int pos ) {
-		return chars[pos];
+		for (Actor actor : all){
+			if (actor instanceof Char && ((Char)actor).pos == pos)
+				return (Char)actor;
+		}
+		return null;
 	}
 
 	public static Actor findById( int id ) {

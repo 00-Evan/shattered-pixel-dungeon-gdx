@@ -26,6 +26,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.Resistance;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
@@ -34,13 +36,18 @@ public class Frost extends FlavourBuff {
 	private static final String TXT_FREEZES = "%s freezes!";
 
 	private static final float DURATION	= 5f;
+
+	{
+		type = buffType.NEGATIVE;
+	}
 	
 	@Override
 	public boolean attachTo( Char target ) {
 		if (super.attachTo( target )) {
 			
 			target.paralysed = true;
-			Burning.detach( target, Burning.class );
+			Buff.detach( target, Burning.class );
+			Buff.detach( target, Chill.class );
 
 			if (target instanceof Hero) {
 
@@ -80,18 +87,37 @@ public class Frost extends FlavourBuff {
 	public void detach() {
 		super.detach();
 		Paralysis.unfreeze( target );
+		if (Level.water[target.pos]){
+			Buff.prolong(target, Chill.class, 4f);
+		}
 	}
 	
 	@Override
 	public int icon() {
 		return BuffIndicator.FROST;
 	}
-	
+
+	@Override
+	public void fx(boolean on) {
+		if (on) target.sprite.add(CharSprite.State.FROZEN);
+		else target.sprite.remove(CharSprite.State.FROZEN);
+	}
+
 	@Override
 	public String toString() {
 		return "Frozen";
 	}
-	
+
+	@Override
+	public String desc() {
+		return "Not to be confused with freezing solid, this more benign freezing simply encases the target in ice.\n" +
+				"\n" +
+				"Freezing acts similarly to paralysis, making it impossible for the target to act. " +
+				"Unlike paralysis, freezing is immediately cancelled if the target takes damage, as the ice will shatter.\n" +
+				"\n" +
+				"The freeze will last for " + dispTurns() + ", or until the target takes damage.\n";
+	}
+
 	public static float duration( Char ch ) {
 		Resistance r = ch.buff( Resistance.class );
 		return r != null ? r.durationFactor() * DURATION : DURATION;

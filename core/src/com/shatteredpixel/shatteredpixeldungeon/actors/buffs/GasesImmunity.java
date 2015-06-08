@@ -21,13 +21,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ConfusionGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ParalyticGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StenchGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-
-import java.util.HashSet;
 
 public class GasesImmunity extends FlavourBuff {
 	
-	public static final float DURATION	= 10f;
+	public static final float DURATION	= 15f;
 	
 	@Override
 	public int icon() {
@@ -44,5 +43,16 @@ public class GasesImmunity extends FlavourBuff {
         immunities.add( ToxicGas.class );
         immunities.add( ConfusionGas.class );
         immunities.add( StenchGas.class );
+		immunities.add( VenomGas.class );
+	}
+
+	@Override
+	public String desc() {
+		return "some strange force is filtering out the air around you, it's not causing you any harm, but it blocks " +
+				"out everything but air so effectively you can't even smell anything!\n" +
+				"\n" +
+				"You are immune to the effects of all gasses while this buff lasts.\n" +
+				"\n" +
+				"You will be immune for " + dispTurns() + ".";
 	}
 }

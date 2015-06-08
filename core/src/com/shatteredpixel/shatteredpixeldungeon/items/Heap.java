@@ -194,7 +194,10 @@ public class Heap implements Bundlable {
 		}
 		
 		if (sprite != null) {
-			sprite.view( image(), glowing() );
+			if (type == Type.HEAP || type == Type.FOR_SALE)
+				sprite.view( items.peek() );
+			else
+				sprite.view( image(), glowing() );
 		}
 	}
 	

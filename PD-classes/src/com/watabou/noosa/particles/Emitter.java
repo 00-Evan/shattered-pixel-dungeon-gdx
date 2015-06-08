@@ -30,11 +30,12 @@ public class Emitter extends Group {
 	protected boolean lightMode = false;
 	
 	public float x;
-	public float y;	
+	public float y;
 	public float width;
 	public float height;
 	
 	protected Visual target;
+	public boolean fillTarget = true;
 	
 	protected float interval;
 	protected int quantity;
@@ -64,9 +65,14 @@ public class Emitter extends Group {
 		
 		target = null;
 	}
-	
+
 	public void pos( Visual target ) {
-		this.target = target; 
+		this.target = target;
+	}
+
+	public void pos( Visual target, float x, float y, float width, float height ) {
+		pos(x, y, width, height);
+		pos(target);
 	}
 	
 	public void burst( Factory factory, int quantity ) {
@@ -119,11 +125,19 @@ public class Emitter extends Group {
 				x + Random.Float( width ),
 				y + Random.Float( height ) );
 		} else {
-			factory.emit( 
-				this,
-				index,
-				target.x + Random.Float( target.width ),
-				target.y + Random.Float( target.height ) );
+			if (fillTarget) {
+				factory.emit(
+						this,
+						index,
+						target.x + Random.Float( target.width ),
+						target.y + Random.Float( target.height ) );
+			} else {
+				factory.emit(
+						this,
+						index,
+						target.x + x + Random.Float( width ),
+						target.y + y + Random.Float( height ) );
+			}
 		}
 	}
 	

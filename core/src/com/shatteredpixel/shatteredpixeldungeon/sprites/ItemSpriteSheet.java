@@ -81,14 +81,15 @@ public class ItemSpriteSheet {
     public static final int KNUCKLEDUSTER	= ROW3+0;
     public static final int DAGGER			= ROW3+1;
     public static final int SHORT_SWORD		= ROW3+2;
-    public static final int QUARTERSTAFF	= ROW3+3;
-    public static final int SPEAR			= ROW3+4;
-    public static final int MACE			= ROW3+5;
-    public static final int SWORD			= ROW3+6;
-    public static final int BATTLE_AXE		= ROW3+7;
-    public static final int LONG_SWORD		= ROW3+8;
-    public static final int WAR_HAMMER		= ROW3+9;
-    public static final int GLAIVE			= ROW3+10;
+    public static final int MAGES_STAFF     = ROW3+3;
+    public static final int QUARTERSTAFF	= ROW3+4;
+    public static final int SPEAR			= ROW3+5;
+    public static final int MACE			= ROW3+6;
+    public static final int SWORD			= ROW3+7;
+    public static final int BATTLE_AXE		= ROW3+8;
+    public static final int LONG_SWORD		= ROW3+9;
+    public static final int WAR_HAMMER		= ROW3+10;
+    public static final int GLAIVE			= ROW3+11;
 
     //Row Four: Missile weapons
     public static final int DART			= ROW4+0;
@@ -112,18 +113,18 @@ public class ItemSpriteSheet {
 
     //Row Six: Wands
     public static final int WAND_MAGIC_MISSILE	= ROW6+0;
-    public static final int WAND_HOLLY			= ROW6+1;
-    public static final int WAND_YEW			= ROW6+2;
-    public static final int WAND_EBONY			= ROW6+3;
-    public static final int WAND_CHERRY			= ROW6+4;
-    public static final int WAND_TEAK			= ROW6+5;
-    public static final int WAND_ROWAN			= ROW6+6;
-    public static final int WAND_WILLOW			= ROW6+7;
-    public static final int WAND_MAHOGANY		= ROW6+8;
-    public static final int WAND_BAMBOO			= ROW6+9;
-    public static final int WAND_PURPLEHEART	= ROW6+10;
-    public static final int WAND_OAK			= ROW6+11;
-    public static final int WAND_BIRCH			= ROW6+12;
+    public static final int WAND_FIREBOLT		= ROW6+1;
+    public static final int WAND_FROST			= ROW6+2;
+    public static final int WAND_LIGHTNING		= ROW6+3;
+    public static final int WAND_DISINTEGRATION	= ROW6+4;
+    public static final int WAND_PRISMATIC_LIGHT= ROW6+5;
+    public static final int WAND_VENOM			= ROW6+6;
+    public static final int WAND_LIVING_EARTH	= ROW6+7;
+    public static final int WAND_BLAST_WAVE		= ROW6+8;
+    public static final int WAND_CORRUPTION		= ROW6+9;
+    public static final int WAND_WARDING      	= ROW6+10;
+    public static final int WAND_REGROWTH		= ROW6+11;
+    public static final int WAND_TRANSFUSION	= ROW6+12;
 
     //Row Seven: Rings
     public static final int RING_GARNET		= ROW7+0;
@@ -148,6 +149,7 @@ public class ItemSpriteSheet {
     public static final int ARTIFACT_TOOLKIT    = ROW8+5;
     public static final int ARTIFACT_SPELLBOOK  = ROW8+6;
     public static final int ARTIFACT_BEACON     = ROW8+7;
+    public static final int ARTIFACT_CHAINS     = ROW8+8;
 
     //Row Nine: Artifacts with Dynamic Images
     public static final int ARTIFACT_HORN1      = ROW9+0;
@@ -196,15 +198,16 @@ public class ItemSpriteSheet {
     //Row Twelve: Seeds
     public static final int SEED_ROTBERRY	= ROW12+0;
     public static final int SEED_FIREBLOOM	= ROW12+1;
-    public static final int SEED_BLINDWEED	= ROW12+2;
-    public static final int SEED_SUNGRASS	= ROW12+3;
-    public static final int SEED_ICECAP		= ROW12+4;
-    public static final int SEED_STORMVINE	= ROW12+5;
-    public static final int SEED_SORROWMOSS	= ROW12+6;
-    public static final int SEED_DREAMFOIL	= ROW12+7;
-    public static final int SEED_EARTHROOT	= ROW12+8;
-    public static final int SEED_FADELEAF	= ROW12+9;
-    public static final int SEED_BLANDFRUIT	= ROW12+10;
+    public static final int SEED_STARFLOWER	= ROW12+2;
+    public static final int SEED_BLINDWEED	= ROW12+3;
+    public static final int SEED_SUNGRASS	= ROW12+4;
+    public static final int SEED_ICECAP		= ROW12+5;
+    public static final int SEED_STORMVINE	= ROW12+6;
+    public static final int SEED_SORROWMOSS	= ROW12+7;
+    public static final int SEED_DREAMFOIL	= ROW12+8;
+    public static final int SEED_EARTHROOT	= ROW12+9;
+    public static final int SEED_FADELEAF	= ROW12+10;
+    public static final int SEED_BLANDFRUIT	= ROW12+11;
 
     //Row Thirteen: Food
     public static final int MEAT		= ROW13+0;

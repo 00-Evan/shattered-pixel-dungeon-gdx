@@ -26,6 +26,10 @@ public class Weakness extends FlavourBuff {
 
 	private static final float DURATION = 40f;
 
+	{
+		type = buffType.NEGATIVE;
+	}
+
 	@Override
 	public int icon() {
 		return BuffIndicator.WEAKNESS;
@@ -58,5 +62,14 @@ public class Weakness extends FlavourBuff {
 	public static float duration( Char ch ) {
 		Resistance r = ch.buff( Resistance.class );
 		return r != null ? r.durationFactor() * DURATION : DURATION;
+	}
+
+	@Override
+	public String desc() {
+		return "Your gear suddenly feels a lot heavier.\n" +
+				"\n" +
+				"Weakening magic is affecting you, reducing your effective strength by 2 points.\n" +
+				"\n" +
+				"This weakness will last for " + dispTurns() + ".";
 	}
 }

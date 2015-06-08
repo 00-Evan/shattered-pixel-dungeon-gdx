@@ -21,6 +21,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Roots extends FlavourBuff {
+
+	{
+		type = buffType.NEGATIVE;
+	}
 	
 	@Override
 	public boolean attachTo( Char target ) {
@@ -46,5 +50,14 @@ public class Roots extends FlavourBuff {
 	@Override
 	public String toString() {
 		return "Rooted";
+	}
+
+	@Override
+	public String desc() {
+		return "Roots(magical or natural) grab at the feet, forcing them down to the ground.\n" +
+				"\n" +
+				"Roots lock a target in place, making it impossible for them to move, but other actions are not affected.\n" +
+				"\n" +
+				"The roots will last for " + dispTurns() + ".";
 	}
 }

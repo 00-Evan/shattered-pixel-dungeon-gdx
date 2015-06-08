@@ -33,7 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel;
@@ -134,6 +134,7 @@ public class Dungeon {
 	
 	public static void init() {
 
+		version = Game.versionCode;
         challenges = ShatteredPixelDungeon.challenges();
 
         Generator.initArtifacts();
@@ -145,7 +146,6 @@ public class Dungeon {
 		
 		Scroll.initLabels();
 		Potion.initColors();
-		Wand.initWoods();
 		Ring.initGems();
 		
 		Statistics.reset();
@@ -304,6 +304,15 @@ public class Dungeon {
 		
 		Light light = hero.buff( Light.class );
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
+
+		//logic for pre 0.3.0 saves, need to give mages a staff.
+		if (Dungeon.version <= 38 && Dungeon.hero.heroClass == HeroClass.MAGE){
+			MagesStaff staff = new MagesStaff();
+			staff.identify();
+			if (!staff.collect(Dungeon.hero.belongings.backpack)){
+				Dungeon.level.drop(staff, Dungeon.hero.pos);
+			}
+		}
 		
 		observe();
         try {
@@ -410,8 +419,9 @@ public class Dungeon {
 	public static void saveGame( String fileName ) throws IOException {
 		try {
 			Bundle bundle = new Bundle();
-			
-			bundle.put( VERSION, Game.versionCode );
+
+			version = Game.versionCode;
+			bundle.put( VERSION, version );
             bundle.put( CHALLENGES, challenges );
 			bundle.put( HERO, hero );
 			bundle.put( GOLD, gold );
@@ -452,7 +462,6 @@ public class Dungeon {
 			
 			Scroll.save( bundle );
 			Potion.save( bundle );
-			Wand.save( bundle );
 			Ring.save( bundle );
 
             Actor.storeNextID( bundle );
@@ -529,7 +538,6 @@ public class Dungeon {
 		
 		Scroll.restore( bundle );
 		Potion.restore( bundle );
-		Wand.restore( bundle );
 		Ring.restore( bundle );
 
 		quickslot.restorePlaceholders( bundle );

@@ -134,14 +134,16 @@ public class ItemSlot extends Button<GameAction> {
 		if (item == null) {
 			
 			active = false;
-			icon.visible = topLeft.visible = topRight.visible = bottomRight.visible = false;
+			topLeft.visible = topRight.visible = bottomRight.visible = false;
+			icon.visible(false);
 			
 		} else {
 			
 			active = true;
-			icon.visible = topLeft.visible = topRight.visible = bottomRight.visible = true;
+			topLeft.visible = topRight.visible = bottomRight.visible = true;
+			icon.visible(true);
 			
-			icon.view( item.image(), item.glowing() );
+			icon.view( item );
 			
 			topLeft.text( item.status()  );
 			

@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.Resis
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -49,6 +50,10 @@ public class Burning extends Buff implements Hero.Doom {
 	private float left;
 	
 	private static final String LEFT	= "left";
+
+	{
+		type = buffType.NEGATIVE;
+	}
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -61,18 +66,15 @@ public class Burning extends Buff implements Hero.Doom {
 		super.restoreFromBundle(bundle);
 		left = bundle.getFloat( LEFT );
 	}
-	
+
 	@Override
 	public boolean act() {
 		
 		if (target.isAlive()) {
 			
-			if (target instanceof Hero) {
-				Buff.prolong( target, Light.class, TICK * 1.01f );
-			}
-			
 			target.damage( Random.Int( 1, 5 ), this );
-			
+			Buff.detach( target, Chill.class);
+
 			if (target instanceof Hero) {
 
 				Hero hero = (Hero)target;
@@ -132,7 +134,13 @@ public class Burning extends Buff implements Hero.Doom {
 	public int icon() {
 		return BuffIndicator.FIRE;
 	}
-	
+
+	@Override
+	public void fx(boolean on) {
+		if (on) target.sprite.add(CharSprite.State.BURNING);
+		else target.sprite.remove(CharSprite.State.BURNING);
+	}
+
 	@Override
 	public String toString() {
 		return "Burning";
@@ -141,6 +149,18 @@ public class Burning extends Buff implements Hero.Doom {
 	public static float duration( Char ch ) {
 		Resistance r = ch.buff( Resistance.class );
 		return r != null ? r.durationFactor() * DURATION : DURATION;
+	}
+
+	@Override
+	public String desc() {
+		return "Few things are more distressing than being engulfed in flames.\n" +
+				"\n" +
+				"Fire will deal damage every turn until it is put out by water, expires, or it is resisted. " +
+				"Fire can be extinquished by stepping into water, or from the splash of a shattering potion. \n" +
+				"\n" +
+				"Additionally, the fire may ignite flammable terrain or items that it comes into contact with.\n" +
+				"\n" +
+				"The burning will last for " + dispTurns(left) + ", or until it is resisted or extinquished.";
 	}
 
 	@Override

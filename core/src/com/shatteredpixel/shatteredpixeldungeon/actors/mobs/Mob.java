@@ -26,10 +26,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -47,6 +49,10 @@ import com.watabou.utils.Random;
 import java.util.HashSet;
 
 public abstract class Mob extends Char {
+
+	{
+		actPriority = 2; //hero gets priority over mobs.
+	}
 	
 	private static final String	TXT_DIED	= "You hear something died in the distance";
 	
@@ -68,7 +74,7 @@ public abstract class Mob extends Char {
 	protected int defenseSkill = 0;
 	
 	protected int EXP = 1;
-	protected int maxLvl = 30;
+	protected int maxLvl = Hero.MAX_LEVEL;
 	
 	protected Char enemy;
 	protected boolean enemySeen;
@@ -169,10 +175,10 @@ public abstract class Mob extends Char {
 		}
 
 		//resets target if: the target is dead, the target has been lost (wandering)
-		//or if the mob is amoked and targeting the hero (will try to target something else)
+		//or if the mob is amoked/corrupted and targeting the hero (will try to target something else)
 		if ( enemy != null &&
 				!enemy.isAlive() || state == WANDERING ||
-				(buff( Amok.class ) != null && enemy == Dungeon.hero ))
+				((buff( Amok.class ) != null || buff(Corruption.class) != null) && enemy == Dungeon.hero ))
 			enemy = null;
 
 		//if there is no current target, find a new one.
@@ -180,8 +186,8 @@ public abstract class Mob extends Char {
 
 			HashSet<Char> enemies = new HashSet<Char>();
 
-			//if the mob is amoked...
-			if ( buff(Amok.class) != null ) {
+			//if the mob is amoked or corrupted...
+			if ( buff(Amok.class) != null || buff(Corruption.class) != null) {
 
 				//try to find an enemy mob to attack first.
 				for (Mob mob : Dungeon.level.mobs)
@@ -195,8 +201,9 @@ public abstract class Mob extends Char {
 						enemies.add(mob);
 				if (enemies.size() > 0) return Random.element(enemies);
 
-				//if there is nothing, go for the hero.
-				return Dungeon.hero;
+				//if there is nothing, go for the hero, unless corrupted, then go for nothing.
+				if (buff(Corruption.class) != null) return null;
+				else return Dungeon.hero;
 
 			//if the mob is not amoked...
 			} else {
@@ -256,7 +263,7 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean canAttack( Char enemy ) {
-		return Level.adjacent( pos, enemy.pos ) && !isCharmedBy( enemy );
+		return Level.adjacent( pos, enemy.pos );
 	}
 	
 	protected boolean getCloser( int target ) {
@@ -347,10 +354,22 @@ public abstract class Mob extends Char {
 	
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
-		if (!enemySeen && enemy == Dungeon.hero && ((Hero)enemy).subClass == HeroSubClass.ASSASSIN) {
-			damage *= 1.34f;
-			Wound.hit( this );
+		if (!enemySeen && enemy == Dungeon.hero) {
+			if (((Hero)enemy).subClass == HeroSubClass.ASSASSIN) {
+				damage *= 1.34f;
+				Wound.hit(this);
+			} else {
+				Surprise.hit(this);
+			}
 		}
+
+		//become aggro'd by a corrupted enemy
+		if (enemy.buff(Corruption.class) != null) {
+			aggro(enemy);
+			target = enemy.pos;
+			state = HUNTING;
+		}
+
 		return damage;
 	}
 
@@ -567,7 +586,7 @@ public abstract class Mob extends Char {
         @Override
         public boolean act( boolean enemyInFOV, boolean justAlerted ) {
             enemySeen = enemyInFOV;
-            if (enemyInFOV && canAttack( enemy )) {
+            if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
 
                 return doAttack( enemy );
 

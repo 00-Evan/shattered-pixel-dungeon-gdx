@@ -21,6 +21,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Amok extends FlavourBuff {
+
+	{
+		type = buffType.NEGATIVE;
+	}
 	
 	@Override
 	public int icon() {
@@ -37,5 +41,14 @@ public class Amok extends FlavourBuff {
     @Override
 	public String toString() {
 		return "Amok";
+	}
+
+	@Override
+	public String desc() {
+		return "Amok causes a state of great rage and confusion in its target.\n" +
+				"\n" +
+				"When a creature is amoked, they will attack whatever is near them, whether they be friend or foe.\n" +
+				"\n" +
+				"The amok will last for " + dispTurns() + ".";
 	}
 }

@@ -19,6 +19,9 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import java.util.HashSet;
 
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.PoisonTrap;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -99,6 +102,12 @@ public class Tengu extends Mob {
 		super.die( cause );
 		
 		Badges.validateBossSlain();
+
+		LloydsBeacon beacon = Dungeon.hero.belongings.getItem(LloydsBeacon.class);
+		if (beacon != null) {
+			beacon.upgrade();
+			GLog.p("Your beacon grows stronger!");
+		}
 		
 		yell( "Free at last..." );
 	}
@@ -115,7 +124,7 @@ public class Tengu extends Mob {
 	
 	@Override
 	protected boolean canAttack( Char enemy ) {
-		return Ballistica.cast( pos, enemy.pos, false, true ) == enemy.pos && !isCharmedBy( enemy );
+		return new Ballistica( pos, enemy.pos, Ballistica.PROJECTILE).collisionPos == enemy.pos;
 	}
 	
 	@Override
@@ -139,8 +148,8 @@ public class Tengu extends Mob {
 			} while (!Level.fieldOfView[trapPos] || !Level.passable[trapPos]);
 			
 			if (Dungeon.level.map[trapPos] == Terrain.INACTIVE_TRAP) {
-				Level.set( trapPos, Terrain.POISON_TRAP );
-				GameScene.updateMap( trapPos );
+				Dungeon.level.setTrap( new PoisonTrap().reveal(), trapPos );
+				Level.set( trapPos, Terrain.TRAP );
 				ScrollOfMagicMapping.discover( trapPos );
 			}
 		}
