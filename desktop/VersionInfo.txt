@@ -1,5 +1,5 @@
-38
-33
-v0.2.4d
-v0.2.4: PD 1.7.5 and Some Extras!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.2.4d/ShatteredPD.Desktop.v0.2.4d.jar
+44
+40
+v0.3.0c
+v0.3.0: The Wand Rework!
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.0c/ShatteredPD.Desktop.v0.3.0c.jar
