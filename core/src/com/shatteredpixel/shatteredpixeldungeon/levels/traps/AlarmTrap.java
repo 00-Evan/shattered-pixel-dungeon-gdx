@@ -33,7 +33,7 @@ public class AlarmTrap extends Trap {
 
 	// 0xDD3333
 	{
-		name = "alarm trap";
+		name = "Alarm trap";
 		image = 4;
 	}
 

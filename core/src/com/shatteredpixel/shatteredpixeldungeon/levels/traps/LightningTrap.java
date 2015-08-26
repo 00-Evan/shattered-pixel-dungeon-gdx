@@ -38,7 +38,7 @@ import java.util.ArrayList;
 public class LightningTrap extends Trap {
 
 	{
-		name = "lightning trap";
+		name = "Lightning trap";
 		image = 5;
 	}
 

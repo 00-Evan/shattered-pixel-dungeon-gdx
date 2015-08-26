@@ -45,12 +45,17 @@ public class WelcomeScene extends PixelScene {
 
 	private static final String TXT_Welcome =
 			"Shattered Pixel Dungeon is a rework/expansion of Watabou's Pixel Dungeon.\n\n"+
-					"The goal is to enhance the game by improving existing content and adding tonnes of new stuff!\n\n"+
-					"Shattered Pixel Dungeon is being constantly updated, so expect more new content soon!\n\n"+
-					"Happy Dungeoneering!";
+			"The goal is to enhance the game by improving existing content and adding tonnes of new stuff!\n\n"+
+			"Shattered Pixel Dungeon is being constantly updated, so expect more new content soon!\n\n"+
+			"Happy Dungeoneering!";
 
 	private static final String TXT_Update =
-			"v0.3.0c:\n" +
+			"v0.3.0e & v0.3.0d:\n" +
+					"- 0.3.1 coming very soon!\n" +
+					"- Performance improvements\n" +
+					"- Various bugfixes\n" +
+					"\n" +
+					"v0.3.0c:\n" +
 					"- Lots of under-the-hood changes\n" +
 					"(let me know if you run into any bugs)\n" +
 					"- Many bugfixes\n" +
