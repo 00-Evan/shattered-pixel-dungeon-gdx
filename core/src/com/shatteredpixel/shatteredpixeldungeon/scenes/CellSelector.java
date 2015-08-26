@@ -58,8 +58,8 @@ public class CellSelector extends TouchArea<GameAction> {
 			
 		} else {
 			
-			select( ((DungeonTilemap)target).screenToTile( 
-				(int)touch.current.x, 
+			select( ((DungeonTilemap)target).screenToTile(
+				(int)touch.current.x,
 				(int)touch.current.y ) );
 		}
 	}
@@ -224,7 +224,7 @@ public class CellSelector extends TouchArea<GameAction> {
 			another = null;
 			lastPos.set( touch.current );
 		}
-	}	
+	}
 	
 	private boolean dragging = false;
 	private PointF lastPos = new PointF();
@@ -265,11 +265,11 @@ public class CellSelector extends TouchArea<GameAction> {
 				
 			} else if (dragging) {
 				camera.scroll.offset( PointF.diff( lastPos, t.current ).invScale( camera.zoom ) );
-				lastPos.set( t.current );	
-			}	
+				lastPos.set( t.current );
+			}
 		}
 		
-	}	
+	}
 	
 	public void cancel() {
 		

@@ -43,7 +43,7 @@ public class WndTabbed extends Window {
 	
 	protected Tab add( Tab tab ) {
 
-		tab.setPos( tabs.size() == 0 ? 
+		tab.setPos( tabs.size() == 0 ?
 			-chrome.marginLeft() + 1 :
 			tabs.get( tabs.size() - 1 ).right(), height );
 		tab.select( false );
@@ -78,7 +78,7 @@ public class WndTabbed extends Window {
 		this.width = w;
 		this.height = h;
 		
-		chrome.size( 
+		chrome.size(
 			width + chrome.marginHor(),
 			height + chrome.marginVer() );
 		
@@ -190,8 +190,8 @@ public class WndTabbed extends Window {
 				remove( bg );
 			}
 			
-			bg = Chrome.get( selected ? 
-				Chrome.Type.TAB_SELECTED : 
+			bg = Chrome.get( selected ?
+				Chrome.Type.TAB_SELECTED :
 				Chrome.Type.TAB_UNSELECTED );
 			addToBack( bg );
 			
@@ -199,7 +199,7 @@ public class WndTabbed extends Window {
 		}
 		
 		@Override
-		protected void onClick() {	
+		protected void onClick() {
 			Sample.INSTANCE.play( Assets.SND_CLICK, 0.7f, 0.7f, 1.2f );
 			WndTabbed.this.onClick( this );
 		}
@@ -241,6 +241,6 @@ public class WndTabbed extends Window {
 			super.select( value );
 			btLabel.am = selected ? 1.0f : 0.6f;
 		}
-	}	
+	}
 
 }

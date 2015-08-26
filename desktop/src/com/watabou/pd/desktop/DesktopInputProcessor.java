@@ -60,7 +60,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 			KeyPair pair = DEFAULTS.get( action );
 			if (pair != null) {
 				setKeyMapping( action, pair.code1, pair.code2 );
-			} else {	
+			} else {
 				pair = new KeyPair();
 			}
 			Preferences.INSTANCE.put( getPrefKey( action, true ), pair.code1 );
@@ -75,7 +75,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), code);
 
 		if (existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)) {
-			// If some other action was mapped to this key, then we have 
+			// If some other action was mapped to this key, then we have
 			// to remove a record about it from the preferences
 			Preferences.INSTANCE.put( getPrefKey( existingMapping.gameAction, existingMapping.defaultKey ), -1);
 			return existingMapping;

@@ -59,8 +59,8 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 		blocker = new TouchArea( 0, 0, PixelScene.uiCamera.width, PixelScene.uiCamera.height ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				if (!Window.this.chrome.overlapsScreenPoint( 
-					(int)touch.current.x, 
+				if (!Window.this.chrome.overlapsScreenPoint(
+					(int)touch.current.x,
 					(int)touch.current.y )) {
 					
 					onBackPressed();
@@ -83,14 +83,14 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 
 		chrome.x = -chrome.marginLeft();
 		chrome.y = -chrome.marginTop();
-		chrome.size( 
+		chrome.size(
 			width - chrome.x + chrome.marginRight(),
 			height - chrome.y + chrome.marginBottom() );
 		add( chrome );
 		
-		camera = new Camera( 0, 0, 
-			(int)chrome.width, 
-			(int)chrome.height, 
+		camera = new Camera( 0, 0,
+			(int)chrome.width,
+			(int)chrome.height,
 			PixelScene.defaultZoom );
 		camera.x = (int)(Game.width - camera.width * camera.zoom) / 2;
 		camera.y = (int)(Game.height - camera.height * camera.zoom) / 2;

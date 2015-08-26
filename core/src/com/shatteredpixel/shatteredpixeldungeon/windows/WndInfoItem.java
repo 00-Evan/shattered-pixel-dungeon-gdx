@@ -41,7 +41,7 @@ public class WndInfoItem extends Window {
 	private static final String TXT_WONT_KNOW		= "You won't know what's inside until you open it!";
 	private static final String TXT_NEED_KEY		= TXT_WONT_KNOW + " But to open it you need a golden key.";
 	private static final String TXT_INSIDE			= "You can see %s inside, but to open the chest you need a golden key.";
-	private static final String TXT_OWNER	= 
+	private static final String TXT_OWNER	=
 		"This ancient tomb may contain something useful, " +
 		"but its owner will most certainly object to checking.";
     private static final String TXT_SKELETON =
@@ -65,9 +65,9 @@ public class WndInfoItem extends Window {
 			
 			int color = TITLE_COLOR;
 			if (item.levelKnown && item.level > 0) {
-				color = ItemSlot.UPGRADED;				
+				color = ItemSlot.UPGRADED;
 			} else if (item.levelKnown && item.level < 0) {
-				color = ItemSlot.DEGRADED;				
+				color = ItemSlot.DEGRADED;
 			}
 			fillFields( item.image(), item.glowing(), color, item.toString(), item.info() );
 			
@@ -114,9 +114,9 @@ public class WndInfoItem extends Window {
 		
 		int color = TITLE_COLOR;
 		if (item.levelKnown && item.level > 0) {
-			color = ItemSlot.UPGRADED;				
+			color = ItemSlot.UPGRADED;
 		} else if (item.levelKnown && item.level < 0) {
-			color = ItemSlot.DEGRADED;				
+			color = ItemSlot.DEGRADED;
 		}
 		
 		fillFields( item.image(), item.glowing(), color, item.toString(), item.info() );

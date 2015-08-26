@@ -33,7 +33,7 @@ import com.watabou.noosa.BitmapTextMultiline;
 
 public class WndSadGhost extends Window {
 
-	private static final String TXT_RAT	= 
+	private static final String TXT_RAT	=
 		"Thank you, that horrid rat is slain and I can finally rest..." +
         "I wonder what twisted magic created such a foul creature...\n\n";
     private static final String TXT_GNOLL	=

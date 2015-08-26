@@ -22,7 +22,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class ClothArmor extends Armor {
 
-	{	
+	{
 		name = "cloth armor";
 		image = ItemSpriteSheet.ARMOR_CLOTH;
 

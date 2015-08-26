@@ -47,13 +47,13 @@ import java.util.ArrayList;
 
 public class LloydsBeacon extends Artifact {
 
-	private static final String TXT_PREVENTING = 
+	private static final String TXT_PREVENTING =
 		"Strong magic aura of this place prevents you from using the lloyd's beacon!";
 	
-	private static final String TXT_CREATURES = 
+	private static final String TXT_CREATURES =
 		"Psychic aura of neighbouring creatures doesn't allow you to use the lloyd's beacon at this moment.";
 	
-	private static final String TXT_RETURN = 
+	private static final String TXT_RETURN =
 		"The lloyd's beacon is successfully set at your current location, now you can return here anytime.";
 			
 	private static final String TXT_INFO =
@@ -62,7 +62,7 @@ public class LloydsBeacon extends Artifact {
 		"The beacon can be used to return to a set location, but can also expel bursts of random teleportation " +
 		"magic once it has charged from being equipped. This magic can be directed at a target or at the user themselves.";
 	
-	private static final String TXT_SET = 
+	private static final String TXT_SET =
 		"\n\nThis beacon was set somewhere on the level %d of Pixel Dungeon.";
 	
 	public static final float TIME_TO_USE = 1;

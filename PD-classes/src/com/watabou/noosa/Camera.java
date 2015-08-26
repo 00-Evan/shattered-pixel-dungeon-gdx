@@ -97,9 +97,9 @@ public class Camera extends Gizmo {
 	public static Camera createFullscreen( float zoom ) {
 		int w = (int)Math.ceil( Game.width / zoom );
 		int h = (int)Math.ceil( Game.height / zoom );
-		return new Camera( 
-			(int)(Game.width - w * zoom) / 2, 
-			(int)(Game.height - h * zoom) / 2, 
+		return new Camera(
+			(int)(Game.width - w * zoom) / 2,
+			(int)(Game.height - h * zoom) / 2,
 			w, h, zoom );
 	}
 	
@@ -127,8 +127,8 @@ public class Camera extends Gizmo {
 	}
 	
 	public void zoom( float value ) {
-		zoom( value, 
-			scroll.x + width / 2, 
+		zoom( value,
+			scroll.x + width / 2,
 			scroll.y + height / 2 );
 	}
 	
@@ -189,8 +189,8 @@ public class Camera extends Gizmo {
 	}
 	
 	public PointF screenToCamera( int x, int y ) {
-		return new PointF( 
-			(x - this.x) / zoom + scroll.x, 
+		return new PointF(
+			(x - this.x) / zoom + scroll.x,
 			(y - this.y) / zoom + scroll.y );
 	}
 	
@@ -201,11 +201,11 @@ public class Camera extends Gizmo {
 	}
 	
 	public float screenWidth() {
-		return width * zoom; 
+		return width * zoom;
 	}
 	
 	public float screenHeight() {
-		return height * zoom; 
+		return height * zoom;
 	}
 	
 	protected void updateMatrix() {

@@ -70,12 +70,12 @@ public class Heap implements Bundlable {
 	private static final int SEEDS_TO_POTION = 3;
 	
 	public enum Type {
-		HEAP, 
-		FOR_SALE, 
-		CHEST, 
-		LOCKED_CHEST, 
+		HEAP,
+		FOR_SALE,
+		CHEST,
+		LOCKED_CHEST,
 		CRYSTAL_CHEST,
-		TOMB, 
+		TOMB,
 		SKELETON,
         REMAINS,
 		MIMIC
@@ -338,7 +338,7 @@ public class Heap implements Bundlable {
 				destroy();
 			} else if (sprite != null) {
 				sprite.view( image(), glowing() );
-			}	
+			}
 		}
 	}
 	

@@ -26,7 +26,7 @@ public enum Icons {
 	SKULL,
 	BUSY,
 	COMPASS,
-	INFO, 
+	INFO,
 	PREFS,
 	WARNING,
 	TARGET,

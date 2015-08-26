@@ -203,7 +203,7 @@ public class Toolbar extends Component {
 		@Override
 		public void onSelect( Integer cell ) {
             GameScene.examineCell( cell );
-		}	
+		}
 		@Override
 		public String prompt() {
 			return "Select a cell to examine";

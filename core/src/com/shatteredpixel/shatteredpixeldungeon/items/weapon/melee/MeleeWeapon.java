@@ -55,7 +55,7 @@ public class MeleeWeapon extends Weapon {
 	}
 	
 	public Item upgrade( boolean enchant ) {
-		STR--;		
+		STR--;
 		MIN++;
 		MAX += tier;
 		
@@ -67,7 +67,7 @@ public class MeleeWeapon extends Weapon {
 	}
 	
 	@Override
-	public Item degrade() {		
+	public Item degrade() {
 		STR++;
 		MIN--;
 		MAX -= tier;
@@ -95,7 +95,7 @@ public class MeleeWeapon extends Weapon {
                 Math.round((MIN + (MAX - MIN) / 2)*(imbue == Imbue.LIGHT ? 0.75f : (imbue == Imbue.HEAVY ? 1.5f : 1)))
                 + " points per hit. " );
 		} else {
-			info.append( 
+			info.append(
 				"Its typical average damage is " + (min() + (max() - min()) / 2) + " points per hit " +
 				"and usually it requires " + typicalSTR() + " points of strength. " );
 			if (typicalSTR() > Dungeon.hero.STR()) {
@@ -134,13 +134,13 @@ public class MeleeWeapon extends Weapon {
 		if (levelKnown && Dungeon.hero.belongings.backpack.items.contains( this )) {
 			if (STR > Dungeon.hero.STR()) {
 				info.append( p );
-				info.append( 
+				info.append(
 					"Because of your inadequate strength the accuracy and speed " +
 					"of your attack with this " + name + " is decreased." );
 			}
 			if (STR < Dungeon.hero.STR()) {
 				info.append( p );
-				info.append( 
+				info.append(
 					"Because of your excess strength the damage " +
 					"of your attack with this " + name + " is increased." );
 			}
@@ -148,8 +148,8 @@ public class MeleeWeapon extends Weapon {
 		
 		if (isEquipped( Dungeon.hero )) {
 			info.append( p );
-			info.append( "You hold the " + name + " at the ready" + 
-				(cursed ? ", and because it is cursed, you are powerless to let go." : ".") ); 
+			info.append( "You hold the " + name + " at the ready" +
+				(cursed ? ", and because it is cursed, you are powerless to let go." : ".") );
 		} else {
 			if (cursedKnown && cursed) {
 				info.append( p );

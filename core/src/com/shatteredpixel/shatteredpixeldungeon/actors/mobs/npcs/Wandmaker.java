@@ -55,7 +55,7 @@ import com.watabou.utils.Random;
 
 public class Wandmaker extends NPC {
 
-	{	
+	{
 		name = "old wandmaker";
 		spriteClass = WandmakerSprite.class;
 	}
@@ -139,7 +139,7 @@ public class Wandmaker extends NPC {
 	
 	@Override
 	public String description() {
-		return 
+		return
 			"This old but hale gentleman wears a slightly confused " +
 			"expression. He is protected by a magic shield.";
 	}
@@ -281,7 +281,7 @@ public class Wandmaker extends NPC {
 	
 	public static class Rotberry extends Plant {
 		
-		private static final String TXT_DESC = 
+		private static final String TXT_DESC =
 			"Berries of this shrub taste like sweet, sweet death.";
 		
 		{

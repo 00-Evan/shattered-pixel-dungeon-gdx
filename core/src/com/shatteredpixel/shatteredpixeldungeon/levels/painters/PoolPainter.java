@@ -37,7 +37,7 @@ public class PoolPainter extends Painter {
 		fill( level, room, Terrain.WALL );
 		fill( level, room, 1, Terrain.WATER );
 		
-		Room.Door door = room.entrance(); 
+		Room.Door door = room.entrance();
 		door.set( Room.Door.Type.REGULAR );
 
 		int x = -1;
@@ -65,7 +65,7 @@ public class PoolPainter extends Painter {
 		}
 		
 		int pos = x + y * Level.WIDTH;
-		level.drop( prize( level ), pos ).type = 
+		level.drop( prize( level ), pos ).type =
 			Random.Int( 3 ) == 0 ? Heap.Type.CHEST : Heap.Type.HEAP;
 		set( level, pos, Terrain.PEDESTAL );
 		

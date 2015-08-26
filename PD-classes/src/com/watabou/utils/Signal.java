@@ -25,7 +25,7 @@ public class Signal<T> {
 	
 	private boolean canceled;
 	
-	private boolean stackMode; 
+	private boolean stackMode;
 	
 	public Signal() {
 		this( false );

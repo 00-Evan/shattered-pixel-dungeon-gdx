@@ -152,8 +152,8 @@ public class Image extends Visual {
 		script.camera( camera() );
 		
 		script.uModel.valueM4( matrix );
-		script.lighting( 
-			rm, gm, bm, am, 
+		script.lighting(
+			rm, gm, bm, am,
 			ra, ga, ba, aa );
 		
 		if (dirty) {

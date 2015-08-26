@@ -62,10 +62,10 @@ public class StoragePainter extends Painter {
                 return prize;
         }
 		
-		return Generator.random( Random.oneOf( 
-			Generator.Category.POTION, 
+		return Generator.random( Random.oneOf(
+			Generator.Category.POTION,
 			Generator.Category.SCROLL,
-			Generator.Category.FOOD, 
+			Generator.Category.FOOD,
 			Generator.Category.GOLD
 		) );
 	}

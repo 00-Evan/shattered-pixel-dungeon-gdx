@@ -184,7 +184,7 @@ public class SewerBossLevel extends RegularLevel {
 	}
 	
 	@Override
-	protected void decorate() {	
+	protected void decorate() {
 		int start = roomExit.top * WIDTH + roomExit.left + 1;
 		int end = start + roomExit.width() - 1;
 		for (int i=start; i < end; i++) {

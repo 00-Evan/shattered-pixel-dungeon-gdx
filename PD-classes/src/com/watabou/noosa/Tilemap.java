@@ -141,8 +141,8 @@ public class Tilemap extends Visual {
 		texture.bind();
 		
 		script.uModel.valueM4( matrix );
-		script.lighting( 
-			rm, gm, bm, am, 
+		script.lighting(
+			rm, gm, bm, am,
 			ra, ga, ba, aa );
 		
 		if (!updated.isEmpty()) {

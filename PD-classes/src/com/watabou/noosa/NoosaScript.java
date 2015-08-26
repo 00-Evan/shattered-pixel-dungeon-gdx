@@ -127,9 +127,9 @@ public class NoosaScript extends Script {
 			uCamera.valueM4( camera.matrix );
 			
 			Gdx.gl.glScissor(
-				camera.x, 
-				Game.height - camera.screenHeight - camera.y, 
-				camera.screenWidth, 
+				camera.x,
+				Game.height - camera.screenHeight - camera.y,
+				camera.screenWidth,
 				camera.screenHeight );
 		}
 	}

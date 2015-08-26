@@ -108,8 +108,8 @@ abstract public class ClassArmor extends Armor {
 				doSpecial();
 			}
 			
-		} else {	
-			super.execute( hero, action );		
+		} else {
+			super.execute( hero, action );
 		}
 	}
 	

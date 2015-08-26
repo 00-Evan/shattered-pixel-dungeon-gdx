@@ -53,7 +53,7 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 		point( DungeonTilemap.tileToWorld( from ) );
 		PointF dest = DungeonTilemap.tileToWorld( to );
 		
-		PointF d = PointF.diff( dest, point() ); 
+		PointF d = PointF.diff( dest, point() );
 		speed.set( d ).normalize().scale( SPEED );
 
 		if (image == ItemSpriteSheet.DART || image == ItemSpriteSheet.INCENDIARY_DART

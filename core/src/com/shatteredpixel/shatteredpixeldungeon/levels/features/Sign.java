@@ -31,7 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 
 public class Sign {
 
-	private static final String TXT_DEAD_END = 
+	private static final String TXT_DEAD_END =
 		"What are you doing here?!";
 
 	private static final String[] TIPS = {

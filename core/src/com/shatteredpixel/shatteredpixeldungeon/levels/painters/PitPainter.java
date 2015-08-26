@@ -62,8 +62,8 @@ public class PitPainter extends Painter {
 		} else if (loot == 1) {
             level.drop( Generator.random( Generator.Category.ARTIFACT ), remains );
         } else {
-			level.drop( Generator.random( Random.oneOf( 
-				Generator.Category.WEAPON, 
+			level.drop( Generator.random( Random.oneOf(
+				Generator.Category.WEAPON,
 				Generator.Category.ARMOR
 			) ), remains );
 		}
@@ -82,10 +82,10 @@ public class PitPainter extends Painter {
                 return prize;
         }
 		
-		return Generator.random( Random.oneOf( 
-			Generator.Category.POTION, 
+		return Generator.random( Random.oneOf(
+			Generator.Category.POTION,
 			Generator.Category.SCROLL,
-			Generator.Category.FOOD, 
+			Generator.Category.FOOD,
 			Generator.Category.GOLD
 		) );
 	}

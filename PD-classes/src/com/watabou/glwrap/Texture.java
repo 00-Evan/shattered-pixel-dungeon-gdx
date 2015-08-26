@@ -77,11 +77,11 @@ public class Texture {
 		
 		Gdx.gl.glTexImage2D(
 			GL20.GL_TEXTURE_2D,
-			0, 
+			0,
 			GL20.GL_RGBA,
-			w, 
-			h, 
-			0, 
+			w,
+			h,
+			0,
 			GL20.GL_RGBA,
 			GL20.GL_UNSIGNED_BYTE,
 			imageBuffer );
@@ -101,11 +101,11 @@ public class Texture {
 	    
 		Gdx.gl.glTexImage2D(
 			GL20.GL_TEXTURE_2D,
-			0, 
+			0,
 			GL20.GL_ALPHA,
-			w, 
-			h, 
-			0, 
+			w,
+			h,
+			0,
 			GL20.GL_ALPHA,
 			GL20.GL_UNSIGNED_BYTE,
 			imageBuffer );
@@ -125,7 +125,7 @@ public class Texture {
 		// recode - components reordering is needed
 		if (recode) {
 			for (int i=0; i < pixels.length; i++) {
-				int color = pixels[i];		
+				int color = pixels[i];
 				int ag = color & 0xFF00FF00;
 				int r = (color >> 16) & 0xFF;
 				int b = color & 0xFF;

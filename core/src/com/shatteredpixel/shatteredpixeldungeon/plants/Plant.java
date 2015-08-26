@@ -124,7 +124,7 @@ public abstract class Plant implements Bundlable {
 		private static final float TIME_TO_PLANT = 1f;
 		
 		{
-			stackable = true;	
+			stackable = true;
 			defaultAction = AC_THROW;
 		}
 		

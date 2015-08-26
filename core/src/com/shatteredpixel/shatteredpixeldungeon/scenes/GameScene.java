@@ -152,8 +152,8 @@ public class GameScene extends PixelScene {
 		terrain = new Group();
 		add( terrain );
 		
-		water = new SkinnedBlock( 
-			Level.WIDTH * DungeonTilemap.SIZE, 
+		water = new SkinnedBlock(
+			Level.WIDTH * DungeonTilemap.SIZE,
 			Level.HEIGHT * DungeonTilemap.SIZE,
 			Dungeon.level.waterTex() );
 		terrain.add( water );
@@ -288,7 +288,7 @@ public class GameScene extends PixelScene {
 			break;
 		default:
 		}
-		if (Dungeon.level instanceof RegularLevel && 
+		if (Dungeon.level instanceof RegularLevel &&
 			((RegularLevel)Dungeon.level).secretDoors > Random.IntRange( 3, 4 )) {
 			GLog.w( TXT_SECRETS );
 		}
@@ -444,8 +444,8 @@ public class GameScene extends PixelScene {
 	}
 
 	public void brightness( boolean value ) {
-		water.rm = water.gm = water.bm = 
-		tiles.rm = tiles.gm = tiles.bm = 
+		water.rm = water.gm = water.bm =
+		tiles.rm = tiles.gm = tiles.bm =
 			value ? 1.5f : 1.0f;
 		if (value) {
 			fog.am = +2f;

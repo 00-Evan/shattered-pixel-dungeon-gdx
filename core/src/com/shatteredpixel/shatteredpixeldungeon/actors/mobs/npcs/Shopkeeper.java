@@ -79,7 +79,7 @@ public class Shopkeeper extends NPC {
 	
 	@Override
 	public String description() {
-		return 
+		return
 			"This stout guy looks more appropriate for a trade district in some large city " +
 			"than for a dungeon. His prices explain why he prefers to do business here.";
 	}

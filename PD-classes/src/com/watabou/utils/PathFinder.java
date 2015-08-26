@@ -55,7 +55,7 @@ public class PathFinder {
 		Path result = new Path();
 		int s = from;
 
-		// From the starting position we are moving downwards, 
+		// From the starting position we are moving downwards,
 		// until we reach the ending point
 		do {
 			int minD = distance[s];
@@ -105,7 +105,7 @@ public class PathFinder {
 
 		int d = buildEscapeDistanceMap( cur, from, 2f, passable );
 		for (int i=0; i < size; i++) {
-			goals[i] = distance[i] == d; 
+			goals[i] = distance[i] == d;
 		}
 		if (!buildDistanceMap( cur, goals, passable )) {
 			return -1;

@@ -38,7 +38,7 @@ public class MissileWeapon extends Weapon {
 	private static final String TXT_MISSILES	= "Missile weapon";
 	private static final String TXT_YES			= "Yes, I know what I'm doing";
 	private static final String TXT_NO			= "No, I changed my mind";
-	private static final String TXT_R_U_SURE	= 
+	private static final String TXT_R_U_SURE	=
 		"Do you really want to equip it as a melee weapon?";
 	
 	{
@@ -111,7 +111,7 @@ public class MissileWeapon extends Weapon {
 	
 	@Override
 	public boolean doEquip( final Hero hero ) {
-		GameScene.show( 
+		GameScene.show(
 			new WndOptions( TXT_MISSILES, TXT_R_U_SURE, TXT_YES, TXT_NO ) {
 				@Override
 				protected void onSelect(int index) {
@@ -149,12 +149,12 @@ public class MissileWeapon extends Weapon {
 		
 		if (Dungeon.hero.belongings.backpack.items.contains( this )) {
 			if (STR > Dungeon.hero.STR()) {
-				info.append( 
+				info.append(
 					"\n\nBecause of your inadequate strength the accuracy and speed " +
 					"of your attack with this " + name + " is decreased." );
 			}
 			if (STR < Dungeon.hero.STR() && Dungeon.hero.heroClass == HeroClass.HUNTRESS) {
-				info.append( 
+				info.append(
 					"\n\nBecause of your excess strength the damage " +
 					"of your attack with this " + name + " is increased." );
 			}
@@ -163,7 +163,7 @@ public class MissileWeapon extends Weapon {
 		info.append( "\n\nAs this weapon is designed to be used at a distance, it is much less accurate if used at melee range.");
 		
 		if (isEquipped( Dungeon.hero )) {
-			info.append( "\n\nYou hold the " + name + " at the ready." ); 
+			info.append( "\n\nYou hold the " + name + " at the ready." );
 		}
 		
 		return info.toString();

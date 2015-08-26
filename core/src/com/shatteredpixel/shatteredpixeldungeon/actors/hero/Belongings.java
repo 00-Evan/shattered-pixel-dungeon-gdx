@@ -39,7 +39,7 @@ public class Belongings implements Iterable<Item> {
 	
 	private Hero owner;
 	
-	public Bag backpack;	
+	public Bag backpack;
 
 	public KindOfWeapon weapon = null;
 	public Armor armor = null;
@@ -248,7 +248,7 @@ public class Belongings implements Iterable<Item> {
 
 	@Override
 	public Iterator<Item> iterator() {
-		return new ItemIterator(); 
+		return new ItemIterator();
 	}
 	
 	private class ItemIterator implements Iterator<Item> {

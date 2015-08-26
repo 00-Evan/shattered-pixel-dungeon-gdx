@@ -29,7 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Sorrowmoss extends Plant {
 
-	private static final String TXT_DESC = 
+	private static final String TXT_DESC =
 		"A Sorrowmoss is a flower (not a moss) with razor-sharp petals, coated with a deadly venom.";
 	
 	{

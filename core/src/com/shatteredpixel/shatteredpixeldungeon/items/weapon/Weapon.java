@@ -43,7 +43,7 @@ public class Weapon extends KindOfWeapon {
 
 	private static final String TXT_IDENTIFY		=
 		"You are now familiar enough with your %s to identify it. It is %s.";
-	private static final String TXT_INCOMPATIBLE	= 
+	private static final String TXT_INCOMPATIBLE	=
 		"Interaction of different types of magic has negated the enchantment on this weapon!";
 	private static final String TXT_TO_STRING		= "%s :%d";
 	
@@ -161,7 +161,7 @@ public class Weapon extends KindOfWeapon {
 		return Math.round(damage * (imbue == Imbue.LIGHT ? 0.7f : (imbue == Imbue.HEAVY ? 1.5f : 1f)));
 	}
 	
-	public Item upgrade( boolean enchant ) {		
+	public Item upgrade( boolean enchant ) {
 		if (enchantment != null) {
 			if (!enchant && Random.Int( level ) > 0) {
 				GLog.w( TXT_INCOMPATIBLE );
@@ -234,8 +234,8 @@ public class Weapon extends KindOfWeapon {
 	//FIXME: most enchantment names are pretty broken, should refactor
 	public static abstract class Enchantment implements Bundlable {
 
-		private static final Class<?>[] enchants = new Class<?>[]{ 
-			Fire.class, Poison.class, Death.class, Paralysis.class, Leech.class, 
+		private static final Class<?>[] enchants = new Class<?>[]{
+			Fire.class, Poison.class, Death.class, Paralysis.class, Leech.class,
 			Slow.class, Shock.class, Instability.class, Horror.class, Luck.class };
 		private static final float[] chances= new float[]{ 10, 10, 1, 2, 1, 2, 6, 3, 2, 2 };
 			
@@ -246,11 +246,11 @@ public class Weapon extends KindOfWeapon {
 		}
 		
 		@Override
-		public void restoreFromBundle( Bundle bundle ) {	
+		public void restoreFromBundle( Bundle bundle ) {
 		}
 
 		@Override
-		public void storeInBundle( Bundle bundle ) {	
+		public void storeInBundle( Bundle bundle ) {
 		}
 		
 		public ItemSprite.Glowing glowing() {

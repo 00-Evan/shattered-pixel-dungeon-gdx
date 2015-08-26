@@ -97,9 +97,9 @@ public class Component extends Group {
 		return height;
 	}
 	
-	protected void createChildren() {	
+	protected void createChildren() {
 	}
 	
-	protected void layout() {	
+	protected void layout() {
 	}
 }

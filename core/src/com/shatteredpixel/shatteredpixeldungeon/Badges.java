@@ -97,7 +97,7 @@ public class Badges {
 		BOSS_SLAIN_3_ASSASSIN,
 		BOSS_SLAIN_3_SNIPER,
 		BOSS_SLAIN_3_WARDEN,
-		BOSS_SLAIN_3_ALL_SUBCLASSES( 
+		BOSS_SLAIN_3_ALL_SUBCLASSES(
 			"3rd boss slain by Gladiator, Berserker, Warlock, Battlemage, " +
 			"Freerunner, Assassin, Sniper & Warden", 33, true ),
 		RING_OF_HAGGLER( "Ring of Haggler obtained", 20 ),
@@ -432,7 +432,7 @@ public class Badges {
 	}
 	
 	public static void validateAllPotionsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() && 
+		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
 			!local.contains( Badge.ALL_POTIONS_IDENTIFIED ) && Potion.allKnown()) {
 			
 			Badge badge = Badge.ALL_POTIONS_IDENTIFIED;
@@ -444,7 +444,7 @@ public class Badges {
 	}
 	
 	public static void validateAllScrollsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() && 
+		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
 			!local.contains( Badge.ALL_SCROLLS_IDENTIFIED ) && Scroll.allKnown()) {
 			
 			Badge badge = Badge.ALL_SCROLLS_IDENTIFIED;
@@ -456,7 +456,7 @@ public class Badges {
 	}
 	
 	public static void validateAllRingsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() && 
+		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
 			!local.contains( Badge.ALL_RINGS_IDENTIFIED ) && Ring.allKnown()) {
 			
 			Badge badge = Badge.ALL_RINGS_IDENTIFIED;
@@ -882,7 +882,7 @@ public class Badges {
 				GLog.h( "New super badge: %s", badge.description );
 			} else {
 				GLog.h( "New badge: %s", badge.description );
-			}	
+			}
 			PixelScene.showBadge( badge );
 		}
 	}

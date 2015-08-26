@@ -90,8 +90,8 @@ public class BitmapText extends Visual {
 		script.camera( camera() );
 		
 		script.uModel.valueM4( matrix );
-		script.lighting( 
-			rm, gm, bm, am, 
+		script.lighting(
+			rm, gm, bm, am,
 			ra, ga, ba, aa );
 		script.drawQuadSet( quads, realLength );
 		
@@ -210,10 +210,10 @@ public class BitmapText extends Visual {
 	
 	public static class Font extends TextureFilm {
 		
-		public static final String LATIN_UPPER = 
+		public static final String LATIN_UPPER =
 			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		
-		public static final String LATIN_FULL = 
+		public static final String LATIN_FULL =
 			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
 		
 		public SmartTexture texture;

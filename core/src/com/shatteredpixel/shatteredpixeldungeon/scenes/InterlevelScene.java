@@ -101,7 +101,7 @@ public class InterlevelScene extends PixelScene {
 		
 		message = PixelScene.createText( text, 9 );
 		message.measure();
-		message.x = (Camera.main.width - message.width()) / 2; 
+		message.x = (Camera.main.width - message.width()) / 2;
 		message.y = (Camera.main.height - message.height()) / 2;
 		add( message );
 		
@@ -280,7 +280,7 @@ public class InterlevelScene extends PixelScene {
 	
 	private void resurrect() throws IOException {
 		
-		Actor.fixTime(); 
+		Actor.fixTime();
 		
 		if (Dungeon.level.locked) {
 			Dungeon.hero.resurrect( Dungeon.depth );

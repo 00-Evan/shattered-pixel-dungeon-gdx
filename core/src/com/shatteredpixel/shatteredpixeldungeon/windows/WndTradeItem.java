@@ -59,7 +59,7 @@ public class WndTradeItem extends Window {
 		
 		super();
 		
-		this.owner = owner; 
+		this.owner = owner;
 		
 		float pos = createDescription( item, false );
 		
@@ -206,17 +206,17 @@ public class WndTradeItem extends Window {
 		// Title
 		IconTitle titlebar = new IconTitle();
 		titlebar.icon( new ItemSprite( item ) );
-		titlebar.label( forSale ? 
-			Utils.format( TXT_SALE, item.toString(), price( item ) ) : 
+		titlebar.label( forSale ?
+			Utils.format( TXT_SALE, item.toString(), price( item ) ) :
 			Utils.capitalize( item.toString() ) );
 		titlebar.setRect( 0, 0, WIDTH, 0 );
 		add( titlebar );
 		
 		// Upgraded / degraded
 		if (item.levelKnown && item.level > 0) {
-			titlebar.color( ItemSlot.UPGRADED );	
+			titlebar.color( ItemSlot.UPGRADED );
 		} else if (item.levelKnown && item.level < 0) {
-			titlebar.color( ItemSlot.DEGRADED );	
+			titlebar.color( ItemSlot.DEGRADED );
 		}
 		
 		// Description

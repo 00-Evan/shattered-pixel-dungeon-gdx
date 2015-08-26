@@ -69,7 +69,7 @@ public class WaterOfTransmutation extends WellWater {
 	
 	@Override
 	public void use( BlobEmitter emitter ) {
-		super.use( emitter );	
+		super.use( emitter );
 		emitter.start( Speck.factory( Speck.CHANGE ), 0.2f, 0 );
 	}
 	
@@ -231,7 +231,7 @@ public class WaterOfTransmutation extends WellWater {
 	
 	@Override
 	public String tileDesc() {
-		return 
+		return
 			"Power of change radiates from the water of this well. " +
 			"Throw an item into the well to turn it into something else.";
 	}

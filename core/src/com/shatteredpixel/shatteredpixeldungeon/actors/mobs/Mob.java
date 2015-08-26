@@ -272,8 +272,8 @@ public abstract class Mob extends Char {
 			return false;
 		}
 		
-		int step = Dungeon.findPath( this, pos, target, 
-			Level.passable, 
+		int step = Dungeon.findPath( this, pos, target,
+			Level.passable,
 			Level.fieldOfView );
 		if (step != -1) {
 			move( step );
@@ -284,8 +284,8 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean getFurther( int target ) {
-		int step = Dungeon.flee( this, pos, target, 
-			Level.passable, 
+		int step = Dungeon.flee( this, pos, target,
+			Level.passable,
 			Level.fieldOfView );
 		if (step != -1) {
 			move( step );
@@ -439,7 +439,7 @@ public abstract class Mob extends Char {
                 Dungeon.level.drop( loot , pos ).sprite.drop();
 		}
 		
-		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {	
+		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {
 			GLog.i( TXT_DIED );
 		}
 	}

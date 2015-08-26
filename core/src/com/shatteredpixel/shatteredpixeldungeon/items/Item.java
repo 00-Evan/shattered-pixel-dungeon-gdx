@@ -83,7 +83,7 @@ public class Item implements Bundlable {
     // whether an item can be included in heroes remains
     public boolean bones = false;
 	
-	private static Comparator<Item> itemComparator = new Comparator<Item>() {	
+	private static Comparator<Item> itemComparator = new Comparator<Item>() {
 		@Override
 		public int compare( Item lhs, Item rhs ) {
 			return Generator.Category.order( lhs ) - Generator.Category.order( rhs );
@@ -110,9 +110,9 @@ public class Item implements Bundlable {
 		}
 	}
 	
-	public void doDrop( Hero hero ) {	
-		hero.spendAndNext( TIME_TO_DROP );			
-		Dungeon.level.drop( detachAll( hero.belongings.backpack ), hero.pos ).sprite.drop( hero.pos );	
+	public void doDrop( Hero hero ) {
+		hero.spendAndNext( TIME_TO_DROP );
+		Dungeon.level.drop( detachAll( hero.belongings.backpack ), hero.pos ).sprite.drop( hero.pos );
 	}
 
     public void syncVisuals(){
@@ -171,7 +171,7 @@ public class Item implements Bundlable {
 					item.updateQuickslot();
 					return true;
 				}
-			}	
+			}
 		}
 		
 		if (items.size() < container.size) {
@@ -481,7 +481,7 @@ public class Item implements Bundlable {
 		final float finalDelay = delay;
 		
 		((MissileSprite)user.sprite.parent.recycle( MissileSprite.class )).
-			reset( user.pos, cell, this, new Callback() {			
+			reset( user.pos, cell, this, new Callback() {
 				@Override
 				public void call() {
 					Item.this.detach( user.belongings.backpack ).onThrow( cell );
@@ -492,7 +492,7 @@ public class Item implements Bundlable {
 	
 	protected static Hero curUser = null;
 	protected static Item curItem = null;
-	protected static CellSelector.Listener thrower = new CellSelector.Listener() {	
+	protected static CellSelector.Listener thrower = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer target ) {
 			if (target != null) {

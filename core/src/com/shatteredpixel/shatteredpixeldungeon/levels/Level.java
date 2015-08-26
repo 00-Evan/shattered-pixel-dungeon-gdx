@@ -274,7 +274,7 @@ public abstract class Level implements Bundlable {
 		createItems();
 	}
 	
-	public void reset() {	
+	public void reset() {
 		
 		for (Mob mob : mobs.toArray( new Mob[0] )) {
 			if (!mob.reset()) {
@@ -416,7 +416,7 @@ public abstract class Level implements Bundlable {
 			this.mapped = mapped;
 			
 			entrance = adjustPos( entrance );
-			exit = adjustPos( exit ); 
+			exit = adjustPos( exit );
 		} else {
 			resizingNeeded = false;
 		}
@@ -590,7 +590,7 @@ public abstract class Level implements Bundlable {
 				if (!pit[i - WIDTH]) {
 					int c = map[i - WIDTH];
 					if (c == Terrain.EMPTY_SP || c == Terrain.STATUE_SP) {
-						map[i] = Terrain.CHASM_FLOOR_SP;  
+						map[i] = Terrain.CHASM_FLOOR_SP;
 					} else if (water[i - WIDTH]) {
 						map[i] = Terrain.CHASM_WATER;
 					} else if ((Terrain.flags[c] & Terrain.UNSTITCHABLE) != 0) {
@@ -603,7 +603,7 @@ public abstract class Level implements Bundlable {
 		}
 	}
 	
-	private void cleanWalls() {		
+	private void cleanWalls() {
 		for (int i=0; i < LENGTH; i++) {
 			
 			boolean d = false;

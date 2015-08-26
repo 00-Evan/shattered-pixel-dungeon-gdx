@@ -124,7 +124,7 @@ public class Hero extends Char {
 	
 	public static final int MAX_LEVEL = 30;
 	private static final String TXT_LEVEL_UP = "level up!";
-	private static final String TXT_NEW_LEVEL = 
+	private static final String TXT_NEW_LEVEL =
 		"Welcome to level %d! Now you are healthier and more focused. " +
 		"It's easier for you to hit enemies and dodge their attacks.";
 	private static final String TXT_LEVEL_CAP =
@@ -173,7 +173,7 @@ public class Hero extends Char {
 	public int lvl = 1;
 	public int exp = 0;
 	
-	private ArrayList<Mob> visibleEnemies; 
+	private ArrayList<Mob> visibleEnemies;
 	
 	public Hero() {
 		super();
@@ -255,7 +255,7 @@ public class Hero extends Char {
 	}
 	
 	public void live() {
-		Buff.affect( this, Regeneration.class );	
+		Buff.affect( this, Regeneration.class );
 		Buff.affect( this, Hunger.class );
 	}
 	
@@ -452,32 +452,32 @@ public class Hero extends Char {
 				
 				return actMove( (HeroAction.Move)curAction );
 				
-			} else 
+			} else
 			if (curAction instanceof HeroAction.Interact) {
 
                 return actInteract( (HeroAction.Interact)curAction );
 				
-			} else 
+			} else
 			if (curAction instanceof HeroAction.Buy) {
 
                 return actBuy( (HeroAction.Buy)curAction );
 				
-			}else 
+			}else
 			if (curAction instanceof HeroAction.PickUp) {
 
                 return actPickUp( (HeroAction.PickUp)curAction );
 				
-			} else 
+			} else
 			if (curAction instanceof HeroAction.OpenChest) {
 
                 return actOpenChest( (HeroAction.OpenChest)curAction );
 				
-			} else 
+			} else
 			if (curAction instanceof HeroAction.Unlock) {
 
                 return actUnlock((HeroAction.Unlock) curAction);
 				
-			} else 
+			} else
 			if (curAction instanceof HeroAction.Descend) {
 
                 return actDescend( (HeroAction.Descend)curAction );
@@ -620,7 +620,7 @@ public class Hero extends Char {
 		if (pos == dst) {
 			
 			Heap heap = Dungeon.level.heaps.get( pos );
-			if (heap != null) {				
+			if (heap != null) {
 				Item item = heap.pickUp();
 				if (item.doPickUp( this )) {
 					
@@ -1053,8 +1053,8 @@ public class Hero extends Char {
 				curAction = new HeroAction.PickUp( cell );
 				break;
 			case FOR_SALE:
-				curAction = heap.size() == 1 && heap.peek().price() > 0 ? 
-					new HeroAction.Buy( cell ) : 
+				curAction = heap.size() == 1 && heap.peek().price() > 0 ?
+					new HeroAction.Buy( cell ) :
 					new HeroAction.PickUp( cell );
 				break;
 			default:
@@ -1145,9 +1145,9 @@ public class Hero extends Char {
 	}
 	
 	void updateAwareness() {
-		awareness = (float)(1 - Math.pow( 
-			(heroClass == HeroClass.ROGUE ? 0.85 : 0.90), 
-			(1 + Math.min( lvl,  9 )) * 0.5 
+		awareness = (float)(1 - Math.pow(
+			(heroClass == HeroClass.ROGUE ? 0.85 : 0.90),
+			(1 + Math.min( lvl,  9 )) * 0.5
 		));
 	}
 	
@@ -1392,7 +1392,7 @@ public class Hero extends Char {
 				theKey = null;
 			}
 			
-			Heap heap = Dungeon.level.heaps.get( ((HeroAction.OpenChest)curAction).dst ); 
+			Heap heap = Dungeon.level.heaps.get( ((HeroAction.OpenChest)curAction).dst );
 			if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
 				Sample.INSTANCE.play( Assets.SND_BONES );
 			}

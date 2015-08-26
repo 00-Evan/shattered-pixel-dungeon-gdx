@@ -106,7 +106,7 @@ public class Bundle {
 	}
 	
 	public Bundlable get( String key ) {
-		return getBundle( key ).get();	
+		return getBundle( key ).get();
 	}
 	
 	public <E extends Enum<E>> E getEnum( String key, Class<E> enumClass ) {

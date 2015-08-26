@@ -23,7 +23,7 @@ import java.util.HashMap;
 public class Random {
 
 	public static float Float( float min, float max ) {
-		return (float)(min + Math.random() * (max - min)); 
+		return (float)(min + Math.random() * (max - min));
 	}
 	
 	public static float Float( float max ) {
@@ -117,8 +117,8 @@ public class Random {
 	@SuppressWarnings("unchecked")
 	public static<T> T element( Collection<? extends T> collection ) {
 		int size = collection.size();
-		return size > 0 ? 
-			(T)collection.toArray()[Int( size )] : 
+		return size > 0 ?
+			(T)collection.toArray()[Int( size )] :
 			null;
 	}
 	

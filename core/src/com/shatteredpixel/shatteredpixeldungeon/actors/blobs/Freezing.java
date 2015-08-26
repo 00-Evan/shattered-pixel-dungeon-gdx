@@ -33,7 +33,7 @@ public class Freezing {
 	// Returns true, if this cell is visible
 	public static boolean affect( int cell, Fire fire ) {
 		
-		Char ch = Actor.findChar( cell ); 
+		Char ch = Actor.findChar( cell );
 		if (ch != null) {
             if (Level.water[ch.pos]){
                 Buff.prolong(ch, Frost.class, Frost.duration(ch) * Random.Float(5f, 7.5f));

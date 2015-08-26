@@ -119,7 +119,7 @@ public class Emitter extends Group {
 	
 	protected void emit( int index ) {
 		if (target == null) {
-			factory.emit( 
+			factory.emit(
 				this,
 				index,
 				x + Random.Float( width ),

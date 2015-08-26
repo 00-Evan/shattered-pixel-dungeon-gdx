@@ -41,7 +41,7 @@ public class WarriorArmor extends ClassArmor {
 	private static int LEAP_TIME	= 1;
 	private static int SHOCK_TIME	= 3;
 	
-	private static final String AC_SPECIAL = "HEROIC LEAP"; 
+	private static final String AC_SPECIAL = "HEROIC LEAP";
 	
 	private static final String TXT_NOT_WARRIOR	= "Only warriors can use this armor!";
 	

@@ -67,7 +67,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	
 	// Current time in milliseconds
 	protected long now;
-	// Milliseconds passed since previous update 
+	// Milliseconds passed since previous update
 	protected long step;
 	
 	public static float timeScale = 1f;
@@ -229,7 +229,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		Game.elapsed = Game.timeScale * step * 0.001f;
 		Game.timeTotal += Game.elapsed;
 		
-		scene.update();		
+		scene.update();
 		Camera.updateAll();
 	}
 	

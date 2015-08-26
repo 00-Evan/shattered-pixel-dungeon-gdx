@@ -163,8 +163,8 @@ public class ItemSlot extends Button<GameAction> {
 					
 				} else {
 					
-					topRight.text( Utils.format( TXT_TYPICAL_STR, isArmor ? 
-						((Armor)item).typicalSTR() : 
+					topRight.text( Utils.format( TXT_TYPICAL_STR, isArmor ?
+						((Armor)item).typicalSTR() :
 						((MeleeWeapon)item).typicalSTR() ) );
 					topRight.hardlight( WARNING );
 					
@@ -180,7 +180,7 @@ public class ItemSlot extends Button<GameAction> {
 				
 			}
 	
-			int level = item.visiblyUpgraded(); 
+			int level = item.visiblyUpgraded();
 
 			if (level != 0) {
                 bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );

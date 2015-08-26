@@ -668,7 +668,7 @@ public class Dungeon {
 	
 	public static void fail( String desc ) {
 		resultDescription = desc;
-		if (hero.belongings.getItem( Ankh.class ) == null) { 
+		if (hero.belongings.getItem( Ankh.class ) == null) {
 			Rankings.INSTANCE.submit( false );
 		}
 	}

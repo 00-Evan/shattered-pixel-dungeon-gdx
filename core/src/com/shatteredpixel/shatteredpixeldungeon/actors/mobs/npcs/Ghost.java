@@ -218,7 +218,7 @@ public class Ghost extends NPC {
 	
 	@Override
 	public String description() {
-		return 
+		return
 			"The ghost is barely visible. It looks like a shapeless " +
 			"spot of faint light with a sorrowful face.";
 	}
@@ -251,7 +251,7 @@ public class Ghost extends NPC {
 		public static Armor armor;
 		
 		public static void reset() {
-			spawned = false; 
+			spawned = false;
 			
 			weapon = null;
 			armor = null;

@@ -125,8 +125,8 @@ public class WndBag extends WndTabbed {
 
 		Belongings stuff = Dungeon.hero.belongings;
 		Bag[] bags = {
-			stuff.backpack, 
-			stuff.getItem( SeedPouch.class ), 
+			stuff.backpack,
+			stuff.getItem( SeedPouch.class ),
 			stuff.getItem( ScrollHolder.class ),
 			stuff.getItem( PotionBandolier.class ),
 			stuff.getItem( WandHolster.class )};
@@ -153,7 +153,7 @@ public class WndBag extends WndTabbed {
 	
 	public static WndBag lastBag( Listener listener, Mode mode, String title ) {
 		
-		if (mode == lastMode && lastBag != null && 
+		if (mode == lastMode && lastBag != null &&
 			Dungeon.hero.belongings.backpack.contains( lastBag )) {
 			
 			return new WndBag( lastBag, listener, mode, title );
@@ -298,7 +298,7 @@ public class WndBag extends WndTabbed {
 		}
 	}
 	
-	private static class Placeholder extends Item {		
+	private static class Placeholder extends Item {
 		{
 			name = null;
 		}
@@ -339,7 +339,7 @@ public class WndBag extends WndTabbed {
 		}
 		
 		@Override
-		protected void createChildren() {	
+		protected void createChildren() {
 			bg = new ColorBlock( SLOT_SIZE, SLOT_SIZE, NORMAL );
 			add( bg );
 			
@@ -372,9 +372,9 @@ public class WndBag extends WndTabbed {
 				if (item.name() == null) {
 					enable( false );
 				} else {
-					enable( 
+					enable(
 						mode == Mode.FOR_SALE && (item.price() > 0) && (!item.isEquipped( Dungeon.hero ) || !item.cursed) ||
-						mode == Mode.UPGRADEABLE && item.isUpgradable() || 
+						mode == Mode.UPGRADEABLE && item.isUpgradable() ||
 						mode == Mode.UNIDENTIFED && !item.isIdentified() ||
 						mode == Mode.QUICKSLOT && (item.defaultAction != null) ||
 						mode == Mode.WEAPON && (item instanceof MeleeWeapon || item instanceof Boomerang) ||

@@ -80,7 +80,7 @@ public class WndRanking extends WndTabbed {
 		};
 		thread.start();
 
-		busy = Icons.BUSY.get();	
+		busy = Icons.BUSY.get();
 		busy.origin.set( busy.width / 2, busy.height / 2 );
 		busy.angularSpeed = 720;
 		busy.x = (WIDTH - busy.width) / 2;
@@ -106,9 +106,9 @@ public class WndRanking extends WndTabbed {
 
 	private void createControls() {
 		
-		String[] labels = 
+		String[] labels =
 			{TXT_STATS, TXT_ITEMS, TXT_BADGES};
-		Group[] pages = 
+		Group[] pages =
 			{new StatsTab(), new ItemsTab(), new BadgesTab()};
 		
 		for (int i=0; i < pages.length; i++) {
@@ -318,7 +318,7 @@ public class WndRanking extends WndTabbed {
 		}
 		
 		@Override
-		protected void createChildren() {	
+		protected void createChildren() {
 			
 			bg = new ColorBlock( HEIGHT, HEIGHT, 0xFF4A4D44 );
 			add( bg );

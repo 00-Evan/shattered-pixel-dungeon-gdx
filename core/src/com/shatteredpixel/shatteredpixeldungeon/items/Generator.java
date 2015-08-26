@@ -84,14 +84,14 @@ public class Generator {
 	
 	static {
 		
-		Category.GOLD.classes = new Class<?>[]{ 
+		Category.GOLD.classes = new Class<?>[]{
 			Gold.class };
 		Category.GOLD.probs = new float[]{ 1 };
 		
-		Category.SCROLL.classes = new Class<?>[]{ 
-			ScrollOfIdentify.class, 
-			ScrollOfTeleportation.class, 
-			ScrollOfRemoveCurse.class, 
+		Category.SCROLL.classes = new Class<?>[]{
+			ScrollOfIdentify.class,
+			ScrollOfTeleportation.class,
+			ScrollOfRemoveCurse.class,
 			ScrollOfUpgrade.class,
 			ScrollOfRecharging.class,
 			ScrollOfMagicMapping.class,
@@ -103,10 +103,10 @@ public class Generator {
 			ScrollOfMirrorImage.class };
 		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 15, 15, 12, 8, 8, 0, 4, 10 };
 		
-		Category.POTION.classes = new Class<?>[]{ 
-			PotionOfHealing.class, 
+		Category.POTION.classes = new Class<?>[]{
+			PotionOfHealing.class,
 			PotionOfExperience.class,
-			PotionOfToxicGas.class, 
+			PotionOfToxicGas.class,
 			PotionOfParalyticGas.class,
 			PotionOfLiquidFlame.class,
 			PotionOfLevitation.class,
@@ -135,16 +135,16 @@ public class Generator {
 			WandOfRegrowth.class };
 		Category.WAND.probs = new float[]{ 4, 4, 4, 4, 4, 3, /*3,*/ 3, 3, /*3,*/ 3, 3, 3 };
 		
-		Category.WEAPON.classes = new Class<?>[]{ 
-			Dagger.class, 
+		Category.WEAPON.classes = new Class<?>[]{
+			Dagger.class,
 			Knuckles.class,
-			Quarterstaff.class, 
-			Spear.class, 
-			Mace.class, 
-			Sword.class, 
+			Quarterstaff.class,
+			Spear.class,
+			Mace.class,
+			Sword.class,
 			Longsword.class,
 			BattleAxe.class,
-			WarHammer.class, 
+			WarHammer.class,
 			Glaive.class,
 			ShortSword.class,
 			Dart.class,
@@ -156,16 +156,16 @@ public class Generator {
 			Tamahawk.class };
 		Category.WEAPON.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1 };
 		
-		Category.ARMOR.classes = new Class<?>[]{ 
-			ClothArmor.class, 
-			LeatherArmor.class, 
-			MailArmor.class, 
-			ScaleArmor.class, 
+		Category.ARMOR.classes = new Class<?>[]{
+			ClothArmor.class,
+			LeatherArmor.class,
+			MailArmor.class,
+			ScaleArmor.class,
 			PlateArmor.class };
 		Category.ARMOR.probs = new float[]{ 1, 1, 1, 1, 1 };
 		
-		Category.FOOD.classes = new Class<?>[]{ 
-			Food.class, 
+		Category.FOOD.classes = new Class<?>[]{
+			Food.class,
 			Pasty.class,
 			MysteryMeat.class };
 		Category.FOOD.probs = new float[]{ 4, 1, 0 };
@@ -201,7 +201,7 @@ public class Generator {
             };
         Category.ARTIFACT.probs = new float[]{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1};
 		
-		Category.SEED.classes = new Class<?>[]{ 
+		Category.SEED.classes = new Class<?>[]{
 			Firebloom.Seed.class,
 			Icecap.Seed.class,
 			Sorrowmoss.Seed.class,

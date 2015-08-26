@@ -87,8 +87,8 @@ public class Quad {
 		return indices;
 	}
 	
-	public static void fill( float[] v, 
-		float x1, float x2, float y1, float y2, 
+	public static void fill( float[] v,
+		float x1, float x2, float y1, float y2,
 		float u1, float u2, float v1, float v2 ) {
 		
 		v[0] = x1;

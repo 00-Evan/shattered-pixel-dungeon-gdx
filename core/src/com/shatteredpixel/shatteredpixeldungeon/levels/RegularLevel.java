@@ -202,7 +202,7 @@ public abstract class RegularLevel extends Level {
 		int specialRooms = 0;
 
 		for (Room r : rooms) {
-			if (r.type == Type.NULL && 
+			if (r.type == Type.NULL &&
 				r.connected.size() == 1) {
 
 				if (specials.size() > 0 &&
@@ -249,7 +249,7 @@ public abstract class RegularLevel extends Level {
 
 					HashSet<Room> neigbours = new HashSet<Room>();
 					for (Room n : r.neigbours) {
-						if (!r.connected.containsKey( n ) && 
+						if (!r.connected.containsKey( n ) &&
 							!Room.SPECIALS.contains( n.type ) &&
 							n.type != Type.PIT) {
 							
@@ -273,7 +273,7 @@ public abstract class RegularLevel extends Level {
 					r.type = Type.STANDARD;
 					count++;
 				} else {
-					r.type = Type.TUNNEL; 
+					r.type = Type.TUNNEL;
 				}
 			}
 		}
@@ -393,14 +393,14 @@ public abstract class RegularLevel extends Level {
 			split( new Rect( rect.left, rect.top, vw, rect.bottom ) );
 			split( new Rect( vw, rect.top, rect.right, rect.bottom ) );
 			
-		} else 
+		} else
 		if (h > maxRoomSize && w < minRoomSize) {
 
 			int vh = Random.Int( rect.top + 3, rect.bottom - 3 );
 			split( new Rect( rect.left, rect.top, rect.right, vh ) );
 			split( new Rect( rect.left, vh, rect.right, rect.bottom ) );
 			
-		} else 	
+		} else
 		if ((Math.random() <= (minRoomSize * minRoomSize / rect.square()) && w <= maxRoomSize && h <= maxRoomSize) || w < minRoomSize || h < minRoomSize) {
 
 			rooms.add( (Room)new Room().set( rect ) );
@@ -445,11 +445,11 @@ public abstract class RegularLevel extends Level {
 				
 				Rect i = r.intersect( n );
 				if (i.width() == 0) {
-					door = new Room.Door( 
-						i.left, 
+					door = new Room.Door(
+						i.left,
 						Random.Int( i.top + 1, i.bottom ) );
 				} else {
-					door = new Room.Door( 
+					door = new Room.Door(
 						Random.Int( i.left + 1, i.right ),
 						i.top);
 				}

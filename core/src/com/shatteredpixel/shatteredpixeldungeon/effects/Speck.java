@@ -216,7 +216,7 @@ public class Speck extends Image {
 			angularSpeed = Random.Float( -360, +360 );
 			break;
 			
-		case ROCK: 
+		case ROCK:
 			angle = Random.Float( 360 );
 			angularSpeed = Random.Float( -360, +360 );
 			scale.set( Random.Float( 1, 2 ) );
@@ -337,12 +337,12 @@ public class Speck extends Image {
 				am = p < 0.2f ? p * 5f : (1 - p) * 1.25f;
 				break;
 				
-			case KIT:		
+			case KIT:
 			case MASTERY:
 				am = 1 - p * p;
 				break;
 				
-			case EVOKE:	
+			case EVOKE:
 				
 			case HEALING:
 				am = p < 0.5f ? 1 : 2 - p * 2;

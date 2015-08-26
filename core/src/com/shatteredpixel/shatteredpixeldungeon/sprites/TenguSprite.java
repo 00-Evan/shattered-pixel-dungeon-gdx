@@ -74,7 +74,7 @@ public class TenguSprite extends MobSprite {
 		if (!Level.adjacent( cell, ch.pos )) {
 			
 			((MissileSprite)parent.recycle( MissileSprite.class )).
-				reset( ch.pos, cell, new Shuriken(), new Callback() {			
+				reset( ch.pos, cell, new Shuriken(), new Callback() {
 					@Override
 					public void call() {
 						ch.onAttackComplete();

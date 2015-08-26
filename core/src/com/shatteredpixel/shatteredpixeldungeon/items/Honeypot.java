@@ -129,7 +129,7 @@ public class Honeypot extends Item {
 	@Override
 	public boolean isIdentified() {
 		return true;
-	}	
+	}
 	
 	@Override
 	public int price() {

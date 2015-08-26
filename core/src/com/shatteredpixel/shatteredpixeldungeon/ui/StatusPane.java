@@ -100,7 +100,7 @@ public class StatusPane extends Component {
 					break;
 				}
 				return handled;
-			}			
+			}
         } );
 
         btnMenu = new MenuButton();

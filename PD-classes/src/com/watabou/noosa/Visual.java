@@ -155,7 +155,7 @@ public class Visual extends Gizmo {
 	}
 	
 	public void lightness( float value ) {
-		if (value < 0.5f) {	
+		if (value < 0.5f) {
 			rm = gm = bm = value * 2f;
 			ra = ga = ba = 0;
 		} else {
