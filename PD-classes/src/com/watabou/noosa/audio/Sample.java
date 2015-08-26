@@ -29,6 +29,7 @@ public enum Sample {
 	protected HashMap<Object, Sound> ids = new HashMap<Object, Sound>();
 	
 	private boolean enabled = true;
+	private float volume = 1f;
 	
 	public void reset() {
 
@@ -83,7 +84,8 @@ public enum Sample {
 	public long play(Object id, float leftVolume, float rightVolume, float rate) {
 		if (enabled && ids.containsKey( id )) {
 			Sound sound = ids.get(id);
-			return sound.play(leftVolume, rate, 0);
+			//TODO: properly implement audio panning here if I ever need it.
+			return sound.play(leftVolume*volume, rate, 0);
 		} else {
 			return -1;
 		}
@@ -95,5 +97,9 @@ public enum Sample {
 	
 	public boolean isEnabled() {
 		return enabled;
+	}
+	
+	public void volume( float value ) {
+		this.volume = value;
 	}
 }

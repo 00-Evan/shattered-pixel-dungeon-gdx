@@ -168,12 +168,6 @@ public class Group extends Gizmo {
 	public Gizmo erase( Gizmo g ) {
 		int index = members.indexOf( g );
 
-		//makes sure the erased gizmo is the last in the arraylist
-		//if it isn't, fast removing is a bad idea, forces full removal.
-		if (length-1 != index){
-			return remove(g);
-		}
-
 		if (index != -1) {
 			members.set( index, null );
 			g.parent = null;

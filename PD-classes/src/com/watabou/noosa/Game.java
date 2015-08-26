@@ -176,7 +176,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 			scene = null;
 		}
 		
-		instance = null;
+		//instance = null;
 	}
 	
 	public static void resetScene() {
