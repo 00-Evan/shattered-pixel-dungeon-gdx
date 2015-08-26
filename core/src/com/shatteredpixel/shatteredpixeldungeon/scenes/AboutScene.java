@@ -99,7 +99,7 @@ public class AboutScene extends PixelScene {
 		TouchArea shpxhotArea = new TouchArea( shpxlink ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				Gdx.net.openURI("http://" + LNK_WATA);
+				Gdx.net.openURI("http://" + LNK_SHPX);
 			}
 		};
 		add( shpxhotArea );
@@ -142,7 +142,7 @@ public class AboutScene extends PixelScene {
 		TouchArea hotArea = new TouchArea( wataLink ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				Gdx.net.openURI("http://" + LNK_SHPX);
+				Gdx.net.openURI("http://" + LNK_WATA);
 			}
 		};
 		add( hotArea );
