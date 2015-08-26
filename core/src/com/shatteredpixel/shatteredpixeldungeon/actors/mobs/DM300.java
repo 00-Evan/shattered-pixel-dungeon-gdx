@@ -172,7 +172,7 @@ public class DM300 extends Mob {
 	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
 	static {
 		IMMUNITIES.add( ToxicGas.class );
-        IMMUNITIES.add( Terror.class );
+		IMMUNITIES.add( Terror.class );
 	}
 	
 	@Override

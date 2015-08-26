@@ -30,7 +30,7 @@ public class Icecap extends Plant {
 
 	private static final String TXT_DESC =
 		"Upon being touched, an Icecap lets out a puff of freezing pollen. " +
-        "The freezing effect is much stronger if the environment is wet.";
+		"The freezing effect is much stronger if the environment is wet.";
 	
 	{
 		image = 1;

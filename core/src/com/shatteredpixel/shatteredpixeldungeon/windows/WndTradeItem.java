@@ -43,7 +43,7 @@ public class WndTradeItem extends Window {
 	
 	private static final String TXT_SALE		= "FOR SALE: %s - %dg";
 	private static final String TXT_BUY			= "Buy for %dg";
-    private static final String TXT_STEAL		= "Steal with %d%% chance";
+	private static final String TXT_STEAL		= "Steal with %d%% chance";
 	private static final String TXT_SELL		= "Sell for %dg";
 	private static final String TXT_SELL_1		= "Sell 1 for %dg";
 	private static final String TXT_SELL_ALL	= "Sell all for %dg";
@@ -51,7 +51,7 @@ public class WndTradeItem extends Window {
 	
 	private static final String TXT_SOLD	= "You've sold your %s for %dg";
 	private static final String TXT_BOUGHT	= "You've bought %s for %dg";
-    private static final String TXT_STOLE	= "You've stolen the %s";
+	private static final String TXT_STOLE	= "You've stolen the %s";
 	
 	private WndBag owner;
 	
@@ -138,46 +138,46 @@ public class WndTradeItem extends Window {
 			btnBuy.enable( price <= Dungeon.gold );
 			add( btnBuy );
 
-            RedButton btnCancel = new RedButton( TXT_CANCEL ) {
-                @Override
-                protected void onClick() {
-                    hide();
-                }
-            };
+			RedButton btnCancel = new RedButton( TXT_CANCEL ) {
+				@Override
+				protected void onClick() {
+					hide();
+				}
+			};
 
-            final MasterThievesArmband.Thievery thievery = Dungeon.hero.buff(MasterThievesArmband.Thievery.class);
-            if (thievery != null) {
-                final float chance = thievery.stealChance(price);
-                RedButton btnSteal = new RedButton(Utils.format(TXT_STEAL, Math.min(100, (int)(chance*100)))) {
-                    @Override
-                    protected void onClick() {
-                        if(thievery.steal(price)){
-                            Hero hero = Dungeon.hero;
-                            Item item = heap.pickUp();
-                            GLog.i( TXT_STOLE, item.name());
-                            hide();
+			final MasterThievesArmband.Thievery thievery = Dungeon.hero.buff(MasterThievesArmband.Thievery.class);
+			if (thievery != null) {
+				final float chance = thievery.stealChance(price);
+				RedButton btnSteal = new RedButton(Utils.format(TXT_STEAL, Math.min(100, (int)(chance*100)))) {
+					@Override
+					protected void onClick() {
+						if(thievery.steal(price)){
+							Hero hero = Dungeon.hero;
+							Item item = heap.pickUp();
+							GLog.i( TXT_STOLE, item.name());
+							hide();
 
-                            if (!item.doPickUp( hero )) {
-                                Dungeon.level.drop( item, heap.pos ).sprite.drop();
-                            }
-                        } else {
-                            for (Mob mob : Dungeon.level.mobs){
-                                if (mob instanceof Shopkeeper) {
-                                    mob.yell(((Shopkeeper) mob).TXT_THIEF);
-                                    ((Shopkeeper) mob).flee();
-                                    break;
-                                }
-                            }
-                            hide();
-                        }
-                    }
-                };
-                btnSteal.setRect(0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT);
-                add(btnSteal);
+							if (!item.doPickUp( hero )) {
+								Dungeon.level.drop( item, heap.pos ).sprite.drop();
+							}
+						} else {
+							for (Mob mob : Dungeon.level.mobs){
+								if (mob instanceof Shopkeeper) {
+									mob.yell(((Shopkeeper) mob).TXT_THIEF);
+									((Shopkeeper) mob).flee();
+									break;
+								}
+							}
+							hide();
+						}
+					}
+				};
+				btnSteal.setRect(0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT);
+				add(btnSteal);
 
-                btnCancel.setRect( 0, btnSteal.bottom() + GAP, WIDTH, BTN_HEIGHT );
-            } else
-                btnCancel.setRect( 0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT );
+				btnCancel.setRect( 0, btnSteal.bottom() + GAP, WIDTH, BTN_HEIGHT );
+			} else
+				btnCancel.setRect( 0, btnBuy.bottom() + GAP, WIDTH, BTN_HEIGHT );
 
 			add( btnCancel );
 			

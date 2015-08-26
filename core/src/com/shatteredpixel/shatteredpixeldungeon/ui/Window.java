@@ -39,11 +39,11 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 	protected int height;
 	
 	protected TouchArea blocker;
-    protected ShadowBox shadow;
-    protected NinePatch chrome;
+	protected ShadowBox shadow;
+	protected NinePatch chrome;
 	
 	public static final int TITLE_COLOR = 0xFFFF44;
-    public static final int SHPX_COLOR = 0x33BB33;
+	public static final int SHPX_COLOR = 0x33BB33;
 	
 	public Window() {
 		this( 0, 0, Chrome.get( Chrome.Type.WINDOW ) );
@@ -75,11 +75,11 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 		this.width = width;
 		this.height = height;
 
-        shadow = new ShadowBox();
-        shadow.am = 0.5f;
-        shadow.camera = PixelScene.uiCamera.visible ?
-                PixelScene.uiCamera : Camera.main;
-        add( shadow );
+		shadow = new ShadowBox();
+		shadow.am = 0.5f;
+		shadow.camera = PixelScene.uiCamera.visible ?
+				PixelScene.uiCamera : Camera.main;
+		add( shadow );
 
 		chrome.x = -chrome.marginLeft();
 		chrome.y = -chrome.marginTop();
@@ -102,7 +102,7 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 				camera.y / camera.zoom,
 				chrome.width(), chrome.height );
 
-        Game.instance.getInputProcessor().addKeyListener(this);
+		Game.instance.getInputProcessor().addKeyListener(this);
 	}
 	
 	public void resize( int w, int h ) {

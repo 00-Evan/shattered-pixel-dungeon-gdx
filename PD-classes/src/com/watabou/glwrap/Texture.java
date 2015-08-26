@@ -98,7 +98,7 @@ public class Texture {
 		imageBuffer.position( 0 );
 		
 		Gdx.gl.glPixelStorei( GL20.GL_UNPACK_ALIGNMENT, 1 );
-	    
+
 		Gdx.gl.glTexImage2D(
 			GL20.GL_TEXTURE_2D,
 			0,

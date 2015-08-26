@@ -65,7 +65,7 @@ public class MageArmor extends ClassArmor {
 			}
 		}
 
-        curUser.HP -= (curUser.HP / 3);
+		curUser.HP -= (curUser.HP / 3);
 		
 		curUser.spend( Actor.TICK );
 		curUser.sprite.operate( curUser.pos );

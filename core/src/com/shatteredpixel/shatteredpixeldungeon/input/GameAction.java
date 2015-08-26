@@ -14,7 +14,7 @@ public enum GameAction {
 
 	BACKPACK("Backpack"),
 	QUICKSLOT_1("Left Quickslot"),
-    QUICKSLOT_2("Right Quickslot"),
+	QUICKSLOT_2("Right Quickslot"),
 
 	TAG_ATTACK("Attack"),
 	TAG_DANGER("Visible Enemies"),

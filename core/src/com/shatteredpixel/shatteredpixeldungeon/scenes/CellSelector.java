@@ -34,18 +34,18 @@ public class CellSelector extends TouchArea<GameAction> {
 	
 	public boolean enabled;
 
-    private float mouseZoom;
+	private float mouseZoom;
 	
 	private float dragThreshold;
 
-    private NoosaInputProcessor.Key<GameAction> pressedKey;
-    private float pressedKeySpeedFactor = 0.05f;
+	private NoosaInputProcessor.Key<GameAction> pressedKey;
+	private float pressedKeySpeedFactor = 0.05f;
 	
 	public CellSelector( DungeonTilemap map ) {
 		super( map );
 		camera = map.camera();
 
-        mouseZoom = camera.zoom;
+		mouseZoom = camera.zoom;
 		
 		dragThreshold = PixelScene.defaultZoom * DungeonTilemap.SIZE / 2;
 	}
@@ -67,17 +67,17 @@ public class CellSelector extends TouchArea<GameAction> {
 	@Override
 	public boolean onKeyDown(NoosaInputProcessor.Key<GameAction> key) {
 
-        switch (key.action) {
-        case ZOOM_IN:
-            zoom( camera.zoom + 1 );
-            return true;
-        case ZOOM_OUT:
-            zoom( camera.zoom - 1 );
-            return true;
-        case ZOOM_DEFAULT:
-            zoom( PixelScene.defaultZoom );
-            return true;
-        }
+		switch (key.action) {
+		case ZOOM_IN:
+			zoom( camera.zoom + 1 );
+			return true;
+		case ZOOM_OUT:
+			zoom( camera.zoom - 1 );
+			return true;
+		case ZOOM_DEFAULT:
+			zoom( PixelScene.defaultZoom );
+			return true;
+		}
 
 		boolean handled = true;
 		int x = 0, y = 0;
@@ -118,54 +118,54 @@ public class CellSelector extends TouchArea<GameAction> {
 		}
 
 		if (handled) {
-            CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
-            Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
+			CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
+			Point point = DungeonTilemap.tileToPoint(Dungeon.hero.pos);
 			point.x += x;
 			point.y += y;
-            pressedKey = key;
-            select(DungeonTilemap.pointToTile(point));
+			pressedKey = key;
+			select(DungeonTilemap.pointToTile(point));
 		}
 
 		return handled;
 	}
 
-    @Override
-    public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
-        if (pressedKey != null && key.action == pressedKey.action) {
-            resetKeyHold();
-        }
-        switch (key.code) {
+	@Override
+	public boolean onKeyUp( PDInputProcessor.Key<GameAction> key ) {
+		if (pressedKey != null && key.action == pressedKey.action) {
+			resetKeyHold();
+		}
+		switch (key.code) {
 		case PDInputProcessor.MODIFIER_KEY:
 			mouseZoom = zoom( Math.round( mouseZoom ) );
 			return true;
 		default:
 			return false;
-        }
-    }
+		}
+	}
 
-    public void processKeyHold(){
-        if (pressedKey != null) {
-            enabled = true;
-            pressedKeySpeedFactor -= 0.025f;
-            CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
-            onKeyDown(pressedKey);
-        }
-    }
+	public void processKeyHold(){
+		if (pressedKey != null) {
+			enabled = true;
+			pressedKeySpeedFactor -= 0.025f;
+			CharSprite.setMoveInterval(Math.max(0.1f, 0.1f + pressedKeySpeedFactor));
+			onKeyDown(pressedKey);
+		}
+	}
 
-    public void resetKeyHold(){
-        pressedKeySpeedFactor = 0.05f;
-        pressedKey = null;
-        CharSprite.setMoveInterval(0.1f);
-    }
+	public void resetKeyHold(){
+		pressedKeySpeedFactor = 0.05f;
+		pressedKey = null;
+		CharSprite.setMoveInterval(0.1f);
+	}
 
-    private float zoom( float value ) {
+	private float zoom( float value ) {
 
-        value = GameMath.gate( PixelScene.minZoom, value, PixelScene.maxZoom );
-        ShatteredPixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
-        camera.zoom( value );
+		value = GameMath.gate( PixelScene.minZoom, value, PixelScene.maxZoom );
+		ShatteredPixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
+		camera.zoom( value );
 
-        return value;
-    }
+		return value;
+	}
 
 	public void select( int cell ) {
 		if (enabled && listener != null && cell != -1) {
@@ -203,8 +203,8 @@ public class CellSelector extends TouchArea<GameAction> {
 
 			dragging = false;
 		} else if (t != touch) {
-            reset();
-        }
+			reset();
+		}
 	}
 	
 	@Override
@@ -231,14 +231,14 @@ public class CellSelector extends TouchArea<GameAction> {
 
 	@Override
 	public boolean onMouseScroll(int scroll) {
-        mouseZoom -= scroll / 3f;
-        if (PDInputProcessor.modifier) {
-            mouseZoom = zoom( mouseZoom );
-        } else {
-            zoom( Math.round( mouseZoom ) );
+		mouseZoom -= scroll / 3f;
+		if (PDInputProcessor.modifier) {
+			mouseZoom = zoom( mouseZoom );
+		} else {
+			zoom( Math.round( mouseZoom ) );
 			mouseZoom = GameMath.gate( PixelScene.minZoom, mouseZoom, PixelScene.maxZoom );
-        }
-        return true;
+		}
+		return true;
 	}
 
 	@Override
@@ -280,24 +280,24 @@ public class CellSelector extends TouchArea<GameAction> {
 		GameScene.ready();
 	}
 
-    @Override
-    public void reset() {
-        super.reset();
-        another = null;
-        if (pinching){
-            pinching = false;
+	@Override
+	public void reset() {
+		super.reset();
+		another = null;
+		if (pinching){
+			pinching = false;
 
-            int zoom = Math.round( camera.zoom );
-            camera.zoom( zoom );
-            ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
-        }
-    }
+			int zoom = Math.round( camera.zoom );
+			camera.zoom( zoom );
+			ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
+		}
+	}
 
-    public void enable(boolean value){
-        if (enabled != value){
-            enabled = value;
-        }
-    }
+	public void enable(boolean value){
+		if (enabled != value){
+			enabled = value;
+		}
+	}
 
 	public interface Listener {
 		void onSelect( Integer cell );

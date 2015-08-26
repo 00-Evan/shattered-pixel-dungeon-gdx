@@ -67,7 +67,7 @@ public class WndBag extends WndTabbed {
 		ENCHANTABLE,
 		WAND,
 		SEED,
-        FOOD,
+		FOOD,
 		POTION,
 		SCROLL,
 		EQUIPMENT
@@ -382,7 +382,7 @@ public class WndBag extends WndTabbed {
 						mode == Mode.ENCHANTABLE && (item instanceof MeleeWeapon || item instanceof Boomerang || item instanceof Armor) ||
 						mode == Mode.WAND && (item instanceof Wand) ||
 						mode == Mode.SEED && (item instanceof Seed) ||
-                        mode == Mode.FOOD && (item instanceof Food) ||
+						mode == Mode.FOOD && (item instanceof Food) ||
 						mode == Mode.POTION && (item instanceof Potion) ||
 						mode == Mode.SCROLL && (item instanceof Scroll) ||
 						mode == Mode.EQUIPMENT && (item instanceof EquipableItem) ||
@@ -413,11 +413,11 @@ public class WndBag extends WndTabbed {
 				
 			} else {
 
-                if (NoosaInputProcessor.modifier) {
-                    onLongClick();
-                } else {
-                    WndBag.this.add(new WndItem(WndBag.this, item));
-                }
+				if (NoosaInputProcessor.modifier) {
+					onLongClick();
+				} else {
+					WndBag.this.add(new WndItem(WndBag.this, item));
+				}
 				
 			}
 		}

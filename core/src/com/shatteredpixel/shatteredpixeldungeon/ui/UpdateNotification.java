@@ -23,197 +23,197 @@ import java.net.URL;
  */
 public class UpdateNotification extends Component {
 
-    //0 means no connection yet, -1 means connection failure.
-    private static int latestVersion = 0;
+	//0 means no connection yet, -1 means connection failure.
+	private static int latestVersion = 0;
 
-    private static boolean updateAvailable;
-    private static boolean latestIsUpdate;
-    private static String latestMessage;
-    private static String updateURL;
+	private static boolean updateAvailable;
+	private static boolean latestIsUpdate;
+	private static String latestMessage;
+	private static String updateURL;
 
-    private NinePatch panel;
-    private BitmapText updateMessage;
-    private TouchArea touchUpdate;
+	private NinePatch panel;
+	private BitmapText updateMessage;
+	private TouchArea touchUpdate;
 
-    private float alpha;
+	private float alpha;
 
-    //initially indev this thing always displayed even when it couldn't find an update.
-    //decided that was a little too annoying, but decided to keep the logic around.
-    //flip this flag to re-enable that old functionality, which is still in the code below.
-    private static boolean quiet = true;
+	//initially indev this thing always displayed even when it couldn't find an update.
+	//decided that was a little too annoying, but decided to keep the logic around.
+	//flip this flag to re-enable that old functionality, which is still in the code below.
+	private static boolean quiet = true;
 
-    public UpdateNotification(){
-        super();
-        if (latestVersion <= 1) {
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        int currentVersion = Game.versionCode;
+	public UpdateNotification(){
+		super();
+		if (latestVersion <= 1) {
+			Thread thread = new Thread() {
+				@Override
+				public void run() {
+					try {
+						int currentVersion = Game.versionCode;
 
-                        URL versionInfo = new URL("https://raw.githubusercontent.com/00-Evan/shattered-pixel-dungeon-gdx/master/desktop/VersionInfo.txt");
-                        BufferedReader inforeader = new BufferedReader(new InputStreamReader(versionInfo.openStream()));
+						URL versionInfo = new URL("https://raw.githubusercontent.com/00-Evan/shattered-pixel-dungeon-gdx/master/desktop/VersionInfo.txt");
+						BufferedReader inforeader = new BufferedReader(new InputStreamReader(versionInfo.openStream()));
 
-                        latestVersion = Integer.parseInt(inforeader.readLine());
+						latestVersion = Integer.parseInt(inforeader.readLine());
 
-                        if (latestVersion > currentVersion) {
-                            updateAvailable = true;
-                        } else {
-                            updateAvailable = false;
-                            updateMessage();
-                            return;
-                        }
+						if (latestVersion > currentVersion) {
+							updateAvailable = true;
+						} else {
+							updateAvailable = false;
+							updateMessage();
+							return;
+						}
 
-                        //Update vs Patch, where a patch just appends a letter and usually fixes bugs.
-                        int latestFullRelease = Integer.parseInt(inforeader.readLine());
-                        latestIsUpdate = (currentVersion < latestFullRelease);
+						//Update vs Patch, where a patch just appends a letter and usually fixes bugs.
+						int latestFullRelease = Integer.parseInt(inforeader.readLine());
+						latestIsUpdate = (currentVersion < latestFullRelease);
 
-                        // Affects visibility. Basically, if we don't have the latest update, grab its message,
-                        // otherwise grab the latest version's message, this way your told about an update
-                        // you don't have, even if the latest version is a patch.
-                        String latestVersionMessage = inforeader.readLine();
-                        String latestUpdateMessage = inforeader.readLine();
-                        latestMessage = latestIsUpdate ? latestUpdateMessage : latestVersionMessage;
+						// Affects visibility. Basically, if we don't have the latest update, grab its message,
+						// otherwise grab the latest version's message, this way your told about an update
+						// you don't have, even if the latest version is a patch.
+						String latestVersionMessage = inforeader.readLine();
+						String latestUpdateMessage = inforeader.readLine();
+						latestMessage = latestIsUpdate ? latestUpdateMessage : latestVersionMessage;
 
-                        updateURL = inforeader.readLine();
+						updateURL = inforeader.readLine();
 
-                        updateMessage();
+						updateMessage();
 
-                    } catch (Exception e) {
-                        latestVersion = -1;
-                        updateMessage();
-                    }
-                }
-            };
-            thread.start();
-        }
-    }
+					} catch (Exception e) {
+						latestVersion = -1;
+						updateMessage();
+					}
+				}
+			};
+			thread.start();
+		}
+	}
 
-    @Override
-    protected void createChildren() {
-        panel = Chrome.get(Chrome.Type.TOAST_TR);
-        add( panel );
+	@Override
+	protected void createChildren() {
+		panel = Chrome.get(Chrome.Type.TOAST_TR);
+		add( panel );
 
-        //updateMessage = new BitmapText("Checking Updates", PixelScene.font1x);
-        updateMessage = PixelScene.createText("Checking Updates", 9);
-        add(updateMessage);
+		//updateMessage = new BitmapText("Checking Updates", PixelScene.font1x);
+		updateMessage = PixelScene.createText("Checking Updates", 9);
+		add(updateMessage);
 
-        touchUpdate = new TouchArea( panel ){
-            @Override
-            protected void onClick( NoosaInputProcessor.Touch touch ) {
-                if (updateAvailable) {
-                    parent.add(new WndUpdate() );
-                    Sample.INSTANCE.play( Assets.SND_CLICK );
-                }
-            }
-        };
-        add(touchUpdate);
+		touchUpdate = new TouchArea( panel ){
+			@Override
+			protected void onClick( NoosaInputProcessor.Touch touch ) {
+				if (updateAvailable) {
+					parent.add(new WndUpdate() );
+					Sample.INSTANCE.play( Assets.SND_CLICK );
+				}
+			}
+		};
+		add(touchUpdate);
 
-        updateMessage();
-    }
+		updateMessage();
+	}
 
-    @Override
-    protected void layout() {
-        panel.x = this.x;
-        panel.y = this.y;
-        panel.alpha(alpha);
-        panel.visible = updateAvailable || !quiet;
+	@Override
+	protected void layout() {
+		panel.x = this.x;
+		panel.y = this.y;
+		panel.alpha(alpha);
+		panel.visible = updateAvailable || !quiet;
 
-        updateMessage.x = panel.x+panel.marginLeft();
-        updateMessage.y = panel.y+panel.marginTop();
-        updateMessage.measure();
-        updateMessage.alpha(alpha);
-        updateMessage.visible = updateAvailable || !quiet;
+		updateMessage.x = panel.x+panel.marginLeft();
+		updateMessage.y = panel.y+panel.marginTop();
+		updateMessage.measure();
+		updateMessage.alpha(alpha);
+		updateMessage.visible = updateAvailable || !quiet;
 
-        panel.size( panel.marginHor()+updateMessage.width(), panel.marginVer()+updateMessage.height()-1);
-        this.width = panel.width();
-        this.height = panel.height();
+		panel.size( panel.marginHor()+updateMessage.width(), panel.marginVer()+updateMessage.height()-1);
+		this.width = panel.width();
+		this.height = panel.height();
 
-    }
+	}
 
-    private void updateMessage(){
-        if (latestVersion == -1){
-            updateMessage.text("Connection Failed");
-            updateMessage.hardlight( 0xFFCC66 );
-            alpha = 1f;
-        } else if (latestVersion == 0){
-            updateMessage.text("Checking Updates");
-            updateMessage.hardlight( 0xFFFFFF );
-            alpha = 0.8f;
-        } else if (!updateAvailable){
-            updateMessage.text("Up to Date!");
-            updateMessage.hardlight( 0xFFFFFF );
-            alpha = 0.8f;
-        } else {
-            if (!latestIsUpdate){
-                updateMessage.text("Patch Available!");
-            } else {
-                updateMessage.text("Update Available!");
-            }
-            updateMessage.hardlight( Window.SHPX_COLOR );
-            alpha = 1f;
-        }
-        layout();
-    }
+	private void updateMessage(){
+		if (latestVersion == -1){
+			updateMessage.text("Connection Failed");
+			updateMessage.hardlight( 0xFFCC66 );
+			alpha = 1f;
+		} else if (latestVersion == 0){
+			updateMessage.text("Checking Updates");
+			updateMessage.hardlight( 0xFFFFFF );
+			alpha = 0.8f;
+		} else if (!updateAvailable){
+			updateMessage.text("Up to Date!");
+			updateMessage.hardlight( 0xFFFFFF );
+			alpha = 0.8f;
+		} else {
+			if (!latestIsUpdate){
+				updateMessage.text("Patch Available!");
+			} else {
+				updateMessage.text("Update Available!");
+			}
+			updateMessage.hardlight( Window.SHPX_COLOR );
+			alpha = 1f;
+		}
+		layout();
+	}
 
-    @Override
-    public void update() {
-        super.update();
+	@Override
+	public void update() {
+		super.update();
 
-        //connection failed
-        if (latestVersion == -1) {
-            alpha -= Game.elapsed/4f;
+		//connection failed
+		if (latestVersion == -1) {
+			alpha -= Game.elapsed/4f;
 
-        //up to date
-        } else if (!updateAvailable && latestVersion > 0){
-            alpha -= Game.elapsed/2f;
+		//up to date
+		} else if (!updateAvailable && latestVersion > 0){
+			alpha -= Game.elapsed/2f;
 
-        //update available
-        } else if (updateAvailable){
-            alpha = (float) (0.7f + Math.sin(Game.timeTotal*3)*0.3f);
-        }
+		//update available
+		} else if (updateAvailable){
+			alpha = (float) (0.7f + Math.sin(Game.timeTotal*3)*0.3f);
+		}
 
-        layout();
-        if (alpha <= 0f)
-            parent.remove( this );
-    }
+		layout();
+		if (alpha <= 0f)
+			parent.remove( this );
+	}
 
-    public static class WndUpdate extends WndOptions {
+	public static class WndUpdate extends WndOptions {
 
-        private static final String TTL_UPD = "An Update is Ready to Download!:";
-        private static final String TTL_PTH = "A Patch is Ready to Download!:";
+		private static final String TTL_UPD = "An Update is Ready to Download!:";
+		private static final String TTL_PTH = "A Patch is Ready to Download!:";
 
-        private static final String MSG_UPD = "%s\n" +
-                "\n" +
-                "Updates include new content, bugfixes, balance tweaks, and various small improvements.\n" +
-                "\n" +
-                "Simply download the new executable and run it to start playing on the latest version!";
+		private static final String MSG_UPD = "%s\n" +
+				"\n" +
+				"Updates include new content, bugfixes, balance tweaks, and various small improvements.\n" +
+				"\n" +
+				"Simply download the new executable and run it to start playing on the latest version!";
 
-        private static final String MSG_PTH = "%s\n" +
-                "\n" +
-                "Patches contain bugfixes, balance tweaks, and occasional bits of new content.\n" +
-                "\n" +
-                "Simply download the new executable and run it to start playing with the latest patch!";
+		private static final String MSG_PTH = "%s\n" +
+				"\n" +
+				"Patches contain bugfixes, balance tweaks, and occasional bits of new content.\n" +
+				"\n" +
+				"Simply download the new executable and run it to start playing with the latest patch!";
 
-        private static final String BTN_UPD = "Close Game and Download Update";
-        private static final String BTN_PTH = "Close Game and Download Patch";
+		private static final String BTN_UPD = "Close Game and Download Update";
+		private static final String BTN_PTH = "Close Game and Download Patch";
 
 
 
-        public WndUpdate(){
-            super(
-                    latestIsUpdate ? TTL_UPD : TTL_PTH,
-                    Utils.format((latestIsUpdate ? MSG_UPD : MSG_PTH), latestMessage),
-                    latestIsUpdate ? BTN_UPD : BTN_PTH);
-        }
+		public WndUpdate(){
+			super(
+					latestIsUpdate ? TTL_UPD : TTL_PTH,
+					Utils.format((latestIsUpdate ? MSG_UPD : MSG_PTH), latestMessage),
+					latestIsUpdate ? BTN_UPD : BTN_PTH);
+		}
 
-        @Override
-        protected void onSelect(int index) {
-            if (index == 0) {
-                Gdx.net.openURI("http://" + updateURL);
-                Game.instance.finish();
-            }
-        }
-    }
+		@Override
+		protected void onSelect(int index) {
+			if (index == 0) {
+				Gdx.net.openURI("http://" + updateURL);
+				Game.instance.finish();
+			}
+		}
+	}
 }
 

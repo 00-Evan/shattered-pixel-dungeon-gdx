@@ -71,7 +71,7 @@ public class VaultPainter extends Painter {
 		return Generator.random( Random.oneOf(
 			Generator.Category.WAND,
 			Generator.Category.RING,
-            Generator.Category.ARTIFACT
+			Generator.Category.ARTIFACT
 		) );
 	}
 }

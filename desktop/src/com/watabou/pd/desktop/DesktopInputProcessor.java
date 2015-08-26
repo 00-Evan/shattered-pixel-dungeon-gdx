@@ -168,7 +168,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 		DEFAULTS.put( GameAction.BACKPACK, new KeyPair( Input.Keys.I ) );
 		DEFAULTS.put( GameAction.QUICKSLOT_1, new KeyPair( Input.Keys.Q ) );
-        DEFAULTS.put( GameAction.QUICKSLOT_2, new KeyPair( Input.Keys.W ) );
+		DEFAULTS.put( GameAction.QUICKSLOT_2, new KeyPair( Input.Keys.W ) );
 
 		DEFAULTS.put( GameAction.TAG_ATTACK, new KeyPair( Input.Keys.A ) );
 		DEFAULTS.put( GameAction.TAG_DANGER, new KeyPair( Input.Keys.TAB ) );

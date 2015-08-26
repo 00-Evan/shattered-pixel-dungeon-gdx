@@ -168,7 +168,7 @@ public class Blacksmith extends NPC {
 			return "Select 2 different items, not the same item twice!";
 		}
 
-        if (item1.getClass() != item2.getClass()) {
+		if (item1.getClass() != item2.getClass()) {
 			return "Select 2 items of the same type!";
 		}
 		

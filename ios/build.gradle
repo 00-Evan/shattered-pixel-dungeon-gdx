@@ -13,15 +13,15 @@ ext {
 task copyNatives << {
   file("build/libs/ios/").mkdirs();
   configurations.natives.files.each { jar ->
-    def outputDir = null
-    if (jar.name.endsWith("natives-ios.jar")) outputDir = file("build/libs/ios")
-    if (outputDir != null) {
-      copy {
-        from zipTree(jar)
-        into outputDir
-        include "*.a"
-      }
-    }
+	def outputDir = null
+	if (jar.name.endsWith("natives-ios.jar")) outputDir = file("build/libs/ios")
+	if (outputDir != null) {
+	  copy {
+		from zipTree(jar)
+		into outputDir
+		include "*.a"
+	  }
+	}
   }
 }
 
@@ -30,7 +30,7 @@ task updateRoboVMXML << {
   def xml = file('robovm.xml')
 
   if (!xml.exists()) {
-    return
+	return
   }
   
   // Find all native (*.a) libraries beneath libs
@@ -38,10 +38,10 @@ task updateRoboVMXML << {
   
   def config = new groovy.util.XmlParser().parse(xml)
   config.libs.each {libs ->
-      libs.children().clear()
-      libtree.each { File file ->
-          libs.appendNode('lib', 'build/libs/ios/' + file.getName())
-      }
+	  libs.children().clear()
+	  libtree.each { File file ->
+		  libs.appendNode('lib', 'build/libs/ios/' + file.getName())
+	  }
   }
   
   def writer = new FileWriter(xml)
@@ -72,6 +72,6 @@ createIPA.dependsOn build
 
 
 eclipse.project {
-    name = appName + "-ios"
-    natures 'org.robovm.eclipse.RoboVMNature'
+	name = appName + "-ios"
+	natures 'org.robovm.eclipse.RoboVMNature'
 }

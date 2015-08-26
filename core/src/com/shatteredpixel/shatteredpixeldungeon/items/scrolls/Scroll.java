@@ -103,11 +103,11 @@ public abstract class Scroll extends Item {
 		syncVisuals();
 	}
 
-    @Override
-    public void syncVisuals(){
-        image = handler.image( this );
-        rune = handler.label( this );
-    };
+	@Override
+	public void syncVisuals(){
+		image = handler.image( this );
+		rune = handler.label( this );
+	};
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {

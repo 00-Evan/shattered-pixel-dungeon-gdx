@@ -62,8 +62,8 @@ public class Random {
 		float value = Float( sum );
 		sum = 0;
 		for (int i=0; i < length; i++) {
-            sum += chances[i];
-            if (value < sum) {
+			sum += chances[i];
+			if (value < sum) {
 				return i;
 			}
 		}

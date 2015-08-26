@@ -61,37 +61,37 @@ public class MissileWeapon extends Weapon {
 	protected void onThrow( int cell ) {
 		Char enemy = Actor.findChar( cell );
 		if (enemy == null || enemy == curUser) {
-            if (this instanceof Boomerang)
-                super.onThrow( cell );
-            else
-                miss( cell );
+			if (this instanceof Boomerang)
+				super.onThrow( cell );
+			else
+				miss( cell );
 		} else {
 			if (!curUser.shoot( enemy, this )) {
 				miss( cell );
 			} else if (!(this instanceof Boomerang)){
-                int bonus = 0;
+				int bonus = 0;
 
-                for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class))
-                    bonus += ((RingOfSharpshooting.Aim)buff).level;
+				for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class))
+					bonus += ((RingOfSharpshooting.Aim)buff).level;
 
 				if (curUser.heroClass == HeroClass.HUNTRESS && enemy.buff(PinCushion.class) == null)
 					bonus += 3;
 
-                if (Random.Float() > Math.pow(0.7, bonus))
-                    Buff.affect(enemy, PinCushion.class).stick(this);
-            }
+				if (Random.Float() > Math.pow(0.7, bonus))
+					Buff.affect(enemy, PinCushion.class).stick(this);
+			}
 		}
 	}
 	
 	protected void miss( int cell ) {
-        int bonus = 0;
-        for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class)) {
-            bonus += ((RingOfSharpshooting.Aim)buff).level;
-        }
+		int bonus = 0;
+		for (Buff buff : curUser.buffs(RingOfSharpshooting.Aim.class)) {
+			bonus += ((RingOfSharpshooting.Aim)buff).level;
+		}
 
 		//degraded ring of sharpshooting will even make missed shots break.
-        if (Random.Float() < Math.pow(0.6, -bonus))
-            super.onThrow( cell );
+		if (Random.Float() < Math.pow(0.6, -bonus))
+			super.onThrow( cell );
 	}
 	
 	@Override
@@ -100,9 +100,9 @@ public class MissileWeapon extends Weapon {
 		super.proc( attacker, defender, damage );
 		
 		Hero hero = (Hero)attacker;
-        if (hero.rangedWeapon == null && stackable) {
-            if (quantity == 1) {
-                doUnequip( hero, false, false );
+		if (hero.rangedWeapon == null && stackable) {
+			if (quantity == 1) {
+				doUnequip( hero, false, false );
 			} else {
 				detach( null );
 			}

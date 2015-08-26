@@ -217,7 +217,7 @@ public class LastShopLevel extends RegularLevel {
 	
 	@Override
 	public void addVisuals( Scene scene ) {
-        super.addVisuals( scene );
+		super.addVisuals( scene );
 		CityLevel.addVisuals( this, scene );
 	}
 }

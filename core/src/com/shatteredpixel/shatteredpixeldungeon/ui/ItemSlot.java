@@ -55,30 +55,30 @@ public class ItemSlot extends Button<GameAction> {
 	
 	private static final String TXT_STRENGTH	= ":%d";
 	private static final String TXT_TYPICAL_STR	= "%d?";
-    private static final String TXT_KEY_DEPTH	= "\u007F%d";
+	private static final String TXT_KEY_DEPTH	= "\u007F%d";
 
 	private static final String TXT_LEVEL	= "%+d";
-    private static final String TXT_CURSED    = "";//"-";
+	private static final String TXT_CURSED    = "";//"-";
 
-    // Special "virtual items"
+	// Special "virtual items"
 	public static final Item CHEST = new Item() {
 		public int image() { return ItemSpriteSheet.CHEST; };
 	};
 	public static final Item LOCKED_CHEST = new Item() {
 		public int image() { return ItemSpriteSheet.LOCKED_CHEST; };
 	};
-    public static final Item CRYSTAL_CHEST = new Item() {
-        public int image() { return ItemSpriteSheet.CRYSTAL_CHEST; };
-    };
+	public static final Item CRYSTAL_CHEST = new Item() {
+		public int image() { return ItemSpriteSheet.CRYSTAL_CHEST; };
+	};
 	public static final Item TOMB = new Item() {
 		public int image() { return ItemSpriteSheet.TOMB; };
 	};
 	public static final Item SKELETON = new Item() {
 		public int image() { return ItemSpriteSheet.BONES; };
 	};
-    public static final Item REMAINS = new Item() {
-        public int image() { return ItemSpriteSheet.REMAINS; };
-    };
+	public static final Item REMAINS = new Item() {
+		public int image() { return ItemSpriteSheet.REMAINS; };
+	};
 	
 	public ItemSlot() {
 		super();
@@ -172,9 +172,9 @@ public class ItemSlot extends Button<GameAction> {
 				topRight.measure();
 
 			} else if (item instanceof Key && !(item instanceof SkeletonKey)) {
-                topRight.text(Utils.format(TXT_KEY_DEPTH, ((Key) item).depth));
-                topRight.measure();
-            } else {
+				topRight.text(Utils.format(TXT_KEY_DEPTH, ((Key) item).depth));
+				topRight.measure();
+			} else {
 				
 				topRight.text( null );
 				
@@ -183,8 +183,8 @@ public class ItemSlot extends Button<GameAction> {
 			int level = item.visiblyUpgraded();
 
 			if (level != 0) {
-                bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );
-                bottomRight.measure();
+				bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );
+				bottomRight.measure();
 				bottomRight.hardlight( level > 0 ? UPGRADED : DEGRADED );
 			} else if (item instanceof Scroll || item instanceof Potion) {
 				if (item instanceof Scroll) bottomRight.text(((Scroll) item).initials());
@@ -217,14 +217,14 @@ public class ItemSlot extends Button<GameAction> {
 		bottomRight.alpha( alpha );
 	}
 
-    public void showParams( boolean TL, boolean TR, boolean BR ) {
-        if (TL) add( topLeft );
-        else remove( topLeft );
+	public void showParams( boolean TL, boolean TR, boolean BR ) {
+		if (TL) add( topLeft );
+		else remove( topLeft );
 
-        if (TR) add( topRight );
-        else remove( topRight );
+		if (TR) add( topRight );
+		else remove( topRight );
 
-        if (BR) add( bottomRight );
-        else remove( bottomRight );
-    }
+		if (BR) add( bottomRight );
+		else remove( bottomRight );
+	}
 }

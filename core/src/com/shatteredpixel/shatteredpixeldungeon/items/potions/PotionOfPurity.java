@@ -58,8 +58,8 @@ public class PotionOfPurity extends Potion {
 		Blob[] blobs = {
 			Dungeon.level.blobs.get( ToxicGas.class ),
 			Dungeon.level.blobs.get( ParalyticGas.class ),
-            Dungeon.level.blobs.get( ConfusionGas.class ),
-            Dungeon.level.blobs.get( StenchGas.class ),
+			Dungeon.level.blobs.get( ConfusionGas.class ),
+			Dungeon.level.blobs.get( StenchGas.class ),
 			Dungeon.level.blobs.get( VenomGas.class )
 		};
 		

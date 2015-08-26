@@ -65,7 +65,7 @@ public class Toolbar extends Component {
 			
 			@Override
 			protected void onClick() {
-                restOneTurn();
+				restOneTurn();
 			}
 			protected boolean onLongClick() {
 				restFull();
@@ -120,10 +120,10 @@ public class Toolbar extends Component {
 			private GoldIndicator gold;
 			@Override
 			protected void onClick() {
-                showBackpack();
+				showBackpack();
 			}
 
-            @Override
+			@Override
 			protected boolean onLongClick() {
 				showCatalogus();
 				return true;
@@ -163,8 +163,8 @@ public class Toolbar extends Component {
 		btnInfo.setPos( btnSearch.right(), y );
 		//btnResume.setPos( btnInfo.right(), y );
 		btnQuick2.setPos( width - btnQuick2.width(), y );
-        btnQuick.setPos( btnQuick2.left() - btnQuick.width(), y );
-        btnInventory.setPos( btnQuick.left() - btnInventory.width(), y );
+		btnQuick.setPos( btnQuick2.left() - btnQuick.width(), y );
+		btnInventory.setPos( btnQuick.left() - btnInventory.width(), y );
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class Toolbar extends Component {
 	private static CellSelector.Listener informer = new CellSelector.Listener() {
 		@Override
 		public void onSelect( Integer cell ) {
-            GameScene.examineCell( cell );
+			GameScene.examineCell( cell );
 		}
 		@Override
 		public String prompt() {
@@ -224,7 +224,7 @@ public class Toolbar extends Component {
 			this.width = width;
 			this.height = height;
 
-            this.hotKey = hotKey;
+			this.hotKey = hotKey;
 		}
 		
 		@Override

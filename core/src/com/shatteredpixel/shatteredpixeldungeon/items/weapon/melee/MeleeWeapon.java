@@ -92,8 +92,8 @@ public class MeleeWeapon extends Weapon {
 		
 		if (levelKnown) {
 			info.append( "Its average damage is " +
-                Math.round((MIN + (MAX - MIN) / 2)*(imbue == Imbue.LIGHT ? 0.75f : (imbue == Imbue.HEAVY ? 1.5f : 1)))
-                + " points per hit. " );
+				Math.round((MIN + (MAX - MIN) / 2)*(imbue == Imbue.LIGHT ? 0.75f : (imbue == Imbue.HEAVY ? 1.5f : 1)))
+				+ " points per hit. " );
 		} else {
 			info.append(
 				"Its typical average damage is " + (min() + (max() - min()) / 2) + " points per hit " +
@@ -116,16 +116,16 @@ public class MeleeWeapon extends Weapon {
 			info.append( " weapon. ");
 		} else if (ACU != 1f) {
 			info.append( "This is a rather " + (ACU > 1f ? "accurate" : "inaccurate") + " weapon. " );
-        }
-        switch (imbue) {
-            case LIGHT:
-                info.append( "It was balanced to be lighter. " );
-                break;
-            case HEAVY:
-                info.append( "It was balanced to be heavier. " );
-                break;
-            case NONE:
-        }
+		}
+		switch (imbue) {
+			case LIGHT:
+				info.append( "It was balanced to be lighter. " );
+				break;
+			case HEAVY:
+				info.append( "It was balanced to be heavier. " );
+				break;
+			case NONE:
+		}
 		
 		if (enchantment != null) {
 			info.append( "It is enchanted." );

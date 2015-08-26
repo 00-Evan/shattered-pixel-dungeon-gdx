@@ -73,8 +73,8 @@ public class Chasm {
 		Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 		if (buff != null) buff.detach();
 
-        for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
-            if (mob instanceof DriedRose.GhostHero) mob.destroy();
+		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
+			if (mob instanceof DriedRose.GhostHero) mob.destroy();
 		
 		if (Dungeon.hero.isAlive()) {
 			Dungeon.hero.interrupt();

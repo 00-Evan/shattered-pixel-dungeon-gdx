@@ -7,5 +7,5 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 
 
 eclipse.project {
-    name = appName + "-PD-classes"
+	name = appName + "-PD-classes"
 }

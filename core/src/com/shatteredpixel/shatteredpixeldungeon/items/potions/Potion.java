@@ -94,7 +94,7 @@ public class Potion extends Item {
 	
 	private String color;
 
-    public boolean ownedByFruit = false;
+	public boolean ownedByFruit = false;
 	
 	{
 		stackable = true;
@@ -120,11 +120,11 @@ public class Potion extends Item {
 		syncVisuals();
 	}
 
-    @Override
-    public void syncVisuals(){
-        image = handler.image( this );
-        color = handler.label( this );
-    };
+	@Override
+	public void syncVisuals(){
+		image = handler.image( this );
+		color = handler.label( this );
+	};
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -229,23 +229,23 @@ public class Potion extends Item {
 		}
 	}
 
-    @Override
-    public void cast( final Hero user, int dst ) {
-            super.cast(user, dst);
-    }
+	@Override
+	public void cast( final Hero user, int dst ) {
+			super.cast(user, dst);
+	}
 	
 	public boolean isKnown() {
 		return handler.isKnown( this );
 	}
 	
 	public void setKnown() {
-        if (!ownedByFruit) {
-            if (!isKnown()) {
-                handler.know(this);
-            }
+		if (!ownedByFruit) {
+			if (!isKnown()) {
+				handler.know(this);
+			}
 
-            Badges.validateAllPotionsIdentified();
-        }
+			Badges.validateAllPotionsIdentified();
+		}
 	}
 	
 	@Override
@@ -302,14 +302,14 @@ public class Potion extends Item {
 		final int color = ItemSprite.pick( image, 8, 10 );
 		Splash.at( cell, color, 5 );
 
-        Fire fire = (Fire)Dungeon.level.blobs.get( Fire.class );
-        if (fire != null)
-            fire.clear( cell );
+		Fire fire = (Fire)Dungeon.level.blobs.get( Fire.class );
+		if (fire != null)
+			fire.clear( cell );
 
-        Char ch = Actor.findChar(cell);
-        if (ch != null)
-            Buff.detach( ch, Burning.class );
-    }
+		Char ch = Actor.findChar(cell);
+		if (ch != null)
+			Buff.detach( ch, Burning.class );
+	}
 	
 	@Override
 	public int price() {

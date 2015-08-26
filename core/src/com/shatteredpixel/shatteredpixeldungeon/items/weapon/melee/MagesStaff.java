@@ -61,8 +61,8 @@ public class MagesStaff extends MeleeWeapon {
 
 	public MagesStaff(Wand wand){
 		this();
-        wand.identify();
-        wand.cursed = false;
+		wand.identify();
+		wand.cursed = false;
 		this.wand = wand;
 		wand.maxCharges = Math.min(wand.maxCharges + 1, 10);
 		wand.curCharges = wand.maxCharges;

@@ -8,5 +8,5 @@ import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
  */
 public abstract class KindofMisc extends EquipableItem {
 
-    public abstract void activate(Char ch);
+	public abstract void activate(Char ch);
 }

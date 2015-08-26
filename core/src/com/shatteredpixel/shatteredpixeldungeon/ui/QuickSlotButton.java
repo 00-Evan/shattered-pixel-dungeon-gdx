@@ -52,7 +52,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 		item( select( slotNum ) );
 
 		instance[slotNum] = this;
-        slot.hotKey = this.hotKey = hotKey;
+		slot.hotKey = this.hotKey = hotKey;
 	}
 
 	@Override
@@ -62,11 +62,11 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 		reset();
 	}
 
-    public static void reset() {
-        instance = new QuickSlotButton[4];
+	public static void reset() {
+		instance = new QuickSlotButton[4];
 
-        lastTarget = null;
-    }
+		lastTarget = null;
+	}
 	@Override
 	protected void createChildren() {
 		super.createChildren();
@@ -75,13 +75,13 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 			@Override
 			protected void onClick() {
 
-                if (!Dungeon.hero.isAlive())
-                    return;
+				if (!Dungeon.hero.isAlive())
+					return;
 
-                if (NoosaInputProcessor.modifier) {
-                    onLongClick();
-                    return;
-                }
+				if (NoosaInputProcessor.modifier) {
+					onLongClick();
+					return;
+				}
 
 				if (targeting) {
 					GameScene.handleCell( lastTarget.pos );
@@ -105,7 +105,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				icon.resetColor();
 			}
 		};
-        slot.showParams( true, false, true );
+		slot.showParams( true, false, true );
 		add( slot );
 
 		crossB = Icons.TARGET.get();

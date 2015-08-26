@@ -49,7 +49,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	public static float density = 1;
 	
 	public static String version;
-    public static int versionCode;
+	public static int versionCode;
 
 
 	private final String basePath;
@@ -72,7 +72,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
-    public static float timeTotal = 0f;
+	public static float timeTotal = 0f;
 
 	public Game( Class<? extends Scene> c, PDPlatformSupport<GameActionType> platformSupport ) {
 		super();
@@ -199,7 +199,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 			try {
 				requestedScene = ClassReflection.newInstance(sceneClass);
 				switchScene();
-            } catch (ReflectionException e) {
+			} catch (ReflectionException e) {
 				e.printStackTrace();
 			}
 		}

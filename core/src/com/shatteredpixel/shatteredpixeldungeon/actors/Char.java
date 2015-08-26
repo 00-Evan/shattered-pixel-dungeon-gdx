@@ -123,7 +123,7 @@ public abstract class Char extends Actor {
 			
 			// FIXME
 			int dr = this instanceof Hero && ((Hero)this).rangedWeapon != null && ((Hero)this).subClass ==
-                HeroSubClass.SNIPER ? 0 : Random.IntRange( 0, enemy.dr() );
+				HeroSubClass.SNIPER ? 0 : Random.IntRange( 0, enemy.dr() );
 			
 			int dmg = damageRoll();
 			int effectiveDamage = Math.max( dmg - dr, 0 );
@@ -248,11 +248,11 @@ public abstract class Char extends Actor {
 			return;
 		}
 		if (this.buff(Frost.class) != null){
-            Buff.detach( this, Frost.class );
-        }
-        if (this.buff(MagicalSleep.class) != null){
-            Buff.detach(this, MagicalSleep.class);
-        }
+			Buff.detach( this, Frost.class );
+		}
+		if (this.buff(MagicalSleep.class) != null){
+			Buff.detach(this, MagicalSleep.class);
+		}
 		
 		Class<?> srcClass = src.getClass();
 		if (immunities().contains( srcClass )) {

@@ -31,7 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem;
 
 public class Shopkeeper extends NPC {
 
-    public static final String TXT_THIEF = "Thief, Thief!";
+	public static final String TXT_THIEF = "Thief, Thief!";
 
 	{
 		name = "shopkeeper";

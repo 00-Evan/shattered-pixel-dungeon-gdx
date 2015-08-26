@@ -31,8 +31,8 @@ import com.watabou.utils.SparseArray;
 public class WndStory extends Window {
 
 	private static final int WIDTH_P = 120;
-    private static final int WIDTH_L = 144;
-    private static final int MARGIN = 6;
+	private static final int WIDTH_L = 144;
+	private static final int MARGIN = 6;
 	
 	private static final float bgR	= 0.77f;
 	private static final float bgG	= 0.73f;
@@ -49,9 +49,9 @@ public class WndStory extends Window {
 	static {
 		CHAPTERS.put( ID_SEWERS,
 		"The Dungeon lies right beneath the City, its upper levels actually constitute the City's sewer system.\n\n " +
-        "As dark energy has crept up from below the usually harmless sewer creatures have become more and more " +
-        "dangerous. The city sends guard patrols down here to try and maintain safety for those above, but " +
-        "they are slowly failing.\n\n This place is dangerous, but at least the evil magic at work here is weak." );
+		"As dark energy has crept up from below the usually harmless sewer creatures have become more and more " +
+		"dangerous. The city sends guard patrols down here to try and maintain safety for those above, but " +
+		"they are slowly failing.\n\n This place is dangerous, but at least the evil magic at work here is weak." );
 		
 		CHAPTERS.put( ID_PRISON,
 		"Many years ago an underground prison was built here for the most dangerous criminals. At the time it seemed " +
@@ -86,8 +86,8 @@ public class WndStory extends Window {
 		
 		tf = PixelScene.createMultiline( text, 7 );
 		tf.maxWidth = ShatteredPixelDungeon.landscape() ?
-                    WIDTH_L - MARGIN * 2:
-                    WIDTH_P - MARGIN *2;
+					WIDTH_L - MARGIN * 2:
+					WIDTH_P - MARGIN *2;
 		tf.measure();
 		tf.ra = bgR;
 		tf.ga = bgG;

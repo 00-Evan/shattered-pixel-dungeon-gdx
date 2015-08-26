@@ -51,14 +51,14 @@ public class TitleScene extends PixelScene {
 
 
 
-        int gameversion = ShatteredPixelDungeon.version();
+		int gameversion = ShatteredPixelDungeon.version();
 
-        if (gameversion != Game.versionCode) {
-            //new intro, make older players see it again.
-            if (gameversion < 9)
-                 ShatteredPixelDungeon.intro(true);
-            Game.switchScene(WelcomeScene.class);
-        }
+		if (gameversion != Game.versionCode) {
+			//new intro, make older players see it again.
+			if (gameversion < 9)
+				 ShatteredPixelDungeon.intro(true);
+			Game.switchScene(WelcomeScene.class);
+		}
 
 		
 		Music.INSTANCE.play( Assets.THEME, true );
@@ -73,7 +73,7 @@ public class TitleScene extends PixelScene {
 		archs.setSize( w, h );
 		add( archs );
 
-        Image title = BannerSprites.get( BannerSprites.Type.PIXEL_DUNGEON );
+		Image title = BannerSprites.get( BannerSprites.Type.PIXEL_DUNGEON );
 		add( title );
 
 		float height = title.height +
@@ -94,19 +94,19 @@ public class TitleScene extends PixelScene {
 			}
 			@Override
 			public void draw() {
-                Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
-                super.draw();
-                Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
-            }
-        };
-        signs.x = title.x;
+				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+				super.draw();
+				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+			}
+		};
+		signs.x = title.x;
 		signs.y = title.y;
 		add( signs );
 		
 		DashboardItem btnBadges = new DashboardItem( TXT_BADGES, 3 ) {
 			@Override
 			protected void onClick() {
-                ShatteredPixelDungeon.switchNoFade( BadgesScene.class );
+				ShatteredPixelDungeon.switchNoFade( BadgesScene.class );
 			}
 		};
 		add( btnBadges );
@@ -114,15 +114,15 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnAbout = new DashboardItem( TXT_ABOUT, 1 ) {
 			@Override
 			protected void onClick() {
-                ShatteredPixelDungeon.switchNoFade( AboutScene.class );
+				ShatteredPixelDungeon.switchNoFade( AboutScene.class );
 			}
 		};
 		add( btnAbout );
 
-        DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
+		DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
 			@Override
 			protected void onClick() {
-                ShatteredPixelDungeon.switchNoFade( StartScene.class );
+				ShatteredPixelDungeon.switchNoFade( StartScene.class );
 			}
 		};
 		add( btnPlay );
@@ -130,7 +130,7 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnHighscores = new DashboardItem( TXT_HIGHSCORES, 2 ) {
 			@Override
 			protected void onClick() {
-                ShatteredPixelDungeon.switchNoFade( RankingsScene.class );
+				ShatteredPixelDungeon.switchNoFade( RankingsScene.class );
 			}
 		};
 		add( btnHighscores );
@@ -148,32 +148,32 @@ public class TitleScene extends PixelScene {
 			btnHighscores.setPos( w / 2, btnPlay.top() );
 		}
 
-        BitmapText source = new BitmapText( "PD v 1.7.5", font1x );
-        source.measure();
-        source.hardlight( 0x444444 );
-        source.x = w - source.width();
-        source.y = h - source.height();
-        add( source );
+		BitmapText source = new BitmapText( "PD v 1.7.5", font1x );
+		source.measure();
+		source.hardlight( 0x444444 );
+		source.x = w - source.width();
+		source.y = h - source.height();
+		add( source );
 
-        BitmapText version = new BitmapText( "v " + Game.version + "", font1x );
-        version.measure();
-        version.hardlight( 0xCCCCCC );
-        version.x = w - version.width();
-        version.y = h - version.height() - source.height();
+		BitmapText version = new BitmapText( "v " + Game.version + "", font1x );
+		version.measure();
+		version.hardlight( 0xCCCCCC );
+		version.x = w - version.width();
+		version.y = h - version.height() - source.height();
 
-        add( version );
+		add( version );
 		
 		PrefsButton btnPrefs = new PrefsButton();
 		btnPrefs.setPos( 0, 0 );
 		add( btnPrefs );
 
-        ExitButton btnExit = new ExitButton();
-        btnExit.setPos( w - btnExit.width(), 0 );
-        add( btnExit );
+		ExitButton btnExit = new ExitButton();
+		btnExit.setPos( w - btnExit.width(), 0 );
+		add( btnExit );
 
-        UpdateNotification updInfo = new UpdateNotification();
-        updInfo.setPos(0, h-updInfo.height());
-        add(updInfo);
+		UpdateNotification updInfo = new UpdateNotification();
+		updInfo.setPos(0, h-updInfo.height());
+		add(updInfo);
 
 		fadeIn();
 	}

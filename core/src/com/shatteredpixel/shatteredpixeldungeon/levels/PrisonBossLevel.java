@@ -305,7 +305,7 @@ public class PrisonBossLevel extends RegularLevel {
 		if (ch == Dungeon.hero && !enteredArena && roomExit.inside( cell )) {
 			
 			enteredArena = true;
-            seal();
+			seal();
 		
 			int pos;
 			do {

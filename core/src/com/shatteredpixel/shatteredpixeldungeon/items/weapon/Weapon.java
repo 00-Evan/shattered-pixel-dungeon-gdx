@@ -51,10 +51,10 @@ public class Weapon extends KindOfWeapon {
 	public float	ACU	= 1;	// Accuracy modifier
 	public float	DLY	= 1f;	// Speed modifier
 
-    public enum Imbue {
-        NONE, LIGHT, HEAVY
-    }
-    public Imbue imbue = Imbue.NONE;
+	public enum Imbue {
+		NONE, LIGHT, HEAVY
+	}
+	public Imbue imbue = Imbue.NONE;
 
 	private int hitsToKnow = HITS_TO_KNOW;
 	
@@ -85,7 +85,7 @@ public class Weapon extends KindOfWeapon {
 		super.storeInBundle( bundle );
 		bundle.put( UNFAMILIRIARITY, hitsToKnow );
 		bundle.put( ENCHANTMENT, enchantment );
-        bundle.put( IMBUE, imbue );
+		bundle.put( IMBUE, imbue );
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class Weapon extends KindOfWeapon {
 			hitsToKnow = HITS_TO_KNOW;
 		}
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
-        imbue = bundle.getEnum( IMBUE, Imbue.class );
+		imbue = bundle.getEnum( IMBUE, Imbue.class );
 	}
 	
 	@Override
@@ -103,7 +103,7 @@ public class Weapon extends KindOfWeapon {
 		
 		int encumbrance = STR - hero.STR();
 
-        float ACU = this.ACU;
+		float ACU = this.ACU;
 		
 		if (this instanceof MissileWeapon) {
 			switch (hero.heroClass) {
@@ -115,14 +115,14 @@ public class Weapon extends KindOfWeapon {
 				break;
 			default:
 			}
-            int bonus = 0;
-            for (Buff buff : hero.buffs(RingOfSharpshooting.Aim.class)) {
-                bonus += ((RingOfSharpshooting.Aim)buff).level;
-            }
-            ACU *= (float)(Math.pow(1.1, bonus));
+			int bonus = 0;
+			for (Buff buff : hero.buffs(RingOfSharpshooting.Aim.class)) {
+				bonus += ((RingOfSharpshooting.Aim)buff).level;
+			}
+			ACU *= (float)(Math.pow(1.1, bonus));
 		}
 
-        return encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU;
+		return encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU;
 	}
 	
 	@Override
@@ -133,17 +133,17 @@ public class Weapon extends KindOfWeapon {
 			encumrance -= 2;
 		}
 
-        float DLY = this.DLY * (imbue == Imbue.LIGHT ? 0.667f : (imbue == Imbue.HEAVY ? 1.667f : 1.0f));
+		float DLY = this.DLY * (imbue == Imbue.LIGHT ? 0.667f : (imbue == Imbue.HEAVY ? 1.667f : 1.0f));
 
-        int bonus = 0;
-        for (Buff buff : hero.buffs(RingOfFuror.Furor.class)) {
-            bonus += ((RingOfFuror.Furor)buff).level;
-        }
+		int bonus = 0;
+		for (Buff buff : hero.buffs(RingOfFuror.Furor.class)) {
+			bonus += ((RingOfFuror.Furor)buff).level;
+		}
 
-        DLY = (float)(0.25 + (DLY - 0.25)*Math.pow(0.8, bonus));
+		DLY = (float)(0.25 + (DLY - 0.25)*Math.pow(0.8, bonus));
 
-        return
-                (encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY);
+		return
+				(encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY);
 	}
 	
 	@Override

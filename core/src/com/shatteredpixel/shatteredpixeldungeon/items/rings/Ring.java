@@ -45,17 +45,17 @@ public class Ring extends KindofMisc {
 	protected Buff buff;
 	
 	private static final Class<?>[] rings = {
-        RingOfAccuracy.class,
-        RingOfEvasion.class,
-        RingOfElements.class,
-        RingOfForce.class,
-        RingOfFuror.class,
-        RingOfHaste.class,
+		RingOfAccuracy.class,
+		RingOfEvasion.class,
+		RingOfElements.class,
+		RingOfForce.class,
+		RingOfFuror.class,
+		RingOfHaste.class,
 		RingOfMagic.class,
 		RingOfMight.class,
-        RingOfSharpshooting.class,
-        RingOfTenacity.class,
-        RingOfWealth.class,
+		RingOfSharpshooting.class,
+		RingOfTenacity.class,
+		RingOfWealth.class,
 	};
 	private static final String[] gems =
 		{"diamond", "opal", "garnet", "ruby", "amethyst", "topaz", "onyx", "tourmaline", "emerald", "sapphire", "quartz", "agate"};
@@ -95,7 +95,7 @@ public class Ring extends KindofMisc {
 	
 	public Ring() {
 		super();
-        syncVisuals();
+		syncVisuals();
 	}
 	
 	public void syncVisuals() {
@@ -148,27 +148,27 @@ public class Ring extends KindofMisc {
 		buff.attachTo( ch );
 	}
 
-    @Override
-    public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
-        if (super.doUnequip( hero, collect, single )) {
+	@Override
+	public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
+		if (super.doUnequip( hero, collect, single )) {
 
-            if (hero.belongings.misc1 == this) {
-                hero.belongings.misc1 = null;
-            } else {
-                hero.belongings.misc2 = null;
-            }
+			if (hero.belongings.misc1 == this) {
+				hero.belongings.misc1 = null;
+			} else {
+				hero.belongings.misc2 = null;
+			}
 
-            hero.remove( buff );
-            buff = null;
+			hero.remove( buff );
+			buff = null;
 
-            return true;
+			return true;
 
-        } else {
+		} else {
 
-            return false;
+			return false;
 
-        }
-    }
+		}
+	}
 	
 	@Override
 	public boolean isEquipped( Hero hero ) {
@@ -259,7 +259,7 @@ public class Ring extends KindofMisc {
 			level = -n;
 			cursed = true;
 		} else
-            level = n;
+			level = n;
 
 		return this;
 	}

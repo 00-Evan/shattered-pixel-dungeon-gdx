@@ -82,29 +82,29 @@ public class PoolPainter extends Painter {
 	
 	private static Item prize( Level level ) {
 
-        Item prize;
+		Item prize;
 
-        if (Random.Int(3) != 0){
-            prize = level.findPrizeItem();
-            if (prize != null)
-                return prize;
-        }
+		if (Random.Int(3) != 0){
+			prize = level.findPrizeItem();
+			if (prize != null)
+				return prize;
+		}
 
-        prize = Generator.random( Random.oneOf(
-                Generator.Category.WEAPON,
-                Generator.Category.ARMOR
-        ) );
+		prize = Generator.random( Random.oneOf(
+				Generator.Category.WEAPON,
+				Generator.Category.ARMOR
+		) );
 
-        for (int i=0; i < 4; i++) {
-            Item another = Generator.random( Random.oneOf(
-                    Generator.Category.WEAPON,
-                    Generator.Category.ARMOR
-            ) );
-            if (another.level > prize.level) {
-                prize = another;
-            }
-        }
+		for (int i=0; i < 4; i++) {
+			Item another = Generator.random( Random.oneOf(
+					Generator.Category.WEAPON,
+					Generator.Category.ARMOR
+			) );
+			if (another.level > prize.level) {
+				prize = another;
+			}
+		}
 
-        return prize;
+		return prize;
 	}
 }

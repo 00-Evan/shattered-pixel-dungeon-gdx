@@ -84,7 +84,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 		Game.version = platformSupport.getVersion();
 
-        Game.versionCode = platformSupport.getVersionCode();
+		Game.versionCode = platformSupport.getVersionCode();
 
 	}
 	
@@ -109,16 +109,16 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				Assets.SND_BADGE,
 				Assets.SND_GOLD,
 
-                Assets.SND_STEP,
-                Assets.SND_WATER,
-                Assets.SND_OPEN,
-                Assets.SND_UNLOCK,
-                Assets.SND_ITEM,
-                Assets.SND_DEWDROP,
-                Assets.SND_HIT,
-                Assets.SND_MISS,
+				Assets.SND_STEP,
+				Assets.SND_WATER,
+				Assets.SND_OPEN,
+				Assets.SND_UNLOCK,
+				Assets.SND_ITEM,
+				Assets.SND_DEWDROP,
+				Assets.SND_HIT,
+				Assets.SND_MISS,
 
-                Assets.SND_DESCEND,
+				Assets.SND_DESCEND,
 				Assets.SND_EAT,
 				Assets.SND_READ,
 				Assets.SND_LULLABY,
@@ -256,13 +256,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		return Preferences.INSTANCE.getInt( Preferences.KEY_LAST_CLASS, 0 );
 	}
 
-    public static void challenges( int value ) {
-        Preferences.INSTANCE.put( Preferences.KEY_CHALLENGES, value );
-    }
+	public static void challenges( int value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_CHALLENGES, value );
+	}
 
-    public static int challenges() {
-        return Preferences.INSTANCE.getInt( Preferences.KEY_CHALLENGES, 0 );
-    }
+	public static int challenges() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_CHALLENGES, 0 );
+	}
 
 	public static void quickSlots( int value ){ Preferences.INSTANCE.put( Preferences.KEY_QUICKSLOTS, value ); }
 
@@ -276,13 +276,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_INTRO, true );
 	}
 
-    public static void version( int value)  {
-        Preferences.INSTANCE.put( Preferences.KEY_VERSION, value );
-    }
+	public static void version( int value)  {
+		Preferences.INSTANCE.put( Preferences.KEY_VERSION, value );
+	}
 
-    public static int version() {
-        return Preferences.INSTANCE.getInt( Preferences.KEY_VERSION, 0 );
-    }
+	public static int version() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_VERSION, 0 );
+	}
 
 	public static void switchNoFade( Class<? extends PixelScene> c ) {
 		PixelScene.noFade = true;

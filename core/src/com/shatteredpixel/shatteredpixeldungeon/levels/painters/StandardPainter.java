@@ -149,36 +149,36 @@ public class StandardPainter extends Painter {
 		}
 	}
 
-    //TODO: this is almost a special room type now, consider moving this into its own painter if/when you address room gen significantly.
+	//TODO: this is almost a special room type now, consider moving this into its own painter if/when you address room gen significantly.
 	private static void paintStudy( Level level, Room room ) {
 		fill( level, room.left + 1, room.top + 1, room.width() - 1, room.height() - 1 , Terrain.BOOKSHELF );
 		fill( level, room.left + 2, room.top + 2, room.width() - 3, room.height() - 3 , Terrain.EMPTY_SP );
 
-        for (Point door : room.connected.values()) {
-            if (door.x == room.left) {
-                set( level, door.x + 1, door.y, Terrain.EMPTY );
-            } else if (door.x == room.right) {
-                set( level, door.x - 1, door.y, Terrain.EMPTY );
-            } else if (door.y == room.top) {
-                set( level, door.x, door.y + 1, Terrain.EMPTY );
-            } else if (door.y == room.bottom) {
-                set( level, door.x , door.y - 1, Terrain.EMPTY );
-            }
-        }
+		for (Point door : room.connected.values()) {
+			if (door.x == room.left) {
+				set( level, door.x + 1, door.y, Terrain.EMPTY );
+			} else if (door.x == room.right) {
+				set( level, door.x - 1, door.y, Terrain.EMPTY );
+			} else if (door.y == room.top) {
+				set( level, door.x, door.y + 1, Terrain.EMPTY );
+			} else if (door.y == room.bottom) {
+				set( level, door.x , door.y - 1, Terrain.EMPTY );
+			}
+		}
 		Point center = room.center();
 		set( level, center, Terrain.PEDESTAL );
-        if (Random.Int(2) != 0){
-            Item prize = level.findPrizeItem();
-            if (prize != null) {
-                level.drop(prize, (room.center().x + center.y * level.WIDTH));
-                return;
-            }
-        }
+		if (Random.Int(2) != 0){
+			Item prize = level.findPrizeItem();
+			if (prize != null) {
+				level.drop(prize, (room.center().x + center.y * level.WIDTH));
+				return;
+			}
+		}
 
-        level.drop(Generator.random( Random.oneOf(
-                Generator.Category.POTION,
-                Generator.Category.SCROLL)), (room.center().x + center.y * level.WIDTH));
-    }
+		level.drop(Generator.random( Random.oneOf(
+				Generator.Category.POTION,
+				Generator.Category.SCROLL)), (room.center().x + center.y * level.WIDTH));
+	}
 	
 	private static void paintBridge( Level level, Room room ) {
 		

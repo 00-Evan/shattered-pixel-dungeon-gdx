@@ -272,7 +272,7 @@ public class GameScene extends PixelScene {
 			GLog.i( TXT_WELCOME_BACK, Dungeon.depth );
 		else
 			GLog.i( TXT_WELCOME, Dungeon.depth );
-        Sample.INSTANCE.play( Assets.SND_DESCEND );
+		Sample.INSTANCE.play( Assets.SND_DESCEND );
 		switch (Dungeon.level.feeling) {
 		case CHASM:
 			GLog.w( TXT_CHASM );
@@ -344,7 +344,7 @@ public class GameScene extends PixelScene {
 				} else if (item instanceof Plant.Seed) {
 					Dungeon.level.plant( (Plant.Seed)item, pos );
 				} else if (item instanceof Honeypot) {
-                    Dungeon.level.drop(((Honeypot) item).shatter(null, pos), pos);
+					Dungeon.level.drop(((Honeypot) item).shatter(null, pos), pos);
 				} else {
 					Dungeon.level.drop( item, pos );
 				}
@@ -355,14 +355,14 @@ public class GameScene extends PixelScene {
 		Camera.main.target = hero;
 		fadeIn();
 
-        selectCell( defaultCellListener );
+		selectCell( defaultCellListener );
 	}
 	
 	public void destroy() {
 		
 		freezeEmitters = false;
 
-        scene = null;
+		scene = null;
 		Badges.saveGlobal();
 		
 		super.destroy();
@@ -396,19 +396,19 @@ public class GameScene extends PixelScene {
 
 		if (tagAttack != attack.active || tagLoot != loot.visible || tagResume != resume.visible) {
 
-            boolean atkAppearing = attack.active && !tagAttack;
-            boolean lootAppearing = loot.visible && !tagLoot;
-            boolean resAppearing = resume.visible && !tagResume;
+			boolean atkAppearing = attack.active && !tagAttack;
+			boolean lootAppearing = loot.visible && !tagLoot;
+			boolean resAppearing = resume.visible && !tagResume;
 
 			tagAttack = attack.active;
 			tagLoot = loot.visible;
 			tagResume = resume.visible;
 
 			if (atkAppearing || lootAppearing || resAppearing)
-                layoutTags();
+				layoutTags();
 		}
 
-        cellSelector.enable(Dungeon.hero.ready);
+		cellSelector.enable(Dungeon.hero.ready);
 	}
 
 	private boolean tagAttack    = false;
@@ -665,7 +665,7 @@ public class GameScene extends PixelScene {
 	}
 	
 	private static boolean cancelCellSelector() {
-        cellSelector.resetKeyHold();
+		cellSelector.resetKeyHold();
 		if (cellSelector.listener != null && cellSelector.listener != defaultCellListener) {
 			cellSelector.cancel();
 			return true;
@@ -712,59 +712,59 @@ public class GameScene extends PixelScene {
 		QuickSlotButton.cancel();
 	}
 
-    public static void checkKeyHold(){
-        cellSelector.processKeyHold();
-    }
+	public static void checkKeyHold(){
+		cellSelector.processKeyHold();
+	}
 
-    public static void examineCell( Integer cell ) {
-        if (cell == null) {
-            return;
-        }
+	public static void examineCell( Integer cell ) {
+		if (cell == null) {
+			return;
+		}
 
-        if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
-            GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
-            return;
-        }
+		if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
+			GameScene.show( new WndMessage( "You don't know what is there." ) ) ;
+			return;
+		}
 
-	    if (cell == Dungeon.hero.pos) {
-		    GameScene.show( new WndHero() );
-		    return;
-	    }
+		if (cell == Dungeon.hero.pos) {
+			GameScene.show( new WndHero() );
+			return;
+		}
 
-	    if (Dungeon.visible[cell]) {
+		if (Dungeon.visible[cell]) {
 
-	        Mob mob = (Mob)Actor.findChar( cell );
-	        if (mob != null) {
-	            GameScene.show( new WndInfoMob( mob ) );
-	            return;
-	        }
+			Mob mob = (Mob)Actor.findChar( cell );
+			if (mob != null) {
+				GameScene.show( new WndInfoMob( mob ) );
+				return;
+			}
 
-	        Heap heap = Dungeon.level.heaps.get( cell );
-	        if (heap != null) {
-	            if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-	                GameScene.show( new WndTradeItem( heap, false ) );
-	            } else {
-	                GameScene.show( new WndInfoItem( heap ) );
-	            }
-	            return;
-	        }
+			Heap heap = Dungeon.level.heaps.get( cell );
+			if (heap != null) {
+				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
+					GameScene.show( new WndTradeItem( heap, false ) );
+				} else {
+					GameScene.show( new WndInfoItem( heap ) );
+				}
+				return;
+			}
 
-	    }
+		}
 
-	    Plant plant = Dungeon.level.plants.get( cell );
-	    if (plant != null) {
-		    GameScene.show( new WndInfoPlant( plant ) );
-		    return;
-	    }
+		Plant plant = Dungeon.level.plants.get( cell );
+		if (plant != null) {
+			GameScene.show( new WndInfoPlant( plant ) );
+			return;
+		}
 
-	    Trap trap = Dungeon.level.traps.get( cell );
-	    if (trap != null && trap.visible) {
-		    GameScene.show( new WndInfoTrap( trap ));
-		    return;
-	    }
+		Trap trap = Dungeon.level.traps.get( cell );
+		if (trap != null && trap.visible) {
+			GameScene.show( new WndInfoTrap( trap ));
+			return;
+		}
 
-	    GameScene.show( new WndInfoCell( cell ) );
-    }
+		GameScene.show( new WndInfoCell( cell ) );
+	}
 	
 	private static final CellSelector.Listener defaultCellListener = new CellSelector.Listener() {
 		@Override

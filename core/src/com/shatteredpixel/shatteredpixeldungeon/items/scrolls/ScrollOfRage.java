@@ -40,12 +40,12 @@ public class ScrollOfRage extends Scroll {
 	@Override
 	protected void doRead() {
 
-        for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-            mob.beckon( curUser.pos );
-            if (Level.fieldOfView[mob.pos]) {
-                Buff.prolong(mob, Amok.class, 5f);
-            }
-        }
+		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
+			mob.beckon( curUser.pos );
+			if (Level.fieldOfView[mob.pos]) {
+				Buff.prolong(mob, Amok.class, 5f);
+			}
+		}
 
 		for (Heap heap : Dungeon.level.heaps.values()) {
 			if (heap.type == Heap.Type.MIMIC) {

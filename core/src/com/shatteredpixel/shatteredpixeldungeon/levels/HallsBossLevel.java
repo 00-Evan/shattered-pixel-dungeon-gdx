@@ -206,7 +206,7 @@ public class HallsBossLevel extends Level {
 		
 		if (!keyDropped && item instanceof SkeletonKey) {
 			keyDropped = true;
-            unseal();
+			unseal();
 			
 			entrance = stairs;
 			set( entrance, Terrain.ENTRANCE );

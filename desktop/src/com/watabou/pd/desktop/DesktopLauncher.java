@@ -19,12 +19,12 @@ public class DesktopLauncher {
 			version = "???";
 		}
 
-        int versionCode;
-        try {
-            versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
-        } catch (NumberFormatException e) {
-            versionCode = 0;
-        }
+		int versionCode;
+		try {
+			versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
+		} catch (NumberFormatException e) {
+			versionCode = 0;
+		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
@@ -33,12 +33,12 @@ public class DesktopLauncher {
 		} else if (SharedLibraryLoader.isLinux) {
 			config.preferencesDirectory = ".shatteredpixel/shattered-pixel-dungeon/";
 		} else if (SharedLibraryLoader.isWindows) {
-            String winVer = System.getProperties().getProperty("os.name");
-            if (winVer.contains("XP")) {
-                config.preferencesDirectory = "Application Data/.shatteredpixel/Shattered Pixel Dungeon/";
-            } else {
-                config.preferencesDirectory = "AppData/Roaming/.shatteredpixel/Shattered Pixel Dungeon/";
-            }
+			String winVer = System.getProperties().getProperty("os.name");
+			if (winVer.contains("XP")) {
+				config.preferencesDirectory = "Application Data/.shatteredpixel/Shattered Pixel Dungeon/";
+			} else {
+				config.preferencesDirectory = "AppData/Roaming/.shatteredpixel/Shattered Pixel Dungeon/";
+			}
 		}
 		// FIXME: This is a hack to get access to the preferences before we have an application setup
 		com.badlogic.gdx.Preferences prefs = new LwjglPreferences(Preferences.FILE_NAME, config.preferencesDirectory);
@@ -70,7 +70,7 @@ public class DesktopLauncher {
 		@Override
 		public boolean isFullscreenEnabled() {
 		//	return Display.getPixelScaleFactor() == 1f;
-            return !SharedLibraryLoader.isMac;
+			return !SharedLibraryLoader.isMac;
 		}
 	}
 }

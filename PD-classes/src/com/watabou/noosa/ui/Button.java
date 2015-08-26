@@ -96,24 +96,24 @@ public class Button<T> extends Component {
 	protected void onTouchUp() {};
 	protected void onClick() {};
 
-    protected boolean onLongClick() {
-        return false;
-    };
+	protected boolean onLongClick() {
+		return false;
+	};
 
 	protected boolean onKeyDown(NoosaInputProcessor.Key<T> key) {
 		return false;
 	}
 	protected boolean onKeyUp(NoosaInputProcessor.Key<T> key) {
 		if (active && hotKey != null && key.action.equals(hotKey)) {
-            if (NoosaInputProcessor.modifier) {
-                return onLongClick();
-            } else {
-                onClick();
-                return true;
-            }
-        } else {
-            return false;
-        }
+			if (NoosaInputProcessor.modifier) {
+				return onLongClick();
+			} else {
+				onClick();
+				return true;
+			}
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

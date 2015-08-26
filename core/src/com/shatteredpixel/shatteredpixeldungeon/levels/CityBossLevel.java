@@ -177,7 +177,7 @@ public class CityBossLevel extends Level {
 		if (!enteredArena && outsideEntraceRoom( cell ) && hero == Dungeon.hero) {
 			
 			enteredArena = true;
-            seal();
+			seal();
 			
 			Mob boss = Bestiary.mob( Dungeon.depth );
 			boss.state = boss.HUNTING;
@@ -208,7 +208,7 @@ public class CityBossLevel extends Level {
 		if (!keyDropped && item instanceof SkeletonKey) {
 			
 			keyDropped = true;
-            unseal();
+			unseal();
 			
 			set( arenaDoor, Terrain.DOOR );
 			GameScene.updateMap( arenaDoor );

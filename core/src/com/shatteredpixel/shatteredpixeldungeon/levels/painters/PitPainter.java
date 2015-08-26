@@ -60,8 +60,8 @@ public class PitPainter extends Painter {
 		if (loot == 0) {
 			level.drop( Generator.random( Generator.Category.RING ), remains );
 		} else if (loot == 1) {
-            level.drop( Generator.random( Generator.Category.ARTIFACT ), remains );
-        } else {
+			level.drop( Generator.random( Generator.Category.ARTIFACT ), remains );
+		} else {
 			level.drop( Generator.random( Random.oneOf(
 				Generator.Category.WEAPON,
 				Generator.Category.ARMOR
@@ -77,10 +77,10 @@ public class PitPainter extends Painter {
 	private static Item prize( Level level ) {
 		
 		if (Random.Int(2) != 0){
-            Item prize = level.findPrizeItem();
-            if (prize != null)
-                return prize;
-        }
+			Item prize = level.findPrizeItem();
+			if (prize != null)
+				return prize;
+		}
 		
 		return Generator.random( Random.oneOf(
 			Generator.Category.POTION,

@@ -34,7 +34,7 @@ abstract public class ClassArmor extends Armor {
 		cursedKnown = true;
 		defaultAction = special();
 
-        bones = false;
+		bones = false;
 	}
 	
 	public ClassArmor() {

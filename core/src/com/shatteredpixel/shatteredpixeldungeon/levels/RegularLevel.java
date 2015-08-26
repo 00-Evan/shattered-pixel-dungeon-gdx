@@ -148,14 +148,14 @@ public abstract class RegularLevel extends Level {
 		if (Dungeon.bossLevel( Dungeon.depth + 1 )) {
 			specials.remove( Room.Type.WEAK_FLOOR );
 		}
-        if (Dungeon.isChallenged( Challenges.NO_ARMOR )){
-            //no sense in giving an armor reward room on a run with no armor.
-            specials.remove( Room.Type.CRYPT );
-        }
-        if (Dungeon.isChallenged( Challenges.NO_HERBALISM )){
-            //sorry warden, no lucky sungrass or blandfruit seeds for you!
-            specials.remove( Room.Type.GARDEN );
-        }
+		if (Dungeon.isChallenged( Challenges.NO_ARMOR )){
+			//no sense in giving an armor reward room on a run with no armor.
+			specials.remove( Room.Type.CRYPT );
+		}
+		if (Dungeon.isChallenged( Challenges.NO_HERBALISM )){
+			//sorry warden, no lucky sungrass or blandfruit seeds for you!
+			specials.remove( Room.Type.GARDEN );
+		}
 		if (!assignRoomType())
 			return false;
 		
@@ -653,12 +653,12 @@ public abstract class RegularLevel extends Level {
 	protected void createItems() {
 		
 		int nItems = 3;
-        int bonus = 0;
-        for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
-            bonus += ((RingOfWealth.Wealth) buff).level;
-        }
-        //just incase someone gets a ridiculous ring, cap this at 80%
-        bonus = Math.min(bonus, 10);
+		int bonus = 0;
+		for (Buff buff : Dungeon.hero.buffs(RingOfWealth.Wealth.class)) {
+			bonus += ((RingOfWealth.Wealth) buff).level;
+		}
+		//just incase someone gets a ridiculous ring, cap this at 80%
+		bonus = Math.min(bonus, 10);
 		while (Random.Float() < (0.3f + bonus*0.05f)) {
 			nItems++;
 		}

@@ -105,7 +105,7 @@ public class WndTabbed extends Window {
 	}
 
 	public void layoutTabs(){
-        //subract two as there's extra horizontal space for those nobs on the top.
+		//subract two as there's extra horizontal space for those nobs on the top.
 		int fullWidth = width+chrome.marginHor()-2;
 		int numTabs = tabs.size();
 

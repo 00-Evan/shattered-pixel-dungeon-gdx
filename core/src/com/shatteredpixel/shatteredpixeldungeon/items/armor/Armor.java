@@ -107,7 +107,7 @@ public class Armor extends EquipableItem {
 			
 			((HeroSprite)hero.sprite).updateArmor();
 
-            hero.spendAndNext( 2 * time2equip( hero ) );
+			hero.spendAndNext( 2 * time2equip( hero ) );
 			return true;
 			
 		} else {
@@ -118,26 +118,26 @@ public class Armor extends EquipableItem {
 		}
 	}
 
-    @Override
-    protected float time2equip( Hero hero ) {
-        return hero.speed();
-    }
+	@Override
+	protected float time2equip( Hero hero ) {
+		return hero.speed();
+	}
 
-    @Override
-    public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
-        if (super.doUnequip( hero, collect, single )) {
+	@Override
+	public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
+		if (super.doUnequip( hero, collect, single )) {
 
-            hero.belongings.armor = null;
-            ((HeroSprite)hero.sprite).updateArmor();
+			hero.belongings.armor = null;
+			((HeroSprite)hero.sprite).updateArmor();
 
-            return true;
+			return true;
 
-        } else {
+		} else {
 
-            return false;
+			return false;
 
-        }
-    }
+		}
+	}
 	
 	@Override
 	public boolean isEquipped( Hero hero ) {
@@ -306,18 +306,18 @@ public class Armor extends EquipableItem {
 		return price;
 	}
 
-    public Armor inscribe( Glyph glyph ) {
+	public Armor inscribe( Glyph glyph ) {
 
-        if (glyph != null && this.glyph == null) {
-            DR += tier;
-        } else if (glyph == null && this.glyph != null) {
-            DR -= tier;
-        }
+		if (glyph != null && this.glyph == null) {
+			DR += tier;
+		} else if (glyph == null && this.glyph != null) {
+			DR -= tier;
+		}
 
-        this.glyph = glyph;
+		this.glyph = glyph;
 
-        return this;
-    }
+		return this;
+	}
 
 	public Armor inscribe() {
 

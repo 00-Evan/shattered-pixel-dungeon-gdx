@@ -52,12 +52,12 @@ public class IronKey extends Key {
 		return result;
 	}
 
-    @Override
-    public void onDetach( ) {
-        if (depth == Dungeon.depth) {
-            Dungeon.hero.belongings.countIronKeys();
-        }
-    }
+	@Override
+	public void onDetach( ) {
+		if (depth == Dungeon.depth) {
+			Dungeon.hero.belongings.countIronKeys();
+		}
+	}
 	
 	@Override
 	public String toString() {

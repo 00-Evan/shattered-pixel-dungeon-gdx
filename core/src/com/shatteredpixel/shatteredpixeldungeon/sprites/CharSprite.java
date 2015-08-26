@@ -90,7 +90,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 
 	public Char ch;
 
-    public boolean isMoving = false;
+	public boolean isMoving = false;
 	
 	public CharSprite() {
 		super();
@@ -145,7 +145,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		motion.listener = this;
 		parent.add( motion );
 
-        isMoving = true;
+		isMoving = true;
 		
 		turnTo( from , to );
 		
@@ -153,12 +153,12 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 			GameScene.ripple( from );
 		}
 
-        ch.onMotionComplete();
+		ch.onMotionComplete();
 	}
 
-    public static void setMoveInterval( float interval){
-        moveInterval = interval;
-    }
+	public static void setMoveInterval( float interval){
+		moveInterval = interval;
+	}
 	
 	public void interruptMotion() {
 		if (motion != null) {
@@ -384,7 +384,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 			}
 			emo = new EmoIcon.Sleep( this );
 		}
-        idle();
+		idle();
 	}
 	
 	public void hideSleep() {

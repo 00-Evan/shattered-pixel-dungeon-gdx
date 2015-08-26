@@ -92,12 +92,12 @@ public class HeroSprite extends CharSprite {
 	}
 
 	@Override
-    public void jump( int from, int to, Callback callback ) {
+	public void jump( int from, int to, Callback callback ) {
 		super.jump( from, to, callback );
-        play( fly );
-    }
+		play( fly );
+	}
 
-    @Override
+	@Override
 	public void update() {
 		sleeping = ((Hero)ch).restoreHealth;
 		

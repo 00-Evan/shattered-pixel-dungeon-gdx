@@ -4,13 +4,13 @@ import com.watabou.input.NoosaInputProcessor;
 
 public class PDPlatformSupport<GameActionType> {
 	private final String version;
-    private final int versionCode;
+	private final int versionCode;
 	private final String basePath;
 	private final NoosaInputProcessor<GameActionType> inputProcessor;
 
 	public PDPlatformSupport(String version, int versionCode, String basePath, NoosaInputProcessor<GameActionType> inputProcessor) {
 		this.version = version;
-        this.versionCode = versionCode;
+		this.versionCode = versionCode;
 		this.basePath = basePath;
 		this.inputProcessor = inputProcessor;
 	}
@@ -19,7 +19,7 @@ public class PDPlatformSupport<GameActionType> {
 		return version;
 	}
 
-    public int getVersionCode() { return versionCode; }
+	public int getVersionCode() { return versionCode; }
 
 	public String getBasePath() {
 		return basePath;

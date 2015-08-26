@@ -62,19 +62,19 @@ public class Matrix {
 		m[1] = m1 * cos + m5 * sin;
 		m[4] = -m0 * sin + m4 * cos;
 		m[5] = -m1 * sin + m5 * cos;
-    }
+	}
 	
 	public static void skewX( float[] m, float a ) {
 		double t = Math.tan( a * G2RAD );
 		m[4] += -m[0] * t;
 		m[5] += -m[1] * t;
-    }
+	}
 	
 	public static void skewY( float[] m, float a ) {
 		double t = Math.tan( a * G2RAD );
 		m[0] += m[4] * t;
 		m[1] += m[5] * t;
-    }
+	}
 	
 	public static void scale( float[] m, float x, float y ) {
 		m[0] *= x;

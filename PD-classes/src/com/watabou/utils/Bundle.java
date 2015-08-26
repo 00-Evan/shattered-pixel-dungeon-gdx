@@ -276,11 +276,11 @@ public class Bundle {
 		JSONArray array = new JSONArray();
 		for (Bundlable object : collection) {
 			if (object != null) {
-                Bundle bundle = new Bundle();
-                bundle.put(CLASS_NAME, object.getClass().getName());
-                object.storeInBundle(bundle);
-                array.put(bundle.data);
-            }
+				Bundle bundle = new Bundle();
+				bundle.put(CLASS_NAME, object.getClass().getName());
+				object.storeInBundle(bundle);
+				array.put(bundle.data);
+			}
 		}
 		try {
 			data.put( key, array );
@@ -289,18 +289,18 @@ public class Bundle {
 		}
 	}
 
-    public static Bundle read( InputStream stream ) throws IOException {
+	public static Bundle read( InputStream stream ) throws IOException {
 
-        try {
-            BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
-            JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
-            reader.close();
+		try {
+			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
+			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
+			reader.close();
 
-            return new Bundle( json );
-        } catch (Exception e) {
+			return new Bundle( json );
+		} catch (Exception e) {
 			throw new IOException();
-        }
-    }
+		}
+	}
 	
 	public static Bundle read( byte[] bytes ) {
 		try {
@@ -313,17 +313,17 @@ public class Bundle {
 		}
 	}
 
-    public static boolean write( Bundle bundle, OutputStream stream ) {
-        try {
-            BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );
-            writer.write( bundle.data.toString() );
-            writer.close();
+	public static boolean write( Bundle bundle, OutputStream stream ) {
+		try {
+			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );
+			writer.write( bundle.data.toString() );
+			writer.close();
 
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
 	
 	public static void addAlias( Class<?> cl, String alias ) {
 		aliases.put( alias, cl.getName() );

@@ -101,13 +101,13 @@ public class TrapsPainter extends Painter {
 	
 	private static Item prize( Level level ) {
 
-        Item prize;
+		Item prize;
 
-        if (Random.Int(4) != 0){
-            prize = level.findPrizeItem();
-            if (prize != null)
-                return prize;
-        }
+		if (Random.Int(4) != 0){
+			prize = level.findPrizeItem();
+			if (prize != null)
+				return prize;
+		}
 		
 		prize = Generator.random( Random.oneOf(
 			Generator.Category.WEAPON,

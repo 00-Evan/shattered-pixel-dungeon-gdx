@@ -4,8 +4,8 @@
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.badlogic.gdx.controllers.controllers-gwt' />
 
-    <inherits name='PD-classes' />
-    <inherits name='ShatteredPixelDungeon' />
+	<inherits name='PD-classes' />
+	<inherits name='ShatteredPixelDungeon' />
 	<entry-point class='com.shatteredpixel.shatteredpixeldungeon.client.HtmlLauncher' />
 	
 	<add-linker name="xsiframe"/>

@@ -27,7 +27,7 @@ public class ShadowBox extends NinePatch {
 	
 	public ShadowBox() {
 		super( Assets.SHADOW, 1 );
-        texture.filter( TextureFilter.Linear, TextureFilter.Linear );
+		texture.filter( TextureFilter.Linear, TextureFilter.Linear );
 		
 		scale.set( SIZE, SIZE );
 	}

@@ -1,10 +1,10 @@
 canvas {
-    cursor: default;
-    outline: none;
+	cursor: default;
+	outline: none;
 }
 
 body {
-    background-color: #ffffff;
+	background-color: #ffffff;
 }
 
 .superdev {
@@ -61,7 +61,7 @@ body {
 .superdev::before {
 	background-color:#2591b4;
 	background-image:url(refresh.png);
-    background-size: 12px;
+	background-size: 12px;
 	background-repeat:no-repeat;
 	background-position:center center;
 	content:"";
