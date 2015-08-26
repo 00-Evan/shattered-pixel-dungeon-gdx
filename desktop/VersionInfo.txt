@@ -1,5 +1,5 @@
-44
+46
 40
-v0.3.0c
+v0.3.0e
 v0.3.0: The Wand Rework!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.0c/ShatteredPD.Desktop.v0.3.0c.jar
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.0e/ShatteredPD.Desktop.v0.3.0e.jar
