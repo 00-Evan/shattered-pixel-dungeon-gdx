@@ -47,7 +47,10 @@ public class Bomb extends Item {
 	{
 		name = "bomb";
 		image = ItemSpriteSheet.BOMB;
+
 		defaultAction = AC_LIGHTTHROW;
+		usesTargeting = true;
+
 		stackable = true;
 	}
 
@@ -110,7 +113,7 @@ public class Bomb extends Item {
 		//We're blowing up, so no need for a fuse anymore.
 		this.fuse = null;
 
-		Sample.INSTANCE.play( Assets.SND_BLAST, 2 );
+		Sample.INSTANCE.play( Assets.SND_BLAST );
 
 		if (Dungeon.visible[cell]) {
 			CellEmitter.center( cell ).burst( BlastParticle.FACTORY, 30 );
@@ -147,8 +150,7 @@ public class Bomb extends Item {
 					}
 
 					if (ch == Dungeon.hero && !ch.isAlive())
-						//constant is used here in the rare instance a player is killed by a double bomb.
-						Dungeon.fail(Utils.format(ResultDescriptions.ITEM, "bomb"));
+						Dungeon.fail("Killed by an explosion");
 				}
 			}
 		}

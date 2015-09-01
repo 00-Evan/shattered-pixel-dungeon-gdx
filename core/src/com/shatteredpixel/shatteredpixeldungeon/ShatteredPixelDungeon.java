@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
@@ -37,7 +38,7 @@ import com.watabou.utils.Signal;
 public class ShatteredPixelDungeon extends Game<GameAction> {
 
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
-		super( TitleScene.class, platformSupport );
+		super(TitleScene.class, platformSupport);
 
 		// 0.2.4
 		com.watabou.utils.Bundle.addAlias(
@@ -77,13 +78,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFlock" );
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class,
-				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfAvalanche" );
+				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfAvalanche");
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class,
-				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlink" );
+				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlink");
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile.class,
-				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTeleportation" );
+				"com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTeleportation");
 
 		Game.version = platformSupport.getVersion();
 
@@ -100,12 +101,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 		final Preferences prefs = Preferences.INSTANCE;
 		if (prefs.getBoolean(Preferences.KEY_LANDSCAPE, false) != landscape) {
-			landscape( !landscape );
+			landscape(!landscape);
 		}
 		fullscreen( prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false) );
 		
 		Music.INSTANCE.enable( music() );
 		Sample.INSTANCE.enable( soundFx() );
+		Sample.INSTANCE.volume( SFXVol()/10f );
 
 		Sample.INSTANCE.load(
 				Assets.SND_CLICK,
@@ -205,13 +207,12 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		return Gdx.graphics.isFullscreen();
 	}
 	
-	public static void scaleUp( boolean value ) {
-		Preferences.INSTANCE.put( Preferences.KEY_SCALE_UP, value );
-		switchScene( TitleScene.class );
+	public static void scale( int value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_SCALE, value );
 	}
 	
-	public static boolean scaleUp() {
-		return Preferences.INSTANCE.getBoolean( Preferences.KEY_SCALE_UP, true );
+	public static int scale() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_SCALE, 0 );
 	}
 
 	public static void zoom( int value ) {
@@ -224,11 +225,20 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	
 	public static void music( boolean value ) {
 		Music.INSTANCE.enable( value );
+		Music.INSTANCE.volume( musicVol()/10f );
 		Preferences.INSTANCE.put( Preferences.KEY_MUSIC, value );
 	}
 	
 	public static boolean music() {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_MUSIC, true );
+	}
+
+	public static void musicVol( int value ){
+		Preferences.INSTANCE.put( Preferences.KEY_MUSIC_VOL, value );
+	}
+
+	public static int musicVol(){
+		return Preferences.INSTANCE.getInt( Preferences.KEY_MUSIC_VOL, 10 );
 	}
 	
 	public static void soundFx( boolean value ) {
@@ -239,16 +249,24 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public static boolean soundFx() {
 		return Preferences.INSTANCE.getBoolean( Preferences.KEY_SOUND_FX, true );
 	}
+
+	public static void SFXVol( int value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_SFX_VOL, value );
+	}
+
+	public static int SFXVol() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_SFX_VOL, 10 );
+	}
 	
-	public static void brightness( boolean value ) {
+	public static void brightness( int value ) {
 		Preferences.INSTANCE.put( Preferences.KEY_BRIGHTNESS, value );
 		if (scene() instanceof GameScene) {
 			((GameScene)scene()).brightness( value );
 		}
 	}
 	
-	public static boolean brightness() {
-		return Preferences.INSTANCE.getBoolean( Preferences.KEY_BRIGHTNESS, false );
+	public static int brightness() {
+		return Preferences.INSTANCE.getInt( Preferences.KEY_BRIGHTNESS, 0 );
 	}
 
 	public static void lastClass( int value ) {
@@ -269,7 +287,33 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 	public static void quickSlots( int value ){ Preferences.INSTANCE.put( Preferences.KEY_QUICKSLOTS, value ); }
 
-	public static int quickSlots(){ return 2; }
+	public static int quickSlots(){
+		if (Gdx.app.getType() == Application.ApplicationType.Desktop){
+			return 4;
+		} else {
+			return Preferences.INSTANCE.getInt(Preferences.KEY_QUICKSLOTS, 2);
+		}
+	}
+
+	public static void flipToolbar( boolean value) {
+		Preferences.INSTANCE.put(Preferences.KEY_FLIPTOOLBAR, value );
+	}
+
+	public static boolean flipToolbar(){ return Preferences.INSTANCE.getBoolean(Preferences.KEY_FLIPTOOLBAR, false); }
+
+	public static void flipTags( boolean value) {
+		Preferences.INSTANCE.put(Preferences.KEY_FLIPTAGS, value );
+	}
+
+	public static boolean flipTags(){ return Preferences.INSTANCE.getBoolean(Preferences.KEY_FLIPTAGS, false); }
+
+	public static void toolbarMode( String value ) {
+		Preferences.INSTANCE.put( Preferences.KEY_BARMODE, value );
+	}
+
+	public static String toolbarMode() {
+		return Preferences.INSTANCE.getString(Preferences.KEY_BARMODE, !landscape() ? "SPLIT" : "GROUP");
+	}
 	
 	public static void intro( boolean value ) {
 		Preferences.INSTANCE.put( Preferences.KEY_INTRO, value );

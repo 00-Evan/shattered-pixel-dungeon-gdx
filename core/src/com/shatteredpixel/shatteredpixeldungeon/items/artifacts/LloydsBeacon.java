@@ -88,6 +88,7 @@ public class LloydsBeacon extends Artifact {
 		chargeCap = 3+level;
 
 		defaultAction = AC_ZAP;
+		usesTargeting = true;
 	}
 	
 	private static final String DEPTH	= "depth";
@@ -213,6 +214,7 @@ public class LloydsBeacon extends Artifact {
 					ScrollOfTeleportation.teleportHero(curUser);
 					curUser.spendAndNext( 1f );
 				} else {
+					Sample.INSTANCE.play( Assets.SND_ZAP );
 					curUser.sprite.zap(bolt.collisionPos);
 					curUser.busy();
 
@@ -230,7 +232,7 @@ public class LloydsBeacon extends Artifact {
 									}
 								} while (pos == -1);
 
-								if (pos == -1) {
+								if (pos == -1 || Dungeon.bossLevel()) {
 
 									GLog.w(ScrollOfTeleportation.TXT_NO_TELEPORT);
 

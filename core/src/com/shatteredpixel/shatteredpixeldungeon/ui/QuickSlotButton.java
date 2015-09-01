@@ -21,6 +21,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
@@ -36,7 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 
 public class QuickSlotButton extends Button<GameAction> implements WndBag.Listener {
 
-	private static final String TXT_SELECT_ITEM = "Select an item for the quickslot";
+	private static final String TXT_SELECT_ITEM = "Select an item to quickslot";
 	
 	private static QuickSlotButton[] instance = new QuickSlotButton[4];
 	private int slotNum;
@@ -47,7 +50,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	private static Image crossM;
 
 	private static boolean targeting = false;
-	private static Char lastTarget= null;
+	public static Char lastTarget = null;
 
 	public QuickSlotButton( int slotNum, GameAction hotKey ) {
 		super();
@@ -87,10 +90,17 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				}
 
 				if (targeting) {
-					GameScene.handleCell( lastTarget.pos );
+					int cell = autoAim(lastTarget);
+
+					if (cell != -1){
+						GameScene.handleCell(cell);
+					} else {
+						//couldn't auto-aim, just target the position and hope for the best.
+						GameScene.handleCell( lastTarget.pos );
+					}
 				} else {
 					Item item = select(slotNum);
-					if (item instanceof EquipableItem)
+					if (item.usesTargeting)
 						useTargeting();
 					item.execute( Dungeon.hero );
 				}
@@ -185,6 +195,23 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				lastTarget = null;
 			}
 		}
+	}
+
+	public static int autoAim(Char target){
+		//first try to directly target
+		if (new Ballistica(Dungeon.hero.pos, target.pos, Ballistica.PROJECTILE).collisionPos == target.pos) {
+			return target.pos;
+		}
+
+		//Otherwise pick nearby tiles to try and 'angle' the shot, auto-aim basically.
+		for (int i : Level.NEIGHBOURS9DIST2) {
+			if (new Ballistica(Dungeon.hero.pos, target.pos+i, Ballistica.PROJECTILE).collisionPos == target.pos){
+				return target.pos+i;
+			}
+		}
+
+		//couldn't find a cell, give up.
+		return -1;
 	}
 
 	public static void refresh() {

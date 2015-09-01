@@ -103,6 +103,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
@@ -163,7 +164,7 @@ public class Hero extends Char {
 	
 	private Item theKey;
 	
-	public boolean restoreHealth = false;
+	public boolean resting = false;
 
 	public MissileWeapon rangedWeapon = null;
 	public Belongings belongings;
@@ -433,13 +434,9 @@ public class Hero extends Char {
 		
 		if (curAction == null) {
 			
-			if (restoreHealth) {
-				if (isStarving() || HP >= HT || Dungeon.level.locked) {
-					restoreHealth = false;
-				} else {
-					spend( TIME_TO_REST ); next();
-					return false;
-				}
+			if (resting) {
+				spend( TIME_TO_REST ); next();
+				return false;
 			}
 
 			ready();
@@ -447,7 +444,7 @@ public class Hero extends Char {
 			
 		} else {
 			
-			restoreHealth = false;
+			resting = false;
 			
 			ready = false;
 			
@@ -857,12 +854,12 @@ public class Hero extends Char {
 		}
 	}
 	
-	public void rest( boolean tillHealthy ) {
+	public void rest( boolean fullRest ) {
 		spendAndNext( TIME_TO_REST );
-		if (!tillHealthy) {
+		if (!fullRest) {
 			sprite.showStatus( CharSprite.DEFAULT, TXT_WAIT );
 		}
-		restoreHealth = tillHealthy;
+		resting = fullRest;
 	}
 	
 	@Override
@@ -914,10 +911,10 @@ public class Hero extends Char {
 		if (buff(TimekeepersHourglass.timeStasis.class) != null)
 			return;
 
-		restoreHealth = false;
-
-		if (!(src instanceof Hunger || src instanceof Viscosity.DeferedDamage) && damageInterrupt)
+		if (!(src instanceof Hunger || src instanceof Viscosity.DeferedDamage) && damageInterrupt) {
 			interrupt();
+			resting = false;
+		}
 
 		if (this.buff(Drowsy.class) != null){
 			Buff.detach(this, Drowsy.class);
@@ -944,22 +941,37 @@ public class Hero extends Char {
 	}
 	
 	private void checkVisibleMobs() {
-		ArrayList<Mob> visible = new ArrayList<Mob>();
+		ArrayList<Mob> visible = new ArrayList<>();
 
 		boolean newMob = false;
-		
+
+		Mob target = null;
 		for (Mob m : Dungeon.level.mobs) {
 			if (Level.fieldOfView[ m.pos ] && m.hostile) {
-				visible.add( m );
+				visible.add(m);
 				if (!visibleEnemies.contains( m )) {
 					newMob = true;
 				}
+
+				if (QuickSlotButton.autoAim(m) != -1){
+					if (target == null){
+						target = m;
+					} else if (distance(target) > distance(m)) {
+						target = m;
+					}
+				}
 			}
+		}
+
+		if (target != null && (QuickSlotButton.lastTarget == null ||
+							!QuickSlotButton.lastTarget.isAlive() ||
+							!Dungeon.visible[QuickSlotButton.lastTarget.pos])){
+			QuickSlotButton.target(target);
 		}
 		
 		if (newMob) {
 			interrupt();
-			restoreHealth = false;
+			resting = false;
 		}
 		
 		visibleEnemies = visible;
@@ -1013,9 +1025,8 @@ public class Hero extends Char {
 		
 		if (step != -1) {
 
-			int oldPos = pos;
+			sprite.move(pos, step);
 			move(step);
-			sprite.move(oldPos, pos);
 			spend( 1 / speed() );
 			
 			return true;

@@ -61,6 +61,7 @@ public class MagesStaff extends MeleeWeapon {
 		image = ItemSpriteSheet.MAGES_STAFF;
 
 		defaultAction = AC_ZAP;
+		usesTargeting = true;
 
 		unique = true;
 		bones = false;
@@ -193,7 +194,7 @@ public class MagesStaff extends MeleeWeapon {
 			wand.upgrade();
 			//gives the wand one additional charge
 			wand.maxCharges = Math.min(wand.maxCharges + 1, 10);
-			wand.curCharges = curCharges+1;
+			wand.curCharges = Math.min(wand.curCharges + 1, 10);
 			updateQuickslot();
 		}
 

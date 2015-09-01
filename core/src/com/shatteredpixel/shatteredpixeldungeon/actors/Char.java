@@ -247,7 +247,7 @@ public abstract class Char extends Actor {
 	
 	public void damage( int dmg, Object src ) {
 		
-		if (HP <= 0) {
+		if (HP <= 0 || dmg < 0) {
 			return;
 		}
 		if (this.buff(Frost.class) != null){
@@ -403,9 +403,14 @@ public abstract class Char extends Actor {
 	public void move( int step ) {
 
 		if (Level.adjacent( step, pos ) && buff( Vertigo.class ) != null) {
-			step = pos + Level.NEIGHBOURS8[Random.Int( 8 )];
-			if (!(Level.passable[step] || Level.avoid[step]) || Actor.findChar( step ) != null)
+			sprite.interruptMotion();
+			int newPos = pos + Level.NEIGHBOURS8[Random.Int( 8 )];
+			if (!(Level.passable[newPos] || Level.avoid[newPos]) || Actor.findChar( newPos ) != null)
 				return;
+			else {
+				sprite.move(pos, newPos);
+				step = newPos;
+			}
 		}
 
 		if (Dungeon.level.map[pos] == Terrain.OPEN_DOOR) {

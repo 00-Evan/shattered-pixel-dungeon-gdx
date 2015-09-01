@@ -45,13 +45,14 @@ public class AttackIndicator extends Tag {
 	
 	private CharSprite sprite = null;
 	
-	private static Mob lastTarget = null;
+	private static Mob lastTarget;
 	private ArrayList<Mob> candidates = new ArrayList<Mob>();
 
 	public AttackIndicator() {
 		super( DangerIndicator.COLOR );
 		
 		instance = this;
+		lastTarget = null;
 
 		hotKey = GameAction.TAG_ATTACK;
 		

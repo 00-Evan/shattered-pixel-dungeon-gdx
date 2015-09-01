@@ -42,7 +42,10 @@ public class Honeypot extends Item {
 	{
 		name = "honeypot";
 		image = ItemSpriteSheet.HONEYPOT;
+
 		defaultAction = AC_THROW;
+		usesTargeting = true;
+
 		stackable = true;
 	}
 	

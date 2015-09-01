@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.shatteredpixel.shatteredpixeldungeon.*;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Honeypot;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
@@ -32,7 +31,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
@@ -143,8 +141,8 @@ public class GameScene extends PixelScene {
 	public void create() {
 		
 		Music.INSTANCE.play( Assets.TUNE, true );
-		Music.INSTANCE.volume( 1f );
-		
+		Music.INSTANCE.volume( ShatteredPixelDungeon.musicVol()/10f );
+
 		ShatteredPixelDungeon.lastClass(Dungeon.hero.heroClass.ordinal());
 		
 		super.create();
@@ -214,19 +212,19 @@ public class GameScene extends PixelScene {
 			blob.emitter = null;
 			addBlobSprite( blob );
 		}
-		
+
 		fog = new FogOfWar( Level.WIDTH, Level.HEIGHT );
 		fog.updateVisibility( Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped );
 		add( fog );
-		
+
 		brightness( ShatteredPixelDungeon.brightness() );
-		
+
 		spells = new Group();
 		add( spells );
 		
 		statuses = new Group();
 		add( statuses );
-		
+
 		add( emoicons );
 		
 		hero = new HeroSprite();
@@ -251,9 +249,6 @@ public class GameScene extends PixelScene {
 		
 		attack = new AttackIndicator();
 		attack.camera = uiCamera;
-		attack.setPos(
-			uiCamera.width - attack.width(),
-			toolbar.top() - attack.height() );
 		add( attack );
 
 		loot = new LootIndicator();
@@ -264,18 +259,19 @@ public class GameScene extends PixelScene {
 		resume.camera = uiCamera;
 		add( resume );
 
-		layoutTags();
-
 		log = new GameLog();
 		log.camera = uiCamera;
-		log.setRect( 0, toolbar.top(), attack.left(),  0 );
 		add( log );
+
+		layoutTags();
 		
-		if (Dungeon.depth < Statistics.deepestFloor)
-			GLog.i( TXT_WELCOME_BACK, Dungeon.depth );
-		else
-			GLog.i( TXT_WELCOME, Dungeon.depth );
-		Sample.INSTANCE.play( Assets.SND_DESCEND );
+		if (Dungeon.depth < Statistics.deepestFloor) {
+			GLog.i(TXT_WELCOME_BACK, Dungeon.depth);
+		} else {
+			GLog.i(TXT_WELCOME, Dungeon.depth);
+			if (InterlevelScene.mode == InterlevelScene.Mode.DESCEND) Sample.INSTANCE.play(Assets.SND_DESCEND);
+		}
+
 		switch (Dungeon.level.feeling) {
 		case CHASM:
 			GLog.w( TXT_CHASM );
@@ -337,6 +333,7 @@ public class GameScene extends PixelScene {
 			break;
 		default:
 		}
+		InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
 
 		ArrayList<Item> dropped = Dungeon.droppedItems.get( Dungeon.depth );
 		if (dropped != null) {
@@ -354,6 +351,8 @@ public class GameScene extends PixelScene {
 			}
 			Dungeon.droppedItems.remove( Dungeon.depth );
 		}
+
+		Dungeon.hero.next();
 
 		Camera.main.target = hero;
 		fadeIn();
@@ -418,17 +417,35 @@ public class GameScene extends PixelScene {
 	private boolean tagLoot        = false;
 	private boolean tagResume    = false;
 
-	private void layoutTags() {
+	public static void layoutTags() {
 
-		float pos = tagAttack ? attack.top() : toolbar.top();
+		if (scene == null) return;
 
-		if (tagLoot) {
-			loot.setPos( uiCamera.width - loot.width(), pos - loot.height() );
-			pos = loot.top();
+		float tagLeft = ShatteredPixelDungeon.flipTags() ? 0 : uiCamera.width - scene.attack.width();
+
+		if (ShatteredPixelDungeon.flipTags()) {
+			scene.log.setRect(scene.attack.width(), scene.toolbar.top(), uiCamera.width - scene.attack.width(), 0);
+		} else {
+			scene.log.setRect(0, scene.toolbar.top(), uiCamera.width - scene.attack.width(),  0 );
 		}
 
-		if (tagResume) {
-			resume.setPos( uiCamera.width - resume.width(), pos - resume.height() );
+		float pos = scene.toolbar.top();
+
+		if (scene.tagAttack){
+			scene.attack.setPos( tagLeft, pos - scene.attack.height());
+			scene.attack.flip(tagLeft == 0);
+			pos = scene.attack.top();
+		}
+
+		if (scene.tagLoot) {
+			scene.loot.setPos( tagLeft, pos - scene.loot.height() );
+			scene.loot.flip(tagLeft == 0);
+			pos = scene.loot.top();
+		}
+
+		if (scene.tagResume) {
+			scene.resume.setPos( tagLeft, pos - scene.resume.height() );
+			scene.resume.flip(tagLeft == 0);
 		}
 	}
 	
@@ -446,17 +463,15 @@ public class GameScene extends PixelScene {
 		}
 	}
 
-	public void brightness( boolean value ) {
-		water.rm = water.gm = water.bm =
-		tiles.rm = tiles.gm = tiles.bm =
-			value ? 1.5f : 1.0f;
-		if (value) {
-			fog.am = +2f;
-			fog.aa = -1f;
-		} else {
-			fog.am = +1f;
-			fog.aa =  0f;
-		}
+	public void brightness( int value ) {
+		float shift;
+		if (value >= 0)
+			shift = value/2f;
+		else
+			shift = value/3f;
+
+		fog.am = 1f + shift;
+		fog.aa = 0f - shift;
 	}
 	
 	private void addHeapSprite( Heap heap ) {
@@ -697,10 +712,10 @@ public class GameScene extends PixelScene {
 	}
 	
 	static boolean cancel() {
-		if (Dungeon.hero.curAction != null || Dungeon.hero.restoreHealth) {
+		if (Dungeon.hero.curAction != null || Dungeon.hero.resting) {
 			
 			Dungeon.hero.curAction = null;
-			Dungeon.hero.restoreHealth = false;
+			Dungeon.hero.resting = false;
 			return true;
 			
 		} else {
@@ -735,24 +750,23 @@ public class GameScene extends PixelScene {
 		}
 
 		if (Dungeon.visible[cell]) {
-
-			Mob mob = (Mob)Actor.findChar( cell );
+			Mob mob = (Mob) Actor.findChar(cell);
 			if (mob != null) {
-				GameScene.show( new WndInfoMob( mob ) );
+				GameScene.show(new WndInfoMob(mob));
 				return;
 			}
-
-			Heap heap = Dungeon.level.heaps.get( cell );
-			if (heap != null) {
-				if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
-					GameScene.show( new WndTradeItem( heap, false ) );
-				} else {
-					GameScene.show( new WndInfoItem( heap ) );
-				}
-				return;
-			}
-
 		}
+
+		Heap heap = Dungeon.level.heaps.get(cell);
+		if (heap != null && heap.seen) {
+			if (heap.type == Heap.Type.FOR_SALE && heap.size() == 1 && heap.peek().price() > 0) {
+				GameScene.show(new WndTradeItem(heap, false));
+			} else {
+				GameScene.show(new WndInfoItem(heap));
+			}
+			return;
+		}
+
 
 		Plant plant = Dungeon.level.plants.get( cell );
 		if (plant != null) {

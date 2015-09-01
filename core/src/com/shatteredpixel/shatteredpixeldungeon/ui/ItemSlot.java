@@ -100,13 +100,13 @@ public class ItemSlot extends Button<GameAction> {
 		icon = new ItemSprite();
 		add( icon );
 		
-		topLeft = new BitmapText( PixelScene.font1x );
+		topLeft = new BitmapText( PixelScene.pixelFont);
 		add( topLeft );
 		
-		topRight = new BitmapText( PixelScene.font1x );
+		topRight = new BitmapText( PixelScene.pixelFont);
 		add( topRight );
 		
-		bottomRight = new BitmapText( PixelScene.font1x );
+		bottomRight = new BitmapText( PixelScene.pixelFont);
 		add( bottomRight );
 	}
 	

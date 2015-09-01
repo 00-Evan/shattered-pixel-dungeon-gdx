@@ -237,7 +237,7 @@ public class SewerBossLevel extends RegularLevel {
 
 	@Override
 	public int randomRespawnCell() {
-		return -1;
+		return roomEntrance.random();
 	}
 
 	
@@ -281,6 +281,7 @@ public class SewerBossLevel extends RegularLevel {
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		stairs = bundle.getInt( STAIRS );
+		roomExit = roomEntrance;
 	}
 	
 	@Override

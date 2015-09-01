@@ -29,12 +29,13 @@ public enum GameAction {
 
 	REST("Wait"),
 	SEARCH("Search"),
-	CELL_INFO("Examine cell"),
 	RESUME("Resume motion"),
 
 	BACKPACK("Backpack"),
-	QUICKSLOT_1("Left Quickslot"),
-	QUICKSLOT_2("Right Quickslot"),
+	QUICKSLOT_1("Quickslot 1"),
+	QUICKSLOT_2("Quickslot 2"),
+	QUICKSLOT_3("Quickslot 3"),
+	QUICKSLOT_4("Quickslot 4"),
 
 	TAG_ATTACK("Attack"),
 	TAG_DANGER("Visible Enemies"),

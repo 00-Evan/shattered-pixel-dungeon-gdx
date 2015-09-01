@@ -164,7 +164,7 @@ public class CursedWand {
 											break;
 										}
 									} while (pos == -1);
-									if (pos == -1) {
+									if (pos == -1 || Dungeon.bossLevel()) {
 										GLog.w(ScrollOfTeleportation.TXT_NO_TELEPORT);
 									} else {
 										ch.pos = pos;
@@ -285,12 +285,13 @@ public class CursedWand {
 				cursedFX(user, bolt, new Callback() {
 					public void call() {
 						Char ch = Actor.findChar( bolt.collisionPos );
-						if (ch != null && ch != user){
+						//TODO: this is lazy, should think of a better way to ID bosses, or have this effect be more sophisticated.
+						if (ch != null && ch != user && !Dungeon.bossLevel()){
 							Sheep sheep = new Sheep();
 							sheep.lifespan = 10;
 							sheep.pos = ch.pos;
+							ch.destroy();
 							ch.sprite.killAndErase();
-							Actor.remove(ch);
 							Dungeon.level.mobs.remove(ch);
 							HealthIndicator.instance.target(null);
 							GameScene.add(sheep);

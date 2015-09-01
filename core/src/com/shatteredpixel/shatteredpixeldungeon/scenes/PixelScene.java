@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.watabou.glwrap.Texture;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.watabou.noosa.BitmapText;
@@ -39,30 +40,29 @@ import com.watabou.utils.BitmapCache;
 public class PixelScene extends Scene {
 
 	// Minimum virtual display size for portrait orientation
-	public static final float MIN_WIDTH_P        = 128;
-	public static final float MIN_HEIGHT_P        = 224;
+	public static final float MIN_WIDTH_P        = 135;
+	public static final float MIN_HEIGHT_P        = 225;
 
 	// Minimum virtual display size for landscape orientation
-	public static final float MIN_WIDTH_L        = 224;
+	public static final float MIN_WIDTH_L        = 240;
 	public static final float MIN_HEIGHT_L        = 160;
 
-	public static float defaultZoom = 0;
+	public static int defaultZoom = 0;
+	public static int maxDefaultZoom = 0;
 	public static float minZoom;
 	public static float maxZoom;
-	
+
 	public static Camera uiCamera;
-	
-	public static BitmapText.Font font1x;
-	public static BitmapText.Font font15x;
-	public static BitmapText.Font font2x;
-	public static BitmapText.Font font25x;
-	public static BitmapText.Font font3x;
-	
+
+	public static BitmapText.Font pixelFont;
+	public static BitmapText.Font fontLinear;
+	public static BitmapText.Font fontNearest;
+
 	@Override
 	public void create() {
-		
+
 		super.create();
-		
+
 		GameScene.scene = null;
 
 		float minWidth, minHeight;
@@ -74,75 +74,57 @@ public class PixelScene extends Scene {
 			minHeight = MIN_HEIGHT_P;
 		}
 
-		defaultZoom = (int)Math.ceil( Game.density * 2.5 );
-		while ((
-			Game.width / defaultZoom < minWidth ||
-			Game.height / defaultZoom < minHeight
+		maxDefaultZoom = (int)Math.min(Game.width/minWidth, Game.height/minHeight);
+		defaultZoom = ShatteredPixelDungeon.scale();
+
+		if (defaultZoom < Math.ceil( Game.density * 2 ) || defaultZoom > maxDefaultZoom){
+			defaultZoom = (int)Math.round((Math.ceil( Game.density * 2 ) + maxDefaultZoom)/2);
+			while ((
+				Game.width / defaultZoom < minWidth ||
+				Game.height / defaultZoom < minHeight
 			) && defaultZoom > 1) {
-			
-			defaultZoom--;
-		}
-			
-		if (ShatteredPixelDungeon.scaleUp()) {
-			while (
-				Game.width / (defaultZoom + 1) >= minWidth &&
-				Game.height / (defaultZoom + 1) >= minHeight) {
-					defaultZoom++;
+				defaultZoom--;
 			}
 		}
+
 		minZoom = 1;
 		maxZoom = defaultZoom * 2;
-			
-		
+
 		Camera.reset( new PixelCamera( defaultZoom ) );
-		
+
 		float uiZoom = defaultZoom;
 		uiCamera = Camera.createFullscreen( uiZoom );
 		Camera.add( uiCamera );
-		
-		if (font1x == null) {
-			
+
+		if (pixelFont == null) {
+
 			// 3x5 (6)
-			font1x = Font.colorMarked(
-				BitmapCache.get( Assets.FONTS1X ), 0x00000000, BitmapText.Font.LATIN_FULL );
-			font1x.baseLine = 6;
-			font1x.tracking = -1;
-			
-			// 5x8 (10)
-			font15x = Font.colorMarked(
-					BitmapCache.get( Assets.FONTS15X ), 12, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font15x.baseLine = 9;
-			font15x.tracking = -1;
-			
-			// 6x10 (12)
-			font2x = Font.colorMarked(
-				BitmapCache.get( Assets.FONTS2X ), 14, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font2x.baseLine = 11;
-			font2x.tracking = -1;
-			
-			// 7x12 (15)
-			font25x = Font.colorMarked(
-				BitmapCache.get( Assets.FONTS25X ), 17, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font25x.baseLine = 13;
-			font25x.tracking = -1;
-			
+			pixelFont = Font.colorMarked(
+				BitmapCache.get( Assets.PIXELFONT), 0x00000000, BitmapText.Font.LATIN_FULL );
+			pixelFont.baseLine = 6;
+			pixelFont.tracking = -1;
+
 			// 9x15 (18)
-			font3x = Font.colorMarked(
-				BitmapCache.get( Assets.FONTS3X ), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font3x.baseLine = 17;
-			font3x.tracking = -2;
+			fontLinear = Font.colorMarked(
+					BitmapCache.get( Assets.FONT), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
+			fontNearest = Font.colorMarked(
+					BitmapCache.get( "2", Assets.FONT), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
+			fontLinear.baseLine = fontNearest.baseLine = 17;
+			fontLinear.tracking = fontNearest.tracking = -2;
+			fontLinear.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
+					com.badlogic.gdx.graphics.Texture.TextureFilter.Linear);
 		}
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();
 		Game.instance.getInputProcessor().removeAllTouchEvent();
 	}
-	
+
 	public static BitmapText.Font font;
 	public static float scale;
-	
+
 	public static void chooseFont( float size ) {
 		chooseFont( size, defaultZoom );
 	}
@@ -151,55 +133,19 @@ public class PixelScene extends Scene {
 
 		float pt = size * zoom;
 
-		if (pt >= 19) {
+		if (pt >= 38){
 
-			scale = pt / 19;
-			if (1.5 <= scale && scale < 2) {
-				font = font25x;
-				scale = (int)(pt / 14);
-			} else {
-				font = font3x;
-				scale = (int)scale;
-			}
-
-		} else if (pt >= 14) {
-
-			scale = pt / 14;
-			if (1.8 <= scale && scale < 2) {
-				font = font2x;
-				scale = (int)(pt / 12);
-			} else {
-				font = font25x;
-				scale = (int)scale;
-			}
+			font = fontNearest;
+			scale = pt / 19f;
 
 		} else if (pt >= 12) {
 
-			scale = pt / 12;
-			if (1.7 <= scale && scale < 2) {
-				font = font15x;
-				scale = (int)(pt / 10);
-			} else {
-				font = font2x;
-				scale = (int)scale;
-			}
-
-		} else if (pt >= 10) {
-
-			scale = pt / 10;
-			if (1.4 <= scale && scale < 2) {
-				font = font1x;
-				scale = (int)(pt / 7);
-			} else {
-				font = font15x;
-				scale = (int)scale;
-			}
+			font = fontLinear;
+			scale = pt / 19f;
 
 		} else {
-
-			font = font1x;
-			scale = Math.max( 1, (int)(pt / 7) );
-
+			font = pixelFont;
+			scale = 1f;
 		}
 
 		scale /= zoom;

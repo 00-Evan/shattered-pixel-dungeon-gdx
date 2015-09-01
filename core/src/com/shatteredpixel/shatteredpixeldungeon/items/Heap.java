@@ -88,6 +88,7 @@ public class Heap implements Bundlable {
 	public int pos = 0;
 	
 	public ItemSprite sprite;
+	public boolean seen = false;
 	
 	public LinkedList<Item> items = new LinkedList<Item>();
 	
@@ -428,7 +429,7 @@ public class Heap implements Bundlable {
 				if (Random.Int(1000/bonus) == 0)
 					return new PotionOfExperience();
 
-			while (potion instanceof PotionOfHealing && Random.Int(15) - Dungeon.limitedDrops.cookingHP.count >= 0)
+			while (potion instanceof PotionOfHealing && Random.Int(10) < Dungeon.limitedDrops.cookingHP.count)
 				potion = Generator.random( Generator.Category.POTION );
 
 			if (potion instanceof PotionOfHealing)
@@ -464,6 +465,7 @@ public class Heap implements Bundlable {
 	}
 
 	private static final String POS		= "pos";
+	private static final String SEEN	= "seen";
 	private static final String TYPE	= "type";
 	private static final String ITEMS	= "items";
 	
@@ -471,6 +473,7 @@ public class Heap implements Bundlable {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		pos = bundle.getInt( POS );
+		seen = bundle.getBoolean( SEEN );
 		type = Type.valueOf( bundle.getString( TYPE ) );
 		items = new LinkedList( bundle.getCollection( ITEMS ) );
 		items.removeAll(Collections.singleton(null));
@@ -479,6 +482,7 @@ public class Heap implements Bundlable {
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( POS, pos );
+		bundle.put( SEEN, seen );
 		bundle.put( TYPE, type.toString() );
 		bundle.put( ITEMS, items );
 	}
