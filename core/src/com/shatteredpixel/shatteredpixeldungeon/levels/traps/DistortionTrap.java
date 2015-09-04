@@ -44,16 +44,12 @@ public class DistortionTrap extends Trap{
 				item.detachAll(Dungeon.hero.belongings.backpack);
 			}
 		}
-		Dungeon.depth--;
-		Level level = Dungeon.newLevel();
-		Dungeon.switchLevel( level, level.entrance);
-		InterlevelScene.returnPos = level.entrance;
-		InterlevelScene.mode = InterlevelScene.Mode.RETURN;
+		InterlevelScene.mode = InterlevelScene.Mode.RESET;
 		Game.switchScene(InterlevelScene.class);
 	}
 
 	@Override
 	public String desc() {
-		return "Build from strange magic of unknown origin, this trap will shift and morph the world around you.";
+		return "Built from strange magic of unknown origin, this trap will shift and morph the world around you.";
 	}
 }

@@ -301,7 +301,7 @@ public class Hero extends Char {
 		}
 
 		float evasion = (float)Math.pow( 1.15, bonus );
-		if (paralysed) {
+		if (paralysed > 0) {
 			evasion /= 2;
 		}
 		
@@ -417,7 +417,7 @@ public class Hero extends Char {
 		
 		super.act();
 		
-		if (paralysed) {
+		if (paralysed > 0) {
 			
 			curAction = null;
 			
@@ -997,10 +997,12 @@ public class Hero extends Char {
 		if (Level.adjacent( pos, target )) {
 			
 			if (Actor.findChar( target ) == null) {
-				if (Level.pit[target] && !flying && !Chasm.jumpConfirmed) {
-					if (!Level.solid[target]) {
+				if (Level.pit[target] && !flying && !Level.solid[target]) {
+					if (!Chasm.jumpConfirmed){
 						Chasm.heroJump(this);
 						interrupt();
+					} else {
+						Chasm.heroFall(target);
 					}
 					return false;
 				}

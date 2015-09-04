@@ -54,9 +54,11 @@ public class PixelScene extends Scene {
 
 	public static Camera uiCamera;
 
+	//stylized pixel font
 	public static BitmapText.Font pixelFont;
-	public static BitmapText.Font fontLinear;
-	public static BitmapText.Font fontNearest;
+	//These represent various mipmaps of the same font
+	public static BitmapText.Font font1x;
+	public static BitmapText.Font font2x;
 
 	@Override
 	public void create() {
@@ -105,14 +107,20 @@ public class PixelScene extends Scene {
 			pixelFont.tracking = -1;
 
 			// 9x15 (18)
-			fontLinear = Font.colorMarked(
-					BitmapCache.get( Assets.FONT), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
-			fontNearest = Font.colorMarked(
-					BitmapCache.get( "2", Assets.FONT), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
-			fontLinear.baseLine = fontNearest.baseLine = 17;
-			fontLinear.tracking = fontNearest.tracking = -2;
-			fontLinear.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
+			font1x = Font.colorMarked(
+					BitmapCache.get( Assets.FONT1X), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
+			font1x.baseLine = 17;
+			font1x.tracking = -2;
+			font1x.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
 					com.badlogic.gdx.graphics.Texture.TextureFilter.Linear);
+
+			//font1x double scaled
+			font2x = Font.colorMarked(
+					BitmapCache.get( Assets.FONT2X), 44, 0x00000000, BitmapText.Font.LATIN_FULL );
+			font2x.baseLine = 38;
+			font2x.tracking = -4;
+			font2x.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
+					com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest);
 		}
 	}
 
@@ -133,14 +141,14 @@ public class PixelScene extends Scene {
 
 		float pt = size * zoom;
 
-		if (pt >= 38){
+		if (pt >= 25) {
 
-			font = fontNearest;
-			scale = pt / 19f;
+			font = font2x;
+			scale = pt / 38f;
 
 		} else if (pt >= 12) {
 
-			font = fontLinear;
+			font = font1x;
 			scale = pt / 19f;
 
 		} else {

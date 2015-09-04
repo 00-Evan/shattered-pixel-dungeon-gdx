@@ -154,7 +154,7 @@ public abstract class Mob extends Char {
 		
 		sprite.hideAlert();
 		
-		if (paralysed) {
+		if (paralysed > 0) {
 			enemySeen = false;
 			spend( TICK );
 			return true;
@@ -341,7 +341,7 @@ public abstract class Mob extends Char {
 	
 	@Override
 	public int defenseSkill( Char enemy ) {
-		if (enemySeen && !paralysed) {
+		if (enemySeen && paralysed == 0) {
 			int defenseSkill = this.defenseSkill;
 			int penalty = 0;
 			for (Buff buff : enemy.buffs(RingOfAccuracy.Accuracy.class)) {
