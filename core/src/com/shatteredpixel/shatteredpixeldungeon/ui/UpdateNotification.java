@@ -197,8 +197,8 @@ public class UpdateNotification extends Component {
 
 	public static class WndUpdate extends WndOptions {
 
-		private static final String TTL_UPD = "An Update is Ready to Download!:";
-		private static final String TTL_PTH = "A Patch is Ready to Download!:";
+		private static final String TTL_UPD = "An Update is Ready!:";
+		private static final String TTL_PTH = "A Patch is Ready!:";
 
 		private static final String MSG_UPD = "%s\n" +
 				"\n" +
@@ -212,8 +212,8 @@ public class UpdateNotification extends Component {
 				"\n" +
 				"Simply download the new executable and run it to start playing with the latest patch!";
 
-		private static final String BTN_UPD = "Close Game and Download Update";
-		private static final String BTN_PTH = "Close Game and Download Patch";
+		private static final String BTN_UPD = "Quit and Download Update";
+		private static final String BTN_PTH = "Quit and Download Patch";
 
 
 
