@@ -56,7 +56,7 @@ public class WndJournal extends Window {
 		txtTitle = PixelScene.createText( TXT_TITLE, 9 );
 		txtTitle.hardlight( Window.TITLE_COLOR );
 		txtTitle.measure();
-		txtTitle.x = PixelScene.align( PixelScene.uiCamera, (WIDTH - txtTitle.width()) / 2 );
+		txtTitle.x = (WIDTH - txtTitle.width()) / 2;
 		add( txtTitle );
 		
 		Component content = new Component();
@@ -129,11 +129,11 @@ public class WndJournal extends Window {
 			icon.x = width - icon.width;
 			
 			depth.x = icon.x - 1 - depth.width();
-			depth.y = PixelScene.align( y + (height - depth.height()) / 2 );
+			depth.y = y + (height - depth.height()) / 2;
 			
 			icon.y = depth.y - 1;
 			
-			feature.y = PixelScene.align( depth.y + depth.baseLine() - feature.baseLine() );
+			feature.y = depth.y + depth.baseLine() - feature.baseLine();
 		}
 	}
 }

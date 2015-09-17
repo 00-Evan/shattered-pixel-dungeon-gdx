@@ -50,7 +50,15 @@ public class WelcomeScene extends PixelScene {
 			"Happy Dungeoneering!";
 
 	private static final String TXT_Update =
-			"v0.3.1b:\n" +
+			"v0.3.1d:\n" +
+					"- Bug and crash fixes\n" +
+					"- Added a health bar for bosses\n" +
+					"- Added a hint to weak floor rooms\n" +
+					"\n" +
+					"v0.3.1c:\n" +
+					"- Fixed text not appearing on some devices\n" +
+					"\n" +
+					"v0.3.1b:\n" +
 					"- Various bugfixes\n" +
 					"- Fixed blurry text on some displays\n" +
 					"\n" +
@@ -135,8 +143,8 @@ public class WelcomeScene extends PixelScene {
 		title.measure();
 		title.hardlight(Window.SHPX_COLOR);
 
-		title.x = align( (w - title.width()) / 2 );
-		title.y = align( 8 );
+		title.x = (w - title.width()) / 2;
+		title.y = 8;
 		add( title );
 
 		NinePatch panel = Chrome.get(Chrome.Type.WINDOW);

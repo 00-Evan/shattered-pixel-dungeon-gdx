@@ -73,7 +73,6 @@ public class AttackIndicator extends Tag {
 		if (sprite != null) {
 			sprite.x = x + (width - sprite.width()) / 2;
 			sprite.y = y + (height - sprite.height()) / 2;
-			PixelScene.align( sprite );
 		}
 	}
 	
@@ -149,7 +148,6 @@ public class AttackIndicator extends Tag {
 
 			sprite.x = x + (width - sprite.width()) / 2 + 1;
 			sprite.y = y + (height - sprite.height()) / 2;
-			PixelScene.align( sprite );
 			
 		} catch (Exception ignored) {
 		}

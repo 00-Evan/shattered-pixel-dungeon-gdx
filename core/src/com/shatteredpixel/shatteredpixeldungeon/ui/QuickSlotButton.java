@@ -135,8 +135,8 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 
 		slot.fill( this );
 
-		crossB.x = PixelScene.align( x + (width - crossB.width) / 2 );
-		crossB.y = PixelScene.align( y + (height - crossB.height) / 2 );
+		crossB.x = x + (width - crossB.width) / 2;
+		crossB.y = y + (height - crossB.height) / 2;
 	}
 
 	@Override
@@ -188,8 +188,8 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 			if (Actor.chars().contains( lastTarget )) {
 				lastTarget.sprite.parent.add( crossM );
 				crossM.point( DungeonTilemap.tileToWorld( lastTarget.pos ) );
-				crossB.x = PixelScene.align( x + (width - crossB.width) / 2 );
-				crossB.y = PixelScene.align( y + (height - crossB.height) / 2 );
+				crossB.x = x + (width - crossB.width) / 2;
+				crossB.y = y + (height - crossB.height) / 2;
 				crossB.visible = true;
 			} else {
 				lastTarget = null;

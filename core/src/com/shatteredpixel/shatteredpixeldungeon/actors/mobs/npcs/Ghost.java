@@ -246,7 +246,7 @@ public class Ghost extends NPC {
 		private static int type;
 
 		private static boolean given;
-		public static boolean processed;
+		private static boolean processed;
 		
 		private static int depth;
 		
@@ -355,6 +355,10 @@ public class Ghost extends NPC {
 		public static void process() {
 			if (spawned && given && !processed && (depth == Dungeon.depth)) {
 				GLog.n("sad ghost: Thank you... come find me...");
+				for (Mob m : Dungeon.level.mobs){
+					if (m instanceof Ghost)
+						m.beckon(Dungeon.hero.pos);
+				}
 				Sample.INSTANCE.play( Assets.SND_GHOST );
 				processed = true;
 				Generator.Category.ARTIFACT.probs[10] = 1; //flags the dried rose as spawnable.
@@ -366,6 +370,10 @@ public class Ghost extends NPC {
 			armor = null;
 			
 			Journal.remove( Journal.Feature.GHOST );
+		}
+
+		public static boolean completed(){
+			return spawned && processed;
 		}
 	}
 

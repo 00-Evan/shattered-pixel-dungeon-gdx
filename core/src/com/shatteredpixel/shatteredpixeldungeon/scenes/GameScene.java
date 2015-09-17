@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CustomTileVisual;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
@@ -118,6 +119,7 @@ public class GameScene extends PixelScene {
 	private static CellSelector cellSelector;
 	
 	private Group terrain;
+	private Group customTiles;
 	private Group ripples;
 	private Group plants;
 	private Group traps;
@@ -152,7 +154,7 @@ public class GameScene extends PixelScene {
 
 		terrain = new Group();
 		add( terrain );
-		
+
 		water = new SkinnedBlock(
 			Level.WIDTH * DungeonTilemap.SIZE,
 			Level.HEIGHT * DungeonTilemap.SIZE,
@@ -164,8 +166,15 @@ public class GameScene extends PixelScene {
 		
 		tiles = new DungeonTilemap();
 		terrain.add( tiles );
+
+		customTiles = new Group();
+		terrain.add(customTiles);
 		
 		Dungeon.level.addVisuals(this);
+
+		for( CustomTileVisual visual : Dungeon.level.customTiles){
+			addCustomTile(visual.create());
+		}
 
 		traps = new Group();
 		add(traps);
@@ -473,6 +482,10 @@ public class GameScene extends PixelScene {
 		fog.am = 1f + shift;
 		fog.aa = 0f - shift;
 	}
+
+	public void addCustomTile( CustomTileVisual visual){
+		customTiles.add( visual.create() );
+	}
 	
 	private void addHeapSprite( Heap heap ) {
 		ItemSprite sprite = heap.sprite = (ItemSprite)heaps.recycle( ItemSprite.class );
@@ -532,8 +545,8 @@ public class GameScene extends PixelScene {
 	
 	private void showBanner( Banner banner ) {
 		banner.camera = uiCamera;
-		banner.x = align( uiCamera, (uiCamera.width - banner.width) / 2 );
-		banner.y = align( uiCamera, (uiCamera.height - banner.height) / 3 );
+		banner.x = (uiCamera.width - banner.width) / 2 ;
+		banner.y = (uiCamera.height - banner.height) / 3 ;
 		add( banner );
 	}
 	

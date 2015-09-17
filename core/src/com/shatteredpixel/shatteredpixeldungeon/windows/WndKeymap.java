@@ -184,16 +184,16 @@ public class WndKeymap extends Window {
 
 		@Override
 		protected void layout() {
-			final float ty = PixelScene.align( y + (height - action.baseLine()) / 2 );
+			final float ty = y + (height - action.baseLine()) / 2;
 			final float w4 = width / 4;
 
 			action.x = MARGIN;
 			action.y = ty;
 
-			key1.x = PixelScene.align( w4 * 2 + (w4 - key1.width()) / 2 );
+			key1.x = w4 * 2 + (w4 - key1.width()) / 2;
 			key1.y = ty;
 
-			key2.x = PixelScene.align( w4 * 3 + (w4 - key2.width()) / 2 );
+			key2.x = w4 * 3 + (w4 - key2.width()) / 2;
 			key2.y = ty;
 		}
 
