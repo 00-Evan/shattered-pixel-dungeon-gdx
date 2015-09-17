@@ -263,17 +263,20 @@ public class BitmapText extends Visual {
 			
 			lineHeight = baseLine = height;
 		}
-		
-		protected void splitBy( GdxTexture bitmap, int height, int color, String chars ) {
-			
+
+		//FIXME!!
+		//this logic is fairly obtuse and was modified hastily to add support for multiple lines in
+		//the bitmap as a fix for 0.3.1c, needs to be rewritten to be more clear.
+		protected void splitBy(GdxTexture bitmap, int height, int color, String chars ) {
+
 			autoUppercase = chars.equals( LATIN_UPPER );
 			int length = chars.length();
-			
+
 			int width = bitmap.getWidth();
 			float vHeight = (float)height / bitmap.getHeight();
-			
-			int pos;
 
+			int pos;
+			int line = 0;
 
 			TextureData td = bitmap.getTextureData();
 			if (!td.isPrepared()) {
@@ -287,36 +290,41 @@ public class BitmapText extends Visual {
 				}
 			}
 			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight ) );
-			
+
+			int separator = pos;
+
 			for (int i=0; i < length; i++) {
-				
+
 				char ch = chars.charAt( i );
 				if (ch == ' ') {
 					continue;
 				} else {
-					
+
 					boolean found;
-					int separator = pos;
-					
+					int start = separator;
+
 					do {
 						if (++separator >= width) {
-							break;
+							line += height;
+							separator = start = 0;
+							if (line + height >= bitmap.getHeight())
+								break;
 						}
 						found = true;
-						for (int j=0; j < height; j++) {
+						for (int j=line; j < line + height; j++) {
 							if (colorNotMatch(pixmap, separator, j, color)) {
 								found = false;
 								break;
 							}
 						}
 					} while (!found);
-					
-					add( ch, new RectF( (float)pos / width, 0, (float)separator / width, vHeight ) );
-					pos = separator + 1;
+
+					add( ch, new RectF( (float)start / width, (float)line / bitmap.getHeight(), (float)separator / width, vHeight*((line+height)/height) ) );
+					separator++;
 				}
 			}
 			pixmap.dispose();
-			
+
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
 		}
 
