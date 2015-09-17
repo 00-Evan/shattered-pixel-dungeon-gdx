@@ -1,5 +1,5 @@
-56
+59
 53
-v0.3.1b
+v0.3.1d
 v0.3.1: It's a Trap!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.1b/ShatteredPD.Desktop.v0.3.1b.jar
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.1d/ShatteredPD.Desktop.v0.3.1d.jar
