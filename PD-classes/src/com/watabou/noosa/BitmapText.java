@@ -289,7 +289,7 @@ public class BitmapText extends Visual {
 					if (colorNotMatch(pixmap, pos, j, color)) break spaceMeasuring;
 				}
 			}
-			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight ) );
+			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight-0.01f ) );
 
 			int separator = pos;
 

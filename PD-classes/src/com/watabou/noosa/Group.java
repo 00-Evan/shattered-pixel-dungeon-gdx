@@ -40,6 +40,7 @@ public class Group extends Gizmo {
 	
 	@Override
 	public void destroy() {
+		super.destroy();
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
 			if (g != null) {
