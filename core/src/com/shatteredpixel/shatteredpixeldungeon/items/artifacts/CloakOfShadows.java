@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -182,7 +183,8 @@ public class CloakOfShadows extends Artifact {
 		@Override
 		public boolean act() {
 			if (charge < chargeCap) {
-				if (!stealthed)
+				LockedFloor lock = target.buff(LockedFloor.class);
+				if (!stealthed && (lock == null || lock.regenOn()))
 					partialCharge += (1f / (60 - (chargeCap-charge)*2));
 
 				if (partialCharge >= 1) {
@@ -209,6 +211,8 @@ public class CloakOfShadows extends Artifact {
 	}
 
 	public class cloakStealth extends ArtifactBuff{
+		int turnsToCost = 0;
+
 		@Override
 		public int icon() {
 			return BuffIndicator.INVISIBLE;
@@ -226,12 +230,32 @@ public class CloakOfShadows extends Artifact {
 
 		@Override
 		public boolean act(){
-			charge--;
+			if (turnsToCost == 0) charge--;
 			if (charge <= 0) {
 				detach();
 				GLog.w("Your cloak has run out of energy.");
 				((Hero)target).interrupt();
 			}
+
+			if (turnsToCost == 0) exp += 10 + ((Hero)target).lvl;
+
+			if (exp >= (level+1)*50 && level < levelCap) {
+				upgrade();
+				exp -= level*50;
+				GLog.p("Your cloak grows stronger!");
+			}
+
+			if (turnsToCost == 0) turnsToCost = 2;
+			else    turnsToCost--;
+			updateQuickslot();
+
+			spend( TICK );
+
+			return true;
+		}
+
+		public void dispel(){
+			charge --;
 
 			exp += 10 + ((Hero)target).lvl;
 
@@ -242,10 +266,7 @@ public class CloakOfShadows extends Artifact {
 			}
 
 			updateQuickslot();
-
-			spend( TICK );
-
-			return true;
+			detach();
 		}
 
 		@Override

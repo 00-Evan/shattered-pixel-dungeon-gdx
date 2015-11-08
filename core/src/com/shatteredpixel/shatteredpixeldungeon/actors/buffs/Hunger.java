@@ -47,19 +47,23 @@ public class Hunger extends Buff implements Hero.Doom {
 	private static final String TXT_DEATH		= "You starved to death...";
 
 	private float level;
+	private float partialDamage;
 
-	private static final String LEVEL	= "level";
+	private static final String LEVEL			= "level";
+	private static final String PARTIALDAMAGE 	= "partialDamage";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
 		bundle.put( LEVEL, level );
+		bundle.put( PARTIALDAMAGE, partialDamage );
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		level = bundle.getFloat( LEVEL );
+		partialDamage = bundle.getFloat(PARTIALDAMAGE);
 	}
 
 	@Override
@@ -76,11 +80,13 @@ public class Hunger extends Buff implements Hero.Doom {
 
 			if (isStarving()) {
 
-				if (Random.Float() < 0.3f && (target.HP > 1 || target.paralysed == 0)) {
+				partialDamage += target.HT/100f;
 
-					hero.damage( 1, this );
-
+				if (partialDamage > 1){
+					target.damage( (int)partialDamage, this);
+					partialDamage -= (int)partialDamage;
 				}
+				
 			} else {
 
 				float newLevel = level + STEP;
@@ -121,27 +127,12 @@ public class Hunger extends Buff implements Hero.Doom {
 	}
 
 	public void satisfy( float energy ) {
-		if (((Hero) target).subClass == HeroSubClass.WARLOCK){
-			Buff.affect( target, ScrollOfRecharging.Recharging.class, energy/50f);
-			return;
-		}
 
 		Artifact.ArtifactBuff buff = target.buff( HornOfPlenty.hornRecharge.class );
 		if (buff != null && buff.isCursed()){
 			energy *= 0.67f;
 			GLog.n("The cursed horn steals some of the food energy as you eat.");
 		}
-
-		if (!Dungeon.isChallenged(Challenges.NO_FOOD))
-			reduceHunger( energy );
-	}
-
-	public void consumeSoul( float energy ){
-
-		if (level >= STARVING)
-			energy *= 1.33f;
-		else if (level < HUNGRY)
-			energy *= 0.67f;
 
 		if (!Dungeon.isChallenged(Challenges.NO_FOOD))
 			reduceHunger( energy );

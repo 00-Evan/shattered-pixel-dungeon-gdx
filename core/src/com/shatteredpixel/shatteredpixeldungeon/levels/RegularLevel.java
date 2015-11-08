@@ -171,7 +171,7 @@ public abstract class RegularLevel extends Level {
 	protected void placeSign(){
 		while (true) {
 			int pos = roomEntrance.random();
-			if (pos != entrance && traps.get(pos) == null) {
+			if (pos != entrance && traps.get(pos) == null && findMob(pos) == null) {
 				map[pos] = Terrain.SIGN;
 				break;
 			}
@@ -200,6 +200,7 @@ public abstract class RegularLevel extends Level {
 	protected boolean assignRoomType() {
 		
 		int specialRooms = 0;
+		boolean pitMade = false;
 
 		for (Room r : rooms) {
 			if (r.type == Type.NULL &&
@@ -209,10 +210,10 @@ public abstract class RegularLevel extends Level {
 					r.width() > 3 && r.height() > 3 &&
 					Random.Int( specialRooms * specialRooms + 2 ) == 0) {
 
-					if (pitRoomNeeded) {
+					if (pitRoomNeeded && !pitMade) {
 
 						r.type = Type.PIT;
-						pitRoomNeeded = false;
+						pitMade = true;
 
 						specials.remove( Type.ARMORY );
 						specials.remove( Type.CRYPT );
@@ -262,6 +263,8 @@ public abstract class RegularLevel extends Level {
 				}
 			}
 		}
+
+		if (pitRoomNeeded && !pitMade) return false;
 		
 		int count = 0;
 		for (Room r : rooms) {

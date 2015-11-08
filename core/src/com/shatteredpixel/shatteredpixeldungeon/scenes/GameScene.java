@@ -32,7 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CustomTileVisual;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
@@ -120,6 +120,7 @@ public class GameScene extends PixelScene {
 	
 	private Group terrain;
 	private Group customTiles;
+	private Group levelVisuals;
 	private Group ripples;
 	private Group plants;
 	private Group traps;
@@ -169,12 +170,13 @@ public class GameScene extends PixelScene {
 
 		customTiles = new Group();
 		terrain.add(customTiles);
-		
-		Dungeon.level.addVisuals(this);
 
 		for( CustomTileVisual visual : Dungeon.level.customTiles){
 			addCustomTile(visual.create());
 		}
+		
+		levelVisuals = Dungeon.level.addVisuals();
+		add(levelVisuals);
 
 		traps = new Group();
 		add(traps);
@@ -551,7 +553,7 @@ public class GameScene extends PixelScene {
 	}
 	
 	// -------------------------------------------------------
-	
+
 	public static void add( Plant plant ) {
 		if (scene != null) {
 			scene.addPlantSprite( plant );
@@ -630,7 +632,14 @@ public class GameScene extends PixelScene {
 	public static void pickUp( Item item ) {
 		scene.toolbar.pickup( item );
 	}
-	
+
+	public static void resetMap() {
+		if (scene != null) {
+			scene.tiles.map(Dungeon.level.map, Level.WIDTH );
+
+		}
+	}
+
 	public static void updateMap() {
 		if (scene != null) {
 			scene.tiles.updated.set( 0, 0, Level.WIDTH, Level.HEIGHT );

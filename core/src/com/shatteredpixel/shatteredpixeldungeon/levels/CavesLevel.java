@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.*;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
-import com.watabou.noosa.Scene;
 import com.watabou.noosa.particles.PixelParticle;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -236,15 +235,16 @@ public class CavesLevel extends RegularLevel {
 	}
 	
 	@Override
-	public void addVisuals( Scene scene ) {
-		super.addVisuals( scene );
-		addVisuals( this, scene );
+	public Group addVisuals() {
+		super.addVisuals();
+		addCavesVisuals( this, visuals );
+		return visuals;
 	}
 	
-	public static void addVisuals( Level level, Scene scene ) {
+	public static void addCavesVisuals( Level level, Group group ) {
 		for (int i=0; i < LENGTH; i++) {
 			if (level.map[i] == Terrain.WALL_DECO) {
-				scene.add( new Vein( i ) );
+				group.add( new Vein( i ) );
 			}
 		}
 	}
@@ -269,8 +269,14 @@ public class CavesLevel extends RegularLevel {
 			if (visible = Dungeon.visible[pos]) {
 				
 				super.update();
-				
+
 				if ((delay -= Game.elapsed) <= 0) {
+
+					//pickaxe can remove the ore, should remove the sparkling too.
+					if (Dungeon.level.map[pos] != Terrain.WALL_DECO){
+						kill();
+						return;
+					}
 					
 					delay = Random.Float();
 					

@@ -34,8 +34,8 @@ public enum HeroSubClass {
 		"significantly increasing his damage output." ),
 	
 	WARLOCK( "warlock",
-		"Normal food grants the _Warlock_ additional wand recharge, but does not satisfy his hunger. " +
-		"Instead, after killing an enemy, he consumes its soul to heal his wounds and satisfy hunger." ),
+		"When using wands on an enemy, the _Warlock_ has a chance to mark their soul. " +
+		"Marked enemies will heal him and restore his hunger whenever they take physical damage."),
 	BATTLEMAGE( "battlemage",
 		"When fighting with his staff, the _Battlemage_ conjures bonus effects depending on the wand " +
 		"his staff is imbued with. His staff will also gain charge through combat." ),
@@ -44,14 +44,14 @@ public enum HeroSubClass {
 		"When performing a surprise attack, the _Assassin_ inflicts additional damage to his target." ),
 	FREERUNNER( "freerunner",
 		"The _Freerunner_ moves faster when he unencumbered and not starving, " +
-		"if he is invisible, this speed boost is much stronger." ),
+		"if he is invisible, this speed boost is increased." ),
 		
 	SNIPER( "sniper",
-		"_Snipers_ are able to detect weak points in an enemy's armor, " +
+		"The _Sniper_ is able to detect weak points in an enemy's armor, " +
 		"effectively ignoring it when using a missile weapon." ),
 	WARDEN( "warden",
-		"Having a strong connection with forces of nature gives _Wardens_ an ability to gather dewdrops and " +
-		"seeds from plants. Also trampling a high grass grants them a temporary armor buff." );
+		"Having a strong connection with forces of nature allows the _Warden_ to gain additional health from dew, " +
+		"armor from trampling grass, and seeds and dew from plants." );
 	
 	private String title;
 	private String desc;

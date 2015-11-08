@@ -23,7 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ToxicTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.watabou.noosa.Camera;
-import com.watabou.noosa.Scene;
+import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
@@ -189,7 +189,7 @@ public class CavesBossLevel extends Level {
 		int sign;
 		do {
 			sign = Random.Int( ROOM_LEFT, ROOM_RIGHT ) + Random.Int( ROOM_TOP, ROOM_BOTTOM ) * WIDTH;
-		} while (sign == entrance);
+		} while (sign == entrance || map[sign] == Terrain.INACTIVE_TRAP);
 		map[sign] = Terrain.SIGN;
 	}
 	
@@ -305,9 +305,11 @@ public class CavesBossLevel extends Level {
 			return super.tileDesc( tile );
 		}
 	}
-	
+
 	@Override
-	public void addVisuals( Scene scene ) {
-		CavesLevel.addVisuals( this, scene );
+	public Group addVisuals() {
+		super.addVisuals();
+		CavesLevel.addCavesVisuals(this, visuals);
+		return visuals;
 	}
 }

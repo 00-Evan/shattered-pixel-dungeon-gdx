@@ -34,8 +34,10 @@ public class EntrancePainter extends Painter {
 		for (Room.Door door : room.connected.values()) {
 			door.set( Room.Door.Type.REGULAR );
 		}
-		
-		level.entrance = room.random( 1 );
+
+		do {
+			level.entrance = room.random(1);
+		} while (level.findMob(level.entrance) != null);
 		set( level, level.entrance, Terrain.ENTRANCE );
 	}
 	

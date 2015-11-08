@@ -71,11 +71,11 @@ import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.plants.BlandfruitBush;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CustomTileVisual;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
-import com.watabou.noosa.Scene;
+import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
@@ -162,6 +162,8 @@ public abstract class Level implements Bundlable {
 	public HashSet<CustomTileVisual> customTiles;
 	
 	protected ArrayList<Item> itemsToSpawn = new ArrayList<>();
+
+	protected Group visuals;
 	
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
@@ -485,15 +487,21 @@ public abstract class Level implements Bundlable {
 		}
 	}
 
-	public void addVisuals( Scene scene ) {
+	public Group addVisuals() {
+		if (visuals == null || visuals.parent == null){
+			visuals = new Group();
+		} else {
+			visuals.clear();
+		}
 		for (int i=0; i < LENGTH; i++) {
 			if (pit[i]) {
-				scene.add( new WindParticle.Wind( i ) );
+				visuals.add( new WindParticle.Wind( i ) );
 				if (i >= WIDTH && water[i-WIDTH]) {
-					scene.add( new FlowParticle.Flow( i - WIDTH ) );
+					visuals.add( new FlowParticle.Flow( i - WIDTH ) );
 				}
 			}
 		}
+		return visuals;
 	}
 	
 	public int nMobs() {
@@ -523,7 +531,7 @@ public abstract class Level implements Bundlable {
 					Mob mob = Bestiary.mutable( Dungeon.depth );
 					mob.state = mob.WANDERING;
 					mob.pos = randomRespawnCell();
-					if (Dungeon.hero.isAlive() && mob.pos != -1) {
+					if (Dungeon.hero.isAlive() && mob.pos != -1 && distance(Dungeon.hero.pos, mob.pos) >= 4) {
 						GameScene.add( mob );
 						if (Statistics.amuletObtained) {
 							mob.beckon( Dungeon.hero.pos );
@@ -579,8 +587,8 @@ public abstract class Level implements Bundlable {
 
 		return null;
 	}
-	
-	private void buildFlagMaps() {
+
+	protected void buildFlagMaps() {
 		
 		for (int i=0; i < LENGTH; i++) {
 			int flags = Terrain.flags[map[i]];
@@ -633,7 +641,7 @@ public abstract class Level implements Bundlable {
 		}
 	}
 	
-	private void cleanWalls() {
+	protected void cleanWalls() {
 		for (int i=0; i < LENGTH; i++) {
 			
 			boolean d = false;

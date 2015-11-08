@@ -374,7 +374,7 @@ public class Hero extends Char {
 
 			return ((HeroSprite)sprite).sprint( subClass == HeroSubClass.FREERUNNER && !isStarving() ) ?
 					invisible > 0 ?
-							4f * speed :
+							2f * speed :
 							1.5f * speed :
 					speed;
 			
@@ -1109,17 +1109,6 @@ public class Hero extends Char {
 
 		EtherealChains.chainsRecharge chains = buff(EtherealChains.chainsRecharge.class);
 		if (chains != null) chains.gainExp(percent);
-
-		if (subClass == HeroSubClass.WARLOCK) {
-
-			int healed = Math.round(Math.min(HT - HP, HT * percent * 0.3f));
-			if (healed > 0) {
-				HP += healed;
-				sprite.emitter().burst( Speck.factory( Speck.HEALING ), percent > 0.3f ? 2 : 1 );
-			}
-
-			(buff( Hunger.class )).consumeSoul( Hunger.STARVING*percent );
-		}
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {

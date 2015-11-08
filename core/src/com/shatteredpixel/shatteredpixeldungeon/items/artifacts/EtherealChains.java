@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Chains;
@@ -207,11 +208,11 @@ public class EtherealChains extends Artifact {
 		@Override
 		public boolean act() {
 			int chargeTarget = 5+(level*2);
-			if (!cursed && charge < chargeTarget) {
+			LockedFloor lock = target.buff(LockedFloor.class);
+			if (charge < chargeTarget && !cursed && (lock == null || lock.regenOn())) {
 				partialCharge += 1 / (40f - (chargeTarget - charge)*2f);
 			} else if (cursed && Random.Int(100) == 0){
-				Buff.prolong( target, Roots.class, 3f);
-				Buff.prolong( target, Cripple.class, 9f);
+				Buff.prolong( target, Cripple.class, 10f);
 			}
 
 			if (partialCharge >= 1) {

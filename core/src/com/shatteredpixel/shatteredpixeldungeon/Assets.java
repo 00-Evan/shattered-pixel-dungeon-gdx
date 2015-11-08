@@ -90,6 +90,9 @@ public class Assets {
 	public static final String RATKING	= "ratking.png";
 	public static final String BEE      = "bee.png";
 	public static final String MIMIC    = "mimic.png";
+	public static final String ROT_LASH = "rot_lasher.png";
+	public static final String ROT_HEART= "rot_heart.png";
+	public static final String GUARD    = "guard.png";
 
 	public static final String ITEMS	= "items.png";
 	public static final String PLANTS	= "plants.png";
@@ -108,6 +111,8 @@ public class Assets {
 	public static final String WATER_HALLS	= "water4.png";
 
 	public static final String WEAK_FLOOR   = "custom_tiles/weak_floor.png";
+	public static final String PRISON_QUEST = "custom_tiles/prison_quests.png";
+	public static final String PRISON_EXIT  = "custom_tiles/prison_exit.png";
 	
 	public static final String BUFFS_SMALL	= "buffs.png";
 	public static final String BUFFS_LARGE	= "large_buffs.png";

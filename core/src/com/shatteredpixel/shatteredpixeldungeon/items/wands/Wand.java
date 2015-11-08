@@ -22,7 +22,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
 import java.util.ArrayList;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.watabou.noosa.audio.Sample;
@@ -130,6 +134,14 @@ public abstract class Wand extends Item {
 	public void charge( Char owner, float chargeScaleFactor ){
 		charge( owner );
 		charger.setScaleFactor( chargeScaleFactor );
+	}
+
+	protected void processSoulMark(Char target, int chargesUsed){
+		if (target != Dungeon.hero &&
+				Dungeon.hero.subClass == HeroSubClass.WARLOCK &&
+				Random.Float() < .15f + (level*chargesUsed*0.03f)){
+			SoulMark.prolong(target, SoulMark.class, SoulMark.DURATION);
+		}
 	}
 
 	@Override
@@ -424,7 +436,9 @@ public abstract class Wand extends Item {
 			float turnsToCharge = (float) (BASE_CHARGE_DELAY
 					+ (SCALING_CHARGE_ADDITION * Math.pow(scalingFactor, missingCharges)));
 
-			partialCharge += 1f/turnsToCharge;
+			LockedFloor lock = target.buff(LockedFloor.class);
+			if (lock == null || lock.regenOn())
+				partialCharge += 1f/turnsToCharge;
 
 			ScrollOfRecharging.Recharging bonus = target.buff(ScrollOfRecharging.Recharging.class);
 			if (bonus != null && bonus.remainder() > 0f){

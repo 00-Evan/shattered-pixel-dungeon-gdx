@@ -73,6 +73,12 @@ public class Thief extends Mob {
 	}
 
 	@Override
+	public float speed() {
+		if (item != null) return (5*super.speed())/6;
+		else return super.speed();
+	}
+
+	@Override
 	public int damageRoll() {
 		return Random.NormalIntRange( 1, 7 );
 	}
@@ -134,7 +140,8 @@ public class Thief extends Mob {
 	protected boolean steal( Hero hero ) {
 
 		Item item = hero.belongings.randomUnequipped();
-		if (item != null) {
+
+		if (item != null && !item.unique && item.level < 1 ) {
 
 			GLog.w( TXT_STOLE, this.name, item.name() );
 			Dungeon.quickslot.clearItem( item );
@@ -144,10 +151,9 @@ public class Thief extends Mob {
 				this.item = ((Honeypot)item).shatter(this, this.pos);
 				item.detach( hero.belongings.backpack );
 			} else {
-				this.item = item;
+				this.item = item.detach( hero.belongings.backpack );
 				if ( item instanceof Honeypot.ShatteredPot)
 					((Honeypot.ShatteredPot)item).setHolder(this);
-				item.detachAll( hero.belongings.backpack );
 			}
 
 			return true;
@@ -159,9 +165,11 @@ public class Thief extends Mob {
 	@Override
 	public String description() {
 		String desc =
-				"Deeper levels of the dungeon have always been a hiding place for all kinds of criminals. " +
-						"Not all of them could keep a clear mind during their extended periods so far from daylight. Long ago, " +
-						"these crazy thieves and bandits have forgotten who they are and why they steal.";
+				"Though these inmates roam free of their cells, this place is still their prison. " +
+				"Over time, this place has taken their minds as well as their freedom. " +
+				"Long ago, these crazy thieves and bandits have forgotten who they are and why they steal.\n\n" +
+				"These enemies are more likely to steal and run than they are to fight. " +
+				"Make sure to keep them in sight, of you might never see your stolen item again.";
 
 		if (item != null) {
 			desc += String.format( TXT_CARRIES, Utils.capitalize( this.name ), item.name() );
@@ -174,8 +182,14 @@ public class Thief extends Mob {
 		@Override
 		protected void nowhereToRun() {
 			if (buff( Terror.class ) == null) {
-				sprite.showStatus( CharSprite.NEGATIVE, TXT_RAGE );
-				state = HUNTING;
+				if (enemySeen) {
+					sprite.showStatus(CharSprite.NEGATIVE, TXT_RAGE);
+					state = HUNTING;
+				} else {
+					if (item != null) GLog.n("The thief gets away with your " + item.name() + "!");
+					item = null;
+					state = WANDERING;
+				}
 			} else {
 				super.nowhereToRun();
 			}

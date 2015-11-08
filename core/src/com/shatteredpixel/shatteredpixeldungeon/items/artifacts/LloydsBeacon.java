@@ -27,8 +27,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -232,11 +237,18 @@ public class LloydsBeacon extends Artifact {
 									}
 								} while (pos == -1);
 
+
 								if (pos == -1 || Dungeon.bossLevel()) {
 
 									GLog.w(ScrollOfTeleportation.TXT_NO_TELEPORT);
 
-								} else {
+								//FIXME: sloppy, fix when adding mob properties
+								} else if (ch instanceof RotLasher || ch instanceof RotHeart
+										|| ch instanceof Shopkeeper || ch instanceof Wandmaker) {
+
+									GLog.w("The teleportation magic fails.");
+
+								} else  {
 
 									ch.pos = pos;
 									ch.sprite.place(ch.pos);
@@ -292,7 +304,8 @@ public class LloydsBeacon extends Artifact {
 	public class beaconRecharge extends ArtifactBuff{
 		@Override
 		public boolean act() {
-			if (charge < chargeCap && !cursed) {
+			LockedFloor lock = target.buff(LockedFloor.class);
+			if (charge < chargeCap && !cursed && (lock == null || lock.regenOn())) {
 				partialCharge += 1 / (100f - (chargeCap - charge)*10f);
 
 				if (partialCharge >= 1) {
