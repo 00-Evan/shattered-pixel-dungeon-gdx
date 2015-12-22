@@ -99,12 +99,13 @@ public class TouchArea<T> extends Visual implements Signal.Listener<NoosaInputPr
 			return;
 		}
 		
-		boolean hit = touch != null && target.overlapsScreenPoint( (int)touch.start.x, (int)touch.start.y );
+		boolean hit = touch != null && target.overlapsScreenPoint( (int)touch.current.x, (int)touch.current.y );
 		
 		if (hit) {
 
-			Game.instance.getInputProcessor().cancelTouchEvent();
-			
+			if (touch.down || touch == this.touch)
+				Game.instance.getInputProcessor().cancelTouchEvent();
+
 			if (touch.down) {
 				
 				if (this.touch == null) {
@@ -129,7 +130,7 @@ public class TouchArea<T> extends Visual implements Signal.Listener<NoosaInputPr
 				onDrag( this.touch );
 			}
 			
-			else if (this.touch != null && touch != null && !touch.down) {
+			else if (this.touch != null && !touch.down) {
 				onTouchUp( touch );
 				this.touch = null;
 			}

@@ -26,7 +26,7 @@ public enum Sample {
 	
 	INSTANCE;
 
-	protected HashMap<Object, Sound> ids = new HashMap<Object, Sound>();
+	protected HashMap<Object, Sound> ids = new HashMap<>();
 	
 	private boolean enabled = true;
 	private float volume = 1f;
@@ -66,7 +66,7 @@ public enum Sample {
 	}
 	
 	public void unload( Object src ) {
-		
+
 		if (ids.containsKey( src )) {
 			ids.get( src ).dispose();
 			ids.remove( src );

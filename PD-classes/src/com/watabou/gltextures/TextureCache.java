@@ -25,10 +25,10 @@ import java.util.HashMap;
 
 public class TextureCache {
 
-	private static HashMap<Object,SmartTexture> all = new HashMap<Object, SmartTexture>();
+	private static HashMap<Object,SmartTexture> all = new HashMap<>();
 	
 	public static SmartTexture createSolid( int color ) {
-		String key = "1x1:" + color;
+		final String key = "1x1:" + color;
 		
 		if (all.containsKey( key )) {
 			
@@ -48,6 +48,8 @@ public class TextureCache {
 			return tx;
 		}
 	}
+
+	//TODO: Implement createGradient here if it's ever needed.
 
 	public static void add( Object key, SmartTexture tx ) {
 		all.put( key, tx );
@@ -69,7 +71,7 @@ public class TextureCache {
 			all.put( src, tx );
 			return tx;
 		}
-		
+
 	}
 	
 	public static void clear() {

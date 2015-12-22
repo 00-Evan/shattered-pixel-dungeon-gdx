@@ -20,10 +20,11 @@ package com.watabou.noosa;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import com.watabou.utils.RectF;
+
 import com.watabou.glwrap.Quad;
 import com.watabou.utils.PointF;
 
-import com.watabou.utils.RectF;
 
 public class BitmapTextMultiline extends BitmapText {
 
@@ -33,7 +34,9 @@ public class BitmapTextMultiline extends BitmapText {
 	protected static final Pattern WORD			= Pattern.compile( "\\s+" );
 	
 	protected float spaceSize;
-	
+
+	public int nLines = 0;
+
 	public boolean[] mask;
 	
 	public BitmapTextMultiline( Font font ) {
@@ -67,7 +70,7 @@ public class BitmapTextMultiline extends BitmapText {
 		int pos = 0;
 		
 		for (int i=0; i < paragraphs.length; i++) {
-			
+
 			String[] words = WORD.split( paragraphs[i] );
 			
 			for (int j=0; j < words.length; j++) {
@@ -131,7 +134,9 @@ public class BitmapTextMultiline extends BitmapText {
 			
 			writer.newLine( 0, font.lineHeight );
 		}
-		
+
+		nLines = writer.nLines();
+
 		dirty = false;
 	}
 	
@@ -142,7 +147,7 @@ public class BitmapTextMultiline extends BitmapText {
 		
 		int length = word.length();
 		for (int i=0; i < length; i++) {
-			
+
 			RectF rect = font.get( word.charAt( i ) );
 			w += font.width( rect ) + (w > 0 ? font.tracking : 0);
 			h = Math.max( h, font.height( rect ) );
@@ -165,15 +170,17 @@ public class BitmapTextMultiline extends BitmapText {
 			String[] words = WORD.split( paragraphs[i] );
 			
 			for (int j=0; j < words.length; j++) {
-				
+
+				if (j > 0) {
+					writer.addSpace( spaceSize );
+				}
 				String word = words[j];
 				if (word.length() == 0) {
 					continue;
 				}
-				
+
 				getWordMetrics( word, metrics );
 				writer.addSymbol( metrics.x, metrics.y );
-				writer.addSpace( spaceSize );
 			}
 			
 			writer.newLine( 0, font.lineHeight );
@@ -181,16 +188,25 @@ public class BitmapTextMultiline extends BitmapText {
 		
 		width = writer.width;
 		height = writer.height;
+
+		nLines = writer.nLines();
 	}
-	
+
+	@Override
+	public float baseLine() {
+		return (height - font.lineHeight + font.baseLine) * scale.y;
+	}
+
 	private class SymbolWriter {
 		
 		public float width = 0;
 		public float height = 0;
-		
+
+		public int nLines = 0;
+
 		public float lineWidth = 0;
 		public float lineHeight = 0;
-		
+
 		public float x = 0;
 		public float y = 0;
 		
@@ -230,6 +246,12 @@ public class BitmapTextMultiline extends BitmapText {
 			
 			x = 0;
 			y = height;
+
+			nLines++;
+		}
+
+		public int nLines() {
+			return x == 0 ? nLines : nLines+1;
 		}
 	}
 	
@@ -258,7 +280,7 @@ public class BitmapTextMultiline extends BitmapText {
 		
 		public ArrayList<BitmapText> split() {
 			
-			lines = new ArrayList<BitmapText>();
+			lines = new ArrayList<>();
 					 
 			curLine = new StringBuilder();
 			curLineWidth = 0;
