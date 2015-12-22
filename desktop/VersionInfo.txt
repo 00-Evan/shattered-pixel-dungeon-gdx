@@ -1,5 +1,5 @@
-67
-65
-v0.3.2b
-v0.3.2: The Prison Rework!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.2b/ShatteredPD.Desktop.v0.3.2b.jar
+72
+72
+v0.3.3
+v0.3.3!
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.3.3/ShatteredPD.Desktop.v0.3.3.jar
