@@ -53,6 +53,8 @@ public class Guard extends Mob {
 
 		loot = null;    //see createloot.
 		lootChance = 1;
+
+		properties.add(Property.DEMONIC);
 	}
 
 	@Override
@@ -65,7 +67,9 @@ public class Guard extends Mob {
 		Dungeon.level.updateFieldOfView( this );
 
 		if (state == HUNTING &&
+				paralysed <= 0 &&
 				enemy != null &&
+				enemy.invisible == 0 &&
 				Level.fieldOfView[enemy.pos] &&
 				Level.distance( pos, enemy.pos ) < 5 && !Level.adjacent( pos, enemy.pos ) &&
 				Random.Int(3) == 0 &&
@@ -80,7 +84,7 @@ public class Guard extends Mob {
 	}
 
 	private boolean chain(int target){
-		if (chainsUsed)
+		if (chainsUsed || enemy.properties().contains(Property.IMMOVABLE))
 			return false;
 
 		Ballistica chain = new Ballistica(pos, target, Ballistica.PROJECTILE);

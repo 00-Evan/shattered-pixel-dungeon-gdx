@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -56,7 +57,8 @@ public class WndInfoItem extends Window {
 	
 	private static final float GAP	= 2;
 	
-	private static final int WIDTH = 120;
+	private static final int WIDTH_P = 120;
+	private static final int WIDTH_L = 144;
 	
 	public WndInfoItem( Heap heap ) {
 		
@@ -67,9 +69,9 @@ public class WndInfoItem extends Window {
 			Item item = heap.peek();
 			
 			int color = TITLE_COLOR;
-			if (item.levelKnown && item.level > 0) {
+			if (item.levelKnown && item.level() > 0) {
 				color = ItemSlot.UPGRADED;
-			} else if (item.levelKnown && item.level < 0) {
+			} else if (item.levelKnown && item.level() < 0) {
 				color = ItemSlot.DEGRADED;
 			}
 			fillFields( item.image(), item.glowing(), color, item.toString(), item.info() );
@@ -116,9 +118,9 @@ public class WndInfoItem extends Window {
 		super();
 		
 		int color = TITLE_COLOR;
-		if (item.levelKnown && item.level > 0) {
+		if (item.levelKnown && item.level() > 0) {
 			color = ItemSlot.UPGRADED;
-		} else if (item.levelKnown && item.level < 0) {
+		} else if (item.levelKnown && item.level() < 0) {
 			color = ItemSlot.DEGRADED;
 		}
 		
@@ -126,20 +128,22 @@ public class WndInfoItem extends Window {
 	}
 	
 	private void fillFields( int image, ItemSprite.Glowing glowing, int titleColor, String title, String info ) {
-		
+
+		int width = ShatteredPixelDungeon.landscape() ? WIDTH_L : WIDTH_P;
+
 		IconTitle titlebar = new IconTitle();
 		titlebar.icon( new ItemSprite( image, glowing ) );
 		titlebar.label( Utils.capitalize( title ), titleColor );
-		titlebar.setRect( 0, 0, WIDTH, 0 );
+		titlebar.setRect( 0, 0, width, 0 );
 		add( titlebar );
 		
 		BitmapTextMultiline txtInfo = PixelScene.createMultiline( info, 6 );
-		txtInfo.maxWidth = WIDTH;
+		txtInfo.maxWidth = width;
 		txtInfo.measure();
 		txtInfo.x = titlebar.left();
 		txtInfo.y = titlebar.bottom() + GAP;
 		add( txtInfo );
 		
-		resize( WIDTH, (int)(txtInfo.y + txtInfo.height()) );
+		resize( width, (int)(txtInfo.y + txtInfo.height()) );
 	}
 }

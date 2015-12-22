@@ -26,8 +26,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.watabou.gltextures.Gradient;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.Group;
 import com.watabou.noosa.NoosaScript;
 import com.watabou.noosa.Visual;
+import com.watabou.utils.PointF;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -116,7 +118,16 @@ public class Flare extends Visual {
 		
 		return this;
 	}
-	
+
+	public Flare show( Group parent, PointF pos, float duration ) {
+		point( pos );
+		parent.add( this );
+
+		lifespan = this.duration = duration;
+
+		return this;
+	}
+
 	@Override
 	public void update() {
 		super.update();

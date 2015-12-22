@@ -53,12 +53,11 @@ public class TimekeepersHourglass extends Artifact {
 		name = "Timekeeper's Hourglass";
 		image = ItemSpriteSheet.ARTIFACT_HOURGLASS;
 
-		level = 0;
 		levelCap = 5;
 
-		charge = 10+level*2;
+		charge = 10+level()*2;
 		partialCharge = 0;
-		chargeCap = 10+level*2;
+		chargeCap = 10+level()*2;
 
 		defaultAction = AC_ACTIVATE;
 	}
@@ -139,7 +138,7 @@ public class TimekeepersHourglass extends Artifact {
 		chargeCap+= 2;
 
 		//for artifact transmutation.
-		while (level+1 > sandBags)
+		while (level()+1 > sandBags)
 			sandBags ++;
 
 		return super.upgrade();
@@ -156,7 +155,7 @@ public class TimekeepersHourglass extends Artifact {
 			if (!cursed) {
 				desc += "\n\nThe hourglass rests at your side, the whisper of steadily pouring sand is reassuring.";
 
-				if (level < levelCap )
+				if (level() < levelCap )
 					desc +=
 						"\n\nThe hourglass seems to have lost some sand with age. While there are no cracks, " +
 						"there is a port on the top of the hourglass to pour sand in, if only you could find some...";
@@ -229,24 +228,29 @@ public class TimekeepersHourglass extends Artifact {
 
 		@Override
 		public boolean attachTo(Char target) {
-			//buffs always act last, so the stasis buff should end a turn early.
-			spend(charge-1);
-			((Hero)target).spendAndNext(charge);
 
-			//shouldn't punish the player for going into stasis frequently
-			Hunger hunger = target.buff(Hunger.class);
-			if (hunger != null && !hunger.isStarving())
-				hunger.satisfy(charge);
+			if (super.attachTo(target)) {
+				//buffs always act last, so the stasis buff should end a turn early.
+				spend(charge - 1);
+				((Hero) target).spendAndNext(charge);
 
-			charge = 0;
+				//shouldn't punish the player for going into stasis frequently
+				Hunger hunger = target.buff(Hunger.class);
+				if (hunger != null && !hunger.isStarving())
+					hunger.satisfy(charge);
 
-			target.invisible++;
+				charge = 0;
 
-			updateQuickslot();
+				target.invisible++;
 
-			Dungeon.observe();
+				updateQuickslot();
 
-			return super.attachTo(target);
+				Dungeon.observe();
+
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 		@Override
@@ -363,7 +367,7 @@ public class TimekeepersHourglass extends Artifact {
 			if (hourglass != null && !hourglass.cursed) {
 				hourglass.upgrade();
 				Sample.INSTANCE.play( Assets.SND_DEWDROP );
-				if (hourglass.level == hourglass.levelCap)
+				if (hourglass.level() == hourglass.levelCap)
 					GLog.p("Your hourglass is filled with magical sand!");
 				else
 					GLog.i("you add the sand to your hourglass.");

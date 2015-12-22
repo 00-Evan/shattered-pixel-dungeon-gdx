@@ -155,7 +155,7 @@ public class CursedWand {
 						cursedFX(user, bolt, new Callback() {
 							public void call() {
 								Char ch = Actor.findChar( bolt.collisionPos );
-								if (ch != null) {
+								if (ch != null && !ch.properties().contains(Char.Property.IMMOVABLE)) {
 									int count = 10;
 									int pos;
 									do {
@@ -214,7 +214,14 @@ public class CursedWand {
 						if (Actor.findChar(pos) != null && bolt.dist > 1) {
 							pos = bolt.path.get(bolt.dist - 1);
 						}
-						Dungeon.level.plant((Plant.Seed) Generator.random(Generator.Category.SEED), pos);
+
+						if (pos == Terrain.EMPTY ||
+								pos == Terrain.EMBERS ||
+								pos == Terrain.EMPTY_DECO ||
+								pos == Terrain.GRASS ||
+								pos == Terrain.HIGH_GRASS) {
+							Dungeon.level.plant((Plant.Seed) Generator.random(Generator.Category.SEED), pos);
+						}
 						wand.wandUsed();
 					}
 				});
@@ -285,8 +292,10 @@ public class CursedWand {
 				cursedFX(user, bolt, new Callback() {
 					public void call() {
 						Char ch = Actor.findChar( bolt.collisionPos );
-						//TODO: this is lazy, should think of a better way to ID bosses, or have this effect be more sophisticated.
-						if (ch != null && ch != user && !Dungeon.bossLevel()){
+
+						if (ch != null && ch != user
+								&& !ch.properties().contains(Char.Property.BOSS)
+								&& !ch.properties().contains(Char.Property.MINIBOSS)){
 							Sheep sheep = new Sheep();
 							sheep.lifespan = 10;
 							sheep.pos = ch.pos;
@@ -389,7 +398,7 @@ public class CursedWand {
 						do {
 							reward = Generator.random(Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR,
 									Generator.Category.RING, Generator.Category.WAND));
-						} while (reward.level < 2 && !(reward instanceof MissileWeapon));
+						} while (reward.level() < 2 && !(reward instanceof MissileWeapon));
 						Sample.INSTANCE.play(Assets.SND_MIMIC, 1, 1, 0.5f);
 						mimic.items.clear();
 						mimic.items.add(reward);
@@ -426,7 +435,7 @@ public class CursedWand {
 				do {
 					result = Generator.random(Random.oneOf(Generator.Category.WEAPON, Generator.Category.ARMOR,
 							Generator.Category.RING, Generator.Category.ARTIFACT));
-				} while (result.level < 0 && !(result instanceof MissileWeapon));
+				} while (result.level() < 0 && !(result instanceof MissileWeapon));
 				if (result.isUpgradable()) result.upgrade();
 				result.cursed = result.cursedKnown = true;
 				GLog.w("your wand transmogrifies into a different item!");

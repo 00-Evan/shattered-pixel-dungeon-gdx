@@ -64,6 +64,8 @@ public class Tengu extends Mob {
 		HUNTING = new Hunting();
 
 		flying = true; //doesn't literally fly, but he is fleet-of-foot enough to avoid hazards
+
+		properties.add(Property.BOSS);
 	}
 	
 	@Override
@@ -92,6 +94,9 @@ public class Tengu extends Mob {
 
 		//phase 2 of the fight is over
 		if (dmg >= HP) {
+			if (state == SLEEPING) {
+				state = WANDERING;
+			}
 			((PrisonBossLevel)Dungeon.level).progress();
 			return;
 		}
@@ -169,7 +174,7 @@ public class Tengu extends Mob {
 			do {
 				newPos = Random.Int(Level.LENGTH);
 			} while (
-					!Level.fieldOfView[newPos] ||
+					!(Dungeon.level.map[newPos] == Terrain.INACTIVE_TRAP || Dungeon.level.map[newPos] == Terrain.TRAP)||
 							Level.solid[newPos] ||
 							Level.adjacent(newPos, enemy.pos) ||
 							Actor.findChar(newPos) != null);
@@ -249,6 +254,9 @@ public class Tengu extends Mob {
 			} else {
 
 				if (enemyInFOV) {
+					target = enemy.pos;
+				} else {
+					chooseEnemy();
 					target = enemy.pos;
 				}
 

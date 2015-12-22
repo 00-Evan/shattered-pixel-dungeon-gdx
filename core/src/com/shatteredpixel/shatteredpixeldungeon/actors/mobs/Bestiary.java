@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.watabou.utils.Random;
 
 public class Bestiary {
@@ -180,11 +179,5 @@ public class Bestiary {
 		}
 		
 		return classes[ Random.chances( chances )];
-	}
-	
-	public static boolean isUnique( Char mob ) {
-		return mob instanceof Goo || mob instanceof Tengu || mob instanceof DM300 || mob instanceof King
-				|| mob instanceof Yog.BurningFist || mob instanceof Yog.RottingFist
-			|| mob instanceof Ghost.FetidRat || mob instanceof Ghost.GnollTrickster || mob instanceof Ghost.GreatCrab;
 	}
 }

@@ -24,7 +24,7 @@ import com.watabou.utils.Bundle;
 
 public enum HeroSubClass {
 
-	NONE( null, null ),
+	NONE( "none", null ),
 	
 	GLADIATOR( "gladiator",
 		"A successful attack with a melee weapon allows the _Gladiator_ to start a combo, " +
@@ -77,11 +77,7 @@ public enum HeroSubClass {
 	
 	public static HeroSubClass restoreInBundle( Bundle bundle ) {
 		String value = bundle.getString( SUBCLASS );
-		try {
-			return valueOf( value );
-		} catch (Exception e) {
-			return NONE;
-		}
+		return valueOf( value );
 	}
 	
 }

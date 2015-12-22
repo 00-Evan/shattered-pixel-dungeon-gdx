@@ -321,7 +321,7 @@ public class Hero extends Char {
 	
 	@Override
 	public int dr() {
-		int dr = belongings.armor != null ? Math.max( belongings.armor.DR, 0 ) : 0;
+		int dr = belongings.armor != null ? Math.max( belongings.armor.DR(), 0 ) : 0;
 		Barkskin barkskin = buff( Barkskin.class );
 		if (barkskin != null) {
 			dr += barkskin.level();
@@ -1061,8 +1061,10 @@ public class Hero extends Char {
 			} else {
 				curAction = new HeroAction.Attack( ch );
 			}
-			
-		} else if ((heap = Dungeon.level.heaps.get( cell )) != null) {
+
+		} else if ((heap = Dungeon.level.heaps.get( cell )) != null
+				//moving to an item doesn't auto-pickup when enemies are near.
+				&& (visibleEnemies.size() == 0 || cell == pos)) {
 
 			switch (heap.type) {
 			case HEAP:

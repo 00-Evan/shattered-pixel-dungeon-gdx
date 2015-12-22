@@ -86,11 +86,10 @@ public class LloydsBeacon extends Artifact {
 		name = "lloyd's beacon";
 		image = ItemSpriteSheet.ARTIFACT_BEACON;
 
-		level = 0;
 		levelCap = 3;
 
 		charge = 0;
-		chargeCap = 3+level;
+		chargeCap = 3+level();
 
 		defaultAction = AC_ZAP;
 		usesTargeting = true;
@@ -242,9 +241,7 @@ public class LloydsBeacon extends Artifact {
 
 									GLog.w(ScrollOfTeleportation.TXT_NO_TELEPORT);
 
-								//FIXME: sloppy, fix when adding mob properties
-								} else if (ch instanceof RotLasher || ch instanceof RotHeart
-										|| ch instanceof Shopkeeper || ch instanceof Wandmaker) {
+								} else if (ch.properties().contains(Char.Property.IMMOVABLE)) {
 
 									GLog.w("The teleportation magic fails.");
 

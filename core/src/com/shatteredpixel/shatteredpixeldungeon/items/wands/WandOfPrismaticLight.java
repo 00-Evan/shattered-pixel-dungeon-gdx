@@ -30,14 +30,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -61,25 +59,6 @@ public class WandOfPrismaticLight extends Wand {
 		collisionProperties = Ballistica.MAGIC_BOLT;
 	}
 
-	//FIXME: this is sloppy
-	private static HashSet<Class> evilMobs = new HashSet<Class>(Arrays.asList(
-			//Any Location
-			Mimic.class, Wraith.class,
-			//Sewers
-			Ghost.FetidRat.class,
-			Goo.class,
-			//Prison
-			Skeleton.class , Thief.class, Bandit.class,
-			//Caves
-
-			//City
-			Warlock.class, Monk.class, Senior.class,
-			King.class, King.Undead.class,
-			//Halls
-			Succubus.class, Eye.class, Scorpio.class, Acidic.class,
-			Yog.class, Yog.RottingFist.class, Yog.BurningFist.class, Yog.Larva.class
-	));
-
 	@Override
 	protected void onZap(Ballistica beam) {
 		Char ch = Actor.findChar(beam.collisionPos);
@@ -90,25 +69,25 @@ public class WandOfPrismaticLight extends Wand {
 		affectMap(beam);
 
 		if (curUser.viewDistance < 4)
-			Buff.prolong( curUser, Light.class, 10f+level*5);
+			Buff.prolong( curUser, Light.class, 10f+level()*5);
 	}
 
 	private void affectTarget(Char ch){
-		int dmg = Random.NormalIntRange(level, (int) (8+(level*(level/5f))));
+		int dmg = Random.NormalIntRange(level(), (int) (8+(level()*(level()/5f))));
 
 		//three in (5+lvl) chance of failing
-		if (Random.Int(5+level) >= 3) {
-			Buff.prolong(ch, Blindness.class, 2f + (level * 0.34f));
+		if (Random.Int(5+level()) >= 3) {
+			Buff.prolong(ch, Blindness.class, 2f + (level() * 0.34f));
 			ch.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 6 );
 		}
 
-		if (evilMobs.contains(ch.getClass())){
-			ch.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10+level );
+		if (ch.properties().contains(Char.Property.DEMONIC) || ch.properties().contains(Char.Property.UNDEAD)){
+			ch.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10+level() );
 			Sample.INSTANCE.play(Assets.SND_BURNING);
 
 			ch.damage((int)(dmg*1.5), this);
 		} else {
-			ch.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+level );
+			ch.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+level() );
 
 			ch.damage(dmg, this);
 		}
@@ -156,7 +135,7 @@ public class WandOfPrismaticLight extends Wand {
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
 		//cripples enemy
-		Buff.prolong( defender, Cripple.class, 1f+staff.level);
+		Buff.prolong( defender, Cripple.class, 1f+staff.level());
 	}
 
 	@Override
@@ -175,7 +154,7 @@ public class WandOfPrismaticLight extends Wand {
 			"This wand is made of a solid piece of translucent crystal, like a long chunk of smooth glass. " +
 			"It becomes clear towards the tip, where you can see colorful lights dancing around inside it.\n\n" +
 			"This wand shoots rays of light which damage and blind enemies and cut through the darkness of the dungeon, " +
-			"revealing hidden areas and traps. Evildoers, demons, and the undead will burn in the bright light " +
+			"revealing hidden areas and traps. Demonic and undead foes will burn in the bright light " +
 			"of the wand, taking significant bonus damage.";
 	}
 }

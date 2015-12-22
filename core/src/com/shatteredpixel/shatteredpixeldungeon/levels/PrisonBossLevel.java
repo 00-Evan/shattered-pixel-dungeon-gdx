@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -30,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.MazePainter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -81,7 +83,7 @@ public class PrisonBossLevel extends Level {
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
-		bundle.put(STATE, state);
+		bundle.put( STATE, state );
 		bundle.put( TENGU, tengu );
 		bundle.put( STORED_ITEMS, storedItems);
 	}
@@ -142,6 +144,10 @@ public class PrisonBossLevel extends Level {
 
 	@Override
 	protected void createItems() {
+		Item item = Bones.get();
+		if (item != null) {
+			drop( item, randomRespawnCell() ).type = Heap.Type.REMAINS;
+		}
 		drop(new IronKey(10), randomPrisonCell());
 	}
 
@@ -179,14 +185,8 @@ public class PrisonBossLevel extends Level {
 	}
 
 	@Override
-	public Heap drop( Item item, int cell ) {
-		
-		return super.drop( item, cell );
-	}
-	
-	@Override
 	public int randomRespawnCell() {
-		return 5+3*32;
+		return 5+2*32 + NEIGHBOURS8[Random.Int(8)]; //random cell adjacent to the entrance.
 	}
 	
 	@Override
@@ -245,12 +245,17 @@ public class PrisonBossLevel extends Level {
 		Dungeon.observe();
 	}
 
-	private void clearHeaps(Room safeArea){
+	private void clearEntities(Room safeArea){
 		for (Heap heap : heaps.values()){
 			if (safeArea == null || !safeArea.inside(heap.pos)){
 				for (Item item : heap.items)
 					storedItems.add(item);
 				heap.destroy();
+			}
+		}
+		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[Dungeon.level.mobs.size()])){
+			if (mob != tengu && (safeArea == null || !safeArea.inside(mob.pos))){
+				mob.destroy();
 			}
 		}
 	}
@@ -275,12 +280,21 @@ public class PrisonBossLevel extends Level {
 			case FIGHT_START:
 
 				changeMap(MAP_MAZE);
-				clearHeaps((Room)new Room().set(0, 5, 8, 32)); //clear all but the entrance
+				clearEntities((Room) new Room().set(0, 5, 8, 32)); //clear all but the entrance
 
 				Actor.remove(tengu);
 				mobs.remove(tengu);
 				HealthIndicator.instance.target(null);
 				tengu.sprite.kill();
+
+				Room maze = new Room();
+				maze.set(10, 1, 31, 29);
+				maze.connected.put(null, new Room.Door(10, 2));
+				maze.connected.put(maze, new Room.Door(20, 29));
+				MazePainter.paint(this, maze);
+				GameScene.resetMap();
+				buildFlagMaps();
+				cleanWalls();
 
 				GameScene.flash(0xFFFFFF);
 				Sample.INSTANCE.play(Assets.SND_BLAST);
@@ -296,7 +310,7 @@ public class PrisonBossLevel extends Level {
 				Dungeon.hero.sprite.place(Dungeon.hero.pos);
 
 				changeMap(MAP_ARENA);
-				clearHeaps(null);
+				clearEntities(null);
 
 				tengu.state = tengu.HUNTING;
 				do {
@@ -326,7 +340,7 @@ public class PrisonBossLevel extends Level {
 				tengu.sprite.place(5 + 28 * 32);
 
 				changeMap(MAP_END);
-				clearHeaps(null);
+				clearEntities(null);
 
 				tengu.die(Dungeon.hero);
 
@@ -393,39 +407,38 @@ public class PrisonBossLevel extends Level {
 					W, W, W, T, T, T, T, T, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W};
 
-	//TODO: while this hardcoded maze is nice, it would be better to have it random each time.
 	private static final int[] MAP_MAZE =
 			{       W, W, W, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					W, W, W, W, _, _, _, W, W, W, W, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					_, _, _, D, _, _, _, D, _, _, _, _, _, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, W, _, W, W,
-					W, W, W, W, _, _, _, W, W, W, W, W, W, _, W, _, W, W, W, W, W, W, W, W, W, W, W, _, W, _, W, W,
-					W, W, W, W, W, M, W, W, W, W, W, _, _, _, W, _, W, _, _, _, _, _, W, _, _, _, _, _, W, _, W, W,
-					W, W, W, W, W, D, W, W, W, W, W, W, W, _, W, _, W, _, W, W, W, W, W, W, W, W, W, _, W, _, W, W,
-					W, W, W, W, W, _, W, W, W, W, W, _, _, _, _, _, W, _, _, _, W, _, W, _, _, _, _, _, W, _, W, W,
-					W, W, M, W, W, _, W, W, M, W, W, W, W, _, W, W, W, _, W, W, W, _, W, W, W, W, W, _, W, _, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, W, _, _, _, _, _, _, _, W, _, _, _, W, W,
-					W, _, _, _, D, _, D, _, _, _, W, _, W, W, W, W, W, W, W, W, W, _, W, _, W, W, W, W, W, _, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, W, _, W, _, W, _, W, _, W, _, W, _, W, _, _, _, _, _, W, W,
-					W, W, M, W, W, _, W, W, M, W, W, _, W, _, W, _, W, _, W, _, W, _, W, W, W, W, W, W, W, _, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, W, _, W, _, W, _, W, _, W, W,
-					W, _, _, _, D, _, D, _, _, _, W, _, W, _, W, W, W, W, W, W, W, _, W, _, W, _, W, _, W, _, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, _, _, W, _, W, _, _, _, _, _, W, _, _, _, _, _, _, _, W, W,
-					W, W, M, W, W, _, W, W, M, W, W, W, W, _, W, _, W, W, W, W, W, _, W, _, W, W, W, W, W, W, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, _, _, W, _, W, _, W, _, W, _, _, _, W, _, W, _, _, _, W, W,
-					W, _, _, _, D, _, D, _, _, _, W, W, W, _, W, _, W, _, W, _, W, _, W, W, W, _, W, W, W, _, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, W, _, _, _, _, _, W, _, _, _, W, W,
-					W, W, M, W, W, _, W, W, M, W, W, W, W, _, W, W, W, _, W, W, W, _, W, _, W, W, W, _, W, W, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, W, _, W, _, W, _, W, _, _, _, W, _, W, _, _, _, _, _, W, W,
-					W, _, _, _, D, _, D, _, _, _, W, _, W, _, W, _, W, W, W, W, W, _, W, W, W, _, W, W, W, W, W, W,
-					W, _, _, _, W, _, W, _, _, _, W, _, W, _, _, _, W, _, W, _, _, _, _, _, _, _, _, _, _, _, W, W,
-					W, W, M, W, W, _, W, W, M, _, W, _, W, _, W, W, W, _, W, _, W, W, W, W, W, W, W, _, W, W, W, W,
-					W, W, W, W, W, _, W, W, W, _, W, _, _, _, W, _, W, _, W, _, _, _, _, _, _, _, W, _, W, _, W, W,
-					W, W, W, M, W, D, W, M, W, _, W, W, W, _, W, _, W, _, W, _, W, W, W, W, W, W, W, W, W, _, W, W,
-					W, W, W, T, T, T, T, T, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, W, _, _, _, _, _, W, W,
-					W, W, W, T, T, T, T, T, W, _, W, W, W, _, W, W, W, _, W, W, W, _, W, _, W, _, W, W, W, W, W, W,
-					W, W, W, T, T, T, T, T, W, _, W, _, W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, W, W,
-					W, W, W, T, T, T, T, T, W, _, W, _, W, _, W, W, W, _, W, W, W, W, W, _, W, W, W, W, W, _, W, W,
-					W, W, W, T, T, T, T, T, W, _, _, _, _, _, _, _, W, _, _, _, _, _, W, _, _, _, _, _, W, _, W, W,
+					W, W, W, W, _, _, _, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
+					_, _, _, D, _, _, _, D, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, W, _, _, _, W, W, M, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, W, W, M, W, W, W, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, W, W, D, W, W, W, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, W, W, _, W, W, W, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, M, W, W, _, W, W, M, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, D, _, D, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, M, W, W, _, W, W, M, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, D, _, D, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, M, W, W, _, W, W, M, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, D, _, D, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, M, W, W, _, W, W, M, W, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, D, _, D, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, _, _, _, W, _, W, _, _, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, M, W, W, _, W, W, M, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, W, W, _, W, W, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, M, W, D, W, M, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, T, T, T, T, T, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, T, T, T, T, T, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, T, T, T, T, T, W, _, W, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, W, W,
+					W, W, W, T, T, T, T, T, W, _, W, W, W, W, W, W, W, W, W, W, _, W, W, W, W, W, W, W, W, W, W, W,
+					W, W, W, T, T, T, T, T, W, _, _, _, _, _, _, _, _, _, _, _, _, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W};
 
 	private static final int[] MAP_ARENA =

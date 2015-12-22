@@ -70,6 +70,10 @@ public class Yog extends Mob {
 		EXP = 50;
 		
 		state = PASSIVE;
+
+		properties.add(Property.BOSS);
+		properties.add(Property.IMMOVABLE);
+		properties.add(Property.DEMONIC);
 	}
 	
 	private static final String TXT_DESC =
@@ -228,6 +232,9 @@ public class Yog extends Mob {
 			EXP = 0;
 			
 			state = WANDERING;
+
+			properties.add(Property.BOSS);
+			properties.add(Property.DEMONIC);
 		}
 		
 		@Override
@@ -318,6 +325,9 @@ public class Yog extends Mob {
 			EXP = 0;
 			
 			state = WANDERING;
+
+			properties.add(Property.BOSS);
+			properties.add(Property.DEMONIC);
 		}
 		
 		@Override
@@ -433,6 +443,8 @@ public class Yog extends Mob {
 			EXP = 0;
 			
 			state = HUNTING;
+
+			properties.add(Property.DEMONIC);
 		}
 		
 		@Override

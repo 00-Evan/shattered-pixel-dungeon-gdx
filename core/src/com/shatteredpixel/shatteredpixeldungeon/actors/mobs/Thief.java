@@ -56,6 +56,8 @@ public class Thief extends Mob {
 		lootChance = 0.01f;
 
 		FLEEING = new Fleeing();
+
+		properties.add(Property.DEMONIC);
 	}
 
 	private static final String ITEM = "item";
@@ -141,7 +143,7 @@ public class Thief extends Mob {
 
 		Item item = hero.belongings.randomUnequipped();
 
-		if (item != null && !item.unique && item.level < 1 ) {
+		if (item != null && !item.unique && item.level() < 1 ) {
 
 			GLog.w( TXT_STOLE, this.name, item.name() );
 			Dungeon.quickslot.clearItem( item );
@@ -169,7 +171,7 @@ public class Thief extends Mob {
 				"Over time, this place has taken their minds as well as their freedom. " +
 				"Long ago, these crazy thieves and bandits have forgotten who they are and why they steal.\n\n" +
 				"These enemies are more likely to steal and run than they are to fight. " +
-				"Make sure to keep them in sight, of you might never see your stolen item again.";
+				"Make sure to keep them in sight, or you might never see your stolen item again.";
 
 		if (item != null) {
 			desc += String.format( TXT_CARRIES, Utils.capitalize( this.name ), item.name() );

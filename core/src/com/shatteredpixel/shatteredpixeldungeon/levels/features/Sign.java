@@ -23,7 +23,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.DeadEndLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -111,7 +110,7 @@ public class Sign {
 
 				if (index >= 21) {
 
-					Level.set( pos, Terrain.EMBERS );
+					Dungeon.level.destroy( pos );
 					GameScene.updateMap( pos );
 					GameScene.discoverTile( pos, Terrain.SIGN );
 

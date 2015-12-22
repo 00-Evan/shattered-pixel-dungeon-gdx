@@ -180,15 +180,10 @@ public abstract class Mob extends Char {
 			}
 		}
 
-		//resets target if: the target is dead, the target has been lost (wandering)
+		//resets target if: there is no current target, the target is dead, the target has been lost (wandering)
 		//or if the mob is amoked/corrupted and targeting the hero (will try to target something else)
-		if ( enemy != null &&
-				!enemy.isAlive() || state == WANDERING ||
-				((buff( Amok.class ) != null || buff(Corruption.class) != null) && enemy == Dungeon.hero ))
-			enemy = null;
-
-		//if there is no current target, find a new one.
-		if (enemy == null) {
+		if ( enemy == null || !enemy.isAlive() || state == WANDERING ||
+				((buff( Amok.class ) != null || buff(Corruption.class) != null) && enemy == Dungeon.hero )) {
 
 			HashSet<Char> enemies = new HashSet<Char>();
 
@@ -429,12 +424,17 @@ public abstract class Mob extends Char {
 				}
 				Badges.validateNightHunter();
 			}
-			
-			if (Dungeon.hero.lvl <= maxLvl && EXP > 0) {
-				Dungeon.hero.sprite.showStatus( CharSprite.POSITIVE, TXT_EXP, EXP );
-				Dungeon.hero.earnExp( EXP );
+
+			int exp = exp();
+			if (exp > 0) {
+				Dungeon.hero.sprite.showStatus( CharSprite.POSITIVE, TXT_EXP, exp );
+				Dungeon.hero.earnExp( exp );
 			}
 		}
+	}
+
+	public int exp() {
+		return Dungeon.hero.lvl <= maxLvl ? EXP : 0;
 	}
 	
 	@Override

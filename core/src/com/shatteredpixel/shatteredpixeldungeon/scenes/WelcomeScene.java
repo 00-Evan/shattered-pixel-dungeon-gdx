@@ -39,66 +39,43 @@ public class WelcomeScene extends PixelScene {
 
 	private static final String TTL_Welcome = "Welcome!";
 
-	private static final String TTL_Update = "v0.3.2: The Prison Rework!";
+	private static final String TTL_Update = "v0.3.3";
 
 	private static final String TTL_Future = "Wait What?";
 
 	private static final String TXT_Welcome =
-			"Shattered Pixel Dungeon is a rework/expansion of Watabou's Pixel Dungeon.\n\n"+
-			"The goal is to enhance the game by improving existing content and adding tonnes of new stuff!\n\n"+
-			"Shattered Pixel Dungeon is being constantly updated, so expect more new content soon!\n\n"+
-			"Happy Dungeoneering!";
+				"Shattered Pixel Dungeon is a roguelike RPG, with randomly generated enemies, maps, items, and traps!\n" +
+				"\n" +
+				"Each run is a new challenging experience, but be careful, death is permanent!\n" +
+				"\n" +
+				"Shattered Pixel Dungeon is based on Watabou's Pixel Dungeon, if you're familiar with the original game, here is a list of major changes:\n" +
+				"- Mage class and wands totally reworked\n" +
+				"- Rings totally reworked, plus big changes to the rogue\n" +
+				"- A new category of item: Artifacts!\n" +
+				"- Enemy, boss, and quest changes to floors 1-10\n" +
+				"- Subclasses currently being reworked, and are only available after floor 10\n" +
+				"- Lots of balance changes, including removing degradation\n" +
+				"- Over 20 new trap types!\n" +
+				"- A redesigned UI with up to 4 quickslots\n" +
+				"- Updates with new and reworked content roughly once a month\n" +
+				"\n" +
+				"\n" +
+				"Happy Dungeoneering!";
 
 	private static final String TXT_Update =
-				"v0.3.2b:\n" +
-					"- Fixed various bugs\n" +
-					"- Floor locking tweaked, now only pauses passive effects when avoiding battle.\n" +
-					"\n" +
-					"v0.3.2a:\n" +
-					"- Fixed various bugs\n" +
-					"- Thieves now flee at 5/6 speed\n" +
-					"- Reduced blind/cripple from bandits\n" +
-					"- Tengu moves less on his second phase\n" +
-					"\n" +
-					"v0.3.2:\n" +
-					"Prison Rework!:\n" +
-					"- Tengu boss fight completely redone\n" +
-					"- Corpse dust quest overhauled\n" +
-					"- Rotberry quest overhauled\n" +
-					"- NEW elemental embers quest\n" +
-					"- NEW prison mob: insane prison guards!\n" +
-					"- Thieves can escape with a stolen item\n" +
-					"- Gnoll shaman attack speed increased\n" +
-					"\n" +
-					"BIG BALANCE CHANGES: \n" +
-					"- Mastery Book is not attainable until floor 10, even when unlocked\n" +
-					"- Hunger damage now increases with hero level, but starts out lower \n" +
-					" \n" +
-					"Sewers rebalance: \n" +
-					"- Marsupial rat dmg and evasion reduced\n" +
-					"- Gnoll scout accuracy reduced\n" +
-					"- Sewer crabs less likely to spawn on floor 3, grant more exp\n" +
-					"- Fly swarms rebalanced, moved to the sewers\n" +
-					"- Great Crab HP reduced \n" +
-					"- Goo fight rebalanced \n" +
-					" \n" +
-					"Base Class Changes: \n" +
-					"- Mage's staff base damage increased \n" +
-					"- Huntress now starts with 20 hp \n" +
-					"- Huntress no longer heals more from dew \n" +
-					"- Rogue's cloak of shadows now drains less while invisible\n" +
-					" \n" +
-					"Subclass Changes: \n" +
-					"- Berserker now starts raging at 50% hp (up from 40%) \n" +
-					"- Warden now heals 2 extra HP from dew \n" +
-					"- Warlock completely overhauled\n" +
-					"\n" +
-					"Misc. changes:\n" +
-					"- Fixed 'white line' graphical artifacts\n" +
-					"- Floor locking now pauses all passive effects, not just hunger\n" +
-					"- Cursed chains now only cripple, do not root\n" +
-					"- Warping trap rebalanced, much less harsh\n" +
-					"- Various other bugfixes";
+				"Gameplay Changes:\n" +
+				"- Tengu's maze is now different each time\n" +
+				"- Items no longer auto-pickup when enemies are near\n" +
+				"\n" +
+				"Fixes:\n" +
+				"- Fixed several bugs with prison enemies\n" +
+				"- Fixed some landscape window size issues\n" +
+				"- Fixed other minor bugs\n" +
+				"\n" +
+				"Misc:\n" +
+				"- Added support for reverse landscape\n" +
+				"\n" +
+				"There's a lot of behind-the-scenes technical changes in this update, so let me know if you run into any issues!";
 
 	private static final String TXT_Future =
 			"It seems that your current saves are from a future version of Shattered Pixel Dungeon!\n\n"+
@@ -119,8 +96,8 @@ public class WelcomeScene extends PixelScene {
 
 		if (gameversion == 0) {
 
-			text = createMultiline(TXT_Welcome, 8);
-			title = createMultiline(TTL_Welcome, 16);
+			text = createMultiline(TXT_Welcome, 6 );
+			title = createMultiline(TTL_Welcome, 12 );
 
 		} else if (gameversion <= Game.versionCode) {
 
@@ -129,8 +106,8 @@ public class WelcomeScene extends PixelScene {
 
 		} else {
 
-			text = createMultiline( TXT_Future, 8 );
-			title = createMultiline( TTL_Future, 16 );
+			text = createMultiline( TXT_Future, 6 );
+			title = createMultiline( TTL_Future, 12 );
 
 		}
 
@@ -156,12 +133,6 @@ public class WelcomeScene extends PixelScene {
 
 		ScrollPane list = new ScrollPane( new Component() );
 		add( list );
-		list.setRect(
-				panel.x + panel.marginLeft(),
-				panel.y + panel.marginTop(),
-				panel.innerWidth(),
-				panel.innerHeight());
-		list.scrollTo( 0, 0 );
 
 		Component content = list.content();
 		content.clear();
@@ -172,6 +143,13 @@ public class WelcomeScene extends PixelScene {
 		content.add(text);
 
 		content.setSize( panel.innerWidth(), text.height() );
+
+		list.setRect(
+				panel.x + panel.marginLeft(),
+				panel.y + panel.marginTop(),
+				panel.innerWidth(),
+				panel.innerHeight());
+		list.scrollTo(0, 0);
 
 		RedButton okay = new RedButton("Okay!") {
 			@Override

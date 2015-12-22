@@ -24,6 +24,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.TextureFilm;
+import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Halo;
@@ -70,6 +71,10 @@ public class WandmakerSprite extends MobSprite {
 			shield.putOut();
 		}
 		emitter().start( ElmoParticle.FACTORY, 0.03f, 60 );
+
+		if (visible) {
+			Sample.INSTANCE.play( Assets.SND_BURNING );
+		}
 	}
 	
 	public class Shield extends Halo {

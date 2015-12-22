@@ -26,12 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.King;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -53,13 +48,6 @@ public class WandOfCorruption extends Wand {
 		image = ItemSpriteSheet.WAND_CORRUPTION;
 	}
 
-	//FIXME: sloppy
-	private static HashSet<Class> bosses = new HashSet<Class>(Arrays.asList(
-			Ghost.FetidRat.class, Ghost.GnollTrickster.class, Ghost.GreatCrab.class,
-			Goo.class, Tengu.class, DM300.class, King.class,
-			Yog.class, Yog.BurningFist.class, Yog.RottingFist.class
-	));
-
 	@Override
 	protected void onZap(Ballistica bolt) {
 		Char ch = Actor.findChar(bolt.collisionPos);
@@ -71,12 +59,12 @@ public class WandOfCorruption extends Wand {
 				return;
 			}
 
-			if (bosses.contains(ch.getClass())){
+			if (ch.properties().contains(Char.Property.BOSS) || ch.properties().contains(Char.Property.MINIBOSS)){
 				GLog.w("Bosses are immune to corruption");
 				return;
 			}
 
-			int basePower = 10 + 2*level;
+			int basePower = 10 + 2*level();
 			int mobPower = Random.IntRange(0, ch.HT) + ch.HP*2;
 			for ( Buff buff : ch.buffs()){
 				if (buff.type == Buff.buffType.NEGATIVE){
@@ -89,7 +77,7 @@ public class WandOfCorruption extends Wand {
 			//try to use extra charges to overpower the mob
 			while (basePower <= mobPower){
 				extraCharges++;
-				basePower += 5 + level;
+				basePower += 5 + level();
 			}
 
 			//if we fail, lose all charges, remember we have 1 left to lose from using the wand.
@@ -114,8 +102,8 @@ public class WandOfCorruption extends Wand {
 		// lvl 0 - 25%
 		// lvl 1 - 40%
 		// lvl 2 - 50%
-		if (Random.Int( level + 4 ) >= 3){
-			Buff.prolong( defender, Amok.class, 3+level);
+		if (Random.Int( level() + 4 ) >= 3){
+			Buff.prolong( defender, Amok.class, 3+level());
 		}
 	}
 

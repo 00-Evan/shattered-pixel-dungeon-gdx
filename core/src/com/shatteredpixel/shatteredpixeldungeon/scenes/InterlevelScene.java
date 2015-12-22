@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndStory;
 import com.watabou.noosa.BitmapText;
@@ -56,7 +57,7 @@ public class InterlevelScene extends PixelScene {
 														"it may mean this save game is corrupted. Sorry about that.";
 	
 	public static enum Mode {
-		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET
+		DESCEND, ASCEND, CONTINUE, RESURRECT, RETURN, FALL, RESET, NONE
 	};
 	public static Mode mode;
 	
@@ -227,8 +228,9 @@ public class InterlevelScene extends PixelScene {
 				Dungeon.chapters.add( WndStory.ID_SEWERS );
 				noStory = false;
 			}
+			GameLog.wipe();
 		} else {
-			Dungeon.saveLevel();
+			Dungeon.saveAll();
 		}
 
 		Level level;
@@ -244,7 +246,7 @@ public class InterlevelScene extends PixelScene {
 	private void fall() throws IOException {
 
 		Actor.fixTime();
-		Dungeon.saveLevel();
+		Dungeon.saveAll();
 
 		Level level;
 		if (Dungeon.depth >= Statistics.deepestFloor) {
@@ -258,8 +260,8 @@ public class InterlevelScene extends PixelScene {
 	
 	private void ascend() throws IOException {
 		Actor.fixTime();
-		
-		Dungeon.saveLevel();
+
+		Dungeon.saveAll();
 		Dungeon.depth--;
 		Level level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 		Dungeon.switchLevel( level, level.exit );
@@ -268,8 +270,8 @@ public class InterlevelScene extends PixelScene {
 	private void returnTo() throws IOException {
 		
 		Actor.fixTime();
-		
-		Dungeon.saveLevel();
+
+		Dungeon.saveAll();
 		Dungeon.depth = returnDepth;
 		Level level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 		Dungeon.switchLevel( level, Level.resizingNeeded ? level.adjustPos( returnPos ) : returnPos );
@@ -278,7 +280,9 @@ public class InterlevelScene extends PixelScene {
 	private void restore() throws IOException {
 		
 		Actor.fixTime();
-		
+
+		GameLog.wipe();
+
 		Dungeon.loadGame( StartScene.curClass );
 		if (Dungeon.depth == -1) {
 			Dungeon.depth = Statistics.deepestFloor;

@@ -52,6 +52,8 @@ public class Skeleton extends Mob {
 
 		loot = Generator.Category.WEAPON;
 		lootChance = 0.2f;
+
+		properties.add(Property.UNDEAD);
 	}
 	
 	@Override
@@ -91,7 +93,7 @@ public class Skeleton extends Mob {
 		Item loot = Generator.random( Generator.Category.WEAPON );
 		for (int i=0; i < 2; i++) {
 			Item l = Generator.random( Generator.Category.WEAPON );
-			if (l.level < loot.level) {
+			if (l.level() < loot.level()) {
 				loot = l;
 			}
 		}
