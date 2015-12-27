@@ -63,6 +63,17 @@ public class WelcomeScene extends PixelScene {
 				"Happy Dungeoneering!";
 
 	private static final String TXT_Update =
+				"v0.3.3b:\n" +
+				"- Fixed start-crash on android 2.2\n" +
+				"- Fixed various crash bugs\n" +
+				"\n" +
+				"v0.3.3a:\n" +
+				"- Added a small holiday treat ;)\n" +
+				"- Thieves now disappear when they get away\n" +
+				"- Fixed chests not opening with enemies nearby\n" +
+				"- Fixed numerous bugs and crashes\n" +
+				"\n" +
+				"v0.3.3:\n" +
 				"Gameplay Changes:\n" +
 				"- Tengu's maze is now different each time\n" +
 				"- Items no longer auto-pickup when enemies are near\n" +
