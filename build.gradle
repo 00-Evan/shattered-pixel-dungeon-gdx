@@ -6,7 +6,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
-		classpath 'com.android.tools.build:gradle:0.12.2'
+		classpath 'com.android.tools.build:gradle:1.2.3'
 		classpath 'com.github.jtakakura:gradle-robovm-plugin:0.0.10'
 	}
 }
@@ -101,6 +101,7 @@ project(":core") {
 		compile project(":PD-classes")
 		compile "com.badlogicgames.gdx:gdx:$gdxVersion"
 		compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+		compile fileTree(dir: '../libs', include: '*.jar')
 	}
 }
 

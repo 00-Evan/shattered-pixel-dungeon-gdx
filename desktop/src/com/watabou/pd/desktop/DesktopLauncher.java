@@ -25,12 +25,10 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.watabou.input.NoosaInputProcessor;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.utils.PDPlatformSupport;
-
-import org.lwjgl.opengl.Display;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -78,7 +76,7 @@ public class DesktopLauncher {
 		config.title = "Shattered Pixel Dungeon";
 
 		new LwjglApplication(new ShatteredPixelDungeon(
-				new DesktopSupport(version, versionCode, config.preferencesDirectory, new DesktopInputProcessor())
+				new DesktopSupport(version, versionCode, config.preferencesDirectory, new IrcInputProcessor())
 		), config);
 	}
 
