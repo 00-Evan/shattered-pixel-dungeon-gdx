@@ -180,7 +180,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 
-		Graphics.DisplayMode mode = Gdx.graphics.getDesktopDisplayMode();
+		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
 		boolean maximized = width >= mode.width || height >= mode.height;
 
 		if (!maximized && !fullscreen()) {
@@ -210,12 +210,12 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		if (value) {
 			prefs.put(Preferences.KEY_WINDOW_FULLSCREEN, true);
 
-			Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
+			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		} else {
 			int w = prefs.getInt(Preferences.KEY_WINDOW_WIDTH, Preferences.DEFAULT_WINDOW_WIDTH);
 			int h = prefs.getInt(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
 			prefs.put(Preferences.KEY_WINDOW_FULLSCREEN, false);
-			Gdx.graphics.setDisplayMode(w, h, false);
+			Gdx.graphics.setWindowedMode(w, h);
 		}
 	}
 
