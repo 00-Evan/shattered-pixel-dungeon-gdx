@@ -27,6 +27,9 @@ public class TouchArea<T> extends Visual implements Signal.Listener<NoosaInputPr
 	
 	protected NoosaInputProcessor.Touch touch = null;
 
+	//if true, this TouchArea will always block input, even when it is inactive
+	public boolean blockWhenInactive = false;
+
 	private Signal.Listener<NoosaInputProcessor.Key<T>> keyListener = new Signal.Listener<NoosaInputProcessor.Key<T>>() {
 		@Override
 		public void onSignal(NoosaInputProcessor.Key<T> key) {
@@ -94,12 +97,13 @@ public class TouchArea<T> extends Visual implements Signal.Listener<NoosaInputPr
 
 	@Override
 	public void onSignal( NoosaInputProcessor.Touch touch ) {
+
+		boolean hit = touch != null && target.overlapsScreenPoint( (int)touch.current.x, (int)touch.current.y );
 		
 		if (!isActive()) {
+			if (hit && blockWhenInactive) Game.instance.getInputProcessor().cancelTouchEvent();
 			return;
 		}
-		
-		boolean hit = touch != null && target.overlapsScreenPoint( (int)touch.current.x, (int)touch.current.y );
 		
 		if (hit) {
 

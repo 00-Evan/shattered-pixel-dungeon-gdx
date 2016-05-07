@@ -62,6 +62,8 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	protected Scene requestedScene;
 	// true if scene switch is requested
 	protected boolean requestedReset = true;
+	// callback to perform logic during scene change
+	protected SceneChangeCallback onChange;
 	// New scene class
 	protected Class<? extends Scene> sceneClass;
 	
@@ -182,10 +184,15 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	public static void resetScene() {
 		switchScene( instance.sceneClass );
 	}
+
+	public static void switchScene(Class<? extends Scene> c) {
+		switchScene(c, null);
+	}
 	
-	public static void switchScene( Class<? extends Scene> c ) {
+	public static void switchScene(Class<? extends Scene> c, SceneChangeCallback callback) {
 		instance.sceneClass = c;
 		instance.requestedReset = true;
+		instance.onChange = callback;
 	}
 	
 	public static Scene scene() {
@@ -219,7 +226,10 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 			scene.destroy();
 		}
 		scene = requestedScene;
+		if (onChange != null) onChange.beforeCreate();
 		scene.create();
+		if (onChange != null) onChange.afterCreate();
+		onChange = null;
 		
 		Game.elapsed = 0f;
 		Game.timeScale = 1f;
@@ -264,5 +274,10 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 
 	public PDPlatformSupport getPlatformSupport() {
 		return platformSupport;
+	}
+
+	public interface SceneChangeCallback {
+		void beforeCreate();
+		void afterCreate();
 	}
 }

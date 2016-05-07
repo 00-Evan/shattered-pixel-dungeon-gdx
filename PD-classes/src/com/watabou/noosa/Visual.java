@@ -181,6 +181,11 @@ public class Visual extends Gizmo {
 		ga = ((color >> 8) & 0xFF) / 255f * strength;
 		ba = (color & 0xFF) / 255f * strength;
 	}
+
+	//color must include an alpha component (e.g. 0x80FF0000 for red at 0.5 strength)
+	public void tint( int color ) {
+		tint( color & 0xFFFFFF, ((color >> 24) & 0xFF) / (float)0xFF);
+	}
 	
 	public void color( float r, float g, float b ) {
 		rm = gm = bm = 0;
