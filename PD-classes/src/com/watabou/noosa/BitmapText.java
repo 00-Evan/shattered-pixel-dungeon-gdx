@@ -20,8 +20,8 @@ package com.watabou.noosa;
 import java.nio.FloatBuffer;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
-import com.watabou.gdx.GdxTexture;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Matrix;
@@ -209,10 +209,8 @@ public class BitmapText extends Visual {
 	}
 	
 	public static class Font extends TextureFilm {
-		
-		public static final String LATIN_UPPER =
-			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		
+
+
 		public static final String LATIN_FULL =
 			" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
 		
@@ -220,9 +218,8 @@ public class BitmapText extends Visual {
 		
 		public float tracking = 0;
 		public float baseLine;
-		
-		public boolean autoUppercase = false;
-		
+
+
 		public float lineHeight;
 		
 		protected Font( SmartTexture tx ) {
@@ -239,8 +236,6 @@ public class BitmapText extends Visual {
 			super( tx );
 			
 			texture = tx;
-			
-			autoUppercase = chars.equals( LATIN_UPPER );
 			
 			int length = chars.length();
 			
@@ -264,12 +259,8 @@ public class BitmapText extends Visual {
 			lineHeight = baseLine = height;
 		}
 
-		//FIXME!!
-		//this logic is fairly obtuse and was modified hastily to add support for multiple lines in
-		//the bitmap as a fix for 0.3.1c, needs to be rewritten to be more clear.
-		protected void splitBy(GdxTexture bitmap, int height, int color, String chars ) {
+		protected void splitBy( Texture bitmap, int height, int color, String chars ) {
 
-			autoUppercase = chars.equals( LATIN_UPPER );
 			int length = chars.length();
 
 			int width = bitmap.getWidth();
@@ -301,6 +292,21 @@ public class BitmapText extends Visual {
 				} else {
 
 					boolean found;
+
+					do{
+						if (separator >= width) {
+							line += height;
+							separator = 0;
+						}
+						found = false;
+						for (int j=line; j < line + height; j++) {
+							if (colorNotMatch( pixmap, separator, j, color)) {
+								found = true;
+								break;
+							}
+						}
+						if (!found) separator++;
+					} while (!found);
 					int start = separator;
 
 					do {
@@ -319,7 +325,7 @@ public class BitmapText extends Visual {
 						}
 					} while (!found);
 
-					add( ch, new RectF( (float)start / width, (float)line / bitmap.getHeight(), (float)separator / width, vHeight*((line+height)/height) ) );
+					add( ch, new RectF( (float)start / width, (float)line / bitmap.getHeight(), (float)separator / width, (float)line / bitmap.getHeight() + vHeight) );
 					separator++;
 				}
 			}
@@ -336,20 +342,24 @@ public class BitmapText extends Visual {
 			return pixel != color;
 		}
 
-		public static Font colorMarked( GdxTexture bmp, int color, String chars ) {
+		public static Font colorMarked( Texture bmp, int color, String chars ) {
 			Font font = new Font( TextureCache.get( bmp ) );
 			font.splitBy( bmp, bmp.getHeight(), color, chars );
 			return font;
 		}
 		 
-		public static Font colorMarked( GdxTexture bmp, int height, int color, String chars ) {
+		public static Font colorMarked( Texture bmp, int height, int color, String chars ) {
 			Font font = new Font( TextureCache.get( bmp ) );
 			font.splitBy( bmp, height, color, chars );
 			return font;
 		}
 		
 		public RectF get( char ch ) {
-			return super.get( autoUppercase ? Character.toUpperCase( ch ) : ch );
+			if (frames.containsKey( ch )){
+				return super.get( ch );
+			} else {
+				return super.get( '?' );
+			}
 		}
 	}
 }

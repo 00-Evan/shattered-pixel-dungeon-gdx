@@ -17,14 +17,14 @@
 
 package com.watabou.gltextures;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.watabou.gdx.GdxTexture;
 import com.watabou.utils.RectF;
 
-import com.watabou.glwrap.Texture;
+import com.watabou.glwrap.NoosaTexture;
 
-public class SmartTexture extends Texture {
+public class SmartTexture extends NoosaTexture {
 
 	public int width;
 	public int height;
@@ -37,11 +37,11 @@ public class SmartTexture extends Texture {
 	
 	public Atlas atlas;
 	
-	public SmartTexture( GdxTexture bitmap ) {
+	public SmartTexture( Texture bitmap ) {
 		this( bitmap, TextureFilter.Nearest, TextureWrap.ClampToEdge );
 	}
 
-	public SmartTexture( GdxTexture bitmap, TextureFilter filtering, TextureWrap wrapping ) {
+	public SmartTexture( Texture bitmap, TextureFilter filtering, TextureWrap wrapping ) {
 		
 		super(bitmap);
 		width = bitmap.getWidth();
@@ -63,11 +63,11 @@ public class SmartTexture extends Texture {
 	}
 	
 	@Override
-	public void bitmap( GdxTexture bitmap ) {
+	public void bitmap( Texture bitmap ) {
 		bitmap( bitmap, false );
 	}
 	
-	public void bitmap( GdxTexture bitmap, boolean premultiplied ) {
+	public void bitmap( Texture bitmap, boolean premultiplied ) {
 		if (premultiplied) {
 			super.bitmap( bitmap );
 		} else {

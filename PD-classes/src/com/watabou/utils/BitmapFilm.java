@@ -19,24 +19,24 @@ package com.watabou.utils;
 
 import java.util.HashMap;
 
-import com.watabou.gdx.GdxTexture;
+import com.badlogic.gdx.graphics.Texture;
 
 public class BitmapFilm {
 
-	public GdxTexture bitmap;
+	public Texture bitmap;
 	
 	protected HashMap<Object,Rect> frames = new HashMap<Object, Rect>();
 	
-	public BitmapFilm( GdxTexture bitmap ) {
+	public BitmapFilm( Texture bitmap ) {
 		this.bitmap = bitmap;
 		add( null, new Rect( 0, 0, bitmap.getWidth(), bitmap.getHeight() ) );
 	}
 	
-	public BitmapFilm( GdxTexture bitmap, int width ) {
+	public BitmapFilm( Texture bitmap, int width ) {
 		this( bitmap, width, bitmap.getHeight() );
 	}
 	
-	public BitmapFilm( GdxTexture bitmap, int width, int height ) {
+	public BitmapFilm( Texture bitmap, int width, int height ) {
 		this.bitmap = bitmap;
 		int cols = bitmap.getWidth() / width;
 		int rows = bitmap.getHeight() / height;

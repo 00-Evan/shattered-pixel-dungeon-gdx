@@ -18,8 +18,8 @@
 package com.watabou.gltextures;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.watabou.gdx.GdxTexture;
-import com.watabou.glwrap.Texture;
+import com.badlogic.gdx.graphics.Texture;
+import com.watabou.glwrap.NoosaTexture;
 
 import java.util.HashMap;
 
@@ -40,9 +40,8 @@ public class TextureCache {
 			// In the rest of the code ARGB is used
 			pixmap.setColor( (color << 8) | (color >>> 24) );
 			pixmap.fill();
-			GdxTexture bmp = new GdxTexture( pixmap );
 
-			SmartTexture tx = new SmartTexture( bmp );
+			SmartTexture tx = new SmartTexture( new Texture( pixmap ) );
 			all.put(key, tx);
 
 			return tx;
@@ -76,7 +75,7 @@ public class TextureCache {
 	
 	public static void clear() {
 		
-		for (Texture txt:all.values()) {
+		for (NoosaTexture txt:all.values()) {
 			txt.delete();
 		}
 		all.clear();
@@ -89,7 +88,7 @@ public class TextureCache {
 		}
 	}
 	
-	public static GdxTexture getBitmap( Object src ) {
+	public static Texture getBitmap( Object src ) {
 		
 		try {
 			if (src instanceof Integer){
@@ -99,11 +98,11 @@ public class TextureCache {
 				
 			} else if (src instanceof String) {
 				
-				return new GdxTexture((String)src);
+				return new Texture((String)src);
 				
-			} else if (src instanceof GdxTexture) {
+			} else if (src instanceof Texture) {
 				
-				return (GdxTexture)src;
+				return (Texture)src;
 				
 			} else {
 				

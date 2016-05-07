@@ -17,7 +17,7 @@
 
 package com.watabou.utils;
 
-import com.watabou.gdx.GdxTexture;
+import com.badlogic.gdx.graphics.Texture;
 
 import java.util.HashMap;
 
@@ -27,11 +27,11 @@ public class BitmapCache {
 	
 	private static HashMap<String,Layer> layers = new HashMap<String, BitmapCache.Layer>();
 	
-	public static GdxTexture get( String assetName ) {
+	public static Texture get( String assetName ) {
 		return get( DEFAULT, assetName );
 	}
 	
-	public static GdxTexture get( String layerName, String assetName ) {
+	public static Texture get(String layerName, String assetName ) {
 		
 		Layer layer;
 		if (!layers.containsKey( layerName )) {
@@ -44,7 +44,7 @@ public class BitmapCache {
 		if (layer.containsKey( assetName )) {
 			return layer.get( assetName );
 		} else {
-			GdxTexture bmp = new GdxTexture( assetName );
+			Texture bmp = new Texture( assetName );
 			layer.put( assetName, bmp );
 			return bmp;
 		}
@@ -65,11 +65,11 @@ public class BitmapCache {
 	}
 	
 	@SuppressWarnings("serial")
-	private static class Layer extends HashMap<Object,GdxTexture> {
+	private static class Layer extends HashMap<Object,Texture> {
 		
 		@Override
 		public void clear() {
-			for (GdxTexture bmp:values()) {
+			for (Texture bmp:values()) {
 				bmp.dispose();
 			}
 			super.clear();

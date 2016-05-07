@@ -18,7 +18,6 @@
 package com.watabou.noosa;
 
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.watabou.glwrap.Texture;
 
 import com.watabou.utils.RectF;
 

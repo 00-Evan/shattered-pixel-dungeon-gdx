@@ -23,8 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import java.util.Arrays;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.watabou.gdx.GdxTexture;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Image;
@@ -111,7 +111,7 @@ public class FogOfWar extends Image {
 		
 		public FogTexture() {
 			// FIXME: This is creating an empty texture, but we don't support calling pixels(), at least for now
-			super( new GdxTexture( width2, height2, Pixmap.Format.RGBA8888 ) );
+			super( new Texture( width2, height2, Pixmap.Format.RGBA8888 ) );
 			filter( TextureFilter.Linear, TextureFilter.Linear );
 			TextureCache.add( FogOfWar.class, this );
 		}

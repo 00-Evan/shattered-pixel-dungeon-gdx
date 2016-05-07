@@ -215,17 +215,19 @@ public class Visual extends Gizmo {
 	
 	public boolean overlapsScreenPoint( int x, int y ) {
 		Camera c = camera();
-		if (c != null) {
-			PointF p = c.screenToCamera( x, y );
-			return overlapsPoint( p.x, p.y );
-		} else {
-			return false;
-		}
+
+		if (c == null) return false;
+
+		PointF p = c.screenToCamera( x, y );
+		return overlapsPoint( p.x, p.y );
 	}
 	
 	// true if its bounding box intersects its camera's bounds
 	public boolean isVisible() {
 		Camera c = camera();
+
+		if (c == null) return false;
+
 		float cx = c.scroll.x;
 		float cy = c.scroll.y;
 		float w = width();

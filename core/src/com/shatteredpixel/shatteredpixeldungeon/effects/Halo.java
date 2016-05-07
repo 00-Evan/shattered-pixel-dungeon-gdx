@@ -21,7 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.watabou.gdx.GdxTexture;
+import com.badlogic.gdx.graphics.Texture;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Image;
@@ -44,8 +44,7 @@ public class Halo extends Image {
 			pixmap.fillCircle( RADIUS, RADIUS, (int) (RADIUS * 0.75f));
 			pixmap.setColor( 0xFFFFFF88 );
 			pixmap.fillCircle( RADIUS, RADIUS, RADIUS );
-			GdxTexture bmp = new GdxTexture(pixmap);
-			TextureCache.add( CACHE_KEY, new SmartTexture( bmp ) );
+			TextureCache.add( CACHE_KEY, new SmartTexture( new Texture(pixmap) ) );
 		}
 		
 		texture( CACHE_KEY );

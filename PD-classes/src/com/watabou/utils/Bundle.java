@@ -79,6 +79,22 @@ public class Bundle {
 	public String getString( String key ) {
 		return data.optString( key );
 	}
+
+	public Class getClass( String key ) {
+		String clName =  getString(key).replace("class ", "");;
+		if (clName != null){
+			if (aliases.containsKey( clName )) {
+				clName = aliases.get( clName );
+			}
+			try {
+				Class cl = Class.forName( clName );
+				return cl;
+			} catch (ClassNotFoundException e) {
+				return null;
+			}
+		}
+		return null;
+	}
 	
 	public Bundle getBundle( String key ) {
 		return new Bundle( data.optJSONObject( key ) );
@@ -158,6 +174,29 @@ public class Bundle {
 			return null;
 		}
 	}
+
+	public Class[] getClassArray( String key ) {
+		try {
+			JSONArray array = data.getJSONArray( key );
+			int length = array.length();
+			Class[] result = new Class[length];
+			for (int i=0; i < length; i++) {
+				String clName = array.getString( i ).replace("class ", "");
+				if (aliases.containsKey( clName )) {
+					clName = aliases.get( clName );
+				}
+				try {
+					Class cl = Class.forName( clName );
+					result[i] = cl;
+				} catch (ClassNotFoundException e) {
+					result[i] = null;
+				}
+			}
+			return result;
+		} catch (JSONException e) {
+			return null;
+		}
+	}
 	
 	public Collection<Bundlable> getCollection( String key ) {
 		
@@ -201,6 +240,14 @@ public class Bundle {
 	}
 	
 	public void put( String key, String value ) {
+		try {
+			data.put( key, value );
+		} catch (JSONException e) {
+
+		}
+	}
+
+	public void put( String key, Class value ){
 		try {
 			data.put( key, value );
 		} catch (JSONException e) {
@@ -270,6 +317,18 @@ public class Bundle {
 			data.put( key, jsonArray );
 		} catch (JSONException e) {
 			
+		}
+	}
+
+	public void put( String key, Class[] array ){
+		try {
+			JSONArray jsonArray = new JSONArray();
+			for (int i=0; i < array.length; i++) {
+				jsonArray.put( i, array[i] );
+			}
+			data.put( key, jsonArray );
+		} catch (JSONException e) {
+
 		}
 	}
 	

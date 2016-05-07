@@ -21,8 +21,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.TextureData;
-import com.watabou.gdx.GdxTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.MovieClip;
@@ -250,7 +250,7 @@ public class ItemSprite extends MovieClip {
 	}
 
 	public static int pick( int index, int x, int y ) {
-		GdxTexture bmp = TextureCache.get( Assets.ITEMS ).bitmap;
+		Texture bmp = TextureCache.get( Assets.ITEMS ).bitmap;
 		int rows = bmp.getWidth() / SIZE;
 		int row = index / rows;
 		int col = index % rows;

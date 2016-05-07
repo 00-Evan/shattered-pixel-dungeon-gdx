@@ -23,17 +23,16 @@ import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.badlogic.gdx.utils.BufferUtils;
-import com.watabou.gdx.GdxTexture;
 
-public class Texture {
+public class NoosaTexture {
 
 	public boolean premultiplied = false;
-	public GdxTexture bitmap;
+	public Texture bitmap;
 
-	protected Texture(GdxTexture bitmap) {
+	protected NoosaTexture(Texture bitmap) {
 		this.bitmap = bitmap;
 	}
 
@@ -57,7 +56,7 @@ public class Texture {
 		bitmap.dispose();
 	}
 	
-	public void bitmap( GdxTexture bitmap ) {
+	public void bitmap( Texture bitmap ) {
 		this.bitmap = bitmap;
 
 		premultiplied = true;
@@ -113,7 +112,7 @@ public class Texture {
 	
 	// If getConfig returns null (unsupported format?), GLUtils.texImage2D works
 	// incorrectly. In this case we need to load pixels manually
-	public void handMade( GdxTexture bitmap, boolean recode ) {
+	public void handMade( Texture bitmap, boolean recode ) {
 
 		int w = bitmap.getWidth();
 		int h = bitmap.getHeight();
@@ -138,21 +137,21 @@ public class Texture {
 		premultiplied = false;
 	}
 	
-	public static Texture create( GdxTexture bmp ) {
-		return new Texture(bmp);
+	public static NoosaTexture create(Texture bmp ) {
+		return new NoosaTexture(bmp);
 	}
 	
-	public static Texture create( int width, int height, int[] pixels ) {
+	public static NoosaTexture create(int width, int height, int[] pixels ) {
 		// FIXME
-		Texture tex = new Texture(null);
+		NoosaTexture tex = new NoosaTexture(null);
 		tex.pixels( width, height, pixels );
 		
 		return tex;
 	}
 	
-	public static Texture create( int width, int height, byte[] pixels ) {
+	public static NoosaTexture create(int width, int height, byte[] pixels ) {
 		// FIXME
-		Texture tex = new Texture(null);
+		NoosaTexture tex = new NoosaTexture(null);
 		tex.pixels( width, height, pixels );
 		
 		return tex;
