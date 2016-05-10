@@ -22,41 +22,32 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.ui.ChangesButton;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndHardNotification;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.audio.Music;
-import com.watabou.noosa.audio.Sample;
-import com.watabou.noosa.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ChangesButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.LanguageButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.UpdateNotification;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Music;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.ui.Button;
 
 public class TitleScene extends PixelScene {
-
-	private static final String TXT_PLAY		= "Play";
-	private static final String TXT_HIGHSCORES	= "Rankings";
-	private static final String TXT_BADGES		= "Badges";
-	private static final String TXT_ABOUT		= "About";
 	
 	@Override
 	public void create() {
 		
 		super.create();
-
 
 		Music.INSTANCE.play( Assets.THEME, true );
 		Music.INSTANCE.volume( ShatteredPixelDungeon.musicVol() / 10f );
@@ -99,16 +90,16 @@ public class TitleScene extends PixelScene {
 		signs.x = title.x;
 		signs.y = title.y;
 		add( signs );
-		
-		DashboardItem btnBadges = new DashboardItem( TXT_BADGES, 3 ) {
+
+		DashboardItem btnBadges = new DashboardItem( Messages.get(this, "badges"), 3 ) {
 			@Override
 			protected void onClick() {
 				ShatteredPixelDungeon.switchNoFade( BadgesScene.class );
 			}
 		};
 		add(btnBadges);
-		
-		DashboardItem btnAbout = new DashboardItem( TXT_ABOUT, 1 ) {
+
+		DashboardItem btnAbout = new DashboardItem( Messages.get(this, "about"), 1 ) {
 			@Override
 			protected void onClick() {
 				ShatteredPixelDungeon.switchNoFade( AboutScene.class );
@@ -116,33 +107,33 @@ public class TitleScene extends PixelScene {
 		};
 		add( btnAbout );
 
-		DashboardItem btnPlay = new DashboardItem( TXT_PLAY, 0 ) {
+		DashboardItem btnPlay = new DashboardItem( Messages.get(this, "play"), 0 ) {
 			@Override
 			protected void onClick() {
 				ShatteredPixelDungeon.switchNoFade( StartScene.class );
 			}
 		};
 		add( btnPlay );
-		
-		DashboardItem btnHighscores = new DashboardItem( TXT_HIGHSCORES, 2 ) {
+
+		DashboardItem btnRankings = new DashboardItem( Messages.get(this, "rankings"), 2 ) {
 			@Override
 			protected void onClick() {
 				ShatteredPixelDungeon.switchNoFade( RankingsScene.class );
 			}
 		};
-		add( btnHighscores );
+		add( btnRankings );
 
 		if (ShatteredPixelDungeon.landscape()) {
 			float y = (h + height) / 2 - DashboardItem.SIZE;
-			btnHighscores    .setPos( w / 2 - btnHighscores.width(), y );
-			btnBadges        .setPos( w / 2, y );
-			btnPlay            .setPos( btnHighscores.left() - btnPlay.width(), y );
+			btnRankings     .setPos( w / 2 - btnRankings.width(), y );
+			btnBadges       .setPos( w / 2, y );
+			btnPlay         .setPos( btnRankings.left() - btnPlay.width(), y );
 			btnAbout        .setPos( btnBadges.right(), y );
 		} else {
 			btnBadges.setPos( w / 2 - btnBadges.width(), (h + height) / 2 - DashboardItem.SIZE );
 			btnAbout.setPos( w / 2, (h + height) / 2 - DashboardItem.SIZE );
 			btnPlay.setPos( w / 2 - btnPlay.width(), btnAbout.top() - DashboardItem.SIZE );
-			btnHighscores.setPos( w / 2, btnPlay.top() );
+			btnRankings.setPos( w / 2, btnPlay.top() );
 		}
 
 		BitmapText version = new BitmapText( "v " + Game.version + "", pixelFont);
@@ -160,52 +151,13 @@ public class TitleScene extends PixelScene {
 		btnPrefs.setPos( 0, 0 );
 		add( btnPrefs );
 
+		LanguageButton btnLang = new LanguageButton();
+		btnLang.setPos(16, 1);
+		add( btnLang );
+
 		ExitButton btnExit = new ExitButton();
 		btnExit.setPos( w - btnExit.width(), 0 );
 		add( btnExit );
-
-		int gameversion = ShatteredPixelDungeon.version();
-
-		if (gameversion != Game.versionCode) {
-			if (gameversion < 65){
-				//TODO special code for 0.3.2 update to notify people about mastery book changes. Remove when not needed
-				Badges.loadGlobal();
-
-				if (Badges.isUnlocked(Badges.Badge.MASTERY_WARRIOR) ||
-						Badges.isUnlocked(Badges.Badge.MASTERY_ROGUE) ||
-						Badges.isUnlocked(Badges.Badge.MASTERY_MAGE) ||
-						Badges.isUnlocked(Badges.Badge.MASTERY_HUNTRESS) ){
-					add(new WndHardNotification(new ItemSprite(ItemSpriteSheet.MASTERY, null),
-						"Mastery Book Changes",
-						"v0.3.2 brings new prison content and some big balance changes to subclasses:\n" +
-						"\n" +
-						"_The Book of Mastery is no longer given at floor 1, it is only dropped by Tengu._\n" +
-						"\n" +
-						"There have been balance tweaks to accommodate this, so the difficulty should be similar.\n" +
-						"\n" +
-						"This change is necessary to allow for more interesting subclasses in the future, " +
-						"apologies for any frustration.",
-						"See All Changes", 10){
-							@Override
-							public void hide() {
-								super.hide();
-								Game.switchScene(WelcomeScene.class);
-							}
-						}
-					);
-				} else {
-					Game.switchScene(WelcomeScene.class);
-					return;
-				}
-			} else {
-				Game.switchScene(WelcomeScene.class);
-				return;
-			}
-		}
-
-		UpdateNotification updInfo = new UpdateNotification();
-		updInfo.setPos(0, h-updInfo.height());
-		add(updInfo);
 
 		fadeIn();
 	}
@@ -223,38 +175,39 @@ public class TitleScene extends PixelScene {
 		private static final int IMAGE_SIZE	= 32;
 		
 		private Image image;
-		private BitmapText label;
-		
+		private RenderedText label;
+
 		public DashboardItem( String text, int index ) {
 			super();
-			
+
 			image.frame( image.texture.uvRect( index * IMAGE_SIZE, 0, (index + 1) * IMAGE_SIZE, IMAGE_SIZE ) );
 			this.label.text( text );
-			this.label.measure();
-			
+
 			setSize( SIZE, SIZE );
 		}
-		
+
 		@Override
 		protected void createChildren() {
 			super.createChildren();
-			
+
 			image = new Image( Assets.DASHBOARD );
 			add( image );
-			
-			label = createText( 9 );
+
+			label = renderText( 9 );
 			add( label );
 		}
-		
+
 		@Override
 		protected void layout() {
 			super.layout();
-			
+
 			image.x = x + (width - image.width()) / 2;
 			image.y = y;
-			
+			align(image);
+
 			label.x = x + (width - label.width()) / 2;
 			label.y = image.y + image.height() +2;
+			align(label);
 		}
 		
 		@Override

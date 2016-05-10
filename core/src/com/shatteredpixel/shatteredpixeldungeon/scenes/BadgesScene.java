@@ -20,19 +20,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndBadge;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.audio.Music;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndBadge;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.utils.Callback;
@@ -41,8 +42,6 @@ import com.watabou.utils.Random;
 import java.util.List;
 
 public class BadgesScene extends PixelScene {
-
-	private static final String TXT_TITLE = "Your Badges";
 
 	@Override
 	public void create() {
@@ -72,11 +71,11 @@ public class BadgesScene extends PixelScene {
 		float left = (w - size * nCols) / 2;
 		float top = (h - size * nRows) / 2;
 
-		BitmapText title = PixelScene.createText( TXT_TITLE, 9 );
+		RenderedText title = PixelScene.renderText( Messages.get(this, "title"), 9 );
 		title.hardlight(Window.TITLE_COLOR);
-		title.measure();
 		title.x = (w - title.width()) / 2 ;
 		title.y = (top - title.baseLine()) / 2 ;
+		align(title);
 		add(title);
 
 		Badges.loadGlobal();
@@ -90,6 +89,7 @@ public class BadgesScene extends PixelScene {
 				button.setPos(
 						left + j * size + (size - button.width()) / 2,
 						top + i * size + (size - button.height()) / 2);
+				align(button);
 				add( button );
 			}
 		}

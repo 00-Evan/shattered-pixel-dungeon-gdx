@@ -20,18 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import java.util.HashMap;
-
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.BitmapTextMultiline;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Group;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.audio.Sample;
-import com.watabou.noosa.particles.BitmaskEmitter;
-import com.watabou.noosa.particles.Emitter;
-import com.watabou.noosa.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -39,40 +27,35 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites.Type;
-import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndClass;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Group;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.particles.BitmaskEmitter;
+import com.watabou.noosa.particles.Emitter;
+import com.watabou.noosa.ui.Button;
 import com.watabou.utils.Callback;
+
+import java.util.HashMap;
 
 public class StartScene extends PixelScene {
 
 	private static final float BUTTON_HEIGHT	= 24;
 	private static final float GAP				= 2;
-
-	private static final String TXT_LOAD	= "Load Game";
-	private static final String TXT_NEW		= "New Game";
-
-	private static final String TXT_ERASE		= "Erases Progress";
-	private static final String TXT_DPTH_LVL	= "Depth: %d, Level: %d";
-
-	private static final String TXT_REALLY	= "Do you really want to start new game?";
-	private static final String TXT_WARNING	= "Your current game progress will be erased.";
-	private static final String TXT_YES		= "Yes, start new game";
-	private static final String TXT_NO		= "No, return to main menu";
-
-	private static final String TXT_UNLOCK	= "To unlock this character class, slay the 3rd boss with any other class";
-
-	private static final String TXT_WIN_THE_GAME =
-			"To unlock \"Challenges\", win the game with any character class.";
 
 	private static final float WIDTH_P    = 116;
 	private static final float HEIGHT_P    = 220;
@@ -80,7 +63,7 @@ public class StartScene extends PixelScene {
 	private static final float WIDTH_L    = 224;
 	private static final float HEIGHT_L    = 124;
 
-	private static HashMap<HeroClass, ClassShield> shields = new HashMap<HeroClass, ClassShield>();
+	private static HashMap<HeroClass, ClassShield> shields = new HashMap<>();
 
 	private float buttonX;
 	private float buttonY;
@@ -125,16 +108,21 @@ public class StartScene extends PixelScene {
 		Image title = BannerSprites.get( Type.SELECT_YOUR_HERO );
 		title.x = (w - title.width()) / 2;
 		title.y = top;
+		align( title );
 		add( title );
 
 		buttonX = left;
 		buttonY = bottom - BUTTON_HEIGHT;
 
-		btnNewGame = new GameButton( TXT_NEW ) {
+		btnNewGame = new GameButton( Messages.get(this, "new") ) {
 			@Override
 			protected void onClick() {
 				if (GamesInProgress.check( curClass ) != null) {
-					StartScene.this.add( new WndOptions( TXT_REALLY, TXT_WARNING, TXT_YES, TXT_NO ) {
+					StartScene.this.add( new WndOptions(
+							Messages.get(StartScene.class, "really"),
+							Messages.get(StartScene.class, "warning"),
+							Messages.get(StartScene.class, "yes"),
+							Messages.get(StartScene.class, "no") ) {
 						@Override
 						protected void onSelect( int index ) {
 							if (index == 0) {
@@ -150,7 +138,7 @@ public class StartScene extends PixelScene {
 		};
 		add( btnNewGame );
 
-		btnLoad = new GameButton( TXT_LOAD ) {
+		btnLoad = new GameButton( Messages.get(this, "load") ) {
 			@Override
 			protected void onClick() {
 				InterlevelScene.mode = InterlevelScene.Mode.CONTINUE;
@@ -176,6 +164,7 @@ public class StartScene extends PixelScene {
 			for (int i=0; i < classes.length; i++) {
 				ClassShield shield = shields.get( classes[i] );
 				shield.setRect( left + i * shieldW, top, shieldW, shieldH );
+				align(shield);
 			}
 
 			ChallengeButton challenge = new ChallengeButton();
@@ -194,12 +183,14 @@ public class StartScene extends PixelScene {
 						left + (i % 2) * shieldW,
 						top + (i / 2) * shieldH,
 						shieldW, shieldH );
+				align(shield);
 			}
 
 			ChallengeButton challenge = new ChallengeButton();
 			challenge.setPos(
 					w/2 - challenge.width()/2,
 					top + shieldH - challenge.height()/2 );
+			align(challenge);
 			add( challenge );
 
 		}
@@ -209,20 +200,13 @@ public class StartScene extends PixelScene {
 
 		if (!(huntressUnlocked = Badges.isUnlocked( Badges.Badge.BOSS_SLAIN_3 ))) {
 
-			BitmapTextMultiline text = PixelScene.createMultiline( TXT_UNLOCK, 9 );
-			text.maxWidth = (int)width;
-			text.measure();
+			RenderedTextMultiline text = PixelScene.renderMultiline( Messages.get(this, "unlock"), 9 );
+			text.maxWidth((int)width);
+			text.hardlight( 0xFFFF00 );
+			text.setPos(w / 2 - text.width() / 2, (bottom - BUTTON_HEIGHT) + (BUTTON_HEIGHT - text.height()) / 2);
+			align(text);
+			unlock.add(text);
 
-			float pos = (bottom - BUTTON_HEIGHT) + (BUTTON_HEIGHT - text.height()) / 2;
-			for (BitmapText line : text.new LineSplitter().split()) {
-				line.measure();
-				line.hardlight( 0xFFFF00 );
-				line.x = w / 2 - line.width() / 2;
-				line.y = pos;
-				unlock.add( line );
-
-				pos += line.height();
-			}
 		}
 
 		ExitButton btnExit = new ExitButton();
@@ -274,9 +258,9 @@ public class StartScene extends PixelScene {
 			if (info != null) {
 
 				btnLoad.visible = true;
-				btnLoad.secondary( Utils.format( TXT_DPTH_LVL, info.depth, info.level ), info.challenges );
+				btnLoad.secondary( Messages.format( Messages.get(this, "depth_level"), info.depth, info.level ), info.challenges );
 				btnNewGame.visible = true;
-				btnNewGame.secondary( TXT_ERASE, false );
+				btnNewGame.secondary( Messages.get(this, "erase"), false );
 
 				float w = (Camera.main.width - GAP) / 2 - buttonX;
 
@@ -325,7 +309,7 @@ public class StartScene extends PixelScene {
 		private static final int SECONDARY_COLOR_N    = 0xCACFC2;
 		private static final int SECONDARY_COLOR_H    = 0xFFFF88;
 
-		private BitmapText secondary;
+		private RenderedText secondary;
 
 		public GameButton( String primary ) {
 			super( primary );
@@ -337,7 +321,7 @@ public class StartScene extends PixelScene {
 		protected void createChildren() {
 			super.createChildren();
 
-			secondary = createText( 6 );
+			secondary = renderText( 6 );
 			add( secondary );
 		}
 
@@ -353,17 +337,18 @@ public class StartScene extends PixelScene {
 			} else {
 				text.y = y + (height - text.baseLine()) / 2;
 			}
+			align(text);
+			align(secondary);
 		}
 
 		public void secondary( String text, boolean highlighted ) {
 			secondary.text( text );
-			secondary.measure();
 
 			secondary.hardlight( highlighted ? SECONDARY_COLOR_H : SECONDARY_COLOR_N );
 		}
 	}
 
-	private class ClassShield extends Button<GameAction> {
+	private class ClassShield extends Button {
 
 		private static final float MIN_BRIGHTNESS	= 0.6f;
 
@@ -380,7 +365,7 @@ public class StartScene extends PixelScene {
 		private HeroClass cl;
 
 		private Image avatar;
-		private BitmapText name;
+		private RenderedText name;
 		private Emitter emitter;
 
 		private float brightness;
@@ -404,8 +389,7 @@ public class StartScene extends PixelScene {
 				highlighted = BASIC_HIGHLIGHTED;
 			}
 
-			name.text( cl.name() );
-			name.measure();
+			name.text( cl.title().toUpperCase() );
 			name.hardlight( normal );
 
 			brightness = MIN_BRIGHTNESS;
@@ -420,7 +404,7 @@ public class StartScene extends PixelScene {
 			avatar = new Image( Assets.AVATARS );
 			add( avatar );
 
-			name = PixelScene.createText( 9 );
+			name = PixelScene.renderText( 9 );
 			add( name );
 
 			emitter = new BitmaskEmitter( avatar );
@@ -434,9 +418,11 @@ public class StartScene extends PixelScene {
 
 			avatar.x = x + (width - avatar.width()) / 2;
 			avatar.y = y + (height - avatar.height() - name.height()) / 2;
+			align(avatar);
 
 			name.x = x + (width - name.width()) / 2;
 			name.y = avatar.y + avatar.height() + SCALE;
+			align(name);
 
 		}
 
@@ -518,10 +504,10 @@ public class StartScene extends PixelScene {
 						super.onBackPressed();
 						image.copy( Icons.get( ShatteredPixelDungeon.challenges() > 0 ?
 								Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF ) );
-					};
+					}
 				} );
 			} else {
-				StartScene.this.add( new WndMessage( TXT_WIN_THE_GAME ) );
+				StartScene.this.add( new WndMessage( Messages.get(StartScene.class, "need_to_win") ) );
 			}
 		}
 

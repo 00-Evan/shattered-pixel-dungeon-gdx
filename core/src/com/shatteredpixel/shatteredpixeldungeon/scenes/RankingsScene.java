@@ -20,35 +20,31 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.BitmapTextMultiline;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.audio.Music;
-import com.watabou.noosa.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndRanking;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Music;
+import com.watabou.noosa.ui.Button;
 import com.watabou.utils.GameMath;
 
 public class RankingsScene extends PixelScene {
-	
-	private static final String TXT_TITLE		= "Top Rankings";
-	private static final String TXT_TOTAL		= "Games Played: ";
-	private static final String TXT_NO_GAMES	= "No games have been played yet.";
-	
-	private static final String TXT_NO_INFO	= "No additional information";
-	
+
 	private static final float ROW_HEIGHT_MAX	= 20;
 	private static final float ROW_HEIGHT_MIN	= 12;
 
@@ -77,11 +73,11 @@ public class RankingsScene extends PixelScene {
 		
 		Rankings.INSTANCE.load();
 
-		BitmapText title = PixelScene.createText(TXT_TITLE, 9);
+		RenderedText title = PixelScene.renderText( Messages.get(this, "title"), 9);
 		title.hardlight(Window.SHPX_COLOR);
-		title.measure();
 		title.x = (w - title.width()) / 2;
 		title.y = GAP;
+		align(title);
 		add(title);
 		
 		if (Rankings.INSTANCE.records.size() > 0) {
@@ -107,21 +103,18 @@ public class RankingsScene extends PixelScene {
 				
 				pos++;
 			}
-			
+
 			if (Rankings.INSTANCE.totalNumber >= Rankings.TABLE_SIZE) {
-				BitmapText label = PixelScene.createText( TXT_TOTAL, 8 );
+				RenderedText label = PixelScene.renderText( Messages.get(this, "total") + " ", 8 );
 				label.hardlight( 0xCCCCCC );
-				label.measure();
 				add( label );
 
-				BitmapText won = PixelScene.createText( Integer.toString( Rankings.INSTANCE.wonNumber ), 8 );
+				RenderedText won = PixelScene.renderText( Integer.toString( Rankings.INSTANCE.wonNumber ), 8 );
 				won.hardlight( Window.SHPX_COLOR );
-				won.measure();
 				add( won );
 
-				BitmapText total = PixelScene.createText( "/" + Rankings.INSTANCE.totalNumber, 8 );
+				RenderedText total = PixelScene.renderText( "/" + Rankings.INSTANCE.totalNumber, 8 );
 				total.hardlight( 0xCCCCCC );
-				total.measure();
 				total.x = (w - total.width()) / 2;
 				total.y = top + pos * rowHeight + GAP;
 				add( total );
@@ -132,17 +125,21 @@ public class RankingsScene extends PixelScene {
 				total.x = won.x + won.width();
 				label.y = won.y = total.y = h - label.height() - GAP;
 
+				align(label);
+				align(total);
+				align(won);
+
 			}
-			
+
 		} else {
 
-			BitmapText noRec = PixelScene.createText(TXT_NO_GAMES, 8);
+			RenderedText noRec = PixelScene.renderText(Messages.get(this, "no_games"), 8);
 			noRec.hardlight( 0xCCCCCC );
-			noRec.measure();
 			noRec.x = (w - noRec.width()) / 2;
 			noRec.y = (h - noRec.height()) / 2;
+			align(noRec);
 			add(noRec);
-			
+
 		}
 
 		ExitButton btnExit = new ExitButton();
@@ -171,17 +168,17 @@ public class RankingsScene extends PixelScene {
 		protected ItemSprite shield;
 		private Flare flare;
 		private BitmapText position;
-		private BitmapTextMultiline desc;
+		private RenderedTextMultiline desc;
 		private Image steps;
 		private BitmapText depth;
 		private Image classIcon;
 		private BitmapText level;
-		
+
 		public Record( int pos, boolean latest, Rankings.Record rec ) {
 			super();
-			
+
 			this.rec = rec;
-			
+
 			if (latest) {
 				flare = new Flare( 6, 24 );
 				flare.angularSpeed = 90;
@@ -194,13 +191,13 @@ public class RankingsScene extends PixelScene {
 			} else
 				position.text(" ");
 			position.measure();
-			
-			desc.text( rec.info );
 
-			desc.measure();
+			desc.text( Messages.titleCase(rec.desc()) );
+
+			//desc.measure();
 
 			int odd = pos % 2;
-			
+
 			if (rec.win) {
 				shield.view( ItemSpriteSheet.AMULET, null );
 				position.hardlight( TEXT_WIN[odd] );
@@ -229,48 +226,50 @@ public class RankingsScene extends PixelScene {
 				level.measure();
 				add(level);
 			}
-			
+
 			classIcon.copy( Icons.get( rec.heroClass ) );
 		}
-		
+
 		@Override
 		protected void createChildren() {
-			
+
 			super.createChildren();
-			
+
 			shield = new ItemSprite( ItemSpriteSheet.TOMB, null );
 			add( shield );
-			
+
 			position = new BitmapText( PixelScene.pixelFont);
 			position.alpha(0.8f);
 			add( position );
-			
-			desc = createMultiline( 7 );
+
+			desc = renderMultiline( 7 );
 			add( desc );
 
 			depth = new BitmapText( PixelScene.pixelFont);
 			depth.alpha(0.8f);
 
 			steps = new Image();
-			
+
 			classIcon = new Image();
 			add( classIcon );
 
 			level = new BitmapText( PixelScene.pixelFont);
 			level.alpha(0.8f);
 		}
-		
+
 		@Override
 		protected void layout() {
-			
+
 			super.layout();
-			
+
 			shield.x = x;
-			shield.y = y + (height - shield.height) / 2;
-			
-			position.x = shield.x + (shield.width - position.width()) / 2;
-			position.y = shield.y + (shield.height - position.height()) / 2 + 1;
-			
+			shield.y = y + (height - shield.height) / 2f;
+			align(shield);
+
+			position.x = shield.x + (shield.width - position.width()) / 2f;
+			position.y = shield.y + (shield.height - position.height()) / 2f + 1;
+			align(position);
+
 			if (flare != null) {
 				flare.point( shield.center() );
 			}
@@ -278,27 +277,28 @@ public class RankingsScene extends PixelScene {
 			classIcon.x = x + width - classIcon.width;
 			classIcon.y = shield.y;
 
-			level.x = classIcon.x + (classIcon.width - level.width()) / 2;
-			level.y = classIcon.y + (classIcon.height - level.height()) / 2 + 1;
+			level.x = classIcon.x + (classIcon.width - level.width()) / 2f;
+			level.y = classIcon.y + (classIcon.height - level.height()) / 2f + 1;
+			align(level);
 
 			steps.x = x + width - steps.width - classIcon.width;
 			steps.y = shield.y;
 
-			depth.x = steps.x + (steps.width - depth.width()) / 2;
-			depth.y = steps.y + (steps.height - depth.height()) / 2 + 1;
+			depth.x = steps.x + (steps.width - depth.width()) / 2f;
+			depth.y = steps.y + (steps.height - depth.height()) / 2f + 1;
+			align(depth);
 
-			desc.x = shield.x + shield.width + GAP;
-			desc.maxWidth = (int)(steps.x - desc.x);
-			desc.measure();
-			desc.y = shield.y + (shield.height - desc.height()) / 2 + 1;
+			desc.maxWidth((int)(steps.x - (shield.x + shield.width + GAP)));
+			desc.setPos(shield.x + shield.width + GAP, shield.y + (shield.height - desc.height()) / 2f + 1);
+			align(desc);
 		}
-		
+
 		@Override
 		protected void onClick() {
 			if (rec.gameFile.length() > 0) {
 				parent.add( new WndRanking( rec.gameFile ) );
 			} else {
-				parent.add( new WndError( TXT_NO_INFO ) );
+				parent.add( new WndError( Messages.get(this, "no_info") ) );
 			}
 		}
 	}

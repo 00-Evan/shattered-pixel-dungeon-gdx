@@ -20,21 +20,23 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.watabou.glwrap.Texture;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapText.Font;
 import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.Visual;
-import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
+import com.watabou.noosa.ui.Component;
 import com.watabou.utils.BitmapCache;
 
 public class PixelScene extends Scene {
@@ -187,6 +189,50 @@ public class PixelScene extends Scene {
 		return result;
 	}
 
+	//TODO: correct these when proper renderedtext is added
+	public static RenderedText renderText(int size ) {
+		return renderText("", size);
+	}
+
+	public static RenderedText renderText( String text, int size ) {
+		chooseFont( size );
+
+		RenderedText result = new RenderedText( text, font);
+		result.scale.set( scale );
+		return result;
+	}
+
+	public static RenderedTextMultiline renderMultiline(int size ){
+		return renderMultiline("", size);
+	}
+
+	public static RenderedTextMultiline renderMultiline(String text, int size ){
+		RenderedTextMultiline result = new RenderedTextMultiline( text, size );
+		return result;
+	}
+
+	/**
+	 * These methods align UI elements to device pixels.
+	 * e.g. if we have a scale of 3x then valid positions are #.0, #.33, #.67
+	 */
+
+	public static float align( float pos ) {
+		return Math.round(pos * defaultZoom) / (float)defaultZoom;
+	}
+
+	public static float align( Camera camera, float pos ) {
+		return Math.round(pos * camera.zoom) / camera.zoom;
+	}
+
+	public static void align( Visual v ) {
+		v.x = align( v.x );
+		v.y = align( v.y );
+	}
+
+	public static void align( Component c ){
+		c.setPos(align(c.left()), align(c.top()));
+	}
+
 	public static boolean noFade = false;
 	protected void fadeIn() {
 		if (noFade) {
@@ -203,8 +249,8 @@ public class PixelScene extends Scene {
 	public static void showBadge( Badges.Badge badge ) {
 		BadgeBanner banner = BadgeBanner.show( badge.image );
 		banner.camera = uiCamera;
-		banner.x = (banner.camera.width - banner.width) / 2 ;
-		banner.y = (banner.camera.height - banner.height) / 3 ;
+		banner.x = align( banner.camera, (banner.camera.width - banner.width) / 2 );
+		banner.y = align( banner.camera, (banner.camera.height - banner.height) / 3 );
 		Game.scene().add( banner );
 	}
 	
@@ -264,8 +310,8 @@ public class PixelScene extends Scene {
 		
 		@Override
 		protected void updateMatrix() {
-			float sx = Math.round(scroll.x + shakeX);
-			float sy = Math.round(scroll.y + shakeY);
+			float sx = align( this, scroll.x + shakeX );
+			float sy = align( this, scroll.y + shakeY );
 			
 			matrix[0] = +zoom * invW2;
 			matrix[5] = -zoom * invH2;
