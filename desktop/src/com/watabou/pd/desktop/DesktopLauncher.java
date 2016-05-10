@@ -25,25 +25,23 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.watabou.input.NoosaInputProcessor;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.watabou.input.NoosaInputProcessor;
 import com.watabou.utils.PDPlatformSupport;
-
-import org.lwjgl.opengl.Display;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		String version = DesktopLauncher.class.getPackage().getSpecificationVersion();
 		if (version == null) {
-			version = "0.3.3b";
+			version = "0.3.5a";
 		}
 
 		int versionCode;
 		try {
 			versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
 		} catch (NumberFormatException e) {
-			versionCode = 74;
+			versionCode = 99;
 		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
