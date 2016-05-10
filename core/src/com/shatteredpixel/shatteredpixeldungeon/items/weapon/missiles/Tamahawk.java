@@ -30,7 +30,6 @@ import com.watabou.utils.Random;
 public class Tamahawk extends MissileWeapon {
 
 	{
-		name = "tomahawk";
 		image = ItemSpriteSheet.TOMAHAWK;
 		
 		STR = 17;
@@ -59,13 +58,6 @@ public class Tamahawk extends MissileWeapon {
 	public void proc( Char attacker, Char defender, int damage ) {
 		super.proc( attacker, defender, damage );
 		Buff.affect( defender, Bleeding.class ).set( damage );
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"This throwing axe is not that heavy, but it still " +
-			"requires significant strength to be used effectively.";
 	}
 	
 	@Override

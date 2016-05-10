@@ -22,14 +22,14 @@ package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public class PotionOfMight extends Potion {
 
 	{
-		name = "Potion of Might";
-		initials = "Mi";
+		initials = 6;
 
 		bones = true;
 	}
@@ -41,17 +41,10 @@ public class PotionOfMight extends Potion {
 		hero.STR++;
 		hero.HT += 5;
 		hero.HP += 5;
-		hero.sprite.showStatus( CharSprite.POSITIVE, "+1 str, +5 hp" );
-		GLog.p( "Newfound strength surges through your body." );
+		hero.sprite.showStatus( CharSprite.POSITIVE, Messages.get(this, "msg_1") );
+		GLog.p( Messages.get(this, "msg_2") );
 
 		Badges.validateStrengthAttained();
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"This powerful liquid will course through your muscles, permanently " +
-			"increasing your strength by one point and health by five points.";
 	}
 	
 	@Override

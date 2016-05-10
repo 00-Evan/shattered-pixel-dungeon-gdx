@@ -20,26 +20,25 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EnergyParticle;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class ScrollOfRecharging extends Scroll {
 
 	public static final float BUFF_DURATION = 30f;
 
 	{
-		name = "Scroll of Recharging";
-		initials = "Re";
+		initials = 7;
 	}
-	
+
 	@Override
 	protected void doRead() {
 
@@ -49,18 +48,11 @@ public class ScrollOfRecharging extends Scroll {
 		Sample.INSTANCE.play( Assets.SND_READ );
 		Invisibility.dispel();
 
-		GLog.i( "a surge of energy courses through your body, invigorating your wands.");
+		GLog.i( Messages.get(this, "surge") );
 		SpellSprite.show( curUser, SpellSprite.CHARGE );
 		setKnown();
 
 		readAnimation();
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"The raw magical power bound up in this parchment will, when released, " +
-			"charge up all the users wands over time.";
 	}
 	
 	public static void charge( Hero hero ) {
@@ -70,37 +62,5 @@ public class ScrollOfRecharging extends Scroll {
 	@Override
 	public int price() {
 		return isKnown() ? 40 * quantity : super.price();
-	}
-
-
-	public static class Recharging extends FlavourBuff {
-
-		@Override
-		public int icon() {
-			return BuffIndicator.RECHARGING;
-		}
-
-		@Override
-		public String toString() {
-			return "Recharging";
-		}
-
-		//want to process partial turns for this buff, and not count it when it's expiring.
-		//firstly, if this buff has half a turn left, should give out half the benefit.
-		//secondly, recall that buffs execute in random order, so this can cause a problem where we can't simply check
-		//if this buff is still attached, must instead directly check its remaining time, and act accordingly.
-		//otherwise this causes inconsistent behaviour where this may detach before, or after, a wand charger acts.
-		public float remainder() {
-			return Math.min(1f, this.cooldown());
-		}
-
-		@Override
-		public String desc() {
-			return "Energy is coursing through you, improving the rate that your wands and staffs charge.\n" +
-					"\n" +
-					"Each turn this buff will increase current charge by one quarter, in addition to regular recharge. \n" +
-					"\n" +
-					"The recharging will last for " + dispTurns() + ".";
-		}
 	}
 }

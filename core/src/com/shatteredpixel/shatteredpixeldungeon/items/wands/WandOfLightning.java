@@ -20,32 +20,29 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shock;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
-import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.noosa.Camera;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shock;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class WandOfLightning extends Wand {
 
 	{
-		name = "Wand of Lightning";
 		image = ItemSpriteSheet.WAND_LIGHTNING;
 	}
 	
@@ -73,8 +70,8 @@ public class WandOfLightning extends Wand {
 		}
 
 		if (!curUser.isAlive()) {
-			Dungeon.fail( Utils.format( ResultDescriptions.ITEM, name ) );
-			GLog.n( "You killed yourself with your own Wand of Lightning..." );
+			Dungeon.fail( getClass() );
+			GLog.n(Messages.get(this, "ondeath"));
 		}
 	}
 
@@ -148,14 +145,5 @@ public class WandOfLightning extends Wand {
 		particle.x -= dst;
 		particle.y += dst;
 	}
-
-	@Override
-	public String desc() {
-		return
-			"This wand is made out of solid metal, making it surprisingly heavy. " +
-			"Two prongs curve together at the top, and electricity arcs between them.\n\n" +
-			"This wand sends powerful lightning arcing through whatever it is shot at. " +
-			"This electricity can bounce between many adjacent foes, and is more powerful in water. " +
-			"If you're too close, you may get shocked as well.";
-	}
+	
 }

@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.RotHeartSprite;
@@ -34,7 +35,6 @@ import java.util.HashSet;
 public class RotHeart extends Mob {
 
 	{
-		name = "rot heart";
 		spriteClass = RotHeartSprite.class;
 
 		HP = HT = 80;
@@ -64,6 +64,11 @@ public class RotHeart extends Mob {
 		GameScene.add(Blob.seed(pos, 20, ToxicGas.class));
 
 		return super.defenseProc(enemy, damage);
+	}
+
+	@Override
+	public void beckon(int cell) {
+		//do nothing
 	}
 
 	@Override
@@ -102,17 +107,10 @@ public class RotHeart extends Mob {
 		return 5;
 	}
 
-	@Override
-	public String description() {
-		return
-			"A Rotberry's fruit is very unique. Instead of rotting away and providing nutrients, the fruit grows, " +
-			"hardens, and encompasses the seed. It provides protection for the internal organs which grow " +
-			"inside the fruit. This giant orb is referred to as the heart of an adult rotberry plant.";
-	}
-
 	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( ToxicGas.class );
+		IMMUNITIES.add( Terror.class );
 	}
 
 	@Override

@@ -20,15 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.HashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -36,29 +27,37 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.ArmorKit;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.KingSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.UndeadSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class King extends Mob {
 	
 	private static final int MAX_ARMY_SIZE	= 5;
 	
 	{
-		name = "King of Dwarves";
 		spriteClass = KingSprite.class;
 		
 		HP = HT = 300;
@@ -101,11 +100,6 @@ public class King extends Mob {
 	@Override
 	public int dr() {
 		return 14;
-	}
-	
-	@Override
-	public String defenseVerb() {
-		return "parried";
 	}
 	
 	@Override
@@ -165,10 +159,9 @@ public class King extends Mob {
 		LloydsBeacon beacon = Dungeon.hero.belongings.getItem(LloydsBeacon.class);
 		if (beacon != null) {
 			beacon.upgrade();
-			GLog.p("Your beacon grows stronger!");
 		}
 		
-		yell( "You cannot kill me, " + Dungeon.hero.givenName() + "... I am... immortal..." );
+		yell( Messages.get(this, "defeated", Dungeon.hero.givenName()) );
 	}
 
 	@Override
@@ -225,26 +218,17 @@ public class King extends Mob {
 			} while (dist < undeadsToSummon);
 		}
 		
-		yell( "Arise, slaves!" );
+		yell( Messages.get(this, "arise") );
 	}
 	
 	@Override
 	public void notice() {
 		super.notice();
 		BossHealthBar.assignBoss(this);
-		yell( "How dare you!" );
+		yell( Messages.get(this, "notice") );
 	}
 	
-	@Override
-	public String description() {
-		return
-			"The last king of dwarves was known for his deep understanding of processes of life and death. " +
-			"He has persuaded members of his court to participate in a ritual, that should have granted them " +
-			"eternal youthfulness. In the end he was the only one, who got it - and an army of undead " +
-			"as a bonus.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
 	static {
 		RESISTANCES.add( ToxicGas.class );
 		RESISTANCES.add( Death.class );
@@ -257,7 +241,7 @@ public class King extends Mob {
 		return RESISTANCES;
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( Paralysis.class );
 		IMMUNITIES.add( Vertigo.class );
@@ -273,7 +257,6 @@ public class King extends Mob {
 		public static int count = 0;
 		
 		{
-			name = "undead dwarf";
 			spriteClass = UndeadSprite.class;
 			
 			HP = HT = 28;
@@ -338,20 +321,8 @@ public class King extends Mob {
 		public int dr() {
 			return 5;
 		}
-		
-		@Override
-		public String defenseVerb() {
-			return "blocked";
-		}
-		
-		@Override
-		public String description() {
-			return
-				"These undead dwarves, risen by the will of the King of Dwarves, were members of his court. " +
-				"They appear as skeletons with a stunning amount of facial hair.";
-		}
-		
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+
+		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 		static {
 			IMMUNITIES.add( Death.class );
 			IMMUNITIES.add( Paralysis.class );

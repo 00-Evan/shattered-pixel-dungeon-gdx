@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
@@ -34,6 +35,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.MazePainter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
@@ -192,20 +195,22 @@ public class PrisonBossLevel extends Level {
 	@Override
 	public String tileName( int tile ) {
 		switch (tile) {
-		case Terrain.WATER:
-			return "Dark cold water.";
-		default:
-			return super.tileName(tile);
+			case Terrain.WATER:
+				return Messages.get(PrisonLevel.class, "water_name");
+			default:
+				return super.tileName( tile );
 		}
 	}
 	
 	@Override
 	public String tileDesc(int tile) {
 		switch (tile) {
-		case Terrain.EMPTY_DECO:
-			return "There are old blood stains on the floor.";
-		default:
-			return super.tileDesc(tile);
+			case Terrain.EMPTY_DECO:
+				return Messages.get(PrisonLevel.class, "empty_deco_desc");
+			case Terrain.BOOKSHELF:
+				return Messages.get(PrisonLevel.class, "bookshelf_desc");
+			default:
+				return super.tileDesc( tile );
 		}
 	}
 
@@ -239,6 +244,9 @@ public class PrisonBossLevel extends Level {
 				exit = i;
 
 		visited = mapped = new boolean[LENGTH];
+		for (Blob blob: blobs.values()){
+			blob.fullyClear();
+		}
 		addVisuals(); //this also resets existing visuals
 		resetTraps();
 
@@ -256,6 +264,12 @@ public class PrisonBossLevel extends Level {
 		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[Dungeon.level.mobs.size()])){
 			if (mob != tengu && (safeArea == null || !safeArea.inside(mob.pos))){
 				mob.destroy();
+			}
+		}
+		for (Plant plant : plants.values()){
+			if (safeArea == null || !safeArea.inside(plant.pos)){
+				plants.remove(plant.pos);
+				plant.sprite.kill();
 			}
 		}
 	}

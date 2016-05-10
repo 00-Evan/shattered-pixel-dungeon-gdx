@@ -24,13 +24,16 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
+
+import java.util.ArrayList;
 
 public class Boomerang extends MissileWeapon {
 
 	{
-		name = "boomerang";
 		image = ItemSpriteSheet.BOOMERANG;
 		
 		STR = 10;
@@ -39,6 +42,13 @@ public class Boomerang extends MissileWeapon {
 
 		unique = true;
 		bones = false;
+	}
+
+	@Override
+	public ArrayList<String> actions(Hero hero) {
+		ArrayList<String> actions = super.actions( hero );
+		if (!isEquipped(hero)) actions.add(AC_EQUIP);
+		return actions;
 	}
 
 	@Override
@@ -109,19 +119,19 @@ public class Boomerang extends MissileWeapon {
 	@Override
 	public void cast( Hero user, int dst ) {
 		throwEquiped = isEquipped( user );
+		if (throwEquiped) Dungeon.quickslot.convertToPlaceholder(this);
 		super.cast( user, dst );
 	}
 	
 	@Override
 	public String desc() {
-		String info =
-			"Thrown to the enemy this flat curved wooden missile will return to the hands of its thrower.";
+		String info = super.desc();
 		switch (imbue) {
 			case LIGHT:
-				info += "\n\nIt was balanced to be lighter. ";
+				info += "\n\n" + Messages.get(Weapon.class, "lighter");
 				break;
 			case HEAVY:
-				info += "\n\nIt was balanced to be heavier. ";
+				info += "\n\n" + Messages.get(Weapon.class, "heavier");
 				break;
 			case NONE:
 		}

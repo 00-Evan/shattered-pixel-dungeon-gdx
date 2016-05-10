@@ -20,20 +20,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Input;
-import com.watabou.input.NoosaInputProcessor;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.NinePatch;
-import com.watabou.noosa.audio.Sample;
-import com.watabou.noosa.ui.Button;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.input.NoosaInputProcessor;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.NinePatch;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.ui.Button;
+
+import java.util.ArrayList;
 
 public class WndTabbed extends Window {
 
@@ -210,21 +210,20 @@ public class WndTabbed extends Window {
 	
 	protected class LabeledTab extends Tab {
 		
-		private BitmapText btLabel;
+		private RenderedText btLabel;
 		
 		public LabeledTab( String label ) {
 			
 			super();
 			
 			btLabel.text( label );
-			btLabel.measure();
 		}
 		
 		@Override
 		protected void createChildren() {
 			super.createChildren();
 			
-			btLabel = PixelScene.createText( 9 );
+			btLabel = PixelScene.renderText( 9 );
 			add( btLabel );
 		}
 		
@@ -237,6 +236,7 @@ public class WndTabbed extends Window {
 			if (!selected) {
 				btLabel.y -= 2;
 			}
+			PixelScene.align(btLabel);
 		}
 		
 		@Override

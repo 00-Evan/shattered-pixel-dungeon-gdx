@@ -23,22 +23,23 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
-import com.watabou.input.NoosaInputProcessor;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.audio.Music;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.audio.Music;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PDPlatformSupport;
-import com.watabou.utils.Signal;
+
+import java.util.Locale;
 
 public class ShatteredPixelDungeon extends Game<GameAction> {
 
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
-		super(TitleScene.class, platformSupport);
+		super(WelcomeScene.class, platformSupport);
 
 		// 0.2.4
 		com.watabou.utils.Bundle.addAlias(
@@ -174,6 +175,12 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				Assets.SND_BEE,
 				Assets.SND_DEGRADE,
 				Assets.SND_MIMIC );
+
+		if (classicFont()) {
+			RenderedText.setFont("pixelfont.ttf");
+		} else {
+			RenderedText.setFont("font.ttf");
+		}
 	}
 
 	@Override
@@ -285,6 +292,36 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		return Preferences.INSTANCE.getInt( Preferences.KEY_BRIGHTNESS, 0 );
 	}
 
+	public static void language(Languages lang) {
+		Preferences.INSTANCE.put( Preferences.KEY_LANG, lang.code());
+	}
+
+	public static Languages language() {
+		String code = Preferences.INSTANCE.getString(Preferences.KEY_LANG, null);
+		if (code == null){
+			Languages lang = Languages.matchLocale(Locale.getDefault());
+			if (lang.status() == Languages.Status.REVIEWED)
+				return lang;
+			else
+				return Languages.ENGLISH;
+		}
+		else return Languages.matchCode(code);
+	}
+
+	public static void classicFont(boolean classic){
+		Preferences.INSTANCE.put(Preferences.KEY_CLASSICFONT, classic);
+		if (classic) {
+			RenderedText.setFont("pixelfont.ttf");
+		} else {
+			RenderedText.setFont("font.ttf");
+		}
+	}
+
+	public static boolean classicFont(){
+		return Preferences.INSTANCE.getBoolean(Preferences.KEY_CLASSICFONT,
+				(language() != Languages.KOREAN && language() != Languages.CHINESE));
+	}
+
 	public static void lastClass( int value ) {
 		Preferences.INSTANCE.put( Preferences.KEY_LAST_CLASS, value );
 	}
@@ -350,6 +387,11 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public static void switchNoFade( Class<? extends PixelScene> c ) {
 		PixelScene.noFade = true;
 		switchScene( c );
+	}
+
+	public static void switchNoFade(Class<? extends PixelScene> c, SceneChangeCallback callback) {
+		PixelScene.noFade = true;
+		switchScene( c, callback );
 	}
 
 	/*

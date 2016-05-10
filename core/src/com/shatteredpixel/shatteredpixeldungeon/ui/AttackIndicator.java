@@ -20,26 +20,24 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import java.util.ArrayList;
-
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class AttackIndicator extends Tag {
 	
 	private static final float ENABLED	= 1.0f;
 	private static final float DISABLED	= 0.3f;
 	
-	private static float delay = 0.75f;
+	private static float delay;
 	
 	private static AttackIndicator instance;
 	
@@ -73,6 +71,7 @@ public class AttackIndicator extends Tag {
 		if (sprite != null) {
 			sprite.x = x + (width - sprite.width()) / 2;
 			sprite.y = y + (height - sprite.height()) / 2;
+			PixelScene.align(sprite);
 		}
 	}
 	
@@ -100,13 +99,12 @@ public class AttackIndicator extends Tag {
 	}
 	
 	private void checkEnemies() {
-		
-		int heroPos = Dungeon.hero.pos;
+
 		candidates.clear();
 		int v = Dungeon.hero.visibleEnemies();
 		for (int i=0; i < v; i++) {
 			Mob mob = Dungeon.hero.visibleEnemy( i );
-			if (Level.adjacent( heroPos, mob.pos )) {
+			if ( Dungeon.hero.canAttack( mob) ) {
 				candidates.add( mob );
 			}
 		}
@@ -148,6 +146,7 @@ public class AttackIndicator extends Tag {
 
 			sprite.x = x + (width - sprite.width()) / 2 + 1;
 			sprite.y = y + (height - sprite.height()) / 2;
+			PixelScene.align(sprite);
 			
 		} catch (Exception ignored) {
 		}

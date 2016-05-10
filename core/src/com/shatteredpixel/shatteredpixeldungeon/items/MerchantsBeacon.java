@@ -32,9 +32,7 @@ public class MerchantsBeacon extends Item {
 
 	private static final String AC_USE = "USE";
 
-
 	{
-		name = "merchant's beacon";
 		image = ItemSpriteSheet.BEACON;
 
 		stackable = true;
@@ -53,12 +51,15 @@ public class MerchantsBeacon extends Item {
 
 	@Override
 	public void execute(Hero hero, String action) {
+
+		super.execute(hero, action);
+
 		if (action.equals(AC_USE)) {
 			detach( hero.belongings.backpack );
 			Shopkeeper.sell();
 			Sample.INSTANCE.play( Assets.SND_BEACON );
-		} else
-			super.execute(hero, action);
+		}
+
 	}
 
 	@Override
@@ -74,13 +75,6 @@ public class MerchantsBeacon extends Item {
 	@Override
 	public int price() {
 		return 5 * quantity;
-	}
-
-	@Override
-	public String info() {
-		return "This odd piece of dwarven technology allows you to communicate from great distances." +
-				"\n\nAfter being activated, this beacon will let you sell items to Pixel Mart from anywhere in the dungeon." +
-				"\n\nHowever, the magic within the beacon will only last for one session, so use it wisely.";
 	}
 
 }

@@ -20,16 +20,18 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
+
+import java.util.ArrayList;
 
 public abstract class EquipableItem extends Item {
-
-	private static final String TXT_UNEQUIP_CURSED	= "You can't remove cursed %s!";
 
 	public static final String AC_EQUIP		= "EQUIP";
 	public static final String AC_UNEQUIP	= "UNEQUIP";
@@ -39,7 +41,17 @@ public abstract class EquipableItem extends Item {
 	}
 
 	@Override
+	public ArrayList<String> actions(Hero hero ) {
+		ArrayList<String> actions = super.actions( hero );
+		actions.add( isEquipped( hero ) ? AC_UNEQUIP : AC_EQUIP );
+		return actions;
+	}
+
+	@Override
 	public void execute( Hero hero, String action ) {
+
+		super.execute( hero, action );
+
 		if (action.equals( AC_EQUIP )) {
 			//In addition to equipping itself, item reassigns itself to the quickslot
 			//This is a special case as the item is being removed from inventory, but is staying with the hero.
@@ -51,8 +63,6 @@ public abstract class EquipableItem extends Item {
 			}
 		} else if (action.equals( AC_UNEQUIP )) {
 			doUnequip( hero, true );
-		} else {
-			super.execute( hero, action );
 		}
 	}
 
@@ -89,7 +99,7 @@ public abstract class EquipableItem extends Item {
 	public boolean doUnequip( Hero hero, boolean collect, boolean single ) {
 
 		if (cursed) {
-			GLog.w(TXT_UNEQUIP_CURSED, name());
+			GLog.w(Messages.get(EquipableItem.class, "unequip_cursed"));
 			return false;
 		}
 
@@ -99,11 +109,11 @@ public abstract class EquipableItem extends Item {
 			hero.spend( time2equip( hero ) );
 		}
 
-		if (collect && !collect( hero.belongings.backpack )) {
+		if (!collect || !collect( hero.belongings.backpack )) {
 			onDetach();
 			Dungeon.quickslot.clearItem(this);
 			updateQuickslot();
-			Dungeon.level.drop( this, hero.pos );
+			if (collect) Dungeon.level.drop( this, hero.pos );
 		}
 
 		return true;
@@ -112,4 +122,6 @@ public abstract class EquipableItem extends Item {
 	final public boolean doUnequip( Hero hero, boolean collect ) {
 		return doUnequip( hero, collect, true );
 	}
+
+	public void activate( Char ch ){}
 }

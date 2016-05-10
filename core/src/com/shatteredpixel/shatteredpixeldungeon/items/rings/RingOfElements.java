@@ -20,8 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -31,23 +29,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.watabou.utils.Random;
 
-public class RingOfElements extends Ring {
+import java.util.HashSet;
 
-	{
-		name = "Ring of Elements";
-	}
+public class RingOfElements extends Ring {
 	
 	@Override
 	protected RingBuff buff( ) {
 		return new Resistance();
-	}
-	
-	@Override
-	public String desc() {
-		return isKnown() ?
-			"This ring provides resistance to different elements, such as fire, " +
-			"electricity, gases etc. Also it decreases duration of negative effects." :
-			super.desc();
 	}
 
 	private static final HashSet<Class<?>> EMPTY = new HashSet<Class<?>>();

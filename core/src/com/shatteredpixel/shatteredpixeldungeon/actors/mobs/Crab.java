@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CrabSprite;
 import com.watabou.utils.Random;
@@ -29,7 +28,6 @@ import com.watabou.utils.Random;
 public class Crab extends Mob {
 
 	{
-		name = "sewer crab";
 		spriteClass = CrabSprite.class;
 		
 		HP = HT = 15;
@@ -56,18 +54,5 @@ public class Crab extends Mob {
 	@Override
 	public int dr() {
 		return 4;
-	}
-	
-	@Override
-	public String defenseVerb() {
-		return "parried";
-	}
-	
-	@Override
-	public String description() {
-		return
-			"These huge crabs are at the top of the food chain in the sewers. " +
-			"They are extremely fast and their thick carapace can withstand " +
-			"heavy blows.";
 	}
 }

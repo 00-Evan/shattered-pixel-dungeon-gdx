@@ -28,7 +28,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class RatSkull extends Item {
 	
 	{
-		name = "giant rat skull";
 		image = ItemSpriteSheet.SKULL;
 		
 		unique = true;
@@ -42,12 +41,6 @@ public class RatSkull extends Item {
 	@Override
 	public boolean isIdentified() {
 		return true;
-	}
-	
-	@Override
-	public String info() {
-		return
-			"A surprisingly large rat skull. It would make a great hunting trophy, if you had a wall to mount it on.";
 	}
 	
 	@Override

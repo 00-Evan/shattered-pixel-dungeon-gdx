@@ -20,41 +20,40 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.HashSet;
-
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TenguSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Tengu extends Mob {
 	
 	{
-		name = "Tengu";
 		spriteClass = TenguSprite.class;
 		
 		HP = HT = 120;
@@ -68,6 +67,13 @@ public class Tengu extends Mob {
 		properties.add(Property.BOSS);
 	}
 	
+	@Override
+	protected void onAdd() {
+		//when he's removed and re-added to the fight, his time is always set to now.
+		spend(-cooldown());
+		super.onAdd();
+	}
+
 	@Override
 	public int damageRoll() {
 		return Random.NormalIntRange( 6, 15 );
@@ -109,7 +115,7 @@ public class Tengu extends Mob {
 		//phase 1 of the fight is over
 		if (beforeHitHP > HT/2 && HP <= HT/2){
 			HP = (HT/2)-1;
-			yell("Let's make this interesting...");
+			yell(Messages.get(this, "interesting"));
 			((PrisonBossLevel)Dungeon.level).progress();
 			BossHealthBar.bleed(true);
 
@@ -134,10 +140,9 @@ public class Tengu extends Mob {
 		LloydsBeacon beacon = Dungeon.hero.belongings.getItem(LloydsBeacon.class);
 		if (beacon != null) {
 			beacon.upgrade();
-			GLog.p("Your beacon grows stronger!");
 		}
 		
-		yell( "Free at last..." );
+		yell( Messages.get(this, "defeated") );
 	}
 
 	@Override
@@ -209,18 +214,10 @@ public class Tengu extends Mob {
 		BossHealthBar.assignBoss(this);
 		if (HP <= HT/2) BossHealthBar.bleed(true);
 		if (HP == HT) {
-			yell("You're mine, " + Dungeon.hero.givenName() + "!");
+			yell(Messages.get(this, "notice_mine", Dungeon.hero.givenName()));
 		} else {
-			yell("Face me, " + Dungeon.hero.givenName() + "!");
+			yell(Messages.get(this, "notice_face", Dungeon.hero.givenName()));
 		}
-	}
-	
-	@Override
-	public String description() {
-		return
-			"A famous and enigmatic assassin, named for the mask grafted to his face.\n\n" +
-			"Tengu is held down with large clasps on his wrists and knees, though he seems to have gotten rid of his chains long ago.\n\n" +
-			"He will try to use traps, deceptive magic, and precise attacks to eliminate the only thing stopping his escape: you.";
 	}
 	
 	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();

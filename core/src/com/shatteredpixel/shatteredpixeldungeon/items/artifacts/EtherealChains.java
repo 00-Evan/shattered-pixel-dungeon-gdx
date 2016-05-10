@@ -26,15 +26,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Chains;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
@@ -46,7 +47,6 @@ public class EtherealChains extends Artifact {
 	public static final String AC_CAST       = "CAST";
 
 	{
-		name = "ethereal chains";
 		image = ItemSpriteSheet.ARTIFACT_CHAINS;
 
 		levelCap = 5;
@@ -68,19 +68,30 @@ public class EtherealChains extends Artifact {
 
 	@Override
 	public void execute(Hero hero, String action) {
+
+		super.execute(hero, action);
+
 		if (action.equals(AC_CAST)){
 
 			curUser = hero;
 
-			if      (!isEquipped( hero ))       GLog.i("You need to equip the chains to do that.");
-			else if (charge < 1)                GLog.i("Your chains do not have any available charge.");
-			else if (cursed)                    GLog.w("You can't use cursed chains.");
-			else {
+			if (!isEquipped( hero )) {
+				GLog.i( Messages.get(Artifact.class, "need_to_equip") );
+				QuickSlotButton.cancel();
+
+			} else if (charge < 1) {
+				GLog.i( Messages.get(this, "no_charge") );
+				QuickSlotButton.cancel();
+
+			} else if (cursed) {
+				GLog.w( Messages.get(this, "cursed") );
+				QuickSlotButton.cancel();
+
+			} else {
 				GameScene.selectCell(caster);
 			}
 
-		} else
-			super.execute(hero, action);
+		}
 	}
 
 	private CellSelector.Listener caster = new CellSelector.Listener(){
@@ -105,16 +116,16 @@ public class EtherealChains extends Artifact {
 						}
 					}
 					if (newPos == -1){
-						GLog.w("That won't do anything");
+						GLog.w( Messages.get(EtherealChains.class, "does_nothing") );
 					} else {
 						final int newMobPos = newPos;
 						final Char affected = Actor.findChar( chain.collisionPos );
 						int chargeUse = Level.distance(affected.pos, newMobPos);
 						if (chargeUse > charge) {
-							GLog.w("Your chains do not have enough charge.");
+							GLog.w( Messages.get(EtherealChains.class, "no_charge") );
 							return;
 						} else if (affected.properties().contains(Char.Property.IMMOVABLE)) {
-							GLog.w("Your chains cannot pull that target");
+							GLog.w( Messages.get(EtherealChains.class, "cant_pull") );
 							return;
 						} else {
 							charge -= chargeUse;
@@ -145,12 +156,12 @@ public class EtherealChains extends Artifact {
 						if (!Level.solid[i] && Actor.findChar(i) == null) newPos = i;
 						}
 					if (newPos == -1) {
-						GLog.w("That won't do anything");
+						GLog.w( Messages.get(EtherealChains.class, "does_nothing") );
 					} else {
 						final int newHeroPos = newPos;
 						int chargeUse = Level.distance(curUser.pos, newHeroPos);
 						if (chargeUse > charge){
-							GLog.w("Your chains do not have enough charge.");
+							GLog.w( Messages.get(EtherealChains.class, "no_charge") );
 							return;
 						} else {
 							charge -= chargeUse;
@@ -172,7 +183,7 @@ public class EtherealChains extends Artifact {
 					}
 
 				} else {
-					GLog.i("There is nothing to grab there");
+					GLog.i( Messages.get(EtherealChains.class, "nothing_to_grab") );
 				}
 
 			}
@@ -181,7 +192,7 @@ public class EtherealChains extends Artifact {
 
 		@Override
 		public String prompt() {
-			return "Choose a location to target";
+			return Messages.get(EtherealChains.class, "prompt");
 		}
 	};
 
@@ -192,18 +203,14 @@ public class EtherealChains extends Artifact {
 
 	@Override
 	public String desc() {
-		String desc = "These large clanky chains glow with spiritual energy. They move with a certain heft, " +
-				"but are surprisingly almost weightless. These chains can be used to grab surfaces, pulling you " +
-				"towards terrain or pulling enemies toward you. The ethereal nature of the chains even allows them to " +
-				"extend and pull targets through walls!";
+		String desc = super.desc();
 
 		if (isEquipped( Dungeon.hero )){
-			if (!cursed) {
-				desc += "\n\nThe chains rest around your side, slowly siphoning the spiritual energy of those you defeat. " +
-						"Each charge is a link in the chain, which will extend out exactly one tile.";
-
-			}else
-				desc += "\n\nThe cursed chains are locked to your side, constantly swinging around, trying to trip or bind you";
+			desc += "\n\n";
+			if (cursed)
+				desc += Messages.get(this, "desc_cursed");
+			else
+				desc += Messages.get(this, "desc_equipped");
 		}
 		return desc;
 	}
@@ -245,7 +252,7 @@ public class EtherealChains extends Artifact {
 
 			if (exp > 100+level()*50 && level() < levelCap){
 				exp -= 100+level()*50;
-				GLog.p("Your chains grow stronger!");
+				GLog.p( Messages.get(this, "levelup") );
 				upgrade();
 			}
 

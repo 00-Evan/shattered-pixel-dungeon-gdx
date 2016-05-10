@@ -24,8 +24,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -34,14 +34,9 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.utils.Random;
 
 public class Blindweed extends Plant {
-
-	private static final String TXT_DESC =
-		"Upon being touched a Blindweed perishes in a bright flash of light. " +
-		"The flash is strong enough to disorient for several seconds.";
 	
 	{
 		image = 3;
-		plantName = "Blindweed";
 	}
 	
 	@Override
@@ -63,25 +58,12 @@ public class Blindweed extends Plant {
 		}
 	}
 	
-	@Override
-	public String desc() {
-		return TXT_DESC;
-	}
-	
 	public static class Seed extends Plant.Seed {
 		{
-			plantName = "Blindweed";
-			
-			name = "seed of " + plantName;
 			image = ItemSpriteSheet.SEED_BLINDWEED;
-			
+
 			plantClass = Blindweed.class;
 			alchemyClass = PotionOfInvisibility.class;
-		}
-		
-		@Override
-		public String desc() {
-			return TXT_DESC;
 		}
 	}
 }

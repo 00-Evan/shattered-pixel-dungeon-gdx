@@ -21,23 +21,32 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EarthImbue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Speed;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
-import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
@@ -46,15 +55,6 @@ import com.watabou.utils.Random;
 import java.util.HashSet;
 
 public abstract class Char extends Actor {
-
-	protected static final String TXT_HIT		= "%s hit %s";
-	protected static final String TXT_KILL		= "%s killed you...";
-	protected static final String TXT_DEFEAT	= "%s defeated %s";
-	
-	private static final String TXT_YOU_MISSED	= "%s %s your attack";
-	private static final String TXT_SMB_MISSED	= "%s %s %s's attack";
-	
-	private static final String TXT_OUT_OF_PARALYSIS	= "The pain snapped %s out of paralysis";
 	
 	public int pos = 0;
 	
@@ -64,6 +64,7 @@ public abstract class Char extends Actor {
 	
 	public int HT;
 	public int HP;
+	public int SHLD;
 	
 	protected float baseSpeed	= 1;
 	
@@ -74,7 +75,7 @@ public abstract class Char extends Actor {
 	
 	public int viewDistance	= 8;
 	
-	private HashSet<Buff> buffs = new HashSet<Buff>();
+	private HashSet<Buff> buffs = new HashSet<>();
 	
 	@Override
 	protected boolean act() {
@@ -85,6 +86,7 @@ public abstract class Char extends Actor {
 	private static final String POS			= "pos";
 	private static final String TAG_HP		= "HP";
 	private static final String TAG_HT		= "HT";
+	private static final String TAG_SHLD    = "SHLD";
 	private static final String BUFFS		= "buffs";
 	
 	@Override
@@ -95,6 +97,7 @@ public abstract class Char extends Actor {
 		bundle.put( POS, pos );
 		bundle.put( TAG_HP, HP );
 		bundle.put( TAG_HT, HT );
+		bundle.put( TAG_SHLD, SHLD );
 		bundle.put( BUFFS, buffs );
 	}
 	
@@ -106,6 +109,7 @@ public abstract class Char extends Actor {
 		pos = bundle.getInt( POS );
 		HP = bundle.getInt( TAG_HP );
 		HT = bundle.getInt( TAG_HT );
+		SHLD = bundle.getInt( TAG_SHLD );
 		
 		for (Bundlable b : bundle.getCollection( BUFFS )) {
 			if (b != null) {
@@ -121,10 +125,6 @@ public abstract class Char extends Actor {
 		boolean visibleFight = Dungeon.visible[pos] || Dungeon.visible[enemy.pos];
 		
 		if (hit( this, enemy, false )) {
-			
-			if (visibleFight) {
-				GLog.i( TXT_HIT, name, enemy.name );
-			}
 			
 			// FIXME
 			int dr = this instanceof Hero && ((Hero)this).rangedWeapon != null && ((Hero)this).subClass ==
@@ -171,18 +171,11 @@ public abstract class Char extends Actor {
 			if (!enemy.isAlive() && visibleFight) {
 				if (enemy == Dungeon.hero) {
 
-						if ( this instanceof Yog ) {
-							Dungeon.fail( Utils.format( ResultDescriptions.NAMED, name) );
-						} else if (properties().contains(Property.MINIBOSS) || properties().contains(Property.BOSS)) {
-							Dungeon.fail( Utils.format( ResultDescriptions.UNIQUE, name) );
-						} else {
-							Dungeon.fail( Utils.format( ResultDescriptions.MOB, Utils.indefinite( name )) );
-						}
-						
-						GLog.n( TXT_KILL, name );
+					Dungeon.fail( getClass() );
+					GLog.n( Messages.capitalize(Messages.get(Char.class, "kill", name)) );
 					
-				} else {
-					GLog.i( TXT_DEFEAT, name, enemy.name );
+				} else if (this == Dungeon.hero) {
+					GLog.i( Messages.capitalize(Messages.get(Char.class, "defeat", enemy.name)) );
 				}
 			}
 			
@@ -193,11 +186,6 @@ public abstract class Char extends Actor {
 			if (visibleFight) {
 				String defense = enemy.defenseVerb();
 				enemy.sprite.showStatus( CharSprite.NEUTRAL, defense );
-				if (this == Dungeon.hero) {
-					GLog.i( TXT_YOU_MISSED, enemy.name, defense );
-				} else {
-					GLog.i( TXT_SMB_MISSED, enemy.name, defense, name );
-				}
 				
 				Sample.INSTANCE.play(Assets.SND_MISS);
 			}
@@ -224,7 +212,7 @@ public abstract class Char extends Actor {
 	}
 	
 	public String defenseVerb() {
-		return "dodged";
+		return Messages.get(this, "def_verb");
 	}
 	
 	public int dr() {
@@ -270,19 +258,31 @@ public abstract class Char extends Actor {
 			if (Random.Int( dmg ) >= Random.Int( HP )) {
 				Buff.detach( this, Paralysis.class );
 				if (Dungeon.visible[pos]) {
-					GLog.i( TXT_OUT_OF_PARALYSIS, name );
+					GLog.i( Messages.get(Char.class, "out_of_paralysis", name) );
 				}
 			}
 		}
-		
-		HP -= dmg;
+
+		//FIXME: when I add proper damage properties, should add an IGNORES_SHIELDS property to use here.
+		if (src instanceof Hunger || SHLD == 0){
+			HP -= dmg;
+		} else if (SHLD >= dmg){
+			SHLD -= dmg;
+		} else if (SHLD > 0) {
+			HP -= (dmg - SHLD);
+			SHLD = 0;
+		}
+
 		if (dmg > 0 || src instanceof Char) {
 			sprite.showStatus( HP > HT / 2 ?
 				CharSprite.WARNING :
 				CharSprite.NEGATIVE,
 				Integer.toString( dmg ) );
 		}
-		if (HP <= 0) {
+
+		if (HP < 0) HP = 0;
+
+		if (!isAlive()) {
 			die( src );
 		}
 	}
@@ -324,7 +324,7 @@ public abstract class Char extends Actor {
 	
 	@SuppressWarnings("unchecked")
 	public <T extends Buff> HashSet<T> buffs( Class<T> c ) {
-		HashSet<T> filtered = new HashSet<T>();
+		HashSet<T> filtered = new HashSet<>();
 		for (Buff b : buffs) {
 			if (ClassReflection.isInstance( c, b )) {
 				filtered.add( (T)b );
@@ -387,7 +387,7 @@ public abstract class Char extends Actor {
 	
 	@Override
 	protected void onRemove() {
-		for (Buff buff : buffs.toArray( new Buff[0] )) {
+		for (Buff buff : buffs.toArray(new Buff[buffs.size()])) {
 			buff.detach();
 		}
 	}
@@ -446,7 +446,7 @@ public abstract class Char extends Actor {
 		next();
 	}
 	
-	private static final HashSet<Class<?>> EMPTY = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> EMPTY = new HashSet<>();
 	
 	public HashSet<Class<?>> resistances() {
 		return EMPTY;

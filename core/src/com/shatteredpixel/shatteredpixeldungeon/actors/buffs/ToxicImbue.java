@@ -22,11 +22,10 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
-
-import java.util.HashSet;
 
 public class ToxicImbue extends Buff {
 
@@ -73,17 +72,12 @@ public class ToxicImbue extends Buff {
 
 	@Override
 	public String toString() {
-		return "Imbued with Toxicity";
+		return Messages.get(this, "name");
 	}
 
 	@Override
 	public String desc() {
-		return "You are imbued with poisonous energy!\n" +
-				"\n" +
-				"As you move around toxic gas will constantly billow forth from you, damaging your enemies. " +
-				"You are immune to toxic gas and poison for the duration of the effect.\n" +
-				"\n" +
-				"You are imbued for " + dispTurns(left) + ".";
+		return Messages.get(this, "desc", dispTurns(left));
 	}
 
 	{

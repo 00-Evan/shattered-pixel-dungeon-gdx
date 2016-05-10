@@ -20,9 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.watabou.noosa.Image;
 
 public enum Icons {
 
@@ -54,6 +54,7 @@ public enum Icons {
 	UNCHECKED,
 	EXIT,
 	NOTES,
+	LANGS,
 	CHALLENGE_OFF,
 	CHALLENGE_ON,
 	RESUME;
@@ -148,6 +149,9 @@ public enum Icons {
 			break;
 		case NOTES:
 			icon.frame( icon.texture.uvRect( 79, 40, 94, 56 ) );
+			break;
+		case LANGS:
+			icon.frame( icon.texture.uvRect( 94, 40, 110, 56 ) );
 			break;
 		case CHALLENGE_OFF:
 			icon.frame( icon.texture.uvRect( 78, 16, 102, 40 ) );

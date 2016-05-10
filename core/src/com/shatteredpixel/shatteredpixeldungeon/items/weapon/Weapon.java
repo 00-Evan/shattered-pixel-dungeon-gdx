@@ -30,12 +30,21 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.*;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Fire;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Horror;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Instability;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Leech;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Luck;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Poison;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shock;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Slow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -44,10 +53,6 @@ abstract public class Weapon extends KindOfWeapon {
 
 	private static final int HITS_TO_KNOW    = 20;
 
-	private static final String TXT_IDENTIFY		=
-		"You are now familiar enough with your %s to identify it. It is %s.";
-	private static final String TXT_INCOMPATIBLE	=
-		"Interaction of different types of magic has negated the enchantment on this weapon!";
 	private static final String TXT_TO_STRING		= "%s :%d";
 	
 	public int		STR	= 10;
@@ -73,7 +78,7 @@ abstract public class Weapon extends KindOfWeapon {
 		if (!levelKnown) {
 			if (--hitsToKnow <= 0) {
 				levelKnown = true;
-				GLog.i( TXT_IDENTIFY, name(), toString() );
+				GLog.i( Messages.get(Weapon.class, "identify", name(), toString()) );
 				Badges.validateItemLevelAquired( this );
 			}
 		}
@@ -109,14 +114,8 @@ abstract public class Weapon extends KindOfWeapon {
 		float ACU = this.ACU;
 		
 		if (this instanceof MissileWeapon) {
-			switch (hero.heroClass) {
-			case WARRIOR:
-				encumbrance += 3;
-				break;
-			case HUNTRESS:
+			if (hero.heroClass == HeroClass.HUNTRESS) {
 				encumbrance -= 2;
-				break;
-			default:
 			}
 			int bonus = 0;
 			for (Buff buff : hero.buffs(RingOfSharpshooting.Aim.class)) {
@@ -167,7 +166,7 @@ abstract public class Weapon extends KindOfWeapon {
 	public Item upgrade( boolean enchant ) {
 		if (enchantment != null) {
 			if (!enchant && Random.Int( level() ) > 0) {
-				GLog.w( TXT_INCOMPATIBLE );
+				GLog.w( Messages.get(Weapon.class, "incompatible") );
 				enchant( null );
 			}
 		} else {
@@ -181,7 +180,7 @@ abstract public class Weapon extends KindOfWeapon {
 	
 	@Override
 	public String toString() {
-		return levelKnown ? Utils.format( TXT_TO_STRING, super.toString(), STR ) : super.toString();
+		return levelKnown ? Messages.format( TXT_TO_STRING, super.toString(), STR ) : super.toString();
 	}
 	
 	@Override
@@ -245,7 +244,7 @@ abstract public class Weapon extends KindOfWeapon {
 		public abstract boolean proc( Weapon weapon, Char attacker, Char defender, int damage );
 		
 		public String name( String weaponName ) {
-			return weaponName;
+			return Messages.get(this, "name", weaponName);
 		}
 		
 		@Override

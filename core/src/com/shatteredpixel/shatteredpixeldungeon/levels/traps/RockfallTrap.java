@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -30,9 +29,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
@@ -40,7 +39,6 @@ import com.watabou.utils.Random;
 public class RockfallTrap extends Trap {
 
 	{
-		name = "Rockfall trap";
 		color = TrapSprite.GREY;
 		shape = TrapSprite.DIAMOND;
 	}
@@ -48,31 +46,37 @@ public class RockfallTrap extends Trap {
 	@Override
 	public void activate() {
 
-		if (Dungeon.visible[ pos ]){
-			CellEmitter.get( pos - Level.WIDTH ).start(Speck.factory(Speck.ROCK), 0.07f, 10);
-			Camera.main.shake( 3, 0.7f );
-			Sample.INSTANCE.play( Assets.SND_ROCKS );
-		}
+		boolean seen = false;
 
-		Char ch = Actor.findChar( pos );
+		for (int i : Level.NEIGHBOURS9){
 
-		if (ch != null){
-			int damage = Random.NormalIntRange(5+Dungeon.depth, 10+Dungeon.depth*3);
-			damage -= Random.IntRange( 0, ch.dr());
-			ch.damage( Math.max(damage, 0) , this);
+			if (Level.solid[pos+i])
+				continue;
 
-			Buff.prolong( ch, Paralysis.class, Paralysis.duration(ch)*2);
+			if (Dungeon.visible[ pos+i ]){
+				CellEmitter.get( pos + i - Level.WIDTH ).start(Speck.factory(Speck.ROCK), 0.07f, 10);
+				if (!seen) {
+					Camera.main.shake(3, 0.7f);
+					Sample.INSTANCE.play(Assets.SND_ROCKS);
+					seen = true;
+				}
+			}
 
-			if (!ch.isAlive() && ch == Dungeon.hero){
-				Dungeon.fail(Utils.format(ResultDescriptions.TRAP, name));
-				GLog.n("You were crushed by the rockfall trap...");
+			Char ch = Actor.findChar( pos+i );
+
+			if (ch != null){
+				int damage = Random.NormalIntRange(Dungeon.depth, Dungeon.depth*2);
+				damage -= Random.IntRange( 0, ch.dr());
+				ch.damage( Math.max(damage, 0) , this);
+
+				Buff.prolong( ch, Paralysis.class, Paralysis.duration(ch)/2);
+
+				if (!ch.isAlive() && ch == Dungeon.hero){
+					Dungeon.fail( getClass() );
+					GLog.n( Messages.get(this, "ondeath") );
+				}
 			}
 		}
-	}
 
-	@Override
-	public String desc() {
-		return "This trap is connected to a series of loose rocks above, " +
-				"triggering it will cause them to come crashing down.";
 	}
 }

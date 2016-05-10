@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class SeedPouch extends Bag {
 
 	{
-		name = "seed pouch";
 		image = ItemSpriteSheet.POUCH;
 		
 		size = 12;
@@ -42,10 +41,5 @@ public class SeedPouch extends Bag {
 	public int price() {
 		return 50;
 	}
-	
-	@Override
-	public String info() {
-		return
-			"This small velvet pouch allows you to store any number of seeds in it. Very convenient.";
-	}
+
 }

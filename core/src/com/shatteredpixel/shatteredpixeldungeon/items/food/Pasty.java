@@ -22,8 +22,10 @@ package com.shatteredpixel.shatteredpixeldungeon.items.food;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 import java.util.Calendar;
@@ -63,11 +65,11 @@ public class Pasty extends Food {
 
 		switch(holiday){
 			case NONE:
-				name = "pasty";
+				name = Messages.get(this, "pasty");
 				image = ItemSpriteSheet.PASTY;
 			break;
 			case XMAS:
-				name = "candy cane";
+				name = Messages.get(this, "cane");
 				image = ItemSpriteSheet.CANDY_CANE;
 				break;
 		}
@@ -81,12 +83,13 @@ public class Pasty extends Food {
 	@Override
 	public void execute(Hero hero, String action) {
 		super.execute(hero, action);
+
 		if (action.equals(AC_EAT)){
 			switch(holiday){
 				case NONE: default:
 					break; //do nothing extra
 				case XMAS:
-					Buff.affect( hero, ScrollOfRecharging.Recharging.class, 2f ); //half of a charge
+					Buff.affect( hero, Recharging.class, 2f ); //half of a charge
 					ScrollOfRecharging.charge( hero );
 					break;
 			}
@@ -97,10 +100,9 @@ public class Pasty extends Food {
 	public String info() {
 		switch(holiday){
 			case NONE: default:
-				return "This is authentic Cornish pasty with traditional filling of beef and potato.";
+				return Messages.get(this, "pasty_desc");
 			case XMAS:
-				return "A huge sugary sweet candy cane! It's big enough to fill you up, " +
-						"and the sugar might give your wands a tiny bit of extra charge too.\n\nHappy Holidays!";
+				return Messages.get(this, "cane_desc");
 		}
 	}
 	

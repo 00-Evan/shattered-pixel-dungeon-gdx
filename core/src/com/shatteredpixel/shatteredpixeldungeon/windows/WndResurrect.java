@@ -20,23 +20,19 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.watabou.noosa.BitmapTextMultiline;
-import com.watabou.noosa.Game;
-import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.noosa.Game;
 
 public class WndResurrect extends Window {
-	
-	private static final String TXT_MESSAGE	= "You died, but you were given another chance to win this dungeon. Will you take it?";
-	private static final String TXT_YES		= "Yes, I will fight!";
-	private static final String TXT_NO		= "No, I give up";
 	
 	private static final int WIDTH		= 120;
 	private static final int BTN_HEIGHT	= 20;
@@ -58,13 +54,12 @@ public class WndResurrect extends Window {
 		titlebar.setRect( 0, 0, WIDTH, 0 );
 		add( titlebar );
 		
-		BitmapTextMultiline message = PixelScene.createMultiline( TXT_MESSAGE, 6 );
-		message.maxWidth = WIDTH;
-		message.measure();
-		message.y = titlebar.bottom() + GAP;
+		RenderedTextMultiline message = PixelScene.renderMultiline( Messages.get(this, "message"), 6 );
+		message.maxWidth(WIDTH);
+		message.setPos(0, titlebar.bottom() + GAP);
 		add( message );
 		
-		RedButton btnYes = new RedButton( TXT_YES ) {
+		RedButton btnYes = new RedButton( Messages.get(this, "yes") ) {
 			@Override
 			protected void onClick() {
 				hide();
@@ -75,15 +70,15 @@ public class WndResurrect extends Window {
 				Game.switchScene( InterlevelScene.class );
 			}
 		};
-		btnYes.setRect( 0, message.y + message.height() + GAP, WIDTH, BTN_HEIGHT );
+		btnYes.setRect( 0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT );
 		add( btnYes );
 		
-		RedButton btnNo = new RedButton( TXT_NO ) {
+		RedButton btnNo = new RedButton( Messages.get(this, "no") ) {
 			@Override
 			protected void onClick() {
 				hide();
 				
-				Rankings.INSTANCE.submit( false );
+				//Rankings.INSTANCE.submit( false, WndResurrect.causeOfDeath.getClass() );
 				Hero.reallyDie( WndResurrect.causeOfDeath );
 			}
 		};

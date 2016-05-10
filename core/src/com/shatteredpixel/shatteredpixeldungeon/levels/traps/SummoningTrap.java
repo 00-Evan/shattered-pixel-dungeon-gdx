@@ -20,11 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import java.util.ArrayList;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
@@ -33,12 +30,13 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+
 public class SummoningTrap extends Trap {
 
 	private static final float DELAY = 2f;
 
 	{
-		name = "Summoning trap";
 		color = TrapSprite.TEAL;
 		shape = TrapSprite.WAVES;
 	}
@@ -91,10 +89,5 @@ public class SummoningTrap extends Trap {
 			ScrollOfTeleportation.appear(mob, mob.pos);
 		}
 
-	}
-
-	@Override
-	public String desc() {
-		return "Triggering this trap will summon a number of monsters from the surrounding floors to this location.";
 	}
 }

@@ -17,13 +17,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -31,21 +24,27 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MimicSprite;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class Mimic extends Mob {
 	
 	private int level;
 	
 	{
-		name = "mimic";
 		spriteClass = MimicSprite.class;
 
 		properties.add(Property.DEMONIC);
@@ -66,7 +65,7 @@ public class Mimic extends Mob {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
-		items = new ArrayList<Item>( (Collection<Item>) ((Collection<?>) bundle.getCollection( ITEMS ) ));
+		items = new ArrayList<>( (Collection<Item>) ((Collection<?>) bundle.getCollection( ITEMS ) ));
 		adjustStats( bundle.getInt( LEVEL ) );
 		super.restoreFromBundle(bundle);
 	}
@@ -109,17 +108,10 @@ public class Mimic extends Mob {
 		return true;
 	}
 
-	@Override
-	public String description() {
-		return
-			"Mimics are magical creatures which can take any shape they wish. In dungeons they almost always " +
-			"choose a shape of a treasure chest, because they know how to beckon an adventurer.";
-	}
-	
 	public static Mimic spawnAt( int pos, List<Item> items ) {
 		Char ch = Actor.findChar( pos );
 		if (ch != null) {
-			ArrayList<Integer> candidates = new ArrayList<Integer>();
+			ArrayList<Integer> candidates = new ArrayList<>();
 			for (int n : Level.NEIGHBOURS8) {
 				int cell = pos + n;
 				if ((Level.passable[cell] || Level.avoid[cell]) && Actor.findChar( cell ) == null) {
@@ -143,7 +135,7 @@ public class Mimic extends Mob {
 		}
 		
 		Mimic m = new Mimic();
-		m.items = new ArrayList<Item>( items );
+		m.items = new ArrayList<>( items );
 		m.adjustStats( Dungeon.depth );
 		m.pos = pos;
 		m.state = m.HUNTING;
@@ -171,7 +163,7 @@ public class Mimic extends Mob {
 		return m;
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( ScrollOfPsionicBlast.class );
 	}

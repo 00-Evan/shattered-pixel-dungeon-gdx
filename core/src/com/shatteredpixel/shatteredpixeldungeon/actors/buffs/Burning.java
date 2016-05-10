@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
@@ -36,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.Resistance;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
@@ -46,7 +46,6 @@ import com.watabou.utils.Random;
 public class Burning extends Buff implements Hero.Doom {
 
 	private static final String TXT_BURNS_UP		= "%s burns up!";
-	private static final String TXT_BURNED_TO_DEATH	= "You burned to death...";
 	
 	private static final float DURATION = 8f;
 	
@@ -74,8 +73,10 @@ public class Burning extends Buff implements Hero.Doom {
 	public boolean act() {
 		
 		if (target.isAlive()) {
-			
-			target.damage( Random.Int( 1, 5 ), this );
+
+			//maximum damage scales from 6 to 2 depending on remaining hp.
+			int maxDmg = 3 + Math.round( 4 * target.HP / (float)target.HT );
+			target.damage( Random.Int( 1, maxDmg ), this );
 			Buff.detach( target, Chill.class);
 
 			if (target instanceof Hero) {
@@ -85,7 +86,7 @@ public class Burning extends Buff implements Hero.Doom {
 				if (item instanceof Scroll) {
 					
 					item = item.detach( hero.belongings.backpack );
-					GLog.w( TXT_BURNS_UP, item.toString() );
+					GLog.w( Messages.get(this, "burnsup", item.toString()) );
 					
 					Heap.burnFX( hero.pos );
 					
@@ -96,7 +97,7 @@ public class Burning extends Buff implements Hero.Doom {
 					if (!steak.collect( hero.belongings.backpack )) {
 						Dungeon.level.drop( steak, hero.pos ).sprite.drop();
 					}
-					GLog.w( TXT_BURNS_UP, item.toString() );
+					GLog.w( Messages.get(this, "burnsup", item.toString()) );
 					
 					Heap.burnFX( hero.pos );
 					
@@ -120,7 +121,6 @@ public class Burning extends Buff implements Hero.Doom {
 		left -= TICK;
 		
 		if (left <= 0 ||
-			Random.Float() > (2 + (float)target.HP / target.HT) / 3 ||
 			(Level.water[target.pos] && !target.flying)) {
 			
 			detach();
@@ -145,8 +145,13 @@ public class Burning extends Buff implements Hero.Doom {
 	}
 
 	@Override
+	public String heroMessage() {
+		return Messages.get(this, "heromsg");
+	}
+
+	@Override
 	public String toString() {
-		return "Burning";
+		return Messages.get(this, "name");
 	}
 
 	public static float duration( Char ch ) {
@@ -156,14 +161,7 @@ public class Burning extends Buff implements Hero.Doom {
 
 	@Override
 	public String desc() {
-		return "Few things are more distressing than being engulfed in flames.\n" +
-				"\n" +
-				"Fire will deal damage every turn until it is put out by water, expires, or it is resisted. " +
-				"Fire can be extinquished by stepping into water, or from the splash of a shattering potion. \n" +
-				"\n" +
-				"Additionally, the fire may ignite flammable terrain or items that it comes into contact with.\n" +
-				"\n" +
-				"The burning will last for " + dispTurns(left) + ", or until it is resisted or extinquished.";
+		return Messages.get(this, "desc", dispTurns(left));
 	}
 
 	@Override
@@ -171,7 +169,7 @@ public class Burning extends Buff implements Hero.Doom {
 		
 		Badges.validateDeathFromFire();
 		
-		Dungeon.fail( ResultDescriptions.BURNING );
-		GLog.n( TXT_BURNED_TO_DEATH );
+		Dungeon.fail( getClass() );
+		GLog.n( Messages.get(this, "ondeath") );
 	}
 }

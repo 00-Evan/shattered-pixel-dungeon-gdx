@@ -20,10 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
@@ -35,18 +32,17 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Leech;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.EyeSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Random;
+
+import java.util.HashSet;
 
 public class Eye extends Mob {
 	
-	private static final String TXT_DEATHGAZE_KILLED = "%s's deathgaze killed you...";
-	
 	{
-		name = "evil eye";
 		spriteClass = EyeSprite.class;
 		
 		HP = HT = 100;
@@ -130,8 +126,8 @@ public class Eye extends Mob {
 				}
 				
 				if (!ch.isAlive() && ch == Dungeon.hero) {
-					Dungeon.fail( Utils.format( ResultDescriptions.MOB, Utils.indefinite( name ) ) );
-					GLog.n( TXT_DEATHGAZE_KILLED, name );
+					Dungeon.fail( getClass() );
+					GLog.n( Messages.get(this, "deathgaze_kill") );
 				}
 			} else {
 				ch.sprite.showStatus( CharSprite.NEUTRAL,  ch.defenseVerb() );
@@ -141,14 +137,7 @@ public class Eye extends Mob {
 		return true;
 	}
 	
-	@Override
-	public String description() {
-		return
-			"One of this demon's other names is \"orb of hatred\", because when it sees an enemy, " +
-			"it uses its deathgaze recklessly, often ignoring its allies and wounding them.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
 	static {
 		RESISTANCES.add( WandOfDisintegration.class );
 		RESISTANCES.add( Death.class );
@@ -160,7 +149,7 @@ public class Eye extends Mob {
 		return RESISTANCES;
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( Terror.class );
 	}

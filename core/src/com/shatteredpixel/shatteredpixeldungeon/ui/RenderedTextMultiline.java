@@ -21,12 +21,16 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+
 //FIXME: currently this just wraps HighlightedText, correct this when RenderedText is fixed
 public class RenderedTextMultiline extends HighlightedText {
 
 	private int maxWidth = Integer.MAX_VALUE;
 
 	private String text;
+
+	public int nLines;
 
 	private float zoom;
 	private int color = -1;
@@ -48,8 +52,9 @@ public class RenderedTextMultiline extends HighlightedText {
 		this.text = text;
 		this.maxWidth = maxWidth;
 		super.text(text, maxWidth);
-		//PixelScene.align(normal);
-		//PixelScene.align(highlighted);
+		PixelScene.align(normal);
+		PixelScene.align(highlighted);
+		nLines = normal.nLines;
 	}
 
 	public String text(){

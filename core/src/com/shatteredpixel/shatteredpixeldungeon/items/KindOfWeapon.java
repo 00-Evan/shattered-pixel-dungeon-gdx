@@ -20,26 +20,15 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import java.util.ArrayList;
-
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Random;
 
 abstract public class KindOfWeapon extends EquipableItem {
-
-	private static final String TXT_EQUIP_CURSED	= "you wince as your grip involuntarily tightens around your %s";
 	
 	protected static final float TIME_TO_EQUIP = 1f;
-	
-	@Override
-	public ArrayList<String> actions( Hero hero ) {
-		ArrayList<String> actions = super.actions( hero );
-		actions.add(isEquipped(hero) ? AC_UNEQUIP : AC_EQUIP);
-		return actions;
-	}
 	
 	@Override
 	public boolean isEquipped( Hero hero ) {
@@ -61,7 +50,7 @@ abstract public class KindOfWeapon extends EquipableItem {
 			cursedKnown = true;
 			if (cursed) {
 				equipCursed( hero );
-				GLog.n( TXT_EQUIP_CURSED, name() );
+				GLog.n( Messages.get(KindOfWeapon.class, "cursed") );
 			}
 			
 			hero.spendAndNext( TIME_TO_EQUIP );
@@ -87,9 +76,6 @@ abstract public class KindOfWeapon extends EquipableItem {
 
 		}
 	}
-	
-	public void activate( Hero hero ) {
-	}
 
 	abstract public int min();
 	abstract public int max();
@@ -104,6 +90,10 @@ abstract public class KindOfWeapon extends EquipableItem {
 	
 	public float speedFactor( Hero hero ) {
 		return 1f;
+	}
+
+	public int reachFactor( Hero hero ){
+		return 1;
 	}
 	
 	public void proc( Char attacker, Char defender, int damage ) {

@@ -20,23 +20,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
-import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
-import com.watabou.noosa.Camera;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
+import com.watabou.noosa.Camera;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -44,7 +41,6 @@ import java.util.ArrayList;
 public class LightningTrap extends Trap {
 
 	{
-		name = "Lightning trap";
 		color = TrapSprite.TEAL;
 		shape = TrapSprite.CROSSHAIR;
 	}
@@ -61,8 +57,8 @@ public class LightningTrap extends Trap {
 				Camera.main.shake( 2, 0.3f );
 
 				if (!ch.isAlive()) {
-					Dungeon.fail( Utils.format( ResultDescriptions.TRAP, name ) );
-					GLog.n( "You were killed by a discharge of a lightning trap..." );
+					Dungeon.fail( getClass() );
+					GLog.n( Messages.get(this, "ondeath") );
 				}
 			}
 
@@ -89,11 +85,5 @@ public class LightningTrap extends Trap {
 	//FIXME: this is bad, handle when you rework resistances, make into a category
 	public static final Electricity LIGHTNING = new Electricity();
 	public static class Electricity {
-	}
-
-	@Override
-	public String desc() {
-		return "A mechanism with a large amount of energy stored into it. " +
-				"Triggering the trap will discharge that energy into whatever activates it.";
 	}
 }

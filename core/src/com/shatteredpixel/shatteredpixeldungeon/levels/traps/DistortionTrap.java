@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.watabou.noosa.Game;
@@ -31,7 +30,6 @@ import com.watabou.noosa.Game;
 public class DistortionTrap extends Trap{
 
 	{
-		name = "Distortion trap";
 		color = TrapSprite.TEAL;
 		shape = TrapSprite.LARGE_DOT;
 	}
@@ -46,10 +44,5 @@ public class DistortionTrap extends Trap{
 		}
 		InterlevelScene.mode = InterlevelScene.Mode.RESET;
 		Game.switchScene(InterlevelScene.class);
-	}
-
-	@Override
-	public String desc() {
-		return "Built from strange magic of unknown origin, this trap will shift and morph the world around you.";
 	}
 }

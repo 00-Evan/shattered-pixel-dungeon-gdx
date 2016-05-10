@@ -23,13 +23,12 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -43,25 +42,21 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 public class WandOfTransfusion extends Wand {
 
 	{
-		name = "Wand of Transfusion";
 		image = ItemSpriteSheet.WAND_TRANSFUSION;
 
 		collisionProperties = Ballistica.PROJECTILE;
@@ -173,7 +168,6 @@ public class WandOfTransfusion extends Wand {
 		}
 	}
 
-
 	//this wand costs health too
 	private void damageHero(){
 		// 15% of max hp
@@ -181,8 +175,8 @@ public class WandOfTransfusion extends Wand {
 		curUser.damage(damage, this);
 
 		if (!curUser.isAlive()){
-			Dungeon.fail( Utils.format(ResultDescriptions.ITEM, name) );
-			GLog.n("You killed yourself with your own Wand of Transfusion...");
+			Dungeon.fail( getClass() );
+			GLog.n( Messages.get(this, "ondeath") );
 		}
 	}
 
@@ -199,7 +193,7 @@ public class WandOfTransfusion extends Wand {
 		if (Random.Int( level() + 10 ) >= 9){
 			//grants a free use of the staff
 			freeCharge = true;
-			GLog.p("Your staff is charged with the life energy of your enemy!");
+			GLog.p( Messages.get(this, "charged") );
 			attacker.sprite.emitter().burst(BloodParticle.BURST, 20);
 		}
 	}
@@ -235,13 +229,4 @@ public class WandOfTransfusion extends Wand {
 		bundle.put( FREECHARGE, freeCharge );
 	}
 
-	@Override
-	public String desc() {
-		return "A fairly plainly shaped wand, it stands out due to its magenta hue and pitch black gem at the tip.\n" +
-				"\n" +
-				"This wand will take some of your life energy and blast it at a target. This effect is very versatile: " +
-				"allies will be healed, enemies will be temporarily charmed, and hostile undead will take considerable damage. " +
-				"The life force effect can also be potent at dispelling curses as well. " +
-				"The life energy drain is significant though, using this wand will deal damage to you in addition to consuming charges.";
-	}
 }

@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -43,7 +42,7 @@ public class Bones {
 	
 	private static final String LEVEL	= "level";
 	private static final String ITEM	= "item";
-	
+
 	private static int depth = -1;
 	private static Item item;
 	
@@ -160,7 +159,7 @@ public class Bones {
 									item.visiblyUpgraded(),
 									1 + ((Dungeon.depth * 3) / 10)));
 
-							return item;
+							return artifact;
 						} catch (Exception e) {
 							return new Gold(item.price());
 						}
@@ -182,7 +181,7 @@ public class Bones {
 					}
 				}
 				
-				item.syncVisuals();
+				item.reset();
 				
 				return item;
 			} else {

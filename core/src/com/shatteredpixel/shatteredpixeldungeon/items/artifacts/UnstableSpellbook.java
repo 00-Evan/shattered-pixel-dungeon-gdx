@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -46,7 +47,6 @@ import java.util.Collections;
 public class UnstableSpellbook extends Artifact {
 
 	{
-		name = "Unstable Spellbook";
 		image = ItemSpriteSheet.ARTIFACT_SPELLBOOK;
 
 		levelCap = 10;
@@ -61,9 +61,8 @@ public class UnstableSpellbook extends Artifact {
 	public static final String AC_READ = "READ";
 	public static final String AC_ADD = "ADD";
 
-	private final ArrayList<String> scrolls = new ArrayList<String>();
+	private final ArrayList<Class> scrolls = new ArrayList<>();
 
-	protected String inventoryTitle = "Select a scroll";
 	protected WndBag.Mode mode = WndBag.Mode.SCROLL;
 
 	public UnstableSpellbook() {
@@ -74,7 +73,7 @@ public class UnstableSpellbook extends Artifact {
 		int i = Random.chances(probs);
 
 		while (i != -1){
-			scrolls.add(convertName(scrollClasses[i].getSimpleName()));
+			scrolls.add(scrollClasses[i]);
 			probs[i] = 0;
 
 			i = Random.chances(probs);
@@ -93,12 +92,15 @@ public class UnstableSpellbook extends Artifact {
 
 	@Override
 	public void execute( Hero hero, String action ) {
+
+		super.execute( hero, action );
+
 		if (action.equals( AC_READ )) {
 
-			if (hero.buff( Blindness.class ) != null) GLog.w("You cannot read from the book while blinded.");
-			else if (!isEquipped( hero ))             GLog.i("You need to equip your spellbook to do that.");
-			else if (charge == 0)                     GLog.i("Your spellbook is out of energy for now.");
-			else if (cursed)                          GLog.i("Your cannot read from a cursed spellbook.");
+			if (hero.buff( Blindness.class ) != null) GLog.w( Messages.get(this, "blinded") );
+			else if (!isEquipped( hero ))             GLog.i( Messages.get(Artifact.class, "need_to_equip") );
+			else if (charge == 0)                     GLog.i( Messages.get(this, "no_charge") );
+			else if (cursed)                          GLog.i( Messages.get(this, "cursed") );
 			else {
 				charge--;
 
@@ -116,9 +118,8 @@ public class UnstableSpellbook extends Artifact {
 			}
 
 		} else if (action.equals( AC_ADD )) {
-			GameScene.selectItem(itemSelector, mode, inventoryTitle);
-		} else
-			super.execute( hero, action );
+			GameScene.selectItem(itemSelector, mode, Messages.get(this, "prompt"));
+		}
 	}
 
 	@Override
@@ -139,41 +140,18 @@ public class UnstableSpellbook extends Artifact {
 
 	@Override
 	public String desc() {
-		String desc = "This Tome is in surprising good condition given its age. ";
+		String desc = super.desc();
 
-		if (level() < 3)
-			desc += "It emanates a strange chaotic energy. ";
-		else if (level() < 7)
-			desc += "It glows with a strange chaotic energy. ";
-		else
-			desc += "It fizzes and crackles as you move the pages, surging with unstable energy. ";
-
-		desc += "It seems to contains a list of spells, but the order and position of them in the index is " +
-				"constantly shifting. If you read from this book, there's no telling what spell you might cast.";
-
-		desc += "\n\n";
-
-		if (isEquipped (Dungeon.hero)) {
-
-			if (!cursed)
-				desc += "The book fits firmly at your side, sending you the occasional zip of static energy.";
-			else
-				desc += "The cursed book has bound itself to you, it is inhibiting your ability to use most scrolls.";
-
-			desc += "\n\n";
-
+		if (cursed && isEquipped (Dungeon.hero)){
+			desc += "\n\n" + Messages.get(this, "desc_cursed");
 		}
 
-			if (level() < levelCap)
-				if (scrolls.size() > 1)
-					desc += "The book's index points to some pages which are blank. " +
-							"Those pages are listed as: " + scrolls.get(0) + " and "
-							+ scrolls.get(1) + ". Perhaps adding to the book will increase its power";
-				else
-					desc += "The book's index has one remaining blank page. " +
-							"That page is listed as " + scrolls.get(0) + ".";
-			 else
-				desc += "The book's index is full, it doesn't look like you can add anything more to it.";
+		if (level() < levelCap)
+			if (scrolls.size() > 0) {
+				desc += "\n\n" + Messages.get(this, "desc_index");
+				desc += "\n" + Messages.get(scrolls.get(0), "name");
+				if (scrolls.size() > 1) desc += "\n" + Messages.get(scrolls.get(1), "name");
+			}
 
 		return desc;
 	}
@@ -183,14 +161,20 @@ public class UnstableSpellbook extends Artifact {
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
-		bundle.put( SCROLLS, scrolls.toArray(new String[scrolls.size()]) );
+		bundle.put( SCROLLS, scrolls.toArray(new Class[scrolls.size()]) );
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
 		scrolls.clear();
-		Collections.addAll(scrolls, bundle.getStringArray(SCROLLS));
+		Collections.addAll(scrolls, bundle.getClassArray(SCROLLS));
+		if (scrolls.contains(null)){
+			//compatability with pre-0.3.4, just give them a maxed book.
+			scrolls.clear();
+			level(levelCap);
+			chargeCap = 8;
+		}
 	}
 
 	public class bookRecharge extends ArtifactBuff{
@@ -222,10 +206,9 @@ public class UnstableSpellbook extends Artifact {
 		@Override
 		public void onSelect(Item item) {
 			if (item != null && item instanceof Scroll && item.isIdentified()){
-				String scroll = convertName(item.getClass().getSimpleName());
 				Hero hero = Dungeon.hero;
 				for (int i = 0; ( i <= 1 && i < scrolls.size() ); i++){
-					if (scrolls.get(i).equals(scroll)){
+					if (scrolls.get(i).equals(item.getClass())){
 						hero.sprite.operate( hero.pos );
 						hero.busy();
 						hero.spend( 2f );
@@ -236,14 +219,13 @@ public class UnstableSpellbook extends Artifact {
 						item.detach(hero.belongings.backpack);
 
 						upgrade();
-						GLog.i("You infuse the scroll's energy into the book.");
+						GLog.i( Messages.get(UnstableSpellbook.class, "infuse_scroll") );
 						return;
 					}
 				}
-				if (item != null)
-					GLog.w("You are unable to add this scroll to the book.");
+				GLog.w( Messages.get(UnstableSpellbook.class, "unable_scroll") );
 			} else if (item instanceof Scroll && !item.isIdentified())
-				GLog.w("You're not sure what type of scroll this is yet.");
+				GLog.w( Messages.get(UnstableSpellbook.class, "unknown_scroll") );
 		}
 	};
 }

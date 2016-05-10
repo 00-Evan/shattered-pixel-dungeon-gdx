@@ -22,23 +22,21 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
 
 public class FrostTrap extends Trap {
 
 	{
-		name = "Frost trap";
 		color = TrapSprite.WHITE;
 		shape = TrapSprite.STARS;
 	}
@@ -59,14 +57,9 @@ public class FrostTrap extends Trap {
 			ch.damage(Random.NormalIntRange(1 , Dungeon.depth), this);
 			Chill.prolong(ch, Frost.class, 10f + Random.Int(Dungeon.depth));
 			if (!ch.isAlive() && ch == Dungeon.hero){
-				Dungeon.fail( Utils.format(ResultDescriptions.TRAP, name) );
-				GLog.n("You succumb to the freezing trap...");
+				Dungeon.fail( getClass() );
+				GLog.n( Messages.get(this, "ondeath") );
 			}
 		}
-	}
-
-	@Override
-	public String desc() {
-		return "When activated, chemicals in this trap will trigger a powerful snap-frost at its location.";
 	}
 }

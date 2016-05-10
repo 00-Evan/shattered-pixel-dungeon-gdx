@@ -23,16 +23,14 @@ package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Identification;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 
 public class ScrollOfIdentify extends InventoryScroll {
 
 	{
-		name = "Scroll of Identify";
-		initials = "Id";
-
-		inventoryTitle = "Select an item to identify";
+		initials = 0;
 		mode = WndBag.Mode.UNIDENTIFED;
 
 		bones = true;
@@ -44,15 +42,9 @@ public class ScrollOfIdentify extends InventoryScroll {
 		curUser.sprite.parent.add( new Identification( curUser.sprite.center().offset( 0, -16 ) ) );
 		
 		item.identify();
-		GLog.i( "It is " + item );
+		GLog.i( Messages.get(this, "it_is", item) );
 		
 		Badges.validateItemLevelAquired( item );
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"Permanently reveals all of the secrets of a single item.";
 	}
 	
 	@Override

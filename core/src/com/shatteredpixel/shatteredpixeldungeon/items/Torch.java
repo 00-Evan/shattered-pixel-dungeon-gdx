@@ -20,14 +20,14 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import java.util.ArrayList;
-
-import com.watabou.noosa.particles.Emitter;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.noosa.particles.Emitter;
+
+import java.util.ArrayList;
 
 public class Torch extends Item {
 
@@ -36,7 +36,6 @@ public class Torch extends Item {
 	public static final float TIME_TO_LIGHT = 1;
 	
 	{
-		name = "torch";
 		image = ItemSpriteSheet.TORCH;
 		
 		stackable = true;
@@ -53,6 +52,8 @@ public class Torch extends Item {
 	
 	@Override
 	public void execute( Hero hero, String action ) {
+
+		super.execute( hero, action );
 		
 		if (action.equals( AC_LIGHT )) {
 			
@@ -66,10 +67,6 @@ public class Torch extends Item {
 			
 			Emitter emitter = hero.sprite.centerEmitter();
 			emitter.start( FlameParticle.FACTORY, 0.2f, 3 );
-			
-		} else {
-			
-			super.execute( hero, action );
 			
 		}
 	}
@@ -88,10 +85,5 @@ public class Torch extends Item {
 	public int price() {
 		return 10 * quantity;
 	}
-	
-	@Override
-	public String info() {
-		return
-			"An adventuring staple, when a dungeon goes dark, a torch can help lead the way.";
-	}
+
 }

@@ -20,16 +20,17 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
-import java.util.ArrayList;
-
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Game;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
 import com.watabou.utils.SparseArray;
 
+import java.util.ArrayList;
+
+//TODO: change this to be based on renderedtext when that works
 public class FloatingText extends BitmapText {
 
 	private static final float LIFESPAN	= 1f;

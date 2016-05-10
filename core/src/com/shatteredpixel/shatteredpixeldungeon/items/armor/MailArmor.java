@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class MailArmor extends Armor {
 
 	{
-		name = "mail armor";
 		image = ItemSpriteSheet.ARMOR_MAIL;
 	}
 	
@@ -33,9 +32,4 @@ public class MailArmor extends Armor {
 		super( 3 );
 	}
 
-	@Override
-	public String desc() {
-		return
-			"Interlocking metal links make for a tough but flexible suit of armor.";
-	}
 }

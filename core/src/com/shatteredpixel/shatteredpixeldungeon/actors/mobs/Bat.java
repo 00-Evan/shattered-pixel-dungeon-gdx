@@ -20,8 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -31,10 +29,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Leech;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.BatSprite;
 import com.watabou.utils.Random;
 
+import java.util.HashSet;
+
 public class Bat extends Mob {
 
 	{
-		name = "vampire bat";
 		spriteClass = BatSprite.class;
 		
 		HP = HT = 30;
@@ -66,11 +65,6 @@ public class Bat extends Mob {
 	}
 	
 	@Override
-	public String defenseVerb() {
-		return "evaded";
-	}
-	
-	@Override
 	public int attackProc( Char enemy, int damage ) {
 		
 		int reg = Math.min( damage, HT - HP );
@@ -96,14 +90,7 @@ public class Bat extends Mob {
 		return super.createLoot();
 	}
 	
-	@Override
-	public String description() {
-		return
-			"These brisk and tenacious inhabitants of cave domes may defeat much larger opponents by " +
-			"replenishing their health with each successful attack.";
-	}
-	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<Class<?>>();
+	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
 	static {
 		RESISTANCES.add( Leech.class );
 	}

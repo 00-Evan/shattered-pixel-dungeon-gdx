@@ -23,24 +23,18 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Golem;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.King;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Effects;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -52,7 +46,6 @@ import com.watabou.utils.Random;
 public class WandOfBlastWave extends Wand {
 
 	{
-		name = "Wand of Blast Wave";
 		image = ItemSpriteSheet.WAND_BLAST_WAVE;
 
 		collisionProperties = Ballistica.PROJECTILE;
@@ -100,16 +93,15 @@ public class WandOfBlastWave extends Wand {
 		}
 
 		if (!curUser.isAlive()) {
-			Dungeon.fail( Utils.format(ResultDescriptions.ITEM, name) );
-			GLog.n("You killed yourself with your own Wand of Blast Wave...");
+			Dungeon.fail( getClass() );
+			GLog.n( Messages.get( this, "ondeath") );
 		}
 	}
 
 	private void throwChar(final Char ch, final Ballistica trajectory, int power){
 		int dist = Math.min(trajectory.dist, power);
 
-		//FIXME: sloppy
-		if ((ch instanceof King) || (ch instanceof Golem) || (ch instanceof Yog.RottingFist))
+		if (ch.properties().contains(Char.Property.BOSS))
 			dist /= 2;
 
 		if (dist == 0 || ch.properties().contains(Char.Property.IMMOVABLE)) return;
@@ -212,14 +204,5 @@ public class WandOfBlastWave extends Wand {
 			b.reset(pos);
 		}
 
-	}
-
-	@Override
-	public String desc() {
-		return "This wand is made of a sort of marbled stone, with gold trim and a round black gem at the tip. " +
-				"It feels very weighty in your hand.\n" +
-				"\n" +
-				"This wand shoots a bolt which violently detonates at a target location. There is no smoke and fire, " +
-				"but the force of this blast is enough to knock even the biggest of foes around.";
 	}
 }

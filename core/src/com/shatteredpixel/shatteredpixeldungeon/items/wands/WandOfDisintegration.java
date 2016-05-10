@@ -20,29 +20,27 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
-import java.util.ArrayList;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PurpleParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+
 public class WandOfDisintegration extends Wand {
 
 	{
-		name = "Wand of Disintegration";
 		image = ItemSpriteSheet.WAND_DISINTEGRATION;
 
 		collisionProperties = Ballistica.WONT_STOP;
@@ -57,7 +55,7 @@ public class WandOfDisintegration extends Wand {
 		
 		int maxDistance = Math.min(distance(), beam.dist);
 		
-		ArrayList<Char> chars = new ArrayList<Char>();
+		ArrayList<Char> chars = new ArrayList<>();
 
 		int terrainPassed = 2, terrainBonus = 0;
 		for (int c : beam.subPath(1, maxDistance)) {
@@ -131,12 +129,4 @@ public class WandOfDisintegration extends Wand {
 		particle.shuffleXY(2f);
 	}
 
-	@Override
-	public String desc() {
-		return
-			"This wand is made from a solid smooth chunk of obsidian, with a deep purple light running up its side, " +
-			"ending at the tip. It glows with destructive energy, waiting to shoot forward.\n\n" +
-			"This wand shoots a beam that pierces any obstacle, and will go farther the more it is upgraded.\n\n" +
-			"This wand deals bonus damage the more enemies and terrain it penetrates.";
-	}
 }

@@ -20,46 +20,41 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
-import java.util.ArrayList;
-
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMagic.Magic;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public abstract class Wand extends Item {
 
 	private static final int USAGES_TO_KNOW    = 20;
 
 	public static final String AC_ZAP	= "ZAP";
-
-	private static final String TXT_FIZZLES		= "your wand fizzles; it must not have enough charge.";
-	private static final String TXT_SELF_TARGET	= "You can't target yourself";
-
-	private static final String TXT_IDENTIFY    = "You are now familiar with your %s.";
 
 	private static final float TIME_TO_ZAP	= 1f;
 	
@@ -92,15 +87,14 @@ public abstract class Wand extends Item {
 	
 	@Override
 	public void execute( Hero hero, String action ) {
+
+		super.execute( hero, action );
+
 		if (action.equals( AC_ZAP )) {
 			
 			curUser = hero;
 			curItem = this;
 			GameScene.selectCell( zapper );
-			
-		} else {
-			
-			super.execute( hero, action );
 			
 		}
 	}
@@ -183,7 +177,7 @@ public abstract class Wand extends Item {
 	@Override
 	public String info() {
 		return (cursed && cursedKnown) ?
-				desc() + "\n\nThis wand is cursed, making its magic chaotic and random." :
+				desc() + "\n\n" + Messages.get(Wand.class, "cursed") :
 				desc();
 	}
 	
@@ -254,7 +248,7 @@ public abstract class Wand extends Item {
 		curCharges -= cursed ? 1 : chargesPerCast();
 		if (!isIdentified() && usagesToKnow <= 0) {
 			identify();
-			GLog.w( TXT_IDENTIFY, name() );
+			GLog.w( Messages.get(Wand.class, "identify", name()) );
 		} else {
 			if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
 			updateQuickslot();
@@ -302,7 +296,7 @@ public abstract class Wand extends Item {
 		return price;
 	}
 
-	private static final String UNFAMILIRIARITY        = "unfamiliarity";
+	private static final String UNFAMILIRIARITY     = "unfamiliarity";
 	private static final String CUR_CHARGES			= "curCharges";
 	private static final String CUR_CHARGE_KNOWN	= "curChargeKnown";
 	private static final String PARTIALCHARGE 		= "partialCharge";
@@ -340,7 +334,7 @@ public abstract class Wand extends Item {
 				int cell = shot.collisionPos;
 				
 				if (target == curUser.pos || cell == curUser.pos) {
-					GLog.i( TXT_SELF_TARGET );
+					GLog.i( Messages.get(Wand.class, "self_target") );
 					return;
 				}
 
@@ -360,7 +354,7 @@ public abstract class Wand extends Item {
 						CursedWand.cursedZap(curWand, curUser, new Ballistica( curUser.pos, target, Ballistica.MAGIC_BOLT));
 						if (!curWand.cursedKnown){
 							curWand.cursedKnown = true;
-							GLog.n("This " + curItem.name() + " is cursed!");
+							GLog.n(Messages.get(Wand.class, "curse_discover", curWand.name()));
 						}
 					} else {
 						curWand.fx(shot, new Callback() {
@@ -375,7 +369,7 @@ public abstract class Wand extends Item {
 					
 				} else {
 
-					GLog.w( TXT_FIZZLES );
+					GLog.w( Messages.get(Wand.class, "fizzles") );
 
 				}
 				
@@ -384,7 +378,7 @@ public abstract class Wand extends Item {
 		
 		@Override
 		public String prompt() {
-			return "Choose a location to zap";
+			return Messages.get(Wand.class, "prompt");
 		}
 	};
 	
@@ -431,7 +425,7 @@ public abstract class Wand extends Item {
 			if (lock == null || lock.regenOn())
 				partialCharge += 1f/turnsToCharge;
 
-			ScrollOfRecharging.Recharging bonus = target.buff(ScrollOfRecharging.Recharging.class);
+			Recharging bonus = target.buff(Recharging.class);
 			if (bonus != null && bonus.remainder() > 0f){
 				partialCharge += CHARGE_BUFF_BONUS * bonus.remainder();
 			}

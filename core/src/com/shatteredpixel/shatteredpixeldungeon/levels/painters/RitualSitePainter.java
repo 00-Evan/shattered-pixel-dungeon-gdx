@@ -21,12 +21,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels.painters;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
 import com.watabou.utils.Point;
 
@@ -60,7 +59,7 @@ public class RitualSitePainter extends Painter {
 	public static class RitualMarker extends CustomTileVisual{
 
 		{
-			name = "Ritual marker";
+			name = Messages.get(this, "name");
 
 			tx = Assets.PRISON_QUEST;
 			txX = txY = 0;
@@ -69,7 +68,7 @@ public class RitualSitePainter extends Painter {
 
 		@Override
 		public String desc() {
-			return "A painted marker for some dark ritual. Candles are usually placed on the four corners.";
+			return Messages.get(this, "desc");
 		}
 	}
 

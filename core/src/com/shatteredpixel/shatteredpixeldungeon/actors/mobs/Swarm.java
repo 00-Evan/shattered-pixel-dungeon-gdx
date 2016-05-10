@@ -20,8 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import java.util.ArrayList;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -40,10 +38,11 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.SwarmSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+
 public class Swarm extends Mob {
 
 	{
-		name = "swarm of flies";
 		spriteClass = SwarmSprite.class;
 		
 		HP = HT = 50;
@@ -86,7 +85,7 @@ public class Swarm extends Mob {
 	public int defenseProc( Char enemy, int damage ) {
 
 		if (HP >= damage + 2) {
-			ArrayList<Integer> candidates = new ArrayList<Integer>();
+			ArrayList<Integer> candidates = new ArrayList<>();
 			boolean[] passable = Level.passable;
 			
 			int[] neighbours = {pos + 1, pos - 1, pos + Level.WIDTH, pos - Level.WIDTH};
@@ -122,11 +121,6 @@ public class Swarm extends Mob {
 		return 10;
 	}
 	
-	@Override
-	public String defenseVerb() {
-		return "evaded";
-	}
-	
 	private Swarm split() {
 		Swarm clone = new Swarm();
 		clone.generation = generation + 1;
@@ -154,12 +148,5 @@ public class Swarm extends Mob {
 	protected Item createLoot(){
 		Dungeon.limitedDrops.swarmHP.count++;
 		return super.createLoot();
-	}
-	
-	@Override
-	public String description() {
-		return
-			"The deadly swarm of flies buzzes angrily. Every non-magical attack " +
-			"will split it into two smaller but equally dangerous swarms.";
 	}
 }

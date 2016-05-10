@@ -20,20 +20,19 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.noosa.audio.Sample;
 
 public class PotionOfToxicGas extends Potion {
 
 	{
-		name = "Potion of Toxic Gas";
-		initials = "TG";
+		initials = 11;
 	}
-	
+
 	@Override
 	public void shatter( int cell ) {
 
@@ -45,15 +44,6 @@ public class PotionOfToxicGas extends Potion {
 		}
 
 		GameScene.add( Blob.seed( cell, 1000, ToxicGas.class ) );
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"Uncorking or shattering this pressurized glass will cause " +
-			"its contents to explode into a deadly cloud of toxic green gas. " +
-			"You might choose to fling this potion at distant enemies " +
-			"instead of uncorking it by hand.";
 	}
 	
 	@Override

@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -28,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class WandHolster extends Bag {
 
 	{
-		name = "wand holster";
 		image = ItemSpriteSheet.HOLSTER;
 		
 		size = 12;
@@ -65,11 +63,5 @@ public class WandHolster extends Bag {
 	public int price() {
 		return 50;
 	}
-	
-	@Override
-	public String info() {
-		return
-			"This slim holster is made from some exotic animal, and is designed to compactly carry up to " + size + " wands.\n\n" +
-			"The size seems a bit excessive, who would ever have that many wands?";
-	}
+
 }

@@ -22,12 +22,12 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PoisonParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements.Resistance;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -57,7 +57,7 @@ public class Poison extends Buff implements Hero.Doom {
 	
 	public void set( float duration ) {
 		this.left = duration;
-	};
+	}
 	
 	@Override
 	public int icon() {
@@ -66,16 +66,17 @@ public class Poison extends Buff implements Hero.Doom {
 	
 	@Override
 	public String toString() {
-		return "Poisoned";
+		return Messages.get(this, "name");
+	}
+
+	@Override
+	public String heroMessage() {
+		return Messages.get(this, "heromsg");
 	}
 
 	@Override
 	public String desc() {
-		return "Poison works its way through the body, slowly impairing its internal functioning.\n" +
-				"\n" +
-				"Poison deals damage each turn proportional to how long until it expires.\n" +
-				"\n" +
-				"This poison will last for " + dispTurns(left)  + ".";
+		return Messages.get(this, "desc", dispTurns(left));
 	}
 
 	@Override
@@ -116,7 +117,7 @@ public class Poison extends Buff implements Hero.Doom {
 	public void onDeath() {
 		Badges.validateDeathFromPoison();
 		
-		Dungeon.fail( ResultDescriptions.POISON );
+		Dungeon.fail( getClass() );
 		GLog.n( "You died from poison..." );
 	}
 }

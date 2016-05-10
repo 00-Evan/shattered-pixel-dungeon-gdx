@@ -21,14 +21,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.RatSprite;
 import com.watabou.utils.Random;
 
 public class Rat extends Mob {
 
 	{
-		name = "marsupial rat";
 		spriteClass = RatSprite.class;
 		
 		HP = HT = 8;
@@ -50,12 +48,5 @@ public class Rat extends Mob {
 	@Override
 	public int dr() {
 		return 1;
-	}
-	
-	@Override
-	public String description() {
-		return
-			"Marsupial rats are aggressive but rather weak denizens " +
-			"of the sewers. They have a nasty bite, but are only life threatening in large numbers.";
 	}
 }

@@ -17,9 +17,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
@@ -29,10 +26,11 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class Shock extends Weapon.Enchantment {
 
-	private static final String TXT_SHOCKING	= "shocking %s";
-	
 	@Override
 	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
 		// lvl 0 - 25%
@@ -58,11 +56,6 @@ public class Shock extends Weapon.Enchantment {
 			return false;
 			
 		}
-	}
-	
-	@Override
-	public String name( String weaponName ) {
-		return String.format( TXT_SHOCKING, weaponName );
 	}
 
 	private ArrayList<Char> affected = new ArrayList<>();

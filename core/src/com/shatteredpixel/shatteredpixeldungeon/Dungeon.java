@@ -52,11 +52,11 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundlable;
@@ -126,8 +126,6 @@ public class Dungeon {
 	
 	public static int depth;
 	public static int gold;
-	// Reason of death
-	public static String resultDescription;
 	
 	public static HashSet<Integer> chapters;
 	
@@ -489,7 +487,7 @@ public class Dungeon {
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, level );
 		
-		OutputStream output = Game.instance.openFileOutput( Utils.format( depthFile( hero.heroClass ), depth ) );
+		OutputStream output = Game.instance.openFileOutput( Messages.format( depthFile( hero.heroClass ), depth ) );
 		Bundle.write( bundle, output );
 		output.close();
 	}
@@ -632,7 +630,7 @@ public class Dungeon {
 		Dungeon.level = null;
 		Actor.clear();
 		
-		InputStream input = Game.instance.openFileInput( Utils.format( depthFile( cl ), depth ) ) ;
+		InputStream input = Game.instance.openFileInput( Messages.format( depthFile( cl ), depth ) ) ;
 		Bundle bundle = Bundle.read( input );
 		input.close();
 		
@@ -645,7 +643,7 @@ public class Dungeon {
 		
 		if (deleteLevels) {
 			int depth = 1;
-			while (Game.instance.deleteFile( Utils.format( depthFile( cl ), depth ) )) {
+			while (Game.instance.deleteFile( Messages.format( depthFile( cl ), depth ) )) {
 				depth++;
 			}
 		}
@@ -670,15 +668,14 @@ public class Dungeon {
 		}
 		Hero.preview( info, bundle.getBundle( HERO ) );
 	}
-	
-	public static void fail( String desc ) {
-		resultDescription = desc;
+
+	public static void fail( Class cause ) {
 		if (hero.belongings.getItem( Ankh.class ) == null) {
-			Rankings.INSTANCE.submit( false );
+			Rankings.INSTANCE.submit( false, cause );
 		}
 	}
-	
-	public static void win( String desc ) {
+
+	public static void win( Class cause ) {
 
 		hero.belongings.identify();
 
@@ -686,8 +683,7 @@ public class Dungeon {
 			Badges.validateChampion();
 		}
 
-		resultDescription = desc;
-		Rankings.INSTANCE.submit( true );
+		Rankings.INSTANCE.submit( true, cause );
 	}
 	
 	public static void observe() {

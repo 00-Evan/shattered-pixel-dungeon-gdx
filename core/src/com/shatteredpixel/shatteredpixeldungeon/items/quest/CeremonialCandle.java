@@ -45,7 +45,6 @@ public class CeremonialCandle extends Item {
 	public static int ritualPos;
 
 	{
-		name = "ceremonial candle";
 		image = ItemSpriteSheet.CANDLE;
 
 		defaultAction = AC_THROW;
@@ -125,13 +124,5 @@ public class CeremonialCandle extends Item {
 			}
 		}
 
-	}
-
-	@Override
-	public String info() {
-		return
-				"A set of candles, melted down and fused together through use.\n\n" +
-				"Alone they are worthless, but used with other candles in a pattern, " +
-				"they can focus the energy for a summoning ritual.";
 	}
 }

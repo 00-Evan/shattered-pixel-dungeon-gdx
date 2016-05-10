@@ -21,22 +21,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 public class RingOfAccuracy extends Ring {
-
-	{
-		name = "Ring of Accuracy";
-	}
 	
 	@Override
 	protected RingBuff buff( ) {
 		return new Accuracy();
-	}
-	
-	@Override
-	public String desc() {
-		return isKnown() ?
-			"This ring increases your focus, reducing your enemy's ability to dodge your attacks. "+
-			"A degraded ring will instead make you easier to evade.":
-			super.desc();
 	}
 	
 	public class Accuracy extends RingBuff {

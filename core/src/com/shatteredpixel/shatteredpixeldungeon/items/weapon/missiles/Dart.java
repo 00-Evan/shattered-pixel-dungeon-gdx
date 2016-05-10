@@ -27,7 +27,6 @@ import com.watabou.utils.Random;
 public class Dart extends MissileWeapon {
 
 	{
-		name = "dart";
 		image = ItemSpriteSheet.DART;
 
 		bones = false; //Finding them in bones would be semi-frequent and disappointing.
@@ -50,13 +49,6 @@ public class Dart extends MissileWeapon {
 	public Dart( int number ) {
 		super();
 		quantity = number;
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"These simple metal spikes are weighted to fly true and " +
-			"sting their prey with a flick of the wrist.";
 	}
 	
 	@Override

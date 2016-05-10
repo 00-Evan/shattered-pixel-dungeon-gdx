@@ -40,7 +40,6 @@ import java.util.Collections;
 public class AlchemistsToolkit extends Artifact {
 
 	{
-		name = "Alchemists Toolkit";
 		image = ItemSpriteSheet.ARTIFACT_TOOLKIT;
 
 		levelCap = 10;
@@ -85,10 +84,11 @@ public class AlchemistsToolkit extends Artifact {
 
 	@Override
 	public void execute(Hero hero, String action ) {
+
+		super.execute(hero, action);
+
 		if (action.equals(AC_BREW)){
 			GameScene.selectItem(itemSelector, mode, inventoryTitle);
-		} else {
-			super.execute(hero, action);
 		}
 	}
 

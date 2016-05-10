@@ -20,41 +20,29 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
-import com.watabou.noosa.BitmapTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Shopkeeper;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ItemSlot;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 
 public class WndTradeItem extends Window {
 	
 	private static final float GAP		= 2;
 	private static final int WIDTH		= 120;
 	private static final int BTN_HEIGHT	= 16;
-	
-	private static final String TXT_SALE		= "FOR SALE: %s - %dg";
-	private static final String TXT_BUY			= "Buy for %dg";
-	private static final String TXT_STEAL		= "Steal with %d%% chance";
-	private static final String TXT_SELL		= "Sell for %dg";
-	private static final String TXT_SELL_1		= "Sell 1 for %dg";
-	private static final String TXT_SELL_ALL	= "Sell all for %dg";
-	private static final String TXT_CANCEL		= "Never mind";
-	
-	private static final String TXT_SOLD	= "You've sold your %s for %dg";
-	private static final String TXT_BOUGHT	= "You've bought %s for %dg";
-	private static final String TXT_STOLE	= "You've stolen the %s";
 	
 	private WndBag owner;
 	
@@ -68,7 +56,7 @@ public class WndTradeItem extends Window {
 		
 		if (item.quantity() == 1) {
 			
-			RedButton btnSell = new RedButton( Utils.format( TXT_SELL, item.price() ) ) {
+			RedButton btnSell = new RedButton( Messages.get(this, "sell", item.price()) ) {
 				@Override
 				protected void onClick() {
 					sell( item );
@@ -83,7 +71,7 @@ public class WndTradeItem extends Window {
 		} else {
 			
 			int priceAll= item.price();
-			RedButton btnSell1 = new RedButton( Utils.format( TXT_SELL_1, priceAll / item.quantity() ) ) {
+			RedButton btnSell1 = new RedButton( Messages.get(this, "sell_1", priceAll / item.quantity()) ) {
 				@Override
 				protected void onClick() {
 					sellOne( item );
@@ -92,7 +80,7 @@ public class WndTradeItem extends Window {
 			};
 			btnSell1.setRect( 0, pos + GAP, WIDTH, BTN_HEIGHT );
 			add( btnSell1 );
-			RedButton btnSellAll = new RedButton( Utils.format( TXT_SELL_ALL, priceAll ) ) {
+			RedButton btnSellAll = new RedButton( Messages.get(this, "sell_all", priceAll ) ) {
 				@Override
 				protected void onClick() {
 					sell( item );
@@ -106,7 +94,7 @@ public class WndTradeItem extends Window {
 			
 		}
 		
-		RedButton btnCancel = new RedButton( TXT_CANCEL ) {
+		RedButton btnCancel = new RedButton( Messages.get(this, "cancel") ) {
 			@Override
 			protected void onClick() {
 				hide();
@@ -130,7 +118,7 @@ public class WndTradeItem extends Window {
 		
 		if (canBuy) {
 			
-			RedButton btnBuy = new RedButton( Utils.format( TXT_BUY, price ) ) {
+			RedButton btnBuy = new RedButton( Messages.get(this, "buy", price) ) {
 				@Override
 				protected void onClick() {
 					hide();
@@ -141,7 +129,7 @@ public class WndTradeItem extends Window {
 			btnBuy.enable( price <= Dungeon.gold );
 			add( btnBuy );
 
-			RedButton btnCancel = new RedButton( TXT_CANCEL ) {
+			RedButton btnCancel = new RedButton( Messages.get(this, "cancel") ) {
 				@Override
 				protected void onClick() {
 					hide();
@@ -151,13 +139,13 @@ public class WndTradeItem extends Window {
 			final MasterThievesArmband.Thievery thievery = Dungeon.hero.buff(MasterThievesArmband.Thievery.class);
 			if (thievery != null) {
 				final float chance = thievery.stealChance(price);
-				RedButton btnSteal = new RedButton(Utils.format(TXT_STEAL, Math.min(100, (int)(chance*100)))) {
+				RedButton btnSteal = new RedButton( Messages.get(this, "steal", Math.min(100, (int)(chance*100)))) {
 					@Override
 					protected void onClick() {
 						if(thievery.steal(price)){
 							Hero hero = Dungeon.hero;
 							Item item = heap.pickUp();
-							GLog.i( TXT_STOLE, item.name());
+							GLog.i( Messages.get(WndTradeItem.class, "stole", item.name()) );
 							hide();
 
 							if (!item.doPickUp( hero )) {
@@ -166,7 +154,7 @@ public class WndTradeItem extends Window {
 						} else {
 							for (Mob mob : Dungeon.level.mobs){
 								if (mob instanceof Shopkeeper) {
-									mob.yell(((Shopkeeper) mob).TXT_THIEF);
+									mob.yell(Messages.get(mob, "thief"));
 									((Shopkeeper) mob).flee();
 									break;
 								}
@@ -210,8 +198,8 @@ public class WndTradeItem extends Window {
 		IconTitle titlebar = new IconTitle();
 		titlebar.icon( new ItemSprite( item ) );
 		titlebar.label( forSale ?
-			Utils.format( TXT_SALE, item.toString(), price( item ) ) :
-			Utils.capitalize( item.toString() ) );
+			Messages.get(this, "sale", item.toString(), price( item ) ) :
+			Messages.titleCase( item.toString() ) );
 		titlebar.setRect( 0, 0, WIDTH, 0 );
 		add( titlebar );
 		
@@ -225,14 +213,12 @@ public class WndTradeItem extends Window {
 		}
 		
 		// Description
-		BitmapTextMultiline info = PixelScene.createMultiline( item.info(), 6 );
-		info.maxWidth = WIDTH;
-		info.measure();
-		info.x = titlebar.left();
-		info.y = titlebar.bottom() + GAP;
+		RenderedTextMultiline info = PixelScene.renderMultiline( item.info(), 6 );
+		info.maxWidth(WIDTH);
+		info.setPos(titlebar.left(), titlebar.bottom() + GAP);
 		add( info );
 		
-		return info.y + info.height();
+		return info.bottom();
 	}
 	
 	private void sell( Item item ) {
@@ -247,7 +233,7 @@ public class WndTradeItem extends Window {
 		int price = item.price();
 		
 		new Gold( price ).doPickUp( hero );
-		GLog.i( TXT_SOLD, item.name(), price );
+		GLog.i( Messages.get(this, "sold"), item.name(), price );
 	}
 	
 	private void sellOne( Item item ) {
@@ -262,7 +248,7 @@ public class WndTradeItem extends Window {
 			int price = item.price();
 			
 			new Gold( price ).doPickUp( hero );
-			GLog.i( TXT_SOLD, item.name(), price );
+			GLog.i( Messages.get(this, "sold"), item.name(), price );
 		}
 	}
 	
@@ -279,7 +265,7 @@ public class WndTradeItem extends Window {
 		int price = price( item );
 		Dungeon.gold -= price;
 		
-		GLog.i( TXT_BOUGHT, item.name(), price );
+		GLog.i( Messages.get(this, "bought"), item.name(), price );
 		
 		if (!item.doPickUp( hero )) {
 			Dungeon.level.drop( item, heap.pos ).sprite.drop();

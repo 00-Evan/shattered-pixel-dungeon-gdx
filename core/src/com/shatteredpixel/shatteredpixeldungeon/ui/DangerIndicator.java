@@ -20,14 +20,13 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.badlogic.gdx.Input;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Camera;
-import com.watabou.noosa.Image;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Camera;
+import com.watabou.noosa.Image;
 
 public class DangerIndicator extends Tag {
 	
@@ -73,7 +72,8 @@ public class DangerIndicator extends Tag {
 	
 	private void placeNumber() {
 		number.x = right() - 11 - number.width();
-		number.y = y + (height - number.baseLine()) / 2;
+		number.y = y + (height - number.baseLine()) / 2f;
+		PixelScene.align(number);
 	}
 	
 	@Override

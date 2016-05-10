@@ -20,18 +20,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.BitmapTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.noosa.BitmapTextMultiline;
+import com.watabou.noosa.RenderedText;
 
 public class WndList extends Window {
 	
 	private static final int WIDTH	= 120;
 	private static final int MARGIN	= 4;
 	private static final int GAP	= 4;
-	
-	private static final String DOT	= "\u007F";
 	
 	public WndList( String[] items ) {
 		
@@ -47,11 +45,10 @@ public class WndList extends Window {
 				pos += GAP;
 			}
 			
-			BitmapText dot = PixelScene.createText( DOT, 6 );
+			RenderedText dot = PixelScene.renderText( "-", 6 );
 			dot.x = MARGIN;
 			dot.y = pos;
 			if (dotWidth == 0) {
-				dot.measure();
 				dotWidth = dot.width();
 			}
 			add( dot );

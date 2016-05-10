@@ -22,11 +22,11 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
@@ -36,7 +36,6 @@ import com.watabou.noosa.audio.Sample;
 public class GuardianTrap extends Trap {
 
 	{
-		name = "Guardian trap";
 		color = TrapSprite.RED;
 		shape = TrapSprite.STARS;
 	}
@@ -49,7 +48,7 @@ public class GuardianTrap extends Trap {
 		}
 
 		if (Dungeon.visible[pos]) {
-			GLog.w("The trap emits a piercing sound that echoes throughout the dungeon!");
+			GLog.w( Messages.get(this, "alarm") );
 			CellEmitter.center(pos).start( Speck.factory(Speck.SCREAM), 0.3f, 3 );
 		}
 
@@ -65,16 +64,9 @@ public class GuardianTrap extends Trap {
 
 	}
 
-	@Override
-	public String desc() {
-		return "This trap is tied to a strange magical mechanism, " +
-				"which will summon guardians and alert all enemies on the floor.";
-	}
-
 	public static class Guardian extends Statue {
 
 		{
-			name = "summoned guardian";
 			spriteClass = GuardianSprite.class;
 
 			EXP = 0;
@@ -99,11 +91,6 @@ public class GuardianTrap extends Trap {
 			target = cell;
 		}
 
-		@Override
-		public String description() {
-			return "This blue apparition seems to be a summoned echo of one of the dungeon's stone guardians." +
-					"\n\nWhile the statue itself is almost incorporeal, the _" + weapon.name() + "_, it's wielding, looks real.";
-		}
 	}
 
 	public static class GuardianSprite extends StatueSprite {

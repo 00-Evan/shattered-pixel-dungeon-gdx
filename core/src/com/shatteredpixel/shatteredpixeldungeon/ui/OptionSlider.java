@@ -23,20 +23,21 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.input.NoosaInputProcessor;
-import com.watabou.noosa.*;
+import com.watabou.noosa.ColorBlock;
+import com.watabou.noosa.NinePatch;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.TouchArea;
 import com.watabou.noosa.ui.Component;
-import com.watabou.utils.Callback;
 import com.watabou.utils.GameMath;
-import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
 
 public abstract class OptionSlider extends Component {
 
 	private TouchArea touchArea;
 
-	private BitmapText title;
-	private BitmapText minTxt;
-	private BitmapText maxTxt;
+	private RenderedText title;
+	private RenderedText minTxt;
+	private RenderedText maxTxt;
 
 	//values are expressed internally as ints, but they can easily be interpreted as something else externally.
 	private int minVal;
@@ -54,11 +55,8 @@ public abstract class OptionSlider extends Component {
 		super();
 
 		this.title.text(title);
-		this.title.measure();
 		this.minTxt.text(minTxt);
-		this.minTxt.measure();
 		this.maxTxt.text(maxTxt);
-		this.maxTxt.measure();
 
 		this.minVal = minVal;
 		this.maxVal = maxVal;
@@ -95,17 +93,20 @@ public abstract class OptionSlider extends Component {
 		add( BG = Chrome.get(Chrome.Type.BUTTON));
 		BG.alpha(0.5f);
 
-		add(title = PixelScene.createText(9));
-		add(this.minTxt = PixelScene.createText(6));
-		add(this.maxTxt = PixelScene.createText(6));
+		add(title = PixelScene.renderText(9));
+		add(this.minTxt = PixelScene.renderText(6));
+		add(this.maxTxt = PixelScene.renderText(6));
 
 		add(sliderBG = new ColorBlock(1, 1, 0xFF222222));
 		sliderNode = Chrome.get(Chrome.Type.BUTTON);
 		sliderNode.size(5, 9);
 
 		touchArea = new TouchArea(0, 0, 0, 0){
+			boolean pressed = false;
+
 			@Override
 			protected void onTouchDown(NoosaInputProcessor.Touch touch) {
+				pressed = true;
 				PointF p = camera().screenToCamera((int) touch.current.x, (int) touch.current.y);
 				sliderNode.x = GameMath.gate(sliderBG.x-2, p.x, sliderBG.x+sliderBG.width()-2);
 				sliderNode.brightness(1.5f);
@@ -113,20 +114,25 @@ public abstract class OptionSlider extends Component {
 
 			@Override
 			protected void onDrag(NoosaInputProcessor.Touch touch) {
-				PointF p = camera().screenToCamera((int) touch.current.x, (int) touch.current.y);
-				sliderNode.x = GameMath.gate(sliderBG.x-2, p.x, sliderBG.x+sliderBG.width()-2);
+				if (pressed) {
+					PointF p = camera().screenToCamera((int) touch.current.x, (int) touch.current.y);
+					sliderNode.x = GameMath.gate(sliderBG.x - 2, p.x, sliderBG.x + sliderBG.width() - 2);
+				}
 			}
 
 			@Override
 			protected void onTouchUp(NoosaInputProcessor.Touch touch) {
-				PointF p = camera().screenToCamera((int) touch.current.x, (int) touch.current.y);
-				sliderNode.x = GameMath.gate(sliderBG.x-2, p.x, sliderBG.x+sliderBG.width()-2);
-				sliderNode.resetColor();
+				if (pressed) {
+					PointF p = camera().screenToCamera((int) touch.current.x, (int) touch.current.y);
+					sliderNode.x = GameMath.gate(sliderBG.x - 2, p.x, sliderBG.x + sliderBG.width() - 2);
+					sliderNode.resetColor();
 
-				//sets the selected value
-				selectedVal = minVal + Math.round(sliderNode.x/tickDist);
-				sliderNode.x = (int)(x + tickDist*(selectedVal-minVal));
-				onChange();
+					//sets the selected value
+					selectedVal = minVal + Math.round(sliderNode.x / tickDist);
+					sliderNode.x = (int) (x + tickDist * (selectedVal - minVal));
+					onChange();
+					pressed = false;
+				}
 			}
 		};
 		add(touchArea);
@@ -137,6 +143,7 @@ public abstract class OptionSlider extends Component {
 	protected void layout() {
 		title.x = x + (width-title.width())/2;
 		title.y = y+2;
+		PixelScene.align(title);
 		sliderBG.y = y + height() - 8;
 		sliderBG.x = x+2;
 		sliderBG.size(width-5, 1);

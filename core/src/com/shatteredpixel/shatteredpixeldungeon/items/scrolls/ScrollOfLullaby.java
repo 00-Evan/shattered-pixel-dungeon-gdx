@@ -20,24 +20,24 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class ScrollOfLullaby extends Scroll {
 
 	{
-		name = "Scroll of Lullaby";
-		initials = "Lu";
+		initials = 1;
 	}
-	
+
 	@Override
 	protected void doRead() {
 		
@@ -54,17 +54,11 @@ public class ScrollOfLullaby extends Scroll {
 
 		Buff.affect( curUser, Drowsy.class );
 
-		GLog.i( "The scroll utters a soothing melody. You feel very sleepy." );
+		GLog.i( Messages.get(this, "sooth") );
 
 		setKnown();
 
 		readAnimation();
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"A soothing melody will lull all who hear it into a deep magical sleep ";
 	}
 	
 	@Override

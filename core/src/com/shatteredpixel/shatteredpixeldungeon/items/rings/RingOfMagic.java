@@ -22,21 +22,9 @@ package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 public class RingOfMagic extends Ring {
 	
-	{
-		name = "Ring of Magic";
-	}
-	
 	@Override
 	protected RingBuff buff( ) {
 		return new Magic();
-	}
-	
-	@Override
-	public String desc() {
-		return isKnown() ?
-			"Your wands will become more powerful in the arcane field " +
-			"that radiates from this ring. Degraded rings of magic will instead weaken your wands." :
-			super.desc();
 	}
 	
 	public class Magic extends RingBuff {

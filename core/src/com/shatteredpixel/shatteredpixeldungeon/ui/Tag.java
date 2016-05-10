@@ -20,11 +20,11 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.ui.Button;
-import com.shatteredpixel.shatteredpixeldungeon.Chrome;
-import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 
 public class Tag extends Button<GameAction> {
 
@@ -49,6 +49,7 @@ public class Tag extends Button<GameAction> {
 		super.createChildren();
 		
 		bg = Chrome.get( Chrome.Type.TAG );
+		bg.hardlight( r, g, b );
 		add( bg );
 	}
 	

@@ -23,8 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
@@ -220,7 +220,7 @@ public class UpdateNotification extends Component {
 		public WndUpdate(){
 			super(
 					latestIsUpdate ? TTL_UPD : TTL_PTH,
-					Utils.format((latestIsUpdate ? MSG_UPD : MSG_PTH), latestMessage),
+					Messages.format((latestIsUpdate ? MSG_UPD : MSG_PTH), latestMessage),
 					latestIsUpdate ? BTN_UPD : BTN_PTH);
 		}
 

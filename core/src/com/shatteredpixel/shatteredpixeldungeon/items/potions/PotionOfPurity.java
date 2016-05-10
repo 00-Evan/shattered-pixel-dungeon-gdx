@@ -20,37 +20,34 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ConfusionGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StenchGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ConfusionGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ParalyticGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.StenchGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.GasesImmunity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PathFinder;
 
 public class PotionOfPurity extends Potion {
-
-	private static final String TXT_FRESHNESS	= "You feel uncommon freshness in the air.";
-	private static final String TXT_NO_SMELL	= "You've stopped sensing any smells!";
 	
 	private static final int DISTANCE	= 5;
-	
+
 	{
-		name = "Potion of Purification";
-		initials = "Pu";
+		initials = 9;
 	}
-	
+
 	@Override
 	public void shatter( int cell ) {
 		
@@ -104,7 +101,7 @@ public class PotionOfPurity extends Potion {
 			setKnown();
 
 			if (heroAffected) {
-				GLog.p( TXT_FRESHNESS );
+				GLog.p( Messages.get(this, "freshness") );
 			}
 			
 		} else {
@@ -112,7 +109,7 @@ public class PotionOfPurity extends Potion {
 			super.shatter( cell );
 			
 			if (heroAffected) {
-				GLog.i( TXT_FRESHNESS );
+				GLog.i( Messages.get(this, "freshness") );
 				setKnown();
 			}
 			
@@ -121,16 +118,9 @@ public class PotionOfPurity extends Potion {
 	
 	@Override
 	public void apply( Hero hero ) {
-		GLog.w( TXT_NO_SMELL );
+		GLog.w( Messages.get(this, "no_smell") );
 		Buff.prolong( hero, GasesImmunity.class, GasesImmunity.DURATION );
 		setKnown();
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"This reagent will quickly neutralize all harmful gases in the area of effect. " +
-			"Drinking it will give you a temporary immunity to such gases.";
 	}
 	
 	@Override

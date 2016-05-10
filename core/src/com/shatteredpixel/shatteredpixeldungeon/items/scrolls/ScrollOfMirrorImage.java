@@ -20,25 +20,24 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import java.util.ArrayList;
-
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.MirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class ScrollOfMirrorImage extends Scroll {
 
-	private static final int NIMAGES	= 3;
-	
 	{
-		name = "Scroll of Mirror Image";
-		initials = "MI";
+		initials = 4;
 	}
+
+	private static final int NIMAGES	= 3;
 	
 	@Override
 	protected void doRead() {
@@ -74,10 +73,5 @@ public class ScrollOfMirrorImage extends Scroll {
 
 		readAnimation();
 	}
-	
-	@Override
-	public String desc() {
-		return
-			"The incantation on this scroll will create illusionary twins of the reader, which will chase his enemies.";
-	}
+
 }

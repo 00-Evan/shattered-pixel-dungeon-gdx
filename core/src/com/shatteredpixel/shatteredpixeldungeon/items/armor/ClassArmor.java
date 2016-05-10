@@ -22,20 +22,22 @@ package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 
 import java.util.ArrayList;
 
+//FIXME: this should be upgradeable, fix in 0.4.0
 abstract public class ClassArmor extends Armor {
-	
-	private static final String TXT_LOW_HEALTH		= "Your health is too low!";
-	private static final String TXT_NOT_EQUIPPED	= "You need to be wearing this armor to use its special power!";
+
+	private static final String AC_SPECIAL = "SPECIAL";
 	
 	{
 		levelKnown = true;
 		cursedKnown = true;
-		defaultAction = special();
+		defaultAction = AC_SPECIAL;
 
 		bones = false;
 	}
@@ -53,6 +55,10 @@ abstract public class ClassArmor extends Armor {
 		switch (owner.heroClass) {
 		case WARRIOR:
 			classArmor = new WarriorArmor();
+			BrokenSeal seal = armor.checkSeal();
+			if (seal != null) {
+				classArmor.affixSeal(seal);
+			}
 			break;
 		case ROGUE:
 			classArmor = new RogueArmor();
@@ -64,7 +70,8 @@ abstract public class ClassArmor extends Armor {
 			classArmor = new HuntressArmor();
 			break;
 		}
-		
+
+		classArmor.level(armor.level());
 		classArmor.STR = armor.STR;
 		classArmor.DR = armor.DR();
 		
@@ -93,32 +100,33 @@ abstract public class ClassArmor extends Armor {
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
 		ArrayList<String> actions = super.actions( hero );
+		actions.remove( AC_DETACH );
 		if (hero.HP >= 3 && isEquipped( hero )) {
-			actions.add( special() );
+			actions.add( AC_SPECIAL );
 		}
 		return actions;
 	}
 	
 	@Override
 	public void execute( Hero hero, String action ) {
-		if (action == special()) {
+
+		super.execute( hero, action );
+
+		if (action.equals(AC_SPECIAL)) {
 			
 			if (hero.HP < 3) {
-				GLog.w( TXT_LOW_HEALTH );
+				GLog.w( Messages.get(this, "low_hp") );
 			} else if (!isEquipped( hero )) {
-				GLog.w( TXT_NOT_EQUIPPED );
+				GLog.w( Messages.get(this, "not_equipped") );
 			} else {
 				curUser = hero;
 				Invisibility.dispel();
 				doSpecial();
 			}
 			
-		} else {
-			super.execute( hero, action );
 		}
 	}
-	
-	abstract public String special();
+
 	abstract public void doSpecial();
 
 	@Override
@@ -140,9 +148,5 @@ abstract public class ClassArmor extends Armor {
 	public int price() {
 		return 0;
 	}
-	
-	@Override
-	public String desc() {
-		return "The thing looks awesome!";
-	}
+
 }

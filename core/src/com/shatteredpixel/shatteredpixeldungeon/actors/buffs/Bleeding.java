@@ -21,11 +21,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ResultDescriptions;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
@@ -55,7 +54,7 @@ public class Bleeding extends Buff {
 	
 	public void set( int level ) {
 		this.level = level;
-	};
+	}
 	
 	@Override
 	public int icon() {
@@ -64,7 +63,7 @@ public class Bleeding extends Buff {
 	
 	@Override
 	public String toString() {
-		return "Bleeding";
+		return Messages.get(this, "name");
 	}
 	
 	@Override
@@ -80,8 +79,8 @@ public class Bleeding extends Buff {
 				}
 				
 				if (target == Dungeon.hero && !target.isAlive()) {
-					Dungeon.fail( ResultDescriptions.BLEEDING );
-					GLog.n( "You bled to death..." );
+					Dungeon.fail( getClass() );
+					GLog.n( Messages.get(this, "ondeath") );
 				}
 				
 				spend( TICK );
@@ -99,12 +98,12 @@ public class Bleeding extends Buff {
 	}
 
 	@Override
+	public String heroMessage() {
+		return Messages.get(this, "heromsg");
+	}
+
+	@Override
 	public String desc() {
-		return "That wound is leaking a worrisome amount of blood.\n" +
-				"\n" +
-				"Bleeding causes damage every turn. Each turn the damage decreases by a random amount, " +
-				"until the bleeding eventually stops.\n" +
-				"\n" +
-				"The bleeding can currently deal " + level + " max damage.";
+		return Messages.get(this, "desc", level);
 	}
 }

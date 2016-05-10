@@ -20,23 +20,23 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import com.watabou.noosa.Game;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AmuletScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.watabou.noosa.Game;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Amulet extends Item {
 	
-	private static final String AC_END = "END THE GAME";
+	private static final String AC_END = "END";
 	
 	{
-		name = "Amulet of Yendor";
 		image = ItemSpriteSheet.AMULET;
 		
 		unique = true;
@@ -51,14 +51,11 @@ public class Amulet extends Item {
 	
 	@Override
 	public void execute( Hero hero, String action ) {
-		if (action == AC_END) {
-			
+
+		super.execute( hero, action );
+
+		if (action.equals(AC_END)) {
 			showAmuletScene( false );
-			
-		} else {
-			
-			super.execute( hero, action );
-			
 		}
 	}
 	
@@ -69,8 +66,17 @@ public class Amulet extends Item {
 			if (!Statistics.amuletObtained) {
 				Statistics.amuletObtained = true;
 				Badges.validateVictory();
+				hero.spend(-TIME_TO_PICK_UP);
 
-				showAmuletScene( true );
+				//add a delayed actor here so pickup behaviour can fully process.
+				Actor.addDelayed(new Actor(){
+					@Override
+					protected boolean act() {
+						Actor.remove(this);
+						showAmuletScene( true );
+						return false;
+					}
+				}, -5);
 			}
 			
 			return true;
@@ -97,11 +103,5 @@ public class Amulet extends Item {
 	public boolean isUpgradable() {
 		return false;
 	}
-	
-	@Override
-	public String info() {
-		return
-			"The Amulet of Yendor is the most powerful known artifact of unknown origin. It is said that the amulet " +
-			"is able to fulfil any wish if its owner's will-power is strong enough to \"persuade\" it to do it.";
-	}
+
 }

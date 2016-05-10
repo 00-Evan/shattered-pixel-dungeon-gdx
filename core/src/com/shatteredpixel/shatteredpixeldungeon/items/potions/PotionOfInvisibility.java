@@ -20,38 +20,30 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
-import com.watabou.noosa.audio.Sample;
-import com.watabou.noosa.tweeners.AlphaTweener;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.tweeners.AlphaTweener;
 
 public class PotionOfInvisibility extends Potion {
 
 	private static final float ALPHA	= 0.4f;
-	
+
 	{
-		name = "Potion of Invisibility";
-		initials = "In";
+		initials = 3;
 	}
-	
+
 	@Override
 	public void apply( Hero hero ) {
 		setKnown();
 		Buff.affect( hero, Invisibility.class, Invisibility.DURATION );
-		GLog.i( "You see your hands turn invisible!" );
+		GLog.i( Messages.get(this, "invisible") );
 		Sample.INSTANCE.play( Assets.SND_MELD );
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"Drinking this potion will render you temporarily invisible. While invisible, " +
-			"enemies will be unable to see you. Attacking an enemy, as well as using a wand or a scroll " +
-			"before enemy's eyes, will dispel the effect.";
 	}
 	
 	@Override

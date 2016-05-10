@@ -20,38 +20,23 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
-import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
-import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
-import com.watabou.noosa.BitmapTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 
 public class WndWandmaker extends Window {
 
-	private static final String TXT_DUST =
-		"Oh, I see you have the dust! Don't worry about the wraiths, I can deal with them. " +
-		"As I promised, you can choose one of my high quality wands.";
-
-	private static final String TXT_EMBER =
-		"Oh, I see you have the embers! I do hope the fire elemental wasn't too much trouble. " +
-		"As I promised, you can choose one of my high quality wands.";
-
-	private static final String TXT_BERRY =
-		"Oh, I see you have the berry! I do hope the rotberry plant didn't trouble you too much. " +
-		"As I promised, you can choose one of my high quality wands.";
-	
-	private static final String TXT_FARAWELL	= "Good luck in your quest, %s!";
-	
 	private static final int WIDTH		= 120;
 	private static final int BTN_HEIGHT	= 20;
 	private static final float GAP		= 2;
@@ -62,23 +47,22 @@ public class WndWandmaker extends Window {
 		
 		IconTitle titlebar = new IconTitle();
 		titlebar.icon(new ItemSprite(item.image(), null));
-		titlebar.label(Utils.capitalize(item.name()));
+		titlebar.label(Messages.titleCase(item.name()));
 		titlebar.setRect(0, 0, WIDTH, 0);
 		add( titlebar );
 
 		String msg = "";
 		if (item instanceof CorpseDust){
-			msg = TXT_DUST;
+			msg = Messages.get(this, "dust");
 		} else if (item instanceof Embers){
-			msg = TXT_EMBER;
+			msg = Messages.get(this, "ember");
 		} else if (item instanceof Rotberry.Seed){
-			msg = TXT_BERRY;
+			msg = Messages.get(this, "berry");
 		}
 
-		BitmapTextMultiline message = PixelScene.createMultiline( msg, 6 );
-		message.maxWidth = WIDTH;
-		message.measure();
-		message.y = titlebar.bottom() + GAP;
+		RenderedTextMultiline message = PixelScene.renderMultiline( msg, 6 );
+		message.maxWidth(WIDTH);
+		message.setPos(0, titlebar.bottom() + GAP);
 		add( message );
 		
 		RedButton btnWand1 = new RedButton( Wandmaker.Quest.wand1.name() ) {
@@ -87,7 +71,7 @@ public class WndWandmaker extends Window {
 				selectReward( wandmaker, item, Wandmaker.Quest.wand1 );
 			}
 		};
-		btnWand1.setRect(0, message.y + message.height() + GAP, WIDTH, BTN_HEIGHT);
+		btnWand1.setRect(0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT);
 		add( btnWand1 );
 		
 		RedButton btnWand2 = new RedButton( Wandmaker.Quest.wand2.name() ) {
@@ -110,12 +94,12 @@ public class WndWandmaker extends Window {
 
 		reward.identify();
 		if (reward.doPickUp( Dungeon.hero )) {
-			GLog.i( Hero.TXT_YOU_NOW_HAVE, reward.name() );
+			GLog.i( Messages.get(Dungeon.hero, "you_now_have", reward.name()) );
 		} else {
 			Dungeon.level.drop( reward, wandmaker.pos ).sprite.drop();
 		}
 		
-		wandmaker.yell( Utils.format( TXT_FARAWELL, Dungeon.hero.givenName() ) );
+		wandmaker.yell( Messages.get(this, "farewell", Dungeon.hero.givenName()) );
 		wandmaker.destroy();
 		
 		wandmaker.sprite.die();

@@ -20,19 +20,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.SparseArray;
+
+import java.util.HashSet;
 
 public abstract class Actor implements Bundlable {
 	
@@ -135,7 +132,7 @@ public abstract class Actor implements Bundlable {
 	
 	public static void init() {
 		
-		addDelayed( Dungeon.hero, -Float.MIN_VALUE );
+		add( Dungeon.hero );
 		
 		for (Mob mob : Dungeon.level.mobs) {
 			add( mob );
@@ -230,7 +227,7 @@ public abstract class Actor implements Bundlable {
 		ids.put( actor.id(),  actor );
 
 		all.add( actor );
-		actor.time = time;
+		actor.time += time;
 		actor.onAdd();
 		
 		if (actor instanceof Char) {

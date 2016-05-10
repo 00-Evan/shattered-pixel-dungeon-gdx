@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class Embers extends Item {
 
 	{
-		name = "elemental embers";
 		image = ItemSpriteSheet.EMBER;
 
 		unique = true;
@@ -41,12 +40,6 @@ public class Embers extends Item {
 	@Override
 	public boolean isIdentified() {
 		return true;
-	}
-
-	@Override
-	public String info() {
-		return
-				"Special embers which can only be harvested from young fire elementals. They radiate thermal energy.";
 	}
 
 	@Override

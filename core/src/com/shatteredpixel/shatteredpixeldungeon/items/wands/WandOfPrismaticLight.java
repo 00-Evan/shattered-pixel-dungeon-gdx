@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.*;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -47,13 +46,9 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 public class WandOfPrismaticLight extends Wand {
 
 	{
-		name = "Wand of Prismatic Light";
 		image = ItemSpriteSheet.WAND_PRISMATIC_LIGHT;
 
 		collisionProperties = Ballistica.MAGIC_BOLT;
@@ -148,13 +143,4 @@ public class WandOfPrismaticLight extends Wand {
 		particle.radiateXY(1f);
 	}
 
-	@Override
-	public String desc() {
-		return
-			"This wand is made of a solid piece of translucent crystal, like a long chunk of smooth glass. " +
-			"It becomes clear towards the tip, where you can see colorful lights dancing around inside it.\n\n" +
-			"This wand shoots rays of light which damage and blind enemies and cut through the darkness of the dungeon, " +
-			"revealing hidden areas and traps. Demonic and undead foes will burn in the bright light " +
-			"of the wand, taking significant bonus damage.";
-	}
 }

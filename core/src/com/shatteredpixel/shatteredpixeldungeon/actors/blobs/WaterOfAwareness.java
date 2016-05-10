@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -36,16 +35,13 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class WaterOfAwareness extends WellWater {
 
-	private static final String TXT_PROCCED =
-		"As you take a sip, you feel the knowledge pours into your mind. " +
-		"Now you know everything about your equipped items. Also you sense " +
-		"all items on the level and know all its secrets.";
-	
 	@Override
 	protected boolean affectHero( Hero hero ) {
 		
@@ -72,7 +68,7 @@ public class WaterOfAwareness extends WellWater {
 
 		Dungeon.hero.interrupt();
 	
-		GLog.p( TXT_PROCCED );
+		GLog.p( Messages.get(this, "procced") );
 		
 		Journal.remove( Feature.WELL_OF_AWARENESS );
 		
@@ -103,8 +99,6 @@ public class WaterOfAwareness extends WellWater {
 	
 	@Override
 	public String tileDesc() {
-		return
-			"Power of knowledge radiates from the water of this well. " +
-			"Take a sip from it to reveal all secrets of equipped items.";
+		return Messages.get(this, "desc");
 	}
 }

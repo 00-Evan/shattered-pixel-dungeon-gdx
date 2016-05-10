@@ -20,20 +20,22 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import java.util.Collections;
-
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.watabou.input.NoosaInputProcessor;
-import com.watabou.noosa.BitmapText;
-import com.watabou.noosa.Image;
-import com.watabou.noosa.ui.Component;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Journal;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.input.NoosaInputProcessor;
+import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Image;
+import com.watabou.noosa.RenderedText;
+import com.watabou.noosa.ui.Component;
+
+import java.util.Collections;
 
 public class WndJournal extends Window {
 
@@ -43,9 +45,7 @@ public class WndJournal extends Window {
 
 	private static final int ITEM_HEIGHT	= 18;
 	
-	private static final String TXT_TITLE	= "Journal";
-	
-	private BitmapText txtTitle;
+	private RenderedText txtTitle;
 	private ScrollPane list;
 	
 	public WndJournal() {
@@ -53,10 +53,10 @@ public class WndJournal extends Window {
 		super();
 		resize( WIDTH, ShatteredPixelDungeon.landscape() ? HEIGHT_L : HEIGHT_P );
 
-		txtTitle = PixelScene.createText( TXT_TITLE, 9 );
+		txtTitle = PixelScene.renderText( Messages.get(this, "title"), 9 );
 		txtTitle.hardlight( Window.TITLE_COLOR );
-		txtTitle.measure();
 		txtTitle.x = (WIDTH - txtTitle.width()) / 2;
+		PixelScene.align(txtTitle);
 		add( txtTitle );
 		
 		Component content = new Component();
@@ -91,7 +91,7 @@ public class WndJournal extends Window {
 	
 	private static class ListItem extends Component {
 		
-		private BitmapText feature;
+		private RenderedText feature;
 		private BitmapText depth;
 		
 		private Image icon;
@@ -99,8 +99,7 @@ public class WndJournal extends Window {
 		public ListItem( Journal.Feature f, int d ) {
 			super();
 			
-			feature.text( f.desc );
-			feature.measure();
+			feature.text( f.desc() );
 			
 			depth.text( Integer.toString( d ) );
 			depth.measure();
@@ -113,7 +112,7 @@ public class WndJournal extends Window {
 		
 		@Override
 		protected void createChildren() {
-			feature = PixelScene.createText( 9 );
+			feature = PixelScene.renderText( 9 );
 			add( feature );
 			
 			depth = new BitmapText( PixelScene.pixelFont);
@@ -130,10 +129,12 @@ public class WndJournal extends Window {
 			
 			depth.x = icon.x - 1 - depth.width();
 			depth.y = y + (height - depth.height()) / 2;
+			PixelScene.align(depth);
 			
 			icon.y = depth.y - 1;
 			
 			feature.y = depth.y + depth.baseLine() - feature.baseLine();
+			PixelScene.align(feature);
 		}
 	}
 }

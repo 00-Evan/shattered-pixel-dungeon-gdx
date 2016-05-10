@@ -20,12 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import java.util.Collections;
-import java.util.LinkedList;
-
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -43,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
@@ -51,24 +47,20 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant.Seed;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndTitledMessage;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
 public class Heap implements Bundlable {
-
-	private static final String TXT_MIMIC = "This is a mimic!";
 
 	private static final int SEEDS_TO_POTION = 3;
 	
@@ -123,7 +115,6 @@ public class Heap implements Bundlable {
 		switch (type) {
 		case MIMIC:
 			if (Mimic.spawnAt(pos, items) != null) {
-				GLog.n(TXT_MIMIC);
 				destroy();
 			} else {
 				type = Type.CHEST;
@@ -132,9 +123,9 @@ public class Heap implements Bundlable {
 		case TOMB:
 			Wraith.spawnAround( hero.pos );
 			break;
-		case SKELETON:
 		case REMAINS:
-			CellEmitter.center( pos ).start( Speck.factory( Speck.RATTLE ), 0.1f, 3 );
+		case SKELETON:
+			CellEmitter.center( pos ).start(Speck.factory(Speck.RATTLE), 0.1f, 3);
 			for (Item item : items) {
 				if (item.cursed) {
 					if (Wraith.spawnAt( pos ) == null) {
@@ -262,7 +253,7 @@ public class Heap implements Bundlable {
 			if (isEmpty()) {
 				destroy();
 			} else if (sprite != null) {
-				sprite.view( image(), glowing() );
+				sprite.view( items.peek() );
 			}
 			
 		}
@@ -303,8 +294,11 @@ public class Heap implements Bundlable {
 
 			}
 
-			if (items.isEmpty())
+			if (isEmpty()){
 				destroy();
+			} else if (sprite != null) {
+				sprite.view( items.peek() );
+			}
 		}
 	}
 	
@@ -341,7 +335,7 @@ public class Heap implements Bundlable {
 			if (isEmpty()) {
 				destroy();
 			} else if (sprite != null) {
-				sprite.view( image(), glowing() );
+				sprite.view( items.peek() );
 			}
 		}
 	}
@@ -462,6 +456,52 @@ public class Heap implements Bundlable {
 		}
 		items.clear();
 		items = null;
+	}
+
+	@Override
+	public String toString(){
+		switch(type){
+			case CHEST:
+			case MIMIC:
+				return Messages.get(this, "chest");
+			case LOCKED_CHEST:
+				return Messages.get(this, "locked_chest");
+			case CRYSTAL_CHEST:
+				return Messages.get(this, "crystal_chest");
+			case TOMB:
+				return Messages.get(this, "tomb");
+			case SKELETON:
+				return Messages.get(this, "skeleton");
+			case REMAINS:
+				return Messages.get(this, "remains");
+			default:
+				return peek().toString();
+		}
+	}
+
+	public String info(){
+		switch(type){
+			case CHEST:
+			case MIMIC:
+				return Messages.get(this, "chest_desc");
+			case LOCKED_CHEST:
+				return Messages.get(this, "locked_chest_desc");
+			case CRYSTAL_CHEST:
+				if (peek() instanceof Artifact)
+					return Messages.get(this, "crystal_chest_desc", Messages.get(this, "artifact") );
+				else if (peek() instanceof Wand)
+					return Messages.get(this, "crystal_chest_desc", Messages.get(this, "wand") );
+				else
+					return Messages.get(this, "crystal_chest_desc", Messages.get(this, "ring") );
+			case TOMB:
+				return Messages.get(this, "tomb_desc");
+			case SKELETON:
+				return Messages.get(this, "skeleton_desc");
+			case REMAINS:
+				return Messages.get(this, "remains_desc");
+			default:
+				return peek().info();
+		}
 	}
 
 	private static final String POS		= "pos";

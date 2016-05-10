@@ -25,17 +25,11 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class ScaleArmor extends Armor {
 
 	{
-		name = "scale armor";
 		image = ItemSpriteSheet.ARMOR_SCALE;
 	}
 	
 	public ScaleArmor() {
 		super( 4 );
 	}
-	
-	@Override
-	public String desc() {
-		return
-			"The metal scales sewn onto a leather vest create a flexible, yet protective armor.";
-	}
+
 }

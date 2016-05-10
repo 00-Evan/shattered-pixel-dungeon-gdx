@@ -20,23 +20,23 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import java.util.ArrayList;
-
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
+import com.watabou.noosa.audio.Sample;
+
+import java.util.ArrayList;
 
 public class ArmorKit extends Item {
-	
-	private static final String TXT_SELECT_ARMOR	= "Select an armor to upgrade";
+
 	private static final String TXT_UPGRADED		= "you applied the armor kit to upgrade your %s";
 	
 	private static final float TIME_TO_UPGRADE = 2;
@@ -44,7 +44,6 @@ public class ArmorKit extends Item {
 	private static final String AC_APPLY = "APPLY";
 	
 	{
-		name = "armor kit";
 		image = ItemSpriteSheet.KIT;
 		
 		unique = true;
@@ -59,14 +58,13 @@ public class ArmorKit extends Item {
 	
 	@Override
 	public void execute( Hero hero, String action ) {
+
+		super.execute( hero, action );
+
 		if (action == AC_APPLY) {
 
 			curUser = hero;
-			GameScene.selectItem( itemSelector, WndBag.Mode.ARMOR, TXT_SELECT_ARMOR );
-			
-		} else {
-			
-			super.execute( hero, action );
+			GameScene.selectItem( itemSelector, WndBag.Mode.ARMOR, Messages.get(this, "prompt") );
 			
 		}
 	}
@@ -89,7 +87,7 @@ public class ArmorKit extends Item {
 		curUser.spend( TIME_TO_UPGRADE );
 		curUser.busy();
 		
-		GLog.w( TXT_UPGRADED, armor.name() );
+		GLog.w( Messages.get(this, "upgraded", armor.name()) );
 		
 		ClassArmor classArmor = ClassArmor.upgrade( curUser, armor );
 		if (curUser.belongings.armor == armor) {
@@ -106,14 +104,6 @@ public class ArmorKit extends Item {
 		
 		curUser.sprite.operate( curUser.pos );
 		Sample.INSTANCE.play( Assets.SND_EVOKE );
-	}
-	
-	@Override
-	public String info() {
-		return
-			"Using this kit of small tools and materials anybody can transform any armor into an \"epic armor\", " +
-			"which will keep all properties of the original armor, but will also provide its wearer a special ability " +
-			"depending on his class. No skills in tailoring, leatherworking or blacksmithing are required.";
 	}
 	
 	private final WndBag.Listener itemSelector = new WndBag.Listener() {

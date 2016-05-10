@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -29,18 +28,17 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class ScrollOfMagicMapping extends Scroll {
 
-	private static final String TXT_LAYOUT = "You are now aware of the level layout.";
-	
 	{
-		name = "Scroll of Magic Mapping";
-		initials = "MM";
+		initials = 3;
 	}
-	
+
 	@Override
 	protected void doRead() {
 		
@@ -73,7 +71,7 @@ public class ScrollOfMagicMapping extends Scroll {
 		}
 		Dungeon.observe();
 		
-		GLog.i( TXT_LAYOUT );
+		GLog.i( Messages.get(this, "layout") );
 		if (noticed) {
 			Sample.INSTANCE.play( Assets.SND_SECRET );
 		}
@@ -85,14 +83,6 @@ public class ScrollOfMagicMapping extends Scroll {
 		setKnown();
 
 		readAnimation();
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"When this scroll is read, an image of crystal clarity will be etched into your memory, " +
-			"alerting you to the precise layout of the level and revealing all hidden secrets. " +
-			"The locations of items and creatures will remain unknown.";
 	}
 	
 	@Override

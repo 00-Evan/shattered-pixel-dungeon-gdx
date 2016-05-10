@@ -23,8 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -33,7 +33,6 @@ import com.watabou.utils.Random;
 public class WandOfMagicMissile extends Wand {
 
 	{
-		name = "Wand of Magic Missile";
 		image = ItemSpriteSheet.WAND_MAGIC_MISSILE;
 	}
 	
@@ -55,7 +54,7 @@ public class WandOfMagicMissile extends Wand {
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
 		//gain 1 turn of recharging buff per level of the wand.
 		if (level() > 0) {
-			Buff.prolong( attacker, ScrollOfRecharging.Recharging.class, (float)staff.level());
+			Buff.prolong( attacker, Recharging.class, (float)staff.level());
 			SpellSprite.show(attacker, SpellSprite.CHARGE);
 		}
 	}
@@ -63,10 +62,5 @@ public class WandOfMagicMissile extends Wand {
 	protected int initialCharges() {
 		return 3;
 	}
-	
-	@Override
-	public String desc() {
-		return
-			"This wand launches missiles of pure magical energy, dealing moderate damage to a target creature.";
-	}
+
 }

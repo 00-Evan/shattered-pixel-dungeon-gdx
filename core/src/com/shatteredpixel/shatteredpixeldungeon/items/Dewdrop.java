@@ -20,23 +20,20 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class Dewdrop extends Item {
-
-	private static final String TXT_VALUE	= "%+dHP";
 	
 	{
-		name = "dewdrop";
 		image = ItemSpriteSheet.DEWDROP;
 		
 		stackable = true;
@@ -58,9 +55,9 @@ public class Dewdrop extends Item {
 			if (effect > 0) {
 				hero.HP += effect;
 				hero.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
-				hero.sprite.showStatus( CharSprite.POSITIVE, TXT_VALUE, effect );
+				hero.sprite.showStatus( CharSprite.POSITIVE, Messages.get(this, "value", effect) );
 			} else {
-				GLog.i("You already have full health.");
+				GLog.i( Messages.get(this, "already_full") );
 				return false;
 			}
 			
@@ -83,8 +80,4 @@ public class Dewdrop extends Item {
 		return this;
 	}
 
-	@Override
-	public String info() {
-		return "A crystal clear dewdrop.\n\nDue to the magic of this place, pure water has minor restorative properties.";
-	}
 }

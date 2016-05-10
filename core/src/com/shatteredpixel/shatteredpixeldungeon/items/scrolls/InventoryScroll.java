@@ -20,24 +20,19 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.watabou.noosa.audio.Sample;
 
 public abstract class InventoryScroll extends Scroll {
 
-	protected String inventoryTitle = "Select an item";
+	protected String inventoryTitle = Messages.get(this, "inv_title");
 	protected WndBag.Mode mode = WndBag.Mode.ALL;
-	
-	private static final String TXT_WARNING	=
-		"Do you really want to cancel this scroll usage? " +
-		"It will be consumed anyway.";
-	private static final String TXT_YES		= "Yes, I'm positive";
-	private static final String TXT_NO		= "No, I changed my mind";
 	
 	@Override
 	protected void doRead() {
@@ -53,7 +48,8 @@ public abstract class InventoryScroll extends Scroll {
 	}
 	
 	private void confirmCancelation() {
-		GameScene.show( new WndOptions( name(), TXT_WARNING, TXT_YES, TXT_NO ) {
+		GameScene.show( new WndOptions( name(), Messages.get(this, "warning"),
+				Messages.get(this, "yes"), Messages.get(this, "no") ) {
 			@Override
 			protected void onSelect( int index ) {
 				switch (index) {

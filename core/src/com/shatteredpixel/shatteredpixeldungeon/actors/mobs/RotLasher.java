@@ -28,7 +28,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.RotLasherSprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.utils.Random;
 
 import java.util.HashSet;
@@ -36,7 +35,6 @@ import java.util.HashSet;
 public class RotLasher extends Mob {
 
 	{
-		name = "rot lasher";
 		spriteClass = RotLasherSprite.class;
 
 		HP = HT = 40;
@@ -101,14 +99,6 @@ public class RotLasher extends Mob {
 		return 8;
 	}
 
-	@Override
-	public String description() {
-		return
-			"The rot lasher is a part of a mature rotberry plant's root structure, and also their primary means of defence. " +
-			"Lashers are stuck into the ground, but will violently assault anything that gets near to them. " +
-			"When there is no nearby prey, they stand motionless, attempting to blend in with surrounding vegetation.";
-	}
-
 	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
 	static {
 		IMMUNITIES.add( ToxicGas.class );
@@ -119,10 +109,5 @@ public class RotLasher extends Mob {
 		return IMMUNITIES;
 	}
 
-	private class Waiting extends Mob.Wandering{
-		@Override
-		public String status() {
-			return Utils.format("This %s is idle", name);
-		}
-	}
+	private class Waiting extends Mob.Wandering{}
 }

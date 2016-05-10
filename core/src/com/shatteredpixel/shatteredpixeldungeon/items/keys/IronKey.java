@@ -21,19 +21,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.keys;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 
 public class IronKey extends Key {
-
-	private static final String TXT_FROM_DEPTH = "iron key from depth %d";
 
 	public static int curDepthQuantity = 0;
 	
 	{
-		name = "iron key";
 		image = ItemSpriteSheet.IRON_KEY;
 	}
 	
@@ -61,16 +56,5 @@ public class IronKey extends Key {
 			Dungeon.hero.belongings.countIronKeys();
 		}
 	}
-	
-	@Override
-	public String toString() {
-		return Utils.format( TXT_FROM_DEPTH, depth );
-	}
-	
-	@Override
-	public String info() {
-		return
-			"The notches on this ancient iron key are well worn; its leather lanyard " +
-			"is battered by age. What door might it open?";
-	}
+
 }

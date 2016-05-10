@@ -79,13 +79,17 @@ public class Buff extends Actor {
 		//do nothing by default
 	};
 
+	public String heroMessage(){
+		return null;
+	}
+
 	public String desc(){
 		return "";
 	}
 
 	//to handle the common case of showing how many turns are remaining in a buff description.
 	protected String dispTurns(float input){
-		return input == 1 ? "1 more turn" : new DecimalFormat("#.##").format(input) + " more turns";
+		return new DecimalFormat("#.##").format(input);
 	}
 
 	//creates a fresh instance of the buff and attaches that, this allows duplication.

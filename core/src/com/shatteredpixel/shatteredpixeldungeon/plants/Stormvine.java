@@ -29,13 +29,8 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Stormvine extends Plant {
 
-	private static final String TXT_DESC =
-			"Gravity affects the Stormvine plant strangely, allowing its whispy blue tendrils " +
-			"to 'hang' on the air. Anything caught in the vine is affected by this, and becomes disoriented.";
-
 	{
 		image = 9;
-		plantName = "Stormvine";
 	}
 
 	@Override
@@ -47,25 +42,12 @@ public class Stormvine extends Plant {
 		}
 	}
 
-	@Override
-	public String desc() {
-		return TXT_DESC;
-	}
-
 	public static class Seed extends Plant.Seed {
 		{
-			plantName = "Stormvine";
-
-			name = "seed of " + plantName;
 			image = ItemSpriteSheet.SEED_STORMVINE;
 
 			plantClass = Stormvine.class;
 			alchemyClass = PotionOfLevitation.class;
-		}
-
-		@Override
-		public String desc() {
-			return TXT_DESC;
 		}
 	}
 }

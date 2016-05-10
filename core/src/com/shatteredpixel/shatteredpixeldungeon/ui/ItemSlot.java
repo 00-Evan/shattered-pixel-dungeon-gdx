@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -27,18 +28,15 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.utils.Utils;
 import com.watabou.noosa.BitmapText;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.ui.Button;
 
 public class ItemSlot extends Button<GameAction> {
@@ -55,6 +53,8 @@ public class ItemSlot extends Button<GameAction> {
 	protected BitmapText topLeft;
 	protected BitmapText topRight;
 	protected BitmapText bottomRight;
+	protected Image      bottomRightIcon;
+	protected boolean    iconVisible = true;
 	
 	private static final String TXT_STRENGTH	= ":%d";
 	private static final String TXT_TYPICAL_STR	= "%d?";
@@ -131,9 +131,19 @@ public class ItemSlot extends Button<GameAction> {
 			bottomRight.x = x + (width - bottomRight.width());
 			bottomRight.y = y + (height - bottomRight.height());
 		}
+
+		if (bottomRightIcon != null) {
+			bottomRightIcon.x = x + (width - bottomRightIcon.width()) -1;
+			bottomRightIcon.y = y + (height - bottomRightIcon.height());
+		}
 	}
 	
 	public void item( Item item ) {
+		if (bottomRightIcon != null){
+			remove(bottomRightIcon);
+			bottomRightIcon = null;
+		}
+
 		if (item == null) {
 			
 			active = false;
@@ -157,7 +167,7 @@ public class ItemSlot extends Button<GameAction> {
 				if (item.levelKnown || (isWeapon && !(item instanceof MeleeWeapon))) {
 					
 					int str = isArmor ? ((Armor)item).STR : ((Weapon)item).STR;
-					topRight.text( Utils.format( TXT_STRENGTH, str ) );
+					topRight.text( Messages.format( TXT_STRENGTH, str ) );
 					if (str > Dungeon.hero.STR()) {
 						topRight.hardlight( DEGRADED );
 					} else {
@@ -166,7 +176,7 @@ public class ItemSlot extends Button<GameAction> {
 					
 				} else {
 					
-					topRight.text( Utils.format( TXT_TYPICAL_STR, isArmor ?
+					topRight.text( Messages.format( TXT_TYPICAL_STR, isArmor ?
 						((Armor)item).typicalSTR() :
 						((MeleeWeapon)item).typicalSTR() ) );
 					topRight.hardlight( WARNING );
@@ -175,7 +185,7 @@ public class ItemSlot extends Button<GameAction> {
 				topRight.measure();
 
 			} else if (item instanceof Key && !(item instanceof SkeletonKey)) {
-				topRight.text(Utils.format(TXT_KEY_DEPTH, ((Key) item).depth));
+				topRight.text(Messages.format(TXT_KEY_DEPTH, ((Key) item).depth));
 				topRight.measure();
 			} else {
 				
@@ -186,20 +196,25 @@ public class ItemSlot extends Button<GameAction> {
 			int level = item.visiblyUpgraded();
 
 			if (level != 0) {
-				bottomRight.text( item.levelKnown ? Utils.format( TXT_LEVEL, level ) : TXT_CURSED );
+				bottomRight.text( item.levelKnown ? Messages.format( TXT_LEVEL, level ) : TXT_CURSED );
 				bottomRight.measure();
 				bottomRight.hardlight( level > 0 ? UPGRADED : DEGRADED );
 			} else if (item instanceof Scroll || item instanceof Potion) {
-				if (item instanceof Scroll) bottomRight.text(((Scroll) item).initials());
-				else bottomRight.text(((Potion) item).initials());
+				bottomRight.text( null );
 
-				bottomRight.measure();
-
-				if (item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion
-						|| item instanceof PotionOfStrength || item instanceof PotionOfMight)
-					bottomRight.hardlight( UPGRADED );
-				else
-					bottomRight.hardlight( FADED );
+				Integer iconInt;
+				if (item instanceof Scroll){
+					iconInt = ((Scroll) item).initials();
+				} else {
+					iconInt = ((Potion) item).initials();
+				}
+				if (iconInt != null && iconVisible) {
+					bottomRightIcon = new Image(Assets.CONS_ICONS);
+					int left = iconInt*7;
+					int top = item instanceof Potion ? 0 : 8;
+					bottomRightIcon.frame(left, top, 7, 8);
+					add(bottomRightIcon);
+				}
 
 			} else {
 				bottomRight.text( null );
@@ -218,6 +233,7 @@ public class ItemSlot extends Button<GameAction> {
 		topLeft.alpha( alpha );
 		topRight.alpha( alpha );
 		bottomRight.alpha( alpha );
+		if (bottomRightIcon != null) bottomRightIcon.alpha( alpha );
 	}
 
 	public void showParams( boolean TL, boolean TR, boolean BR ) {
@@ -229,5 +245,6 @@ public class ItemSlot extends Button<GameAction> {
 
 		if (BR) add( bottomRight );
 		else remove( bottomRight );
+		iconVisible = BR;
 	}
 }

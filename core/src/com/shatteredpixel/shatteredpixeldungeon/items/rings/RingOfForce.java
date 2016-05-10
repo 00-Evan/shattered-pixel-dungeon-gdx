@@ -21,34 +21,38 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 
 public class RingOfForce extends Ring {
-
-	{
-		name = "Ring of Force";
-	}
 
 	@Override
 	protected RingBuff buff( ) {
 		return new Force();
 	}
 
+	public static int min(int bonus, int herostr){
+		if (bonus < 0) return 0;
+		int STR = herostr-8;
+		return Math.max(STR/2+bonus, 0);
+	}
+
+	public static int max(int bonus, int herostr){
+		if (bonus < 0) return 0;
+		int STR = herostr-8;
+		return Math.max((int)(STR*0.5f*bonus) + STR*2, bonus);
+	}
+
 	@Override
 	public String desc() {
-		if (isKnown()){
-			String desc = "This ring enhances the force of the wearer's blows. " +
-					"This extra power is largely wasted when wielding weapons, " +
-					"but an unarmed attack will be made much stronger. " +
-					"A degraded ring will instead weaken the wearer's blows.\n\n" +
-					"When unarmed, at your current strength, ";
-			int str = Dungeon.hero.STR() - 8;
-			desc += levelKnown ?
-					"average damage with this ring is " + (str/2+level() + (int)(str*0.5f*level()) + str*2)/2 + " points per hit.":
-					"typical average damage with this ring is" + (str/2+1 + (int)(str*0.5f) + str*2)/2 + " points per hit.";
-			desc += " Wearing a second ring of force would enhance this.";
-			return desc;
-		} else
-			return super.desc();
+		String desc = super.desc();
+		int str = Dungeon.hero.STR();
+		if (levelKnown) {
+			desc += "\n\n" + Messages.get(this, "avg_dmg", (min(level(), str) + max(level(), str))/2);
+		} else {
+			desc += "\n\n" + Messages.get(this, "typical_avg_dmg", (min(1, str) + max(1, str))/2);
+		}
+
+		return desc;
 	}
 
 	public class Force extends RingBuff {

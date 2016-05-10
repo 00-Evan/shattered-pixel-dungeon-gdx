@@ -20,42 +20,22 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 
-import com.watabou.noosa.audio.Sample;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 
 public class MageArmor extends ClassArmor {
 	
-	private static final String AC_SPECIAL = "MOLTEN EARTH";
-	
-	private static final String TXT_NOT_MAGE	= "Only mages can use this armor!";
-	
 	{
-		name = "mage robe";
 		image = ItemSpriteSheet.ARMOR_MAGE;
-	}
-	
-	@Override
-	public String special() {
-		return AC_SPECIAL;
-	}
-	
-	@Override
-	public String desc() {
-		return
-			"Wearing this gorgeous robe, a mage can cast a spell of molten earth: all the enemies " +
-			"in his field of view will be set on fire and unable to move at the same time.";
 	}
 	
 	@Override
@@ -77,14 +57,5 @@ public class MageArmor extends ClassArmor {
 		curUser.sprite.centerEmitter().start( ElmoParticle.FACTORY, 0.15f, 4 );
 		Sample.INSTANCE.play( Assets.SND_READ );
 	}
-	
-	@Override
-	public boolean doEquip( Hero hero ) {
-		if (hero.heroClass == HeroClass.MAGE) {
-			return super.doEquip( hero );
-		} else {
-			GLog.w( TXT_NOT_MAGE );
-			return false;
-		}
-	}
+
 }
