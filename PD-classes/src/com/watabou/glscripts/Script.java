@@ -1,5 +1,9 @@
 /*
+ * Pixel Dungeon
  * Copyright (C) 2012-2015  Oleg Dolya
+ *
+ * Shattered Pixel Dungeon
+ * Copyright (C) 2014-2016 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +21,11 @@
 
 package com.watabou.glscripts;
 
-import java.util.HashMap;
-
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.glwrap.Program;
 import com.watabou.glwrap.Shader;
+
+import java.util.HashMap;
 
 public class Script extends Program {
 

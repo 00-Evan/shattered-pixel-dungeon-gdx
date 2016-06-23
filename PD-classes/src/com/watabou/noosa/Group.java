@@ -1,5 +1,9 @@
 /*
+ * Pixel Dungeon
  * Copyright (C) 2012-2015  Oleg Dolya
+ *
+ * Shattered Pixel Dungeon
+ * Copyright (C) 2014-2016 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +22,6 @@
 package com.watabou.noosa;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
-
 import com.watabou.noosa.particles.Emitter;
 
 import java.util.ArrayList;
