@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ChangesButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LanguageButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.UpdateNotification;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -158,6 +159,10 @@ public class TitleScene extends PixelScene {
 		ExitButton btnExit = new ExitButton();
 		btnExit.setPos( w - btnExit.width(), 0 );
 		add( btnExit );
+
+		UpdateNotification updInfo = new UpdateNotification();
+		updInfo.setPos(0, h-updInfo.height());
+		add(updInfo);
 
 		fadeIn();
 	}
