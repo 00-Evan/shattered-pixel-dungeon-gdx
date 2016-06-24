@@ -20,16 +20,25 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Quarterstaff extends MeleeWeapon {
 
 	{
 		image = ItemSpriteSheet.QUARTERSTAFF;
-	}
-	
-	public Quarterstaff() {
-		super( 2, 1f, 1f );
+
+		tier = 2;
 	}
 
+	@Override
+	public int max(int lvl) {
+		return  4*(tier+1) +    //12 base, down from 15
+				lvl*(tier+1);   //scaling unchanged
+	}
+
+	@Override
+	public int defenceFactor(Hero hero) {
+		return 2;	//2 extra defence
+	}
 }

@@ -45,12 +45,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Bomb;
-import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
@@ -58,6 +54,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportat
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SummoningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -315,16 +312,7 @@ public class CursedWand {
 
 			//curses!
 			case 1:
-				KindOfWeapon weapon = user.belongings.weapon;
-				Armor armor = user.belongings.armor;
-				KindofMisc misc1 = user.belongings.misc1;
-				KindofMisc misc2 = user.belongings.misc2;
-				if (weapon != null) weapon.cursed = weapon.cursedKnown = true;
-				if (armor != null)  armor.cursed = armor.cursedKnown = true;
-				if (misc1 != null)  misc1.cursed = misc1.cursedKnown = true;
-				if (misc2 != null)  misc2.cursed = misc2.cursedKnown = true;
-				EquipableItem.equipCursed(user);
-				GLog.n( Messages.get(CursedWand.class, "cursed") );
+				CursingTrap.curse(user);
 				wand.wandUsed();
 				break;
 

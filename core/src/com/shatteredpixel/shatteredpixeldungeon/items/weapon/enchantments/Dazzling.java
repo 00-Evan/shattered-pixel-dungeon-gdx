@@ -21,36 +21,37 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Poison extends Weapon.Enchantment {
+public class Dazzling extends Weapon.Enchantment {
 
-	private static ItemSprite.Glowing PURPLE = new ItemSprite.Glowing( 0x4400AA );
-	
+	private static ItemSprite.Glowing YELLOW = new ItemSprite.Glowing( 0xFFFF00 );
+
 	@Override
-	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 33%
-		// lvl 1 - 50%
-		// lvl 2 - 60%
+	public int proc(Weapon weapon, Char attacker, Char defender, int damage) {
+		// lvl 0 - 20%
+		// lvl 1 - 33%
+		// lvl 2 - 43%
 		int level = Math.max( 0, weapon.level() );
-		
-		if (Random.Int( level + 3 ) >= 2) {
-			
-			Buff.affect( defender, com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.class ).
-				set( com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison.durationFactor( defender ) * (level + 1) );
-			
-			return true;
-		} else {
-			return false;
+
+		if (Random.Int( level + 5 ) >= 4) {
+
+			Buff.prolong( defender, Blindness.class, Random.Float( 1, 1.5f + level ) );
+			defender.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 6 );
+
 		}
+
+		return damage;
 	}
-	
+
 	@Override
-	public Glowing glowing() {
-		return PURPLE;
+	public ItemSprite.Glowing glowing() {
+		return YELLOW;
 	}
+
 }

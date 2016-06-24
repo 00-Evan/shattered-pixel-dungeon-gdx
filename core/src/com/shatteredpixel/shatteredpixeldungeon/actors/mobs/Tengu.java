@@ -35,7 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -76,7 +76,7 @@ public class Tengu extends Mob {
 
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( 6, 15 );
+		return Random.NormalIntRange( 8, 15 );
 	}
 	
 	@Override
@@ -92,25 +92,23 @@ public class Tengu extends Mob {
 	@Override
 	public void damage(int dmg, Object src) {
 
+		int beforeHitHP = HP;
+		super.damage(dmg, src);
+		dmg = beforeHitHP - HP;
+
 		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
 		if (lock != null) {
-			int multiple = HP > HT/2 ? 1 : 4;
+			int multiple = beforeHitHP > HT/2 ? 1 : 4;
 			lock.addTime(dmg*multiple);
 		}
 
 		//phase 2 of the fight is over
-		if (dmg >= HP) {
-			if (state == SLEEPING) {
-				state = WANDERING;
-			}
+		if (HP == 0 && beforeHitHP <= HT/2) {
 			((PrisonBossLevel)Dungeon.level).progress();
 			return;
 		}
 
-		int beforeHitHP = HP;
-		super.damage(dmg, src);
-
-		int hpBracket = HP > HT/2 ? 12 : 20;
+		int hpBracket = beforeHitHP > HT/2 ? 12 : 20;
 
 		//phase 1 of the fight is over
 		if (beforeHitHP > HT/2 && HP <= HT/2){
@@ -123,6 +121,11 @@ public class Tengu extends Mob {
 		} else if (beforeHitHP / hpBracket != HP / hpBracket) {
 			jump();
 		}
+	}
+
+	@Override
+	public boolean isAlive() {
+		return HP > 0 || Dungeon.level.mobs.contains(this); //Tengu has special death rules, see prisonbosslevel.progress()
 	}
 
 	@Override
@@ -224,7 +227,7 @@ public class Tengu extends Mob {
 	static {
 		RESISTANCES.add( ToxicGas.class );
 		RESISTANCES.add( Poison.class );
-		RESISTANCES.add( Death.class );
+		RESISTANCES.add( Grim.class );
 		RESISTANCES.add( ScrollOfPsionicBlast.class );
 	}
 	

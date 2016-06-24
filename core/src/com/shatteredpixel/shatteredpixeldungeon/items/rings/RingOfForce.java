@@ -21,7 +21,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.watabou.utils.Random;
 
 public class RingOfForce extends Ring {
 
@@ -30,26 +32,40 @@ public class RingOfForce extends Ring {
 		return new Force();
 	}
 
-	public static int min(int bonus, int herostr){
-		if (bonus < 0) return 0;
-		int STR = herostr-8;
-		return Math.max(STR/2+bonus, 0);
+	private static float tier(int str){
+		return Math.max(1, (str - 8)/2f);
 	}
 
-	public static int max(int bonus, int herostr){
-		if (bonus < 0) return 0;
-		int STR = herostr-8;
-		return Math.max((int)(STR*0.5f*bonus) + STR*2, bonus);
+	public static int damageRoll( Hero hero ){
+		int level = getBonus(hero, Force.class);
+		float tier = tier(hero.STR());
+		return Random.NormalIntRange(min(level, tier), max(level, tier));
+	}
+
+	//same as equivalent tier weapon
+	private static int min(int lvl, float tier){
+		return Math.round(
+				tier +  //base
+				lvl     //level scaling
+		);
+	}
+
+	//20% reduced from equivalent tier weapon
+	private static int max(int lvl, float tier){
+		return Math.round(
+				4*(tier+1) +    //base, 20% reduced from equivalent tier
+				lvl*(tier)      //level scaling, 1 reduced from equivalent tier
+		);
 	}
 
 	@Override
 	public String desc() {
 		String desc = super.desc();
-		int str = Dungeon.hero.STR();
+		float tier = tier(Dungeon.hero.STR());
 		if (levelKnown) {
-			desc += "\n\n" + Messages.get(this, "avg_dmg", (min(level(), str) + max(level(), str))/2);
+			desc += "\n\n" + Messages.get(this, "avg_dmg", min(level(), tier), max(level(), tier));
 		} else {
-			desc += "\n\n" + Messages.get(this, "typical_avg_dmg", (min(1, str) + max(1, str))/2);
+			desc += "\n\n" + Messages.get(this, "typical_avg_dmg", min(1, tier), max(1, tier));
 		}
 
 		return desc;

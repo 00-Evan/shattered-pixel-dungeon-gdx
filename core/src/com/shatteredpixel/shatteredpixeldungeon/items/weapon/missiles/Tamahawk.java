@@ -31,18 +31,22 @@ public class Tamahawk extends MissileWeapon {
 
 	{
 		image = ItemSpriteSheet.TOMAHAWK;
-		
-		STR = 17;
+
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 4;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
 		return 20;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
+		return 17;
 	}
 
 	public Tamahawk() {
@@ -55,9 +59,9 @@ public class Tamahawk extends MissileWeapon {
 	}
 	
 	@Override
-	public void proc( Char attacker, Char defender, int damage ) {
-		super.proc( attacker, defender, damage );
+	public int proc( Char attacker, Char defender, int damage ) {
 		Buff.affect( defender, Bleeding.class ).set( damage );
+		return super.proc( attacker, defender, damage );
 	}
 	
 	@Override

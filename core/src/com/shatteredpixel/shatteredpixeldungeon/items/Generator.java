@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
@@ -99,17 +98,31 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfTransfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfVenom;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.AssassinsBlade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.BattleAxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dirk;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Glaive;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greataxe;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatshield;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatsword;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.HandAxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Knuckles;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Longsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Mace;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.NewShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Quarterstaff;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.ShortSword;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RoundShield;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.RunicBlade;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sai;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Scimitar;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Spear;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Whip;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.CurareDart;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Dart;
@@ -131,6 +144,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Starflower;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Stormvine;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -140,8 +154,13 @@ import java.util.HashMap;
 public class Generator {
 
 	public static enum Category {
-		WEAPON	( 150,	Weapon.class ),
-		ARMOR	( 100,	Armor.class ),
+		WEAPON	( 100,	Weapon.class ),
+		WEP_T1	( 0, 	Weapon.class),
+		WEP_T2	( 0,	Weapon.class),
+		WEP_T3	( 0, 	Weapon.class),
+		WEP_T4	( 0, 	Weapon.class),
+		WEP_T5	( 0, 	Weapon.class),
+		ARMOR	( 60,	Armor.class ),
 		POTION	( 500,	Potion.class ),
 		SCROLL	( 400,	Scroll.class ),
 		WAND	( 40,	Wand.class ),
@@ -171,6 +190,15 @@ public class Generator {
 			
 			return item instanceof Bag ? Integer.MAX_VALUE : Integer.MAX_VALUE - 1;
 		}
+	}
+
+	//TODO decide on balancing here
+	private static final float[][] floorSetTierProbs = new float[][] {
+			{0, 70, 20,  8,  2},
+			{0, 25, 50, 20,  5},
+			{0, 10, 40, 40, 10},
+			{0,  5, 20, 50, 25},
+			{0,  2,  8, 20, 70}
 	};
 	
 	private static HashMap<Category,Float> categoryProbs = new HashMap<Generator.Category, Float>();
@@ -196,7 +224,7 @@ public class Generator {
 			ScrollOfMagicalInfusion.class,
 			ScrollOfPsionicBlast.class,
 			ScrollOfMirrorImage.class };
-		Category.SCROLL.probs = new float[]{ 30, 10, 15, 0, 15, 15, 12, 8, 8, 0, 4, 10 };
+		Category.SCROLL.probs = new float[]{ 30, 10, 20, 0, 15, 15, 12, 8, 8, 0, 4, 10 };
 		
 		Category.POTION.classes = new Class<?>[]{
 			PotionOfHealing.class,
@@ -229,35 +257,71 @@ public class Generator {
 			WandOfCorruption.class,
 			WandOfRegrowth.class };
 		Category.WAND.probs = new float[]{ 4, 4, 4, 4, 4, 3, /*3,*/ 3, 3, /*3,*/ 3, 3, 3 };
-		
-		Category.WEAPON.classes = new Class<?>[]{
-			Dagger.class,
+
+		//see generator.randomWeapon
+		Category.WEAPON.classes = new Class<?>[]{};
+		Category.WEAPON.probs = new float[]{};
+
+		Category.WEP_T1.classes = new Class<?>[]{
+			WornShortsword.class,
 			Knuckles.class,
-			Quarterstaff.class,
+			Dagger.class,
+			MagesStaff.class,
+			Boomerang.class,
+			Dart.class
+		};
+		Category.WEP_T1.probs = new float[]{ 1, 1, 1, 1, 0, 1 };
+
+		Category.WEP_T2.classes = new Class<?>[]{
+			NewShortsword.class,
+			HandAxe.class,
 			Spear.class,
-			Mace.class,
+			Quarterstaff.class,
+			Dirk.class,
+			IncendiaryDart.class
+		};
+		Category.WEP_T2.probs = new float[]{ 6, 5, 5, 4, 4, 6 };
+
+		Category.WEP_T3.classes = new Class<?>[]{
 			Sword.class,
+			Mace.class,
+			Scimitar.class,
+			RoundShield.class,
+			Sai.class,
+			Whip.class,
+			Shuriken.class,
+			CurareDart.class
+		};
+		Category.WEP_T3.probs = new float[]{ 6, 5, 5, 4, 4, 4, 6, 6 };
+
+		Category.WEP_T4.classes = new Class<?>[]{
 			Longsword.class,
 			BattleAxe.class,
+			Flail.class,
+			RunicBlade.class,
+			AssassinsBlade.class,
+			Javelin.class
+		};
+		Category.WEP_T4.probs = new float[]{ 6, 5, 5, 4, 4, 6 };
+
+		Category.WEP_T5.classes = new Class<?>[]{
+			Greatsword.class,
 			WarHammer.class,
 			Glaive.class,
-			ShortSword.class,
-			Dart.class,
-			Javelin.class,
-			IncendiaryDart.class,
-			CurareDart.class,
-			Shuriken.class,
-			Boomerang.class,
-			Tamahawk.class };
-		Category.WEAPON.probs = new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1 };
-		
+			Greataxe.class,
+			Greatshield.class,
+			Tamahawk.class
+		};
+		Category.WEP_T5.probs = new float[]{ 6, 5, 5, 4, 4, 6 };
+
+		//see Generator.randomArmor
 		Category.ARMOR.classes = new Class<?>[]{
 			ClothArmor.class,
 			LeatherArmor.class,
 			MailArmor.class,
 			ScaleArmor.class,
 			PlateArmor.class };
-		Category.ARMOR.probs = new float[]{ 1, 1, 1, 1, 1 };
+		Category.ARMOR.probs = new float[]{ 0, 0, 0, 0, 0 };
 		
 		Category.FOOD.classes = new Class<?>[]{
 			Food.class,
@@ -360,46 +424,43 @@ public class Generator {
 	}
 
 	public static Armor randomArmor(){
-		int curStr = Hero.STARTING_STR + Dungeon.limitedDrops.strengthPotions.count;
-
-		return randomArmor(curStr);
+		return randomArmor(Dungeon.depth / 5);
 	}
 	
-	public static Armor randomArmor(int targetStr) {
-		
-		Category cat = Category.ARMOR;
+	public static Armor randomArmor(int floorSet) {
+
+		floorSet = (int)GameMath.gate(0, floorSet, floorSetTierProbs.length-1);
 
 		try {
-			Armor a1 = (Armor) cat.classes[Random.chances(cat.probs)].newInstance();
-			Armor a2 = (Armor) cat.classes[Random.chances(cat.probs)].newInstance();
-
-			a1.random();
-			a2.random();
-
-			return Math.abs(targetStr - a1.STR) < Math.abs(targetStr - a2.STR) ? a1 : a2;
+			Armor a = (Armor)Category.ARMOR.classes[Random.chances(floorSetTierProbs[floorSet])].newInstance();
+			a.random();
+			return a;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public static Weapon randomWeapon(){
-		int curStr = Hero.STARTING_STR + Dungeon.limitedDrops.strengthPotions.count;
+	public static final Category[] wepTiers = new Category[]{
+			Category.WEP_T1,
+			Category.WEP_T2,
+			Category.WEP_T3,
+			Category.WEP_T4,
+			Category.WEP_T5
+	};
 
-		return randomWeapon(curStr);
+	public static Weapon randomWeapon(){
+		return randomWeapon(Dungeon.depth / 5);
 	}
 	
-	public static Weapon randomWeapon(int targetStr) {
+	public static Weapon randomWeapon(int floorSet) {
+
+		floorSet = (int)GameMath.gate(0, floorSet, floorSetTierProbs.length-1);
 
 		try {
-			Category cat = Category.WEAPON;
-
-			Weapon w1 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
-			Weapon w2 = (Weapon)cat.classes[Random.chances( cat.probs )].newInstance();
-
-			w1.random();
-			w2.random();
-
-			return Math.abs( targetStr - w1.STR ) < Math.abs( targetStr - w2.STR ) ? w1 : w2;
+			Category c = wepTiers[Random.chances(floorSetTierProbs[floorSet])];
+			Weapon w = (Weapon)c.classes[Random.chances(c.probs)].newInstance();
+			w.random();
+			return w;
 		} catch (Exception e) {
 			return null;
 		}

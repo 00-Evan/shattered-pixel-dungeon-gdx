@@ -52,11 +52,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class Item implements Bundlable {
-	
-	private static final String TXT_TO_STRING		= "%s";
-	private static final String TXT_TO_STRING_X		= "%s x%d";
-	private static final String TXT_TO_STRING_LVL	= "%s%+d";
-	private static final String TXT_TO_STRING_LVL_X	= "%s%+d x%d";
+
+	protected static final String TXT_TO_STRING_LVL		= "%s %+d";
+	protected static final String TXT_TO_STRING_X		= "%s x%d";
 	
 	protected static final float TIME_TO_THROW		= 1.0f;
 	protected static final float TIME_TO_PICK_UP	= 1.0f;
@@ -275,12 +273,13 @@ public class Item implements Bundlable {
 
 	public void level( int value ){
 		level = value;
+
+		updateQuickslot();
 	}
 	
 	public Item upgrade() {
 		
 		cursed = false;
-		cursedKnown = true;
 		this.level++;
 
 		updateQuickslot();
@@ -345,20 +344,17 @@ public class Item implements Bundlable {
 	
 	@Override
 	public String toString() {
-		
-		if (levelKnown && level != 0) {
-			if (quantity > 1) {
-				return Messages.format( TXT_TO_STRING_LVL_X, name(), level, quantity );
-			} else {
-				return Messages.format( TXT_TO_STRING_LVL, name(), level );
-			}
-		} else {
-			if (quantity > 1) {
-				return Messages.format( TXT_TO_STRING_X, name(), quantity );
-			} else {
-				return Messages.format( TXT_TO_STRING, name() );
-			}
-		}
+
+		String name = name();
+
+		if (visiblyUpgraded() != 0)
+			name = Messages.format( TXT_TO_STRING_LVL, name, visiblyUpgraded()  );
+
+		if (quantity > 1)
+			name = Messages.format( TXT_TO_STRING_X, name, quantity );
+
+		return name;
+
 	}
 	
 	public String name() {
@@ -469,10 +465,14 @@ public class Item implements Bundlable {
 			}
 		}
 	}
+
+	public int throwPos( Hero user, int dst){
+		return new Ballistica( user.pos, dst, Ballistica.PROJECTILE ).collisionPos;
+	}
 	
 	public void cast( final Hero user, int dst ) {
 		
-		final int cell = new Ballistica( user.pos, dst, Ballistica.PROJECTILE ).collisionPos;
+		final int cell = throwPos( user, dst );
 		user.sprite.zap( cell );
 		user.busy();
 

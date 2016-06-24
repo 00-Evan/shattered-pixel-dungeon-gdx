@@ -20,34 +20,42 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
+import com.watabou.utils.Random;
 
-public class Luck extends Weapon.Enchantment {
+public class Eldritch extends Weapon.Enchantment {
 
-	private static ItemSprite.Glowing GREEN = new ItemSprite.Glowing( 0x00FF00 );
+	private static ItemSprite.Glowing GREY = new ItemSprite.Glowing( 0x222222 );
 	
 	@Override
-	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
+	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
+		// lvl 0 - 20%
+		// lvl 1 - 33%
+		// lvl 2 - 43%
 		int level = Math.max( 0, weapon.level() );
 		
-		int dmg = damage;
-		for (int i=1; i <= level+1; i++) {
-			dmg = Math.max( dmg, attacker.damageRoll() - i );
-		}
-		
-		if (dmg > damage) {
-			defender.damage( dmg - damage, this );
-			return true;
-		} else {
-			return false;
-		}
-	}
+		if (Random.Int( level + 5 ) >= 4) {
 
+			if (defender == Dungeon.hero) {
+				Buff.affect( defender, Vertigo.class, Vertigo.duration(defender) );
+			} else {
+				Buff.affect( defender, Terror.class, Terror.DURATION ).object = attacker.id();
+			}
+
+		}
+
+		return damage;
+	}
+	
 	@Override
 	public Glowing glowing() {
-		return GREEN;
+		return GREY;
 	}
 }

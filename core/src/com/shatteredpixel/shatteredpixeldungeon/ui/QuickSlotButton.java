@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
-import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -87,7 +86,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				}
 
 				if (targeting) {
-					int cell = autoAim(lastTarget);
+					int cell = autoAim(lastTarget, select(slotNum));
 
 					if (cell != -1){
 						GameScene.handleCell(cell);
@@ -202,14 +201,20 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	}
 
 	public static int autoAim(Char target){
+		//will use generic projectile logic if no item is specified
+		return autoAim(target, new Item());
+	}
+
+	public static int autoAim(Char target, Item item){
+
 		//first try to directly target
-		if (new Ballistica(Dungeon.hero.pos, target.pos, Ballistica.PROJECTILE).collisionPos == target.pos) {
+		if (item.throwPos(Dungeon.hero, target.pos) == target.pos) {
 			return target.pos;
 		}
 
 		//Otherwise pick nearby tiles to try and 'angle' the shot, auto-aim basically.
 		for (int i : Level.NEIGHBOURS9DIST2) {
-			if (new Ballistica(Dungeon.hero.pos, target.pos+i, Ballistica.PROJECTILE).collisionPos == target.pos){
+			if (item.throwPos(Dungeon.hero, target.pos+i) == target.pos){
 				return target.pos+i;
 			}
 		}

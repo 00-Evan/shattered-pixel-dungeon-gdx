@@ -26,10 +26,22 @@ public class Glaive extends MeleeWeapon {
 
 	{
 		image = ItemSpriteSheet.GLAIVE;
+
+		tier = 5;
+		DLY = 1.5f; //0.67x speed
+		RCH = 2;    //extra reach
 	}
-	
-	public Glaive() {
-		super( 5, 1f, 1f );
+
+	@Override
+	public int min(int lvl) {
+		return  tier +  //base unchanged
+				lvl*2;  //+2 per level, up from +1
+	}
+
+	@Override
+	public int max(int lvl) {
+		return  Math.round(6.67f*(tier+1)) +    //40 base, up from 30
+				lvl*Math.round(1.33f*(tier+1)); //+8 per level, up from +6
 	}
 
 }

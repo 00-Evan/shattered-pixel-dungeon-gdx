@@ -33,13 +33,18 @@ public class Dart extends MissileWeapon {
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 1;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
 		return 4;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
+		return 10;
 	}
 
 	public Dart() {

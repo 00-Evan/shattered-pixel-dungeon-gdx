@@ -36,18 +36,21 @@ public class IncendiaryDart extends MissileWeapon {
 
 	{
 		image = ItemSpriteSheet.INCENDIARY_DART;
-		
-		STR = 12;
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 1;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
 		return 2;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
+		return 12;
 	}
 
 	public IncendiaryDart() {
@@ -69,9 +72,9 @@ public class IncendiaryDart extends MissileWeapon {
 	}
 	
 	@Override
-	public void proc( Char attacker, Char defender, int damage ) {
+	public int proc( Char attacker, Char defender, int damage ) {
 		Buff.affect( defender, Burning.class ).reignite( defender );
-		super.proc( attacker, defender, damage );
+		return super.proc( attacker, defender, damage );
 	}
 	
 	@Override

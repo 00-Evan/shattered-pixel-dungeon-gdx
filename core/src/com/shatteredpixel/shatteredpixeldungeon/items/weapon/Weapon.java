@@ -20,26 +20,33 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Death;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Fire;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Horror;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Instability;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Leech;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Luck;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Poison;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shock;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Slow;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Annoying;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Displacing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Exhausting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Fragile;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Sacrificial;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Wayward;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Dazzling;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Eldritch;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Stunning;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vorpal;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -54,13 +61,31 @@ abstract public class Weapon extends KindOfWeapon {
 	private static final int HITS_TO_KNOW    = 20;
 
 	private static final String TXT_TO_STRING		= "%s :%d";
-	
-	public int		STR	= 10;
-	public float	ACU	= 1;	// Accuracy modifier
+
+	public float    ACC = 1f;	// Accuracy modifier
 	public float	DLY	= 1f;	// Speed modifier
+	public int      RCH = 1;    // Reach modifier (only applies to melee hits)
 
 	public enum Imbue {
-		NONE, LIGHT, HEAVY
+		NONE	(1.0f, 1.00f),
+		LIGHT	(0.7f, 0.67f),
+		HEAVY	(1.5f, 1.67f);
+
+		private float damageFactor;
+		private float delayFactor;
+
+		Imbue(float dmg, float dly){
+			damageFactor = dmg;
+			delayFactor = dly;
+		}
+
+		public int damageFactor(int dmg){
+			return Math.round(dmg * damageFactor);
+		}
+
+		public float delayFactor(float dly){
+			return dly * delayFactor;
+		}
 	}
 	public Imbue imbue = Imbue.NONE;
 
@@ -69,19 +94,21 @@ abstract public class Weapon extends KindOfWeapon {
 	public Enchantment enchantment;
 	
 	@Override
-	public void proc( Char attacker, Char defender, int damage ) {
+	public int proc( Char attacker, Char defender, int damage ) {
 		
 		if (enchantment != null) {
-			enchantment.proc( this, attacker, defender, damage );
+			damage = enchantment.proc( this, attacker, defender, damage );
 		}
 		
 		if (!levelKnown) {
 			if (--hitsToKnow <= 0) {
 				levelKnown = true;
-				GLog.i( Messages.get(Weapon.class, "identify", name(), toString()) );
+				GLog.i( Messages.get(Weapon.class, "identify") );
 				Badges.validateItemLevelAquired( this );
 			}
 		}
+
+		return damage;
 	}
 
 	private static final String UNFAMILIRIARITY	= "unfamiliarity";
@@ -107,104 +134,105 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 	
 	@Override
-	public float acuracyFactor( Hero hero ) {
+	public float accuracyFactor( Hero hero ) {
 		
-		int encumbrance = STR - hero.STR();
+		int encumbrance = STRReq() - hero.STR();
 
-		float ACU = this.ACU;
+		if (hasEnchant(Wayward.class))
+			encumbrance = Math.max(3, encumbrance+3);
+
+		float ACC = this.ACC;
 		
 		if (this instanceof MissileWeapon) {
-			if (hero.heroClass == HeroClass.HUNTRESS) {
-				encumbrance -= 2;
-			}
-			int bonus = 0;
-			for (Buff buff : hero.buffs(RingOfSharpshooting.Aim.class)) {
-				bonus += ((RingOfSharpshooting.Aim)buff).level;
-			}
-			ACU *= (float)(Math.pow(1.1, bonus));
+			int bonus = RingOfSharpshooting.getBonus(hero, RingOfSharpshooting.Aim.class);
+			ACC *= (float)(Math.pow(1.1, bonus));
 		}
 
-		return encumbrance > 0 ? (float)(ACU / Math.pow( 1.5, encumbrance )) : ACU;
+		return encumbrance > 0 ? (float)(ACC / Math.pow( 1.5, encumbrance )) : ACC;
 	}
 	
 	@Override
 	public float speedFactor( Hero hero ) {
 
-		int encumrance = STR - hero.STR();
+		int encumrance = STRReq() - hero.STR();
 		if (this instanceof MissileWeapon && hero.heroClass == HeroClass.HUNTRESS) {
 			encumrance -= 2;
 		}
 
-		float DLY = this.DLY * (imbue == Imbue.LIGHT ? 0.667f : (imbue == Imbue.HEAVY ? 1.667f : 1.0f));
+		float DLY = imbue.delayFactor(this.DLY);
 
-		int bonus = 0;
-		for (Buff buff : hero.buffs(RingOfFuror.Furor.class)) {
-			bonus += ((RingOfFuror.Furor)buff).level;
-		}
+		int bonus = RingOfFuror.getBonus(hero, RingOfFuror.Furor.class);
 
 		DLY = (float)(0.25 + (DLY - 0.25)*Math.pow(0.8, bonus));
 
 		return
 				(encumrance > 0 ? (float)(DLY * Math.pow( 1.2, encumrance )) : DLY);
 	}
-	
+
+	@Override
+	public int reachFactor(Hero hero) {
+		return hasEnchant(Projecting.class) ? RCH+1 : RCH;
+	}
+
 	@Override
 	public int damageRoll( Hero hero ) {
 		
 		int damage = super.damageRoll( hero );
 		
 		if (this instanceof MeleeWeapon || (this instanceof MissileWeapon && hero.heroClass == HeroClass.HUNTRESS)) {
-			int exStr = hero.STR() - STR;
+			int exStr = hero.STR() - STRReq();
 			if (exStr > 0) {
 				damage += Random.IntRange( 0, exStr );
 			}
 		}
 		
-		return Math.round(damage * (imbue == Imbue.LIGHT ? 0.7f : (imbue == Imbue.HEAVY ? 1.5f : 1f)));
+		return imbue.damageFactor(damage);
 	}
+
+	public int STRReq(){
+		return STRReq(level());
+	}
+
+	public abstract int STRReq(int lvl);
 	
 	public Item upgrade( boolean enchant ) {
-		if (enchantment != null) {
-			if (!enchant && Random.Int( level() ) > 0) {
-				GLog.w( Messages.get(Weapon.class, "incompatible") );
-				enchant( null );
-			}
-		} else {
-			if (enchant) {
-				enchant( );
-			}
+
+		if (enchant && (enchantment == null || enchantment.curse())){
+			enchant( Enchantment.random() );
+		} else if (!enchant && Random.Float() > Math.pow(0.9, level())){
+			enchant(null);
 		}
 		
 		return super.upgrade();
 	}
 	
 	@Override
-	public String toString() {
-		return levelKnown ? Messages.format( TXT_TO_STRING, super.toString(), STR ) : super.toString();
-	}
-	
-	@Override
 	public String name() {
-		return enchantment == null ? super.name() : enchantment.name( super.name() );
+		return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name( super.name() ) : super.name();
 	}
 	
 	@Override
 	public Item random() {
-		if (Random.Float() < 0.4) {
-			int n = 1;
-			if (Random.Int( 3 ) == 0) {
-				n++;
-				if (Random.Int( 5 ) == 0) {
-					n++;
-				}
-			}
-			if (Random.Int( 2 ) == 0) {
-				upgrade( n );
-			} else {
-				degrade( n );
-				cursed = true;
-			}
+		float roll = Random.Float();
+		if (roll < 0.3f){
+			//30% chance to be level 0 and cursed
+			enchant(Enchantment.randomCurse());
+			cursed = true;
+			return this;
+		} else if (roll < 0.75f){
+			//45% chance to be level 0
+		} else if (roll < 0.95f){
+			//15% chance to be +1
+			upgrade(0);
+		} else {
+			//5% chance to be +2
+			upgrade(2);
 		}
+
+		//if not cursed, 10% chance to be enchanted (7% overall)
+		if (Random.Int(10) == 0)
+			enchant();
+
 		return this;
 	}
 	
@@ -224,29 +252,58 @@ abstract public class Weapon extends KindOfWeapon {
 		return enchant( ench );
 	}
 
-	public boolean isEnchanted() {
-		return enchantment != null;
+	public boolean hasEnchant(Class<?extends Enchantment> type) {
+		return enchantment != null && enchantment.getClass() == type;
+	}
+
+	public boolean hasGoodEnchant(){
+		return enchantment != null && !enchantment.curse();
+	}
+
+	public boolean hasCurseEnchant(){		return enchantment != null && enchantment.curse();
 	}
 
 	@Override
 	public ItemSprite.Glowing glowing() {
-		return enchantment != null ? enchantment.glowing() : null;
+		return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.glowing() : null;
 	}
 
-	//FIXME: most enchantment names are pretty broken, should refactor
 	public static abstract class Enchantment implements Bundlable {
 
 		private static final Class<?>[] enchants = new Class<?>[]{
-			Fire.class, Poison.class, Death.class, Paralysis.class, Leech.class,
-			Slow.class, Shock.class, Instability.class, Horror.class, Luck.class };
-		private static final float[] chances= new float[]{ 10, 10, 1, 2, 1, 2, 6, 3, 2, 2 };
+			Blazing.class, Venomous.class, Vorpal.class, Shocking.class,
+			Chilling.class, Eldritch.class, Lucky.class, Projecting.class, Unstable.class, Dazzling.class,
+			Grim.class, Stunning.class, Vampiric.class,};
+		private static final float[] chances= new float[]{
+			10, 10, 10, 10,
+			5, 5, 5, 5, 5, 5,
+			2, 2, 2 };
+
+		private static final Class<?>[] curses = new Class<?>[]{
+				Annoying.class, Displacing.class, Exhausting.class, Fragile.class, Sacrificial.class, Wayward.class
+		};
 			
-		public abstract boolean proc( Weapon weapon, Char attacker, Char defender, int damage );
-		
+		public abstract int proc( Weapon weapon, Char attacker, Char defender, int damage );
+
+		public String name() {
+			if (!curse())
+				return name( Messages.get(this, "enchant"));
+			else
+				return name( Messages.get(Item.class, "curse"));
+		}
+
 		public String name( String weaponName ) {
 			return Messages.get(this, "name", weaponName);
 		}
-		
+
+		public String desc() {
+			return Messages.get(this, "desc");
+		}
+
+		public boolean curse() {
+			return false;
+		}
+
 		@Override
 		public void restoreFromBundle( Bundle bundle ) {
 		}
@@ -255,18 +312,24 @@ abstract public class Weapon extends KindOfWeapon {
 		public void storeInBundle( Bundle bundle ) {
 		}
 		
-		public ItemSprite.Glowing glowing() {
-			return ItemSprite.Glowing.WHITE;
-		}
+		public abstract ItemSprite.Glowing glowing();
 		
 		@SuppressWarnings("unchecked")
 		public static Enchantment random() {
 			try {
-				return ClassReflection.newInstance((Class<Enchantment>) enchants[Random.chances(chances)]);
+				return ((Class<Enchantment>)enchants[ Random.chances( chances ) ]).newInstance();
 			} catch (Exception e) {
 				return null;
 			}
 		}
-		
+
+		@SuppressWarnings("unchecked")
+		public static Enchantment randomCurse() {
+			try {
+				return ((Class<Enchantment>) Random.oneOf(curses)).newInstance();
+			} catch (Exception e) {
+				return null;
+			}
+		}
 	}
 }

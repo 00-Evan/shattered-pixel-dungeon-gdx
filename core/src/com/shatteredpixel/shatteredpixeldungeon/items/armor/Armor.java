@@ -25,19 +25,29 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.AntiEntropy;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Corrosion;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Displacement;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Metabolism;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Multiplicity;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Stench;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Affection;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiEntropy;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Bounce;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Displacement;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Camouflage;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Entanglement;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Metabolism;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Multiplicity;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Obfuscation;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Potential;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stench;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Repulsion;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stone;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Thorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
@@ -54,12 +64,9 @@ public class Armor extends EquipableItem {
 
 	private static final int HITS_TO_KNOW    = 10;
 
-	private static final String TXT_TO_STRING	= "%s :%d";
 	protected static final String AC_DETACH       = "DETACH";
 	
 	public int tier;
-	
-	public int STR;
 	
 	private int hitsToKnow = HITS_TO_KNOW;
 	
@@ -67,10 +74,7 @@ public class Armor extends EquipableItem {
 	private BrokenSeal seal;
 	
 	public Armor( int tier ) {
-		
 		this.tier = tier;
-		
-		STR = typicalSTR();
 	}
 
 	private static final String UNFAMILIRIARITY	= "unfamiliarity";
@@ -92,12 +96,7 @@ public class Armor extends EquipableItem {
 			hitsToKnow = HITS_TO_KNOW;
 		}
 		inscribe((Glyph) bundle.get(GLYPH));
-		//TODO holdover from beta releases, remove in 0.4.0
-		if (bundle.getBoolean(SEAL)){
-			seal = new BrokenSeal();
-			if (level() > 0) seal.level(1);
-		} else
-			seal = (BrokenSeal)bundle.get(SEAL);
+		seal = (BrokenSeal)bundle.get(SEAL);
 	}
 
 	@Override
@@ -172,8 +171,8 @@ public class Armor extends EquipableItem {
 	public void affixSeal(BrokenSeal seal){
 		this.seal = seal;
 		if (seal.level() > 0){
-			//doesn't override existing glyphs, but doesn't create one either
-			upgrade(glyph != null);
+			//doesn't trigger upgrading logic such as affecting curses/glyphs
+			level(level()+1);
 		}
 		if (isEquipped(Dungeon.hero)){
 			Buff.affect(Dungeon.hero, BrokenSeal.WarriorShield.class).setArmor(this);
@@ -214,7 +213,11 @@ public class Armor extends EquipableItem {
 	}
 	
 	public int DR(){
-		return tier * (2 + level() + (glyph == null ? 0 : 1));
+		int effectiveTier = tier;
+		if (glyph != null) effectiveTier += glyph.tierDRAdjust();
+		effectiveTier = Math.max(0, effectiveTier);
+
+		return effectiveTier * (2 + level());
 	}
 
 	@Override
@@ -223,31 +226,17 @@ public class Armor extends EquipableItem {
 	}
 	
 	public Item upgrade( boolean inscribe ) {
-		
-		if (glyph != null) {
-			if (!inscribe && Random.Int( level() ) > 0) {
-				GLog.w( Messages.get(Armor.class, "incompatible") );
-				inscribe( null );
-			}
-		} else {
-			if (inscribe) {
-				inscribe( Glyph.random() );
-			}
+
+		if (inscribe && (glyph == null || glyph.curse())){
+			inscribe( Glyph.random() );
+		} else if (!inscribe && Random.Float() > Math.pow(0.9, level())){
+			inscribe(null);
 		}
 
 		if (seal != null && seal.level() == 0)
 			seal.upgrade();
 
-		STR--;
-		
 		return super.upgrade();
-	}
-	
-	@Override
-	public Item degrade() {
-		STR++;
-		
-		return super.degrade();
 	}
 	
 	public int proc( Char attacker, Char defender, int damage ) {
@@ -259,22 +248,18 @@ public class Armor extends EquipableItem {
 		if (!levelKnown) {
 			if (--hitsToKnow <= 0) {
 				levelKnown = true;
-				GLog.w( Messages.get(Armor.class, "identify", name(), toString()) );
+				GLog.w( Messages.get(Armor.class, "identify") );
 				Badges.validateItemLevelAquired( this );
 			}
 		}
 		
 		return damage;
 	}
-	
-	@Override
-	public String toString() {
-		return levelKnown ? Messages.format( TXT_TO_STRING, super.toString(), STR ) : super.toString();
-	}
-	
+
+
 	@Override
 	public String name() {
-		return glyph == null ? super.name() : glyph.name( super.name() );
+		return glyph != null && (cursedKnown || !glyph.curse()) ? glyph.name( super.name() ) : super.name();
 	}
 	
 	@Override
@@ -282,21 +267,24 @@ public class Armor extends EquipableItem {
 		String info = desc();
 		
 		if (levelKnown) {
-			info += "\n\n" + Messages.get(Armor.class, "curr_absorb", Math.max( DR(), 0 ));
+			info += "\n\n" + Messages.get(Armor.class, "curr_absorb", DR(), STRReq());
 			
-			if (STR > Dungeon.hero.STR()) {
-				info += "\n\n" + Messages.get(Armor.class, "too_heavy");
+			if (STRReq() > Dungeon.hero.STR()) {
+				info += " " + Messages.get(Armor.class, "too_heavy");
+			} else if (Dungeon.hero.heroClass == HeroClass.ROGUE && Dungeon.hero.STR() > STRReq()){
+				info += " " + Messages.get(Armor.class, "excess_str");
 			}
 		} else {
-			info += "\n\n" + Messages.get(Armor.class, "avg_absorb", typicalDR(), typicalSTR());
+			info += "\n\n" + Messages.get(Armor.class, "avg_absorb", typicalDR(), STRReq(0));
 
-			if (typicalSTR() > Dungeon.hero.STR()) {
-				info += "\n\n" + Messages.get(Armor.class, "probably_too_heavy");
+			if (STRReq(0) > Dungeon.hero.STR()) {
+				info += " " + Messages.get(Armor.class, "probably_too_heavy");
 			}
 		}
 		
-		if (glyph != null) {
+		if (glyph != null  && (cursedKnown || !glyph.curse())) {
 			info += "\n\n" +  Messages.get(Armor.class, "inscribed", glyph.name());
+			info += " " + glyph.desc();
 		}
 		
 		if (cursed && isEquipped( Dungeon.hero )) {
@@ -322,31 +310,41 @@ public class Armor extends EquipableItem {
 
 	@Override
 	public Item random() {
-		if (Random.Float() < 0.4) {
-			int n = 1;
-			if (Random.Int( 3 ) == 0) {
-				n++;
-				if (Random.Int( 5 ) == 0) {
-					n++;
-				}
-			}
-			if (Random.Int( 2 ) == 0) {
-				upgrade( n );
-			} else {
-				degrade( n );
-				cursed = true;
-			}
+		float roll = Random.Float();
+		if (roll < 0.3f){
+			//30% chance to be level 0 and cursed
+			inscribe(Glyph.randomCurse());
+			cursed = true;
+			return this;
+		} else if (roll < 0.75f){
+			//45% chance to be level 0
+		} else if (roll < 0.95f){
+			//15% chance to be +1
+			upgrade(0);
+		} else {
+			//5% chance to be +2
+			upgrade(2);
 		}
-		
-		if (Random.Int( 10 ) == 0) {
+
+		//if not cursed, 16.67% chance to be inscribed (11.67% overall)
+		if (Random.Int(6) == 0)
 			inscribe();
-		}
-		
+
 		return this;
 	}
-	
-	public int typicalSTR() {
-		return 7 + tier * 2;
+
+	public int STRReq(){
+		return STRReq(level());
+	}
+
+	public int STRReq(int lvl){
+		lvl = Math.max(0, lvl);
+		int effectiveTier = tier;
+		if (glyph != null) effectiveTier += glyph.tierSTRAdjust();
+		effectiveTier = Math.max(0, effectiveTier);
+
+		//strength req decreases at +1,+3,+6,+10,etc.
+		return (8 + effectiveTier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 	
 	public int typicalDR() {
@@ -356,10 +354,10 @@ public class Armor extends EquipableItem {
 	@Override
 	public int price() {
 		int price = 10 * (1 << (tier - 1));
-		if (glyph != null) {
+		if (hasCurseGlyph()) {
 			price *= 1.5;
 		}
-		if (cursed && cursedKnown) {
+		if (cursedKnown && (cursed || hasCurseGlyph())) {
 			price /= 2;
 		}
 		if (levelKnown) {
@@ -392,32 +390,57 @@ public class Armor extends EquipableItem {
 		return inscribe( gl );
 	}
 
-	public boolean isInscribed() {
-		return glyph != null;
+	public boolean hasGlyph(Class<?extends Glyph> type) {
+		return glyph != null && glyph.getClass() == type;
+	}
+
+	public boolean hasGoodGlyph(){
+		return glyph != null && !glyph.curse();
+	}
+
+	public boolean hasCurseGlyph(){
+		return glyph != null && glyph.curse();
 	}
 	
 	@Override
 	public ItemSprite.Glowing glowing() {
-		return glyph != null ? glyph.glowing() : null;
+		return glyph != null && (cursedKnown || !glyph.curse()) ? glyph.glowing() : null;
 	}
 	
 	public static abstract class Glyph implements Bundlable {
 		
 		private static final Class<?>[] glyphs = new Class<?>[]{
-			Bounce.class, Affection.class, AntiEntropy.class, Multiplicity.class,
-			Potential.class, Metabolism.class, Stench.class, Viscosity.class,
-			Displacement.class, Entanglement.class };
-		
-		private static final float[] chances= new float[]{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+				Obfuscation.class, Swiftness.class, Stone.class, Potential.class,
+				Brimstone.class, Viscosity.class, Entanglement.class, Repulsion.class, Camouflage.class, Flow.class,
+				Affection.class, AntiMagic.class, Thorns.class };
+		private static final float[] chances= new float[]{
+				10, 10, 10, 10,
+				5, 5, 5, 5, 5, 5,
+				2, 2, 2 };
+
+		private static final Class<?>[] curses = new Class<?>[]{
+				AntiEntropy.class, Corrosion.class, Displacement.class, Metabolism.class, Multiplicity.class, Stench.class
+		};
 			
 		public abstract int proc( Armor armor, Char attacker, Char defender, int damage );
 		
 		public String name() {
-			return name( Messages.get(this, "glyph") );
+			if (!curse())
+				return name( Messages.get(this, "glyph") );
+			else
+				return name( Messages.get(Item.class, "curse"));
 		}
 		
 		public String name( String armorName ) {
 			return Messages.get(this, "name", armorName);
+		}
+
+		public String desc() {
+			return Messages.get(this, "desc");
+		}
+
+		public boolean curse() {
+			return false;
 		}
 		
 		@Override
@@ -428,10 +451,16 @@ public class Armor extends EquipableItem {
 		public void storeInBundle( Bundle bundle ) {
 		}
 		
-		public ItemSprite.Glowing glowing() {
-			return ItemSprite.Glowing.WHITE;
+		public abstract ItemSprite.Glowing glowing();
+
+		public int tierDRAdjust(){
+			return 0;
 		}
-		
+
+		public int tierSTRAdjust(){
+			return 0;
+		}
+
 		public boolean checkOwner( Char owner ) {
 			if (!owner.isAlive() && owner instanceof Hero) {
 
@@ -445,11 +474,20 @@ public class Armor extends EquipableItem {
 				return false;
 			}
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		public static Glyph random() {
 			try {
 				return ((Class<Glyph>)glyphs[ Random.chances( chances ) ]).newInstance();
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public static Glyph randomCurse(){
+			try {
+				return ((Class<Glyph>)Random.oneOf(curses)).newInstance();
 			} catch (Exception e) {
 				return null;
 			}

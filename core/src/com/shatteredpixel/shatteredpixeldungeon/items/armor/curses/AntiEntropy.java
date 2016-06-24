@@ -18,45 +18,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
+package com.shatteredpixel.shatteredpixeldungeon.items.armor.curses;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SnowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Random;
 
-public class Metabolism extends Glyph {
-	
-	private static ItemSprite.Glowing RED = new ItemSprite.Glowing( 0xCC0000 );
+public class AntiEntropy extends Glyph {
+
+	private static ItemSprite.Glowing BLACK = new ItemSprite.Glowing( 0x000000 );
 	
 	@Override
 	public int proc( Armor armor, Char attacker, Char defender, int damage) {
 
-		int level = Math.max( 0, armor.level() );
-		if (Random.Int( level / 2 + 5 ) >= 4) {
-			
-			int healing = Math.min( defender.HT - defender.HP, Random.Int( 1, defender.HT / 5 ) );
+		if (Random.Int( 8 ) == 0) {
 
-			if (healing > 0) {
-				
-				Hunger hunger = defender.buff( Hunger.class );
-				
-				if (hunger != null && !hunger.isStarving()) {
-					
-					hunger.reduceHunger( -Hunger.STARVING / 10 );
-					BuffIndicator.refreshHero();
-					
-					defender.HP += healing;
-					defender.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
-					defender.sprite.showStatus( CharSprite.POSITIVE, Integer.toString( healing ) );
-				}
+			if (Level.adjacent( attacker.pos, defender.pos )) {
+				Buff.prolong(attacker, Frost.class, Frost.duration(attacker) * Random.Float(0.5f, 1f));
+				CellEmitter.get(attacker.pos).start(SnowParticle.FACTORY, 0.2f, 6);
 			}
+			
+			Buff.affect( defender, Burning.class ).reignite( defender );
+			defender.sprite.emitter().burst( FlameParticle.FACTORY, 5 );
 
 		}
 		
@@ -65,6 +58,11 @@ public class Metabolism extends Glyph {
 
 	@Override
 	public Glowing glowing() {
-		return RED;
+		return BLACK;
+	}
+
+	@Override
+	public boolean curse() {
+		return true;
 	}
 }

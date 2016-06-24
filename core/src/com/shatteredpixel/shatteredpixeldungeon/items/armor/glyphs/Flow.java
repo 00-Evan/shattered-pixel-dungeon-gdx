@@ -18,15 +18,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
+package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 
-public class Instability extends Weapon.Enchantment {
-	
+public class Flow extends Armor.Glyph {
+
+	private static ItemSprite.Glowing BLUE = new ItemSprite.Glowing( 0x0000FF );
+
 	@Override
-	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		return random().proc( weapon, attacker, defender, damage );
+	public int proc(Armor armor, Char attacker, Char defender, int damage) {
+		//no proc effect, see hero.speed for effect.
+		return damage;
 	}
+
+	@Override
+	public ItemSprite.Glowing glowing() {
+		return BLUE;
+	}
+
 }

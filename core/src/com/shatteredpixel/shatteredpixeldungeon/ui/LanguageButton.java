@@ -83,7 +83,7 @@ public class LanguageButton extends Button {
 		//TODO fix this when language support is added
 		parent.add(new WndMessage("Language support is not currently functional due to issues porting the new text system.\n\n" +
 				"The desktop version will remain updated for the time being, but in English only.\n\n" +
-				"A fix is being worked on, thanks for your patience."));
+				"A fix will be released for this in time, thanks for your patience."));
 	}
 
 }

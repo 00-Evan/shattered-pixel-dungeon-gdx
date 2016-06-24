@@ -20,46 +20,34 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Fire extends Weapon.Enchantment {
+public class Lucky extends Weapon.Enchantment {
 
-	private static ItemSprite.Glowing ORANGE = new ItemSprite.Glowing( 0xFF4400 );
+	private static ItemSprite.Glowing GREEN = new ItemSprite.Glowing( 0x00FF00 );
 	
 	@Override
-	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 33%
-		// lvl 1 - 50%
-		// lvl 2 - 60%
+	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
 		int level = Math.max( 0, weapon.level() );
-		
-		if (Random.Int( level + 3 ) >= 2) {
-			
-			if (Random.Int( 2 ) == 0) {
-				Buff.affect( defender, Burning.class ).reignite( defender );
-			}
-			defender.damage( Random.Int( 1, level + 2 ), this );
-			
-			defender.sprite.emitter().burst( FlameParticle.FACTORY, level + 1 );
-			
-			return true;
-			
+
+		if (Random.Int(100) < (50 + level)){
+			int exStr = 0;
+			if (attacker == Dungeon.hero) exStr = Math.max(0, Dungeon.hero.STR() - weapon.STRReq());
+			damage = weapon.imbue.damageFactor(weapon.max()) + exStr - Random.IntRange(0, defender.dr());
 		} else {
-			
-			return false;
-			
+			damage = weapon.imbue.damageFactor(weapon.min()) - Random.IntRange(0, defender.dr());
 		}
+
+		return Math.max(0, damage);
 	}
-	
+
 	@Override
 	public Glowing glowing() {
-		return ORANGE;
+		return GREEN;
 	}
 }

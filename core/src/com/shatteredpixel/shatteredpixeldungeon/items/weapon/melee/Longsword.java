@@ -25,11 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 public class Longsword extends MeleeWeapon {
 	
 	{
-		image = ItemSpriteSheet.LONG_SWORD;
-	}
-	
-	public Longsword() {
-		super( 4, 1f, 1f );
+		image = ItemSpriteSheet.LONGSWORD;
+
+		tier = 4;
 	}
 
 }

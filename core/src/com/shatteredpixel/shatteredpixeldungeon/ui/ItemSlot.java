@@ -166,7 +166,7 @@ public class ItemSlot extends Button<GameAction> {
 				
 				if (item.levelKnown || (isWeapon && !(item instanceof MeleeWeapon))) {
 					
-					int str = isArmor ? ((Armor)item).STR : ((Weapon)item).STR;
+					int str = isArmor ? ((Armor)item).STRReq() : ((Weapon)item).STRReq();
 					topRight.text( Messages.format( TXT_STRENGTH, str ) );
 					if (str > Dungeon.hero.STR()) {
 						topRight.hardlight( DEGRADED );
@@ -177,8 +177,8 @@ public class ItemSlot extends Button<GameAction> {
 				} else {
 					
 					topRight.text( Messages.format( TXT_TYPICAL_STR, isArmor ?
-						((Armor)item).typicalSTR() :
-						((MeleeWeapon)item).typicalSTR() ) );
+						((Armor)item).STRReq(0) :
+						((Weapon)item).STRReq(0) ) );
 					topRight.hardlight( WARNING );
 					
 				}

@@ -33,11 +33,6 @@ import com.watabou.utils.Random;
 
 public class Artifact extends KindofMisc {
 
-	private static final String TXT_TO_STRING		        = "%s";
-	private static final String TXT_TO_STRING_CHARGE		= "%s (%d/%d)";
-	private static final String TXT_TO_STRING_LVL	        = "%s%+d";
-	private static final String TXT_TO_STRING_LVL_CHARGE	= "%s%+d (%d/%d)";
-
 	protected Buff passiveBuff;
 	protected Buff activeBuff;
 
@@ -118,7 +113,7 @@ public class Artifact extends KindofMisc {
 
 	@Override
 	public int visiblyUpgraded() {
-		return ((level()*10)/levelCap);
+		return levelKnown ? Math.round((level()*10)/(float)levelCap): 0;
 	}
 
 	//transfers upgrades from another artifact, transfer level will equal the displayed level
@@ -136,24 +131,6 @@ public class Artifact extends KindofMisc {
 
 			return desc();
 
-		}
-	}
-
-	@Override
-	public String toString() {
-
-		if (levelKnown && level()/levelCap != 0) {
-			if (chargeCap > 0) {
-				return Messages.format( TXT_TO_STRING_LVL_CHARGE, name(), visiblyUpgraded(), charge, chargeCap );
-			} else {
-				return Messages.format( TXT_TO_STRING_LVL, name(), visiblyUpgraded() );
-			}
-		} else {
-			if (chargeCap > 0) {
-				return Messages.format( TXT_TO_STRING_CHARGE, name(), charge, chargeCap );
-			} else {
-				return Messages.format( TXT_TO_STRING, name() );
-			}
 		}
 	}
 
@@ -241,7 +218,6 @@ public class Artifact extends KindofMisc {
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
-		bundle.put( IMAGE, image );
 		bundle.put( EXP , exp );
 		bundle.put( CHARGE , charge );
 		bundle.put( PARTIALCHARGE , partialCharge );
@@ -250,7 +226,6 @@ public class Artifact extends KindofMisc {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
-		if (bundle.contains( IMAGE )) image = bundle.getInt( IMAGE );
 		exp = bundle.getInt( EXP );
 		charge = bundle.getInt( CHARGE );
 		partialCharge = bundle.getFloat( PARTIALCHARGE );

@@ -54,6 +54,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Obfuscation;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
@@ -78,6 +83,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -170,9 +176,7 @@ public class Hero extends Char {
 	public int STR() {
 		int STR = this.STR;
 
-		for (Buff buff : buffs(RingOfMight.Might.class)) {
-			STR += ((RingOfMight.Might)buff).level;
-		}
+		STR += RingOfMight.getBonus(this, RingOfMight.Might.class);
 
 		return weakened ? STR - 2 : STR;
 	}
@@ -261,7 +265,7 @@ public class Hero extends Char {
 
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		if (wep != null) {
-			return (int)(attackSkill * accuracy * wep.acuracyFactor( this ));
+			return (int)(attackSkill * accuracy * wep.accuracyFactor( this ));
 		} else {
 			return (int)(attackSkill * accuracy);
 		}
@@ -270,37 +274,38 @@ public class Hero extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 		
-		int bonus = 0;
-		for (Buff buff : buffs( RingOfEvasion.Evasion.class )) {
-			bonus += ((RingOfEvasion.Evasion)buff).effectiveLevel;
-		}
+		int bonus = RingOfEvasion.getBonus(this, RingOfEvasion.Evasion.class);
 
 		float evasion = (float)Math.pow( 1.15, bonus );
 		if (paralysed > 0) {
 			evasion /= 2;
 		}
 		
-		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 9 - STR();
+		int aEnc = belongings.armor != null ? belongings.armor.STRReq() - STR() : 10 - STR();
 		
 		if (aEnc > 0) {
 			return (int)(defenseSkill * evasion / Math.pow( 1.5, aEnc ));
 		} else {
-			
-			if (heroClass == HeroClass.ROGUE) {
-				return (int)((defenseSkill - aEnc) * evasion);
-			} else {
-				return (int)(defenseSkill * evasion);
-			}
+
+			bonus = 0;
+			if (heroClass == HeroClass.ROGUE) bonus += -aEnc;
+
+			if (belongings.armor != null && belongings.armor.hasGlyph(Swiftness.class))
+				bonus += 5 + belongings.armor.level()*1.5f;
+
+			return Math.round((defenseSkill + bonus) * evasion);
 		}
 	}
 	
 	@Override
 	public int dr() {
-		int dr = belongings.armor != null ? Math.max( belongings.armor.DR(), 0 ) : 0;
-		Barkskin barkskin = buff( Barkskin.class );
-		if (barkskin != null) {
-			dr += barkskin.level();
-		}
+		int dr = 0;
+		Barkskin bark = buff(Barkskin.class);
+
+		if (belongings.armor != null)   dr += Math.max( belongings.armor.DR(), 0);
+		if (belongings.weapon != null)  dr += Math.max( belongings.weapon.defenceFactor( this ), 0 );
+		if (bark != null)               dr += bark.level();
+
 		return dr;
 	}
 	
@@ -308,16 +313,13 @@ public class Hero extends Char {
 	public int damageRoll() {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		int dmg;
-		int bonus = 0;
-		for (Buff buff : buffs( RingOfForce.Force.class )) {
-			bonus += ((RingOfForce.Force)buff).level;
-		}
+		int bonus = RingOfForce.getBonus(this, RingOfForce.Force.class);
 
 		if (wep != null) {
 			dmg = wep.damageRoll( this ) + bonus;
 		} else {
 			if (bonus != 0){
-				dmg = Random.NormalIntRange( RingOfForce.min(bonus, STR()), RingOfForce.max(bonus, STR()) );
+				dmg = RingOfForce.damageRoll(this);
 			} else {
 				dmg = Random.NormalIntRange(1, Math.max(STR()-8, 1));
 			}
@@ -334,18 +336,26 @@ public class Hero extends Char {
 
 		float speed = super.speed();
 
-		int hasteLevel = 0;
-		for (Buff buff : buffs( RingOfHaste.Haste.class )) {
-			hasteLevel += ((RingOfHaste.Haste)buff).level;
-		}
+		int hasteLevel = RingOfHaste.getBonus(this, RingOfHaste.Haste.class);
 
 		if (hasteLevel != 0)
 			speed *= Math.pow(1.2, hasteLevel);
+
+		Armor armor = belongings.armor;
+
+		if (armor != null){
+
+			if (armor.hasGlyph(Swiftness.class)) {
+				speed *= (1.1f + 0.01f * belongings.armor.level());
+			} else if (armor.hasGlyph(Flow.class) && Level.water[pos]){
+				speed *= (1.5f + 0.05f * belongings.armor.level());
+			}
+		}
 		
-		int aEnc = belongings.armor != null ? belongings.armor.STR - STR() : 0;
+		int aEnc = armor != null ? armor.STRReq() - STR() : 0;
 		if (aEnc > 0) {
 			
-			return (float)(speed * Math.pow( 1.3, -aEnc ));
+			return (float)(speed / Math.pow( 1.2, aEnc ));
 			
 		} else {
 
@@ -356,6 +366,15 @@ public class Hero extends Char {
 					speed;
 			
 		}
+	}
+
+	public boolean encumbered(){
+		return (belongings.weapon != null
+				&& belongings.weapon instanceof Weapon
+				&& STR() < ((Weapon)belongings.weapon).STRReq())
+				||
+				(belongings.armor != null
+				&& STR() < belongings.armor.STRReq());
 	}
 
 	public boolean canAttack(Char enemy){
@@ -389,10 +408,7 @@ public class Hero extends Char {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
 			//But there's going to be that one guy who gets a furor+force ring combo
 			//This is for that one guy, you shall get your fists of fury!
-			int bonus = 0;
-			for (Buff buff : buffs(RingOfFuror.Furor.class)) {
-				bonus += ((RingOfFuror.Furor)buff).level;
-			}
+			int bonus = RingOfFuror.getBonus(this, RingOfFuror.Furor.class);
 			return (float)(0.25 + (1 - 0.25)*Math.pow(0.8, bonus));
 		}
 	}
@@ -852,6 +868,10 @@ public class Hero extends Char {
 
 		}
 	}
+
+	public Char enemy(){
+		return enemy;
+	}
 	
 	public void rest( boolean fullRest ) {
 		spendAndNext( TIME_TO_REST );
@@ -865,7 +885,7 @@ public class Hero extends Char {
 	public int attackProc( Char enemy, int damage ) {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 
-		if (wep != null)  wep.proc( this, enemy, damage );
+		if (wep != null) damage = wep.proc( this, enemy, damage );
 			
 		switch (subClass) {
 		case SNIPER:
@@ -920,12 +940,15 @@ public class Hero extends Char {
 			dmg = thorns.proc(dmg, (src instanceof Char ? (Char)src : null),  this);
 		}
 
-		int tenacity = 0;
-		for (Buff buff : buffs(RingOfTenacity.Tenacity.class)) {
-			tenacity += ((RingOfTenacity.Tenacity)buff).level;
-		}
+		int tenacity = RingOfTenacity.getBonus(this, RingOfTenacity.Tenacity.class);
 		if (tenacity != 0) //(HT - HP)/HT = heroes current % missing health.
 			dmg = (int)Math.ceil((float)dmg * Math.pow(0.9, tenacity*((float)(HT - HP)/HT)));
+
+		//TODO improve this when I have proper damage source logic
+		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
+				&& RingOfElements.FULL.contains(src.getClass())){
+			dmg -= Random.IntRange(0, belongings.armor.DR()/2);
+		}
 
 		super.damage( dmg, src );
 	}
@@ -1169,11 +1192,7 @@ public class Hero extends Char {
 				GLog.w(msg);
 			}
 
-			if (buff instanceof RingOfMight.Might) {
-				if (((RingOfMight.Might) buff).level > 0) {
-					HT += ((RingOfMight.Might) buff).level * 5;
-				}
-			} else if (buff instanceof Paralysis || buff instanceof Vertigo) {
+			if (buff instanceof Paralysis || buff instanceof Vertigo) {
 				interrupt();
 			}
 
@@ -1185,14 +1204,7 @@ public class Hero extends Char {
 	@Override
 	public void remove( Buff buff ) {
 		super.remove( buff );
-		
-		if (buff instanceof RingOfMight.Might){
-			if (((RingOfMight.Might)buff).level > 0){
-				HT -= ((RingOfMight.Might) buff).level * 5;
-				HP = Math.min(HT, HP);
-			}
-		}
-		
+
 		BuffIndicator.refreshHero();
 	}
 	
@@ -1201,6 +1213,9 @@ public class Hero extends Char {
 		int stealth = super.stealth();
 		for (Buff buff : buffs( RingOfEvasion.Evasion.class )) {
 			stealth += ((RingOfEvasion.Evasion)buff).effectiveLevel;
+		}
+		if (belongings.armor != null && belongings.armor.hasGlyph(Obfuscation.class)){
+			stealth += belongings.armor.level();
 		}
 		return stealth;
 	}

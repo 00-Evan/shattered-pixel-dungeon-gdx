@@ -33,18 +33,21 @@ public class CurareDart extends MissileWeapon {
 	
 	{
 		image = ItemSpriteSheet.CURARE_DART;
-		
-		STR = 14;
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 1;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
 		return 3;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
+		return 14;
 	}
 
 	public CurareDart() {
@@ -57,9 +60,9 @@ public class CurareDart extends MissileWeapon {
 	}
 	
 	@Override
-	public void proc( Char attacker, Char defender, int damage ) {
+	public int proc( Char attacker, Char defender, int damage ) {
 		Buff.prolong( defender, Paralysis.class, DURATION );
-		super.proc( attacker, defender, damage );
+		return super.proc( attacker, defender, damage );
 	}
 	
 	@Override

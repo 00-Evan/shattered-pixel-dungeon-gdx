@@ -28,20 +28,23 @@ public class Shuriken extends MissileWeapon {
 
 	{
 		image = ItemSpriteSheet.SHURIKEN;
-		
-		STR = 13;
 
 		DLY = 0.5f;
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 2;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
 		return 6;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
+		return 13;
 	}
 
 	public Shuriken() {

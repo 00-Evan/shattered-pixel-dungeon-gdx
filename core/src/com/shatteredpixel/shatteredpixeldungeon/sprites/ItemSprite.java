@@ -62,7 +62,7 @@ public class ItemSprite extends MovieClip {
 	private float dropInterval;
 	
 	public ItemSprite() {
-		this( ItemSpriteSheet.SMTH, null );
+		this( ItemSpriteSheet.SOMETHING, null );
 	}
 	
 	public ItemSprite( Item item ) {
@@ -270,8 +270,6 @@ public class ItemSprite extends MovieClip {
 	}
 	
 	public static class Glowing {
-		
-		public static final Glowing WHITE = new Glowing( 0xFFFFFF, 0.6f );
 		
 		public int color;
 		public float red;

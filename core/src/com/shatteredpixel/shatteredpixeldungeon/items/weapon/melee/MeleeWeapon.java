@@ -24,40 +24,21 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.watabou.utils.Random;
 
 public class MeleeWeapon extends Weapon {
 	
-	private int tier;
-	
-	public MeleeWeapon( int tier, float acu, float dly ) {
-		super();
-		
-		this.tier = tier;
-		
-		ACU = acu;
-		DLY = dly;
-		
-		STR = typicalSTR();
+	public int tier;
 
-	}
-	
-	protected int minBase() {
-		return tier;
-	}
-
-	protected int maxBase() {
-		return (int)((tier * tier - tier + 10) / ACU * DLY);
+	@Override
+	public int min(int lvl) {
+		return  tier +  //base
+				lvl;    //level scaling
 	}
 
 	@Override
-	public int min() {
-		return minBase() + level();
-	}
-
-	@Override
-	public int max() {
-		return maxBase() + level() * tier;
+	public int max(int lvl) {
+		return  5*(tier+1) +    //base
+				lvl*(tier+1);   //level scaling
 	}
 
 	@Override
@@ -65,69 +46,57 @@ public class MeleeWeapon extends Weapon {
 		return upgrade( false );
 	}
 	
-	public Item upgrade( boolean enchant ) {
-		STR--;
-		
-		return super.upgrade( enchant );
-	}
-	
 	public Item safeUpgrade() {
 		return upgrade( enchantment != null );
 	}
-	
-	@Override
-	public Item degrade() {
-		STR++;
-		return super.degrade();
-	}
-	
-	public int typicalSTR() {
-		return 8 + tier * 2;
+
+	public int STRReq(int lvl){
+		lvl = Math.max(0, lvl);
+		//strength req decreases at +1,+3,+6,+10,etc.
+		return (8 + tier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 	
 	@Override
 	public String info() {
-		String name = name();
-		
+
 		String info = desc();
 
-		info += "\n\n" + Messages.get(MeleeWeapon.class, "tier", tier);
-
 		if (levelKnown) {
-			int min = min();
-			int max = max();
-			float dmgfactor = (imbue == Imbue.LIGHT ? 0.7f : imbue == Imbue.HEAVY ? 1.5f : 1);
-			info += " " + Messages.get(Weapon.class, "avg_dmg", Math.round((min + (max - min) / 2)*dmgfactor));
+			info += "\n\n" + Messages.get(MeleeWeapon.class, "stats_known", tier, imbue.damageFactor(min()), imbue.damageFactor(max()), STRReq());
+			if (STRReq() > Dungeon.hero.STR()) {
+				info += " " + Messages.get(Weapon.class, "too_heavy");
+			} else if (Dungeon.hero.STR() > STRReq()){
+				info += " " + Messages.get(Weapon.class, "excess_str", Dungeon.hero.STR() - STRReq());
+			}
 		} else {
-			int min = minBase();
-			int max = maxBase();
-			info += " " + Messages.get(MeleeWeapon.class, "unknown", (min + (max - min) / 2), typicalSTR());
-			if (typicalSTR() > Dungeon.hero.STR()) {
+			info += "\n\n" + Messages.get(MeleeWeapon.class, "stats_unknown", tier, min(0), max(0), STRReq(0));
+			if (STRReq(0) > Dungeon.hero.STR()) {
 				info += " " + Messages.get(MeleeWeapon.class, "probably_too_heavy");
 			}
-		}
-
-		switch (imbue) {
-			case LIGHT:
-				info += " " + Messages.get(Weapon.class, "lighter");
-				break;
-			case HEAVY:
-				info += " " + Messages.get(Weapon.class, "heavier");
-				break;
-			case NONE:
 		}
 
 		String stats_desc = Messages.get(this, "stats_desc");
 		if (!stats_desc.equals("")) info+= "\n\n" + stats_desc;
 
-		if (levelKnown && STR > Dungeon.hero.STR()) {
-			info += "\n\n" + Messages.get(Weapon.class, "too_heavy");
+		switch (imbue) {
+			case LIGHT:
+				info += "\n\n" + Messages.get(Weapon.class, "lighter");
+				break;
+			case HEAVY:
+				info += "\n\n" + Messages.get(Weapon.class, "heavier");
+				break;
+			case NONE:
+		}
+
+		if (enchantment != null && (cursedKnown || !enchantment.curse())){
+			info += "\n\n" + Messages.get(Weapon.class, "enchanted", enchantment.name());
+			info += " " + Messages.get(enchantment, "desc");
 		}
 
 		if (cursed && isEquipped( Dungeon.hero )) {
-			info += "\n\n" + Messages.get(MeleeWeapon.class, "cursed_worn");
+			info += "\n\n" + Messages.get(Weapon.class, "cursed_worn");
 		} else if (cursedKnown && cursed) {
-			info += "\n\n" + Messages.get(MeleeWeapon.class, "cursed");
+			info += "\n\n" + Messages.get(Weapon.class, "cursed");
 		}
 		
 		return info;
@@ -136,10 +105,10 @@ public class MeleeWeapon extends Weapon {
 	@Override
 	public int price() {
 		int price = 20 * (1 << (tier - 1));
-		if (enchantment != null) {
+		if (hasGoodEnchant()) {
 			price *= 1.5;
 		}
-		if (cursed && cursedKnown) {
+		if (cursedKnown && (cursed || hasCurseEnchant())) {
 			price /= 2;
 		}
 		if (levelKnown) {
@@ -154,15 +123,5 @@ public class MeleeWeapon extends Weapon {
 		}
 		return price;
 	}
-	
-	@Override
-	public Item random() {
-		super.random();
-		
-		if (Random.Int( 10 + level() ) == 0) {
-			enchant();
-		}
-		
-		return this;
-	}
+
 }

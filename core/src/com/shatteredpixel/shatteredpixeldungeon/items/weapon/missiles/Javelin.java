@@ -31,17 +31,20 @@ public class Javelin extends MissileWeapon {
 
 	{
 		image = ItemSpriteSheet.JAVELIN;
-		
-		STR = 15;
 	}
 
 	@Override
-	public int min() {
+	public int min(int lvl) {
 		return 2;
 	}
 
 	@Override
-	public int max() {
+	public int max(int lvl) {
+		return 15;
+	}
+
+	@Override
+	public int STRReq(int lvl) {
 		return 15;
 	}
 
@@ -55,9 +58,9 @@ public class Javelin extends MissileWeapon {
 	}
 	
 	@Override
-	public void proc( Char attacker, Char defender, int damage ) {
-		super.proc( attacker, defender, damage );
+	public int proc( Char attacker, Char defender, int damage ) {
 		Buff.prolong( defender, Cripple.class, Cripple.DURATION );
+		return super.proc( attacker, defender, damage );
 	}
 	
 	@Override
