@@ -35,9 +35,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Bundle {
 
@@ -355,7 +358,18 @@ public class Bundle {
 	public static Bundle read( InputStream stream ) throws IOException {
 
 		try {
-			BufferedReader reader = new BufferedReader( new InputStreamReader( stream ) );
+			BufferedReader reader;
+
+			//determines if we're reading a regular, or compressed file
+			PushbackInputStream pb = new PushbackInputStream( stream, 2 );
+			byte[] header = new byte[2];
+			pb.unread(header, 0, pb.read(header));
+			//GZIP header is 0x1f8b
+			if( header[ 0 ] == (byte) 0x1f && header[ 1 ] == (byte) 0x8b )
+				reader = new BufferedReader( new InputStreamReader( new GZIPInputStream( pb, GZIP_BUFFER ) ) );
+			else
+				reader = new BufferedReader( new InputStreamReader( pb ) );
+
 			JSONObject json = (JSONObject)new JSONTokener( reader.readLine() ).nextValue();
 			reader.close();
 
@@ -364,7 +378,12 @@ public class Bundle {
 			throw new IOException();
 		}
 	}
-	
+
+	//useful to turn this off for save data debugging.
+	private static final boolean compressByDefault = true;
+
+	private static final int GZIP_BUFFER = 1024*4; //4 kb
+
 	public static Bundle read( byte[] bytes ) {
 		try {
 			
@@ -376,9 +395,16 @@ public class Bundle {
 		}
 	}
 
-	public static boolean write( Bundle bundle, OutputStream stream ) {
+	public static boolean write( Bundle bundle, OutputStream stream ){
+		return write(bundle, stream, compressByDefault);
+	}
+
+	public static boolean write( Bundle bundle, OutputStream stream, boolean compressed ) {
 		try {
-			BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( stream ) );
+			BufferedWriter writer;
+			if (compressed) writer = new BufferedWriter( new OutputStreamWriter( new GZIPOutputStream(stream, GZIP_BUFFER ) ) );
+			else writer = new BufferedWriter( new OutputStreamWriter( stream ) );
+
 			writer.write( bundle.data.toString() );
 			writer.close();
 

@@ -49,6 +49,10 @@ public class MovieClip extends Image {
 			updateAnimation();
 		}
 	}
+
+	public boolean looping(){
+		return curAnim != null && curAnim.looped;
+	}
 	
 	protected void updateAnimation() {
 		if (curAnim != null && curAnim.delay > 0 && (curAnim.looped || !finished)) {
