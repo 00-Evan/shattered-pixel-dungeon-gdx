@@ -46,12 +46,20 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-public class WandOfPrismaticLight extends Wand {
+public class WandOfPrismaticLight extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_PRISMATIC_LIGHT;
 
 		collisionProperties = Ballistica.MAGIC_BOLT;
+	}
+
+	public int min(int lvl){
+		return 1+lvl;
+	}
+
+	public int max(int lvl){
+		return 5+3*lvl;
 	}
 
 	@Override
@@ -68,11 +76,11 @@ public class WandOfPrismaticLight extends Wand {
 	}
 
 	private void affectTarget(Char ch){
-		int dmg = Random.NormalIntRange(level(), (int) (8+(level()*(level()/5f))));
+		int dmg = damageRoll();
 
 		//three in (5+lvl) chance of failing
 		if (Random.Int(5+level()) >= 3) {
-			Buff.prolong(ch, Blindness.class, 2f + (level() * 0.34f));
+			Buff.prolong(ch, Blindness.class, 2f + (level() * 0.333f));
 			ch.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 6 );
 		}
 
@@ -80,7 +88,7 @@ public class WandOfPrismaticLight extends Wand {
 			ch.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10+level() );
 			Sample.INSTANCE.play(Assets.SND_BURNING);
 
-			ch.damage((int)(dmg*1.5), this);
+			ch.damage(Math.round(dmg*1.333f), this);
 		} else {
 			ch.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+level() );
 

@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
@@ -57,6 +58,7 @@ public class Piranha extends Mob {
 	protected boolean act() {
 		if (!Level.water[pos]) {
 			die( null );
+			sprite.killAndErase();
 			return true;
 		} else {
 			//this causes pirahna to move away when a door is closed on them.
@@ -91,8 +93,8 @@ public class Piranha extends Mob {
 	}
 	
 	@Override
-	public int dr() {
-		return Dungeon.depth;
+	public int drRoll() {
+		return Random.NormalIntRange(0, Dungeon.depth);
 	}
 	
 	@Override
@@ -145,6 +147,7 @@ public class Piranha extends Mob {
 		IMMUNITIES.add( Burning.class );
 		IMMUNITIES.add( Paralysis.class );
 		IMMUNITIES.add( ToxicGas.class );
+		IMMUNITIES.add( VenomGas.class );
 		IMMUNITIES.add( Roots.class );
 		IMMUNITIES.add( Frost.class );
 	}

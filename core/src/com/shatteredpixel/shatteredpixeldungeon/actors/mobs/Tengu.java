@@ -76,7 +76,7 @@ public class Tengu extends Mob {
 
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( 8, 15 );
+		return Random.NormalIntRange( 6, 20 );
 	}
 	
 	@Override
@@ -85,8 +85,8 @@ public class Tengu extends Mob {
 	}
 	
 	@Override
-	public int dr() {
-		return 5;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 5);
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class Tengu extends Mob {
 
 	@Override
 	public boolean isAlive() {
-		return HP > 0 || Dungeon.level.mobs.contains(this); //Tengu has special death rules, see prisonbosslevel.progress()
+		return Dungeon.level.mobs.contains(this); //Tengu has special death rules, see prisonbosslevel.progress()
 	}
 
 	@Override

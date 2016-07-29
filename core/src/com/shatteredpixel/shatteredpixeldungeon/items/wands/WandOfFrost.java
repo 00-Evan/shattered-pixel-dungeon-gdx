@@ -39,10 +39,18 @@ import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
-public class WandOfFrost extends Wand {
+public class WandOfFrost extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_FROST;
+	}
+
+	public int min(int lvl){
+		return 2+lvl;
+	}
+
+	public int max(int lvl){
+		return 8+5*lvl;
 	}
 
 	@Override
@@ -56,13 +64,15 @@ public class WandOfFrost extends Wand {
 		Char ch = Actor.findChar(bolt.collisionPos);
 		if (ch != null){
 
-			int damage = Random.NormalIntRange(5+level(), 10+(level()*level()/3));
+			int damage = damageRoll();
 
 			if (ch.buff(Frost.class) != null){
 				return; //do nothing, can't affect a frozen target
 			}
 			if (ch.buff(Chill.class) != null){
-				damage = Math.round(damage * ch.buff(Chill.class).speedFactor());
+				//5% less damage per turn of chill remaining
+				float chill = ch.buff(Chill.class).cooldown();
+				damage = (int)Math.round(damage * Math.pow(0.95f, chill));
 			} else {
 				ch.sprite.burst( 0xFF99CCFF, level() / 2 + 2 );
 			}
@@ -71,15 +81,10 @@ public class WandOfFrost extends Wand {
 			ch.damage(damage, this);
 
 			if (ch.isAlive()){
-				if (Level.water[ch.pos]){
-					//20+(10*level)% chance
-					if (Random.Int(10) >= 8-level() )
-						Buff.affect(ch, Frost.class, Frost.duration(ch)*Random.Float(2f, 4f));
-					else
-						Buff.prolong(ch, Chill.class, 6+level());
-				} else {
+				if (Level.water[ch.pos])
 					Buff.prolong(ch, Chill.class, 4+level());
-				}
+				else
+					Buff.prolong(ch, Chill.class, 2+level());
 			}
 		}
 	}
@@ -91,10 +96,9 @@ public class WandOfFrost extends Wand {
 	}
 
 	@Override
-	//TODO: balancing, this could be mighty OP
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
 		Chill chill = defender.buff(Chill.class);
-		if (chill != null && Random.Float() > chill.speedFactor()){
+		if (chill != null && Random.IntRange(2, 10) > chill.cooldown()){
 			//need to delay this through an actor so that the freezing isn't broken by taking damage from the staff hit.
 			new FlavourBuff(){
 				{actPriority = Integer.MIN_VALUE;}

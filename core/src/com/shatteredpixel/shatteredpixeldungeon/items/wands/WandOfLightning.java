@@ -40,7 +40,7 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-public class WandOfLightning extends Wand {
+public class WandOfLightning extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_LIGHTNING;
@@ -49,20 +49,29 @@ public class WandOfLightning extends Wand {
 	private ArrayList<Char> affected = new ArrayList<>();
 
 	ArrayList<Lightning.Arc> arcs = new ArrayList<>();
+
+	public int min(int lvl){
+		return 5+lvl;
+	}
+
+	public int max(int lvl){
+		return 10+5*lvl;
+	}
 	
 	@Override
 	protected void onZap( Ballistica bolt ) {
 
 		//lightning deals less damage per-target, the more targets that are hit.
 		float multipler = 0.4f + (0.6f/affected.size());
-		if (Level.water[bolt.collisionPos]) multipler *= 1.5f;
+		//if the main target is in water, all affected take full damage
+		if (Level.water[bolt.collisionPos]) multipler = 1f;
 
-		int min = 5+level();
-		int max = Math.round(10 + (level() * level() / 4f));
+		int min = 5 + level();
+		int max = 10 + 5*level();
 
 		for (Char ch : affected){
 			processSoulMark(ch, chargesPerCast());
-			ch.damage(Math.round(Random.NormalIntRange(min, max) * multipler), LightningTrap.LIGHTNING);
+			ch.damage(Math.round(damageRoll() * multipler), LightningTrap.LIGHTNING);
 
 			if (ch == Dungeon.hero) Camera.main.shake( 2, 0.3f );
 			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );

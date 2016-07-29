@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Chains;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -59,7 +60,7 @@ public class Guard extends Mob {
 
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange(4, 10);
+		return Random.NormalIntRange(4, 12);
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class Guard extends Mob {
 
 		Ballistica chain = new Ballistica(pos, target, Ballistica.PROJECTILE);
 
-		if (chain.collisionPos != enemy.pos || Level.pit[chain.path.get(1)])
+		if (chain.collisionPos != enemy.pos || chain.path.size() < 2 || Level.pit[chain.path.get(1)])
 			return false;
 		else {
 			int newPos = -1;
@@ -107,14 +108,17 @@ public class Guard extends Mob {
 				yell( Messages.get(this, "scorpion") );
 				sprite.parent.add(new Chains(pos, enemy.pos, new Callback() {
 					public void call() {
-						Actor.addDelayed(new Pushing(enemy, enemy.pos, newPosFinal), -1);
-						enemy.pos = newPosFinal;
-						Dungeon.level.press(newPosFinal, enemy);
-						Cripple.prolong(enemy, Cripple.class, 4f);
-						if (enemy == Dungeon.hero) {
-							Dungeon.hero.interrupt();
-							Dungeon.observe();
-						}
+						Actor.addDelayed(new Pushing(enemy, enemy.pos, newPosFinal, new Callback(){
+							public void call() {
+								enemy.pos = newPosFinal;
+								Dungeon.level.press(newPosFinal, enemy);
+								Cripple.prolong(enemy, Cripple.class, 4f);
+								if (enemy == Dungeon.hero) {
+									Dungeon.hero.interrupt();
+									Dungeon.observe();
+								}
+							}
+						}), -1);
 						next();
 					}
 				}));
@@ -130,15 +134,21 @@ public class Guard extends Mob {
 	}
 
 	@Override
-	public int dr() {
-		return 9;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 8);
 	}
 
 	@Override
 	protected Item createLoot() {
 		//first see if we drop armor, overall chance is 1/8
 		if (Random.Int(2) == 0){
-			return Generator.randomArmor();
+			Armor loot;
+			do{
+				loot = Generator.randomArmor();
+				//50% chance of re-rolling tier 4 or 5 items
+			} while (loot.tier >= 4 && Random.Int(2) == 0);
+			loot.level(0);
+			return loot;
 		//otherwise, we may drop a health potion. overall chance is 7/(8 * (7 + potions dropped))
 		//with 0 potions dropped that simplifies to 1/8
 		} else {

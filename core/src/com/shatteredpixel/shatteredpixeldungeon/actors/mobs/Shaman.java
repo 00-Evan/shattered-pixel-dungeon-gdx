@@ -56,7 +56,7 @@ public class Shaman extends Mob implements Callback {
 	
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( 2, 6 );
+		return Random.NormalIntRange( 2, 8 );
 	}
 	
 	@Override
@@ -65,8 +65,8 @@ public class Shaman extends Mob implements Callback {
 	}
 	
 	@Override
-	public int dr() {
-		return 4;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 4);
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class Shaman extends Mob implements Callback {
 			spend( TIME_TO_ZAP );
 			
 			if (hit( this, enemy, true )) {
-				int dmg = (int)(damageRoll()*1.5f);
+				int dmg = Random.NormalIntRange(3, 10);
 				if (Level.water[enemy.pos] && !enemy.flying) {
 					dmg *= 1.5f;
 				}

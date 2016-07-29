@@ -173,6 +173,7 @@ public class Armor extends EquipableItem {
 		if (seal.level() > 0){
 			//doesn't trigger upgrading logic such as affecting curses/glyphs
 			level(level()+1);
+			Badges.validateItemLevelAquired(this);
 		}
 		if (isEquipped(Dungeon.hero)){
 			Buff.affect(Dungeon.hero, BrokenSeal.WarriorShield.class).setArmor(this);
@@ -211,13 +212,28 @@ public class Armor extends EquipableItem {
 	public boolean isEquipped( Hero hero ) {
 		return hero.belongings.armor == this;
 	}
-	
-	public int DR(){
+
+	public final int DRMax(){
+		return DRMax(level());
+	}
+
+	public int DRMax(int lvl){
 		int effectiveTier = tier;
 		if (glyph != null) effectiveTier += glyph.tierDRAdjust();
 		effectiveTier = Math.max(0, effectiveTier);
 
-		return effectiveTier * (2 + level());
+		return Math.max(DRMin(lvl), effectiveTier * (2 + lvl));
+	}
+
+	public final int DRMin(){
+		return DRMin(level());
+	}
+
+	public int DRMin(int lvl){
+		if (glyph != null && glyph instanceof Stone)
+			return 2 + 2*lvl;
+		else
+			return lvl;
 	}
 
 	@Override
@@ -267,7 +283,7 @@ public class Armor extends EquipableItem {
 		String info = desc();
 		
 		if (levelKnown) {
-			info += "\n\n" + Messages.get(Armor.class, "curr_absorb", DR(), STRReq());
+			info += "\n\n" + Messages.get(Armor.class, "curr_absorb", DRMin(), DRMax(), STRReq());
 			
 			if (STRReq() > Dungeon.hero.STR()) {
 				info += " " + Messages.get(Armor.class, "too_heavy");
@@ -275,7 +291,7 @@ public class Armor extends EquipableItem {
 				info += " " + Messages.get(Armor.class, "excess_str");
 			}
 		} else {
-			info += "\n\n" + Messages.get(Armor.class, "avg_absorb", typicalDR(), STRReq(0));
+			info += "\n\n" + Messages.get(Armor.class, "avg_absorb", DRMin(0), DRMax(0), STRReq(0));
 
 			if (STRReq(0) > Dungeon.hero.STR()) {
 				info += " " + Messages.get(Armor.class, "probably_too_heavy");
@@ -320,7 +336,7 @@ public class Armor extends EquipableItem {
 			//45% chance to be level 0
 		} else if (roll < 0.95f){
 			//15% chance to be +1
-			upgrade(0);
+			upgrade(1);
 		} else {
 			//5% chance to be +2
 			upgrade(2);
@@ -347,25 +363,19 @@ public class Armor extends EquipableItem {
 		return (8 + effectiveTier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 	
-	public int typicalDR() {
-		return tier * 2;
-	}
-	
 	@Override
 	public int price() {
-		int price = 10 * (1 << (tier - 1));
-		if (hasCurseGlyph()) {
+		if (seal != null) return 0;
+
+		int price = 20 * tier;
+		if (hasGoodGlyph()) {
 			price *= 1.5;
 		}
 		if (cursedKnown && (cursed || hasCurseGlyph())) {
 			price /= 2;
 		}
-		if (levelKnown) {
-			if (level() > 0) {
-				price *= (level() + 1);
-			} else if (level() < 0) {
-				price /= (1 - level());
-			}
+		if (levelKnown && level() > 0) {
+			price *= (level() + 1);
 		}
 		if (price < 1) {
 			price = 1;

@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -93,15 +94,17 @@ public class PoolPainter extends Painter {
 				return prize;
 		}
 
-		//1 floor set higher in probability
-		if (Random.Int(2) == 0){
-			prize = Generator.randomWeapon((Dungeon.depth / 5)+1);
-		} else {
-			prize = Generator.randomArmor((Dungeon.depth / 5)+1);
-		}
+		//1 floor set higher in probability, never cursed
+		do {
+			if (Random.Int(2) == 0) {
+				prize = Generator.randomWeapon((Dungeon.depth / 5) + 1);
+			} else {
+				prize = Generator.randomArmor((Dungeon.depth / 5) + 1);
+			}
+		} while (prize.cursed);
 
-		//if not cursed, 50% chance for an extra update.
-		if (!prize.cursed && Random.Int(0) == 1){
+		//33% chance for an extra update.
+		if (!(prize instanceof MissileWeapon) && Random.Int(3) == 0){
 			prize.upgrade();
 		}
 

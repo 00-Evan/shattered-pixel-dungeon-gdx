@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PurpleParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -38,12 +37,21 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
-public class WandOfDisintegration extends Wand {
+public class WandOfDisintegration extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_DISINTEGRATION;
 
 		collisionProperties = Ballistica.WONT_STOP;
+	}
+
+
+	public int min(int lvl){
+		return 2+lvl;
+	}
+
+	public int max(int lvl){
+		return 8+4*lvl;
 	}
 	
 	@Override
@@ -89,12 +97,10 @@ public class WandOfDisintegration extends Wand {
 			Dungeon.observe();
 		}
 		
-		int lvl = level + chars.size() + terrainBonus;
-		int dmgMin = lvl;
-		int dmgMax = (int) (8 + lvl * lvl / 3f);
+		int lvl = level + (chars.size()-1) + terrainBonus;
 		for (Char ch : chars) {
 			processSoulMark(ch, chargesPerCast());
-			ch.damage( Random.NormalIntRange( dmgMin, dmgMax ), this );
+			ch.damage( damageRoll(lvl), this );
 			ch.sprite.centerEmitter().burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
 			ch.sprite.flash();
 		}
@@ -102,9 +108,7 @@ public class WandOfDisintegration extends Wand {
 
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		//less likely Grim proc
-		if (Random.Int(3) == 0)
-			new Grim().proc( staff, attacker, defender, damage);
+		//no direct effect, see magesStaff.reachfactor
 	}
 
 	private int distance() {

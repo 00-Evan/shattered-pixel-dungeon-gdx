@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -107,7 +108,10 @@ public abstract class Wand extends Item {
 	public boolean collect( Bag container ) {
 		if (super.collect( container )) {
 			if (container.owner != null) {
-				charge( container.owner );
+				if (container instanceof WandHolster)
+					charge( container.owner, ((WandHolster) container).HOLSTER_SCALE_FACTOR );
+				else
+					charge( container.owner );
 			}
 			return true;
 		} else {
@@ -163,10 +167,19 @@ public abstract class Wand extends Item {
 
 	@Override
 	public String info() {
-		return (cursed && cursedKnown) ?
-				desc() + "\n\n" + Messages.get(Wand.class, "cursed") :
-				desc();
+		String desc = desc();
+
+		desc += "\n\n" + statsDesc();
+
+		if (cursed && cursedKnown)
+			desc += "\n\n" + Messages.get(Wand.class, "cursed");
+
+		return desc;
 	}
+
+	public String statsDesc(){
+		return Messages.get(this, "stats_desc");
+	};
 	
 	@Override
 	public boolean isIdentified() {
@@ -251,7 +264,7 @@ public abstract class Wand extends Item {
 	public Item random() {
 		int n = 0;
 
-		if (Random.Int(2) == 0) {
+		if (Random.Int(3) == 0) {
 			n++;
 			if (Random.Int(5) == 0) {
 				n++;

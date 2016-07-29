@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.SkeletonSprite;
@@ -56,7 +57,7 @@ public class Skeleton extends Mob {
 	
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( 3, 8 );
+		return Random.NormalIntRange( 2, 10 );
 	}
 	
 	@Override
@@ -68,7 +69,7 @@ public class Skeleton extends Mob {
 		for (int i=0; i < Level.NEIGHBOURS8.length; i++) {
 			Char ch = findChar( pos + Level.NEIGHBOURS8[i] );
 			if (ch != null && ch.isAlive()) {
-				int damage = Math.max( 0,  damageRoll() - Random.IntRange( 0, ch.dr() / 2 ) );
+				int damage = Math.max( 0,  damageRoll() - (ch.drRoll() / 2) );
 				ch.damage( damage, this );
 				if (ch == Dungeon.hero && !ch.isAlive()) {
 					heroKilled = true;
@@ -88,13 +89,12 @@ public class Skeleton extends Mob {
 	
 	@Override
 	protected Item createLoot() {
-		Item loot = Generator.random( Generator.Category.WEAPON );
-		for (int i=0; i < 2; i++) {
-			Item l = Generator.random( Generator.Category.WEAPON );
-			if (l.level() < loot.level()) {
-				loot = l;
-			}
-		}
+		Item loot;
+		do {
+			loot = Generator.random(Generator.Category.WEAPON);
+			//50% chance of re-rolling tier 4 or 5 items
+		} while (loot instanceof MeleeWeapon && ((MeleeWeapon) loot).tier >= 4 && Random.Int(2) == 0);
+		loot.level(0);
 		return loot;
 	}
 	
@@ -104,8 +104,8 @@ public class Skeleton extends Mob {
 	}
 	
 	@Override
-	public int dr() {
-		return 5;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 5);
 	}
 	
 	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();

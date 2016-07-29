@@ -43,11 +43,6 @@ public class NewbornElemental extends Elemental {
 	}
 
 	@Override
-	public int damageRoll() {
-		return super.damageRoll()/2;
-	} //8-10
-
-	@Override
 	public void add(Buff buff) {
 		if (buff instanceof Frost || buff instanceof Chill) {
 			die(buff);

@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Ring extends KindofMisc {
@@ -88,6 +89,10 @@ public class Ring extends KindofMisc {
 	public static void save( Bundle bundle ) {
 		handler.save( bundle );
 	}
+
+	public static void saveSelectively( Bundle bundle, ArrayList<Item> items ) {
+		handler.saveSelectively( bundle, items );
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static void restore( Bundle bundle ) {
@@ -137,20 +142,16 @@ public class Ring extends KindofMisc {
 		
 		Badges.validateAllRingsIdentified();
 	}
-
-	public String gem() {
-		return Messages.get(Ring.class, gem);
-	}
 	
 	@Override
 	public String name() {
-		return isKnown() ? super.name() : Messages.get(this, "unknown_name", gem());
+		return isKnown() ? super.name() : Messages.get(Ring.class, gem);
 	}
 	
 	@Override
 	public String info() {
 
-		String desc = isKnown()? desc() : Messages.get(this, "unknown_desc", gem());
+		String desc = isKnown()? desc() : Messages.get(this, "unknown_desc");
 
 		if (cursed && isEquipped( Dungeon.hero )) {
 			
@@ -158,7 +159,7 @@ public class Ring extends KindofMisc {
 			
 		} else if (cursed && cursedKnown) {
 
-			desc += "\n\n" + Messages.get(Ring.class, "curse_known", name());
+			desc += "\n\n" + Messages.get(Ring.class, "curse_known");
 
 		}
 

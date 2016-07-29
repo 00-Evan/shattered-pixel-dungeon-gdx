@@ -25,11 +25,11 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.BloodParticle;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogus;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogs;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
@@ -61,22 +61,23 @@ public class StatusPane extends Component {
 	private BossHealthBar bossHP;
 
 	private int lastLvl = -1;
-	private int lastKeys = -1;
 
 	private BitmapText level;
 	private BitmapText depth;
-	private BitmapText keys;
 
 	private DangerIndicator danger;
 	private BuffIndicator buffs;
 	private Compass compass;
 
+	private JournalButton btnJournal;
 	private MenuButton btnMenu;
+
+	private Toolbar.PickedUpItem pickedUp;
 
 	@Override
 	protected void createChildren() {
 
-		bg = new NinePatch( Assets.STATUS, 80, 0, 30   + 18, 0 );
+		bg = new NinePatch( Assets.STATUS, 85, 0, 45, 0 );
 		add( bg );
 
 		add( new TouchArea<GameAction>( 0, 1, 31, 31 ) {
@@ -87,7 +88,7 @@ public class StatusPane extends Component {
 					Camera.main.focusOn( sprite );
 				}
 				GameScene.show( new WndHero() );
-			};
+			}
 
 			@Override
 			public boolean onKeyUp(NoosaInputProcessor.Key<GameAction> key) {
@@ -97,7 +98,7 @@ public class StatusPane extends Component {
 					onClick( null );
 					break;
 				case CATALOGUS:
-					GameScene.show( new WndCatalogus() );
+					GameScene.show( new WndCatalogs() );
 					break;
 				case JOURNAL:
 					GameScene.show( new WndJournal() );
@@ -109,6 +110,9 @@ public class StatusPane extends Component {
 				return handled;
 			}
 		} );
+
+		btnJournal = new JournalButton();
+		add( btnJournal );
 
 		btnMenu = new MenuButton();
 		add( btnMenu );
@@ -151,16 +155,13 @@ public class StatusPane extends Component {
 		depth.measure();
 		add( depth );
 
-		Dungeon.hero.belongings.countIronKeys();
-		keys = new BitmapText( PixelScene.pixelFont);
-		keys.hardlight( 0xCACFC2 );
-		add( keys );
-
 		danger = new DangerIndicator();
 		add( danger );
 
 		buffs = new BuffIndicator( Dungeon.hero );
 		add( buffs );
+
+		add( pickedUp = new Toolbar.PickedUpItem());
 	}
 
 	@Override
@@ -183,14 +184,15 @@ public class StatusPane extends Component {
 
 		bossHP.setPos( 6 + (width - bossHP.width())/2, 20);
 
-		depth.x = width - 24 - depth.width()    - 18;
-		depth.y = 6;
-
-		keys.y = 6;
+		depth.x = width - 35.5f - depth.width() / 2f;
+		depth.y = 8f - depth.baseLine() / 2f;
+		PixelScene.align(depth);
 
 		danger.setPos( width - danger.width(), 20 );
 
 		buffs.setPos( 31, 9 );
+
+		btnJournal.setPos( width - 42, 1 );
 
 		btnMenu.setPos( width - btnMenu.width(), 1 );
 	}
@@ -237,19 +239,121 @@ public class StatusPane extends Component {
 			PixelScene.align(level);
 		}
 
-		int k = IronKey.curDepthQuantity;
-		if (k != lastKeys) {
-			lastKeys = k;
-			keys.text( Integer.toString( lastKeys ) );
-			keys.measure();
-			keys.x = width - 8 - keys.width()    - 18;
-		}
-
 		int tier = Dungeon.hero.tier();
 		if (tier != lastTier) {
 			lastTier = tier;
 			avatar.copy( HeroSprite.avatar( Dungeon.hero.heroClass, tier ) );
 		}
+	}
+
+	public void pickup( Item item ) {
+		pickedUp.reset( item,
+				btnJournal.icon.x + btnJournal.icon.width()/2f,
+				btnJournal.icon.y + btnJournal.icon.height()/2f,
+				true );
+	}
+
+	private static class JournalButton extends Button {
+
+		private Image bg;
+		//used to display key state to the player
+		private Image icon;
+
+		public JournalButton() {
+			super();
+
+			width = bg.width + 13; //includes the depth display to the left
+			height = bg.height + 4;
+		}
+
+		@Override
+		protected void createChildren() {
+			super.createChildren();
+
+			bg = new Image( Assets.MENU, 2, 2, 13, 11 );
+			add( bg );
+
+			icon = new Image( Assets.MENU, 31, 0, 11, 7);
+			add( icon );
+		}
+
+		@Override
+		protected void layout() {
+			super.layout();
+
+			bg.x = x + 13;
+			bg.y = y + 2;
+
+			icon.x = bg.x + (bg.width() - icon.width())/2f;
+			icon.y = bg.y + (bg.height() - icon.height())/2f;
+			PixelScene.align(icon);
+		}
+
+		@Override
+		public void update() {
+			super.update();
+			updateKeyDisplay();
+		}
+
+		public void updateKeyDisplay() {
+			boolean foundKeys = false;
+			boolean blackKey = false;
+			boolean specialKey = false;
+			int ironKeys = 0;
+			for (int i = 1; i <= Math.min(Dungeon.depth, 25); i++) {
+				if (Dungeon.hero.belongings.ironKeys[i] > 0 || Dungeon.hero.belongings.specialKeys[i] > 0) {
+					foundKeys = true;
+
+					if (i < Dungeon.depth){
+						blackKey = true;
+
+					} else {
+						if (Dungeon.hero.belongings.specialKeys[i] > 0){
+							specialKey = true;
+						}
+						ironKeys = Dungeon.hero.belongings.ironKeys[i];
+					}
+				}
+			}
+
+			if (!foundKeys){
+				icon.frame(31, 0, 11, 7);
+			} else {
+				int left = 46, top = 0, width = 0, height = 7;
+				if (blackKey){
+					left = 43;
+					width += 3;
+				}
+				if (specialKey){
+					top = 8;
+					width += 3;
+				}
+				width += ironKeys*3;
+				width = Math.min( width, 9);
+				icon.frame(left, top, width, height);
+			}
+			layout();
+
+		}
+
+		@Override
+		protected void onTouchDown() {
+			bg.brightness( 1.5f );
+			icon.brightness( 1.5f );
+			Sample.INSTANCE.play( Assets.SND_CLICK );
+		}
+
+		@Override
+		protected void onTouchUp() {
+			bg.resetColor();
+			icon.resetColor();
+		}
+
+		@Override
+		protected void onClick() {
+			GameScene.show( new WndJournal() );
+		}
+
 	}
 
 	private static class MenuButton extends Button {
@@ -267,7 +371,7 @@ public class StatusPane extends Component {
 		protected void createChildren() {
 			super.createChildren();
 
-			image = new Image( Assets.STATUS, 114, 3, 12, 11 );
+			image = new Image( Assets.MENU, 17, 2, 12, 11 );
 			add( image );
 		}
 

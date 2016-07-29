@@ -36,7 +36,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ItemSlot;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public class WndTradeItem extends Window {
 	
@@ -145,7 +144,6 @@ public class WndTradeItem extends Window {
 						if(thievery.steal(price)){
 							Hero hero = Dungeon.hero;
 							Item item = heap.pickUp();
-							GLog.i( Messages.get(WndTradeItem.class, "stole", item.name()) );
 							hide();
 
 							if (!item.doPickUp( hero )) {
@@ -233,7 +231,6 @@ public class WndTradeItem extends Window {
 		int price = item.price();
 		
 		new Gold( price ).doPickUp( hero );
-		GLog.i( Messages.get(this, "sold"), item.name(), price );
 	}
 	
 	private void sellOne( Item item ) {
@@ -248,7 +245,6 @@ public class WndTradeItem extends Window {
 			int price = item.price();
 			
 			new Gold( price ).doPickUp( hero );
-			GLog.i( Messages.get(this, "sold"), item.name(), price );
 		}
 	}
 	
@@ -264,8 +260,6 @@ public class WndTradeItem extends Window {
 		
 		int price = price( item );
 		Dungeon.gold -= price;
-		
-		GLog.i( Messages.get(this, "bought"), item.name(), price );
 		
 		if (!item.doPickUp( hero )) {
 			Dungeon.level.drop( item, heap.pos ).sprite.drop();

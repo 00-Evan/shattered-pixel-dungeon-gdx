@@ -23,6 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -167,6 +169,15 @@ public class CellSelector extends TouchArea<GameAction> {
 		ShatteredPixelDungeon.zoom((int) (value - PixelScene.defaultZoom));
 		camera.zoom( value );
 
+		//Resets character sprite positions with the new camera zoom
+		//This is important as characters are centered on a 16x16 tile, but may have any sprite size
+		//This can lead to none-whole coordinate, which need to be aligned with the zoom
+		for (Char c : Actor.chars()){
+			if (c.sprite != null && !c.sprite.isMoving){
+				c.sprite.point(c.sprite.worldToCamera(c.pos));
+			}
+		}
+
 		return value;
 	}
 
@@ -216,9 +227,7 @@ public class CellSelector extends TouchArea<GameAction> {
 			
 			pinching = false;
 			
-			int zoom = Math.round( camera.zoom );
-			camera.zoom( zoom );
-			ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
+			zoom(Math.round( camera.zoom ));
 			
 			dragging = true;
 			if (t == touch) {
@@ -290,9 +299,7 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (pinching){
 			pinching = false;
 
-			int zoom = Math.round( camera.zoom );
-			camera.zoom( zoom );
-			ShatteredPixelDungeon.zoom((int) (zoom - PixelScene.defaultZoom));
+			zoom( Math.round( camera.zoom ) );
 		}
 	}
 

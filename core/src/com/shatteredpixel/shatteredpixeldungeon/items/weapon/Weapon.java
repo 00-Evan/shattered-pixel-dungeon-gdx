@@ -223,7 +223,7 @@ abstract public class Weapon extends KindOfWeapon {
 			//45% chance to be level 0
 		} else if (roll < 0.95f){
 			//15% chance to be +1
-			upgrade(0);
+			upgrade(1);
 		} else {
 			//5% chance to be +2
 			upgrade(2);

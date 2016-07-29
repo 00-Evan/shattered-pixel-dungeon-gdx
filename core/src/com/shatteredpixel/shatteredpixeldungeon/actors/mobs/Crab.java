@@ -43,7 +43,7 @@ public class Crab extends Mob {
 	
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( 3, 6 );
+		return Random.NormalIntRange( 1, 8 );
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class Crab extends Mob {
 	}
 	
 	@Override
-	public int dr() {
-		return 4;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 4);
 	}
 }

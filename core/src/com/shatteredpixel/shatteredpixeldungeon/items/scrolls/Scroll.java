@@ -95,7 +95,11 @@ public abstract class Scroll extends Item {
 	public static void save( Bundle bundle ) {
 		handler.save( bundle );
 	}
-	
+
+	public static void saveSelectively( Bundle bundle, ArrayList<Item> items ) {
+		handler.saveSelectively( bundle, items );
+	}
+
 	@SuppressWarnings("unchecked")
 	public static void restore( Bundle bundle ) {
 		handler = new ItemStatusHandler<>( (Class<? extends Scroll>[])scrolls, runes, bundle );
@@ -167,21 +171,17 @@ public abstract class Scroll extends Item {
 		setKnown();
 		return super.identify();
 	}
-
-	public String rune() {
-		return Messages.get(Scroll.class, rune);
-	}
 	
 	@Override
 	public String name() {
-		return isKnown() ? name : Messages.get(this, "unknown_name", rune());
+		return isKnown() ? name : Messages.get(Scroll.class, rune);
 	}
 	
 	@Override
 	public String info() {
 		return isKnown() ?
 			desc() :
-			Messages.get(this, "unknown_desc", rune());
+			Messages.get(this, "unknown_desc");
 	}
 
 	public Integer initials(){
@@ -212,6 +212,6 @@ public abstract class Scroll extends Item {
 	
 	@Override
 	public int price() {
-		return 15 * quantity;
+		return 30 * quantity;
 	}
 }

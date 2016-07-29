@@ -28,12 +28,19 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.utils.Random;
 
-public class WandOfMagicMissile extends Wand {
+public class WandOfMagicMissile extends DamageWand {
 
 	{
 		image = ItemSpriteSheet.WAND_MAGIC_MISSILE;
+	}
+
+	public int min(int lvl){
+		return 2+lvl;
+	}
+
+	public int max(int lvl){
+		return 8+2*lvl;
 	}
 	
 	@Override
@@ -43,7 +50,7 @@ public class WandOfMagicMissile extends Wand {
 		if (ch != null) {
 
 			processSoulMark(ch, chargesPerCast());
-			ch.damage(Random.NormalIntRange(4 , 6 + level() * 2), this);
+			ch.damage(damageRoll(), this);
 
 			ch.sprite.burst(0xFFFFFFFF, level() / 2 + 2);
 
@@ -52,11 +59,9 @@ public class WandOfMagicMissile extends Wand {
 
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		//gain 1 turn of recharging buff per level of the wand.
-		if (level() > 0) {
-			Buff.prolong( attacker, Recharging.class, (float)staff.level());
-			SpellSprite.show(attacker, SpellSprite.CHARGE);
-		}
+		Buff.prolong( attacker, Recharging.class, 1 + staff.level()/2f);
+		SpellSprite.show(attacker, SpellSprite.CHARGE);
+
 	}
 	
 	protected int initialCharges() {

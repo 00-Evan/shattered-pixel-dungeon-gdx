@@ -23,6 +23,8 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
@@ -36,7 +38,7 @@ import com.watabou.noosa.audio.Sample;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = 107;
+	private static int LATEST_UPDATE = 114;
 
 	@Override
 	public void create() {
@@ -58,14 +60,15 @@ public class WelcomeScene extends PixelScene {
 		title.brightness(0.6f);
 		add( title );
 
-		float height = title.height +
-				(ShatteredPixelDungeon.landscape() ? 48 : 96);
+		float topRegion = Math.max(95f, h*0.45f);
 
-		title.x = (w - title.width()) / 2;
-		title.y = (h - height) / 2;
+		title.x = (w - title.width()) / 2f;
+		if (ShatteredPixelDungeon.landscape())
+			title.y = (topRegion - title.height()) / 2f;
+		else
+			title.y = 16 + (topRegion - title.height() - 16) / 2f;
 
-		placeTorch(title.x + 18, title.y + 20);
-		placeTorch(title.x + title.width - 18, title.y + 20);
+		align(title);
 
 		Image signs = new Image( BannerSprites.get( BannerSprites.Type.PIXEL_DUNGEON_SIGNS ) ) {
 			private float time = 0;
@@ -81,7 +84,7 @@ public class WelcomeScene extends PixelScene {
 				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			}
 		};
-		signs.x = title.x;
+		signs.x = title.x + (title.width() - signs.width())/2f;
 		signs.y = title.y;
 		add( signs );
 
@@ -137,12 +140,33 @@ public class WelcomeScene extends PixelScene {
 		}
 		text.text(message, w-20);
 		float textSpace = h - title.y - (title.height() - 10) - okay.height() - 2;
-		text.setPos(10, title.y+(title.height() - 10) + ((textSpace - text.height()) / 2));
+		text.setPos((w - text.width()) / 2f, title.y+(title.height() - 10) + ((textSpace - text.height()) / 2));
 		add(text);
 
 	}
 
 	private void updateVersion(int previousVersion){
+		//rankings conversion
+		if (previousVersion < 108){
+			Rankings.INSTANCE.load();
+			for (Rankings.Record rec : Rankings.INSTANCE.records){
+				try{
+					Dungeon.loadGame(rec.gameFile, false);
+					rec.gameID = rec.gameFile.replaceAll("\\D", "");
+
+					Rankings.INSTANCE.saveGameData(rec);
+				} catch (Exception e){
+					rec.gameID = rec.gameFile.replaceAll("\\D", "");
+					rec.gameData = null;
+				}
+
+				String file = rec.gameFile;
+				rec.gameFile = "";
+				Game.instance.deleteFile(file);
+			}
+			Rankings.INSTANCE.save();
+		}
+
 		ShatteredPixelDungeon.version(ShatteredPixelDungeon.versionCode);
 	}
 

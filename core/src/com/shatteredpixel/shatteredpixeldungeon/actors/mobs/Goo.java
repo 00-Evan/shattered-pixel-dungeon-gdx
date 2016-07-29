@@ -70,8 +70,8 @@ public class Goo extends Mob {
 
 	@Override
 	public int damageRoll() {
-		int min = (HP*2 <= HT) ? 3 : 2;
-		int max = (HP*2 <= HT) ? 12 : 8;
+		int min = 1;
+		int max = (HP*2 <= HT) ? 15 : 10;
 		if (pumpedUp > 0) {
 			pumpedUp = 0;
 			for (int i = 0; i < Level.NEIGHBOURS9DIST2.length; i++) {
@@ -100,8 +100,8 @@ public class Goo extends Mob {
 	}
 
 	@Override
-	public int dr() {
-		return 2;
+	public int drRoll() {
+		return Random.NormalIntRange(0, 2);
 	}
 
 	@Override
@@ -223,7 +223,6 @@ public class Goo extends Mob {
 			sprite.showStatus(CharSprite.NEGATIVE, Messages.get(this, "enraged"));
 			((GooSprite)sprite).spray(true);
 			yell(Messages.get(this, "gluuurp"));
-			spend( TICK );
 		}
 		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
 		if (lock != null) lock.addTime(dmg*2);

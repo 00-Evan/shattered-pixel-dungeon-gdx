@@ -55,4 +55,8 @@ public class ScrollOfMagicalInfusion extends InventoryScroll {
 		Enchanting.show(curUser, item);
 	}
 
+	@Override
+	public int price() {
+		return isKnown() ? 100 * quantity : super.price();
+	}
 }

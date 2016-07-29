@@ -26,10 +26,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
@@ -76,7 +76,7 @@ public class MagesStaff extends MeleeWeapon {
 
 	@Override
 	public int max(int lvl) {
-		return  3*(tier+1) +    //6 base damage, down from 10
+		return  4*(tier+1) +    //8 base damage, down from 10
 				lvl*(tier+1);   //scaling unaffected
 	}
 
@@ -137,6 +137,15 @@ public class MagesStaff extends MeleeWeapon {
 	}
 
 	@Override
+	public int reachFactor(Hero hero) {
+		int reach = super.reachFactor(hero);
+		if (wand instanceof WandOfDisintegration && hero.subClass == HeroSubClass.BATTLEMAGE){
+			reach++;
+		}
+		return reach;
+	}
+
+	@Override
 	public boolean collect( Bag container ) {
 		if (super.collect(container)) {
 			if (container.owner != null && wand != null) {
@@ -160,6 +169,9 @@ public class MagesStaff extends MeleeWeapon {
 
 		//syncs the level of the two items.
 		int targetLevel = Math.max(this.level(), wand.level());
+
+		//if the staff's level is being overridden by the wand, preserve 1 upgrade
+		if (wand.level() >= this.level() && this.level() > 0) targetLevel++;
 
 		int staffLevelDiff = targetLevel - this.level();
 		if (staffLevelDiff > 0)
@@ -234,6 +246,8 @@ public class MagesStaff extends MeleeWeapon {
 
 		if (wand == null){
 			info += "\n\n" + Messages.get(this, "no_wand");
+		} else {
+			info += "\n\n" + Messages.get(this, "has_wand", Messages.get(wand, "name")) + " " + wand.statsDesc();
 		}
 
 		return info;
@@ -267,6 +281,11 @@ public class MagesStaff extends MeleeWeapon {
 		}
 	}
 
+	@Override
+	public int price() {
+		return 0;
+	}
+
 	private final WndBag.Listener itemSelector = new WndBag.Listener() {
 		@Override
 		public void onSelect( final Item item ) {
@@ -283,9 +302,15 @@ public class MagesStaff extends MeleeWeapon {
 				if (wand == null){
 					applyWand((Wand)item);
 				} else {
+					final int newLevel =
+							item.level() >= level() ?
+									level() > 0 ?
+										item.level() + 1
+										: item.level()
+									: level();
 					GameScene.show(
 							new WndOptions("",
-									Messages.get(MagesStaff.class, "warning"),
+									Messages.get(MagesStaff.class, "warning", newLevel),
 									Messages.get(MagesStaff.class, "yes"),
 									Messages.get(MagesStaff.class, "no")) {
 								@Override
@@ -301,8 +326,8 @@ public class MagesStaff extends MeleeWeapon {
 		}
 
 		private void applyWand(Wand wand){
-			Sample.INSTANCE.play(Assets.SND_EVOKE);
-			ScrollOfUpgrade.upgrade(curUser);
+			Sample.INSTANCE.play(Assets.SND_BURNING);
+			curUser.sprite.emitter().burst( ElmoParticle.FACTORY, 12 );
 			evoke(curUser);
 
 			Dungeon.quickslot.clearItem(wand);

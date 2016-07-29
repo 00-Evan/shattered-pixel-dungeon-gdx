@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
@@ -55,8 +56,8 @@ public class WndRanking extends WndTabbed {
 	private String error = null;
 	
 	private Image busy;
-	
-	public WndRanking( final String gameFile ) {
+
+	public WndRanking( final Rankings.Record rec ) {
 		
 		super();
 		resize( WIDTH, HEIGHT );
@@ -66,8 +67,8 @@ public class WndRanking extends WndTabbed {
 			public void run() {
 				try {
 					Badges.loadGlobal();
-					Dungeon.loadGame( gameFile );
-				} catch (Exception e ) {
+					Rankings.INSTANCE.loadGameData( rec );
+				} catch ( Exception e ) {
 					error = Messages.get(WndRanking.class, "error");
 				}
 			}

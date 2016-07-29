@@ -87,10 +87,11 @@ public class Burning extends Buff implements Hero.Doom {
 
 				if (hero.belongings.armor != null && hero.belongings.armor.hasGlyph(Brimstone.class)){
 
-					int heal = hero.belongings.armor.level()/2;
-					if (heal > 0 && hero.HP < hero.HT) {
-						hero.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);
-						hero.HP = Math.min(hero.HT, hero.HP + heal);
+					float heal = hero.belongings.armor.level()/5f;
+					if (Random.Float() < heal % 1) heal++;
+					if (heal >= 1 && hero.HP < hero.HT) {
+						hero.sprite.emitter().burst(Speck.factory(Speck.HEALING), (int)heal);
+						hero.HP = Math.min(hero.HT, hero.HP + (int)heal);
 					}
 
 				} else {
@@ -124,9 +125,16 @@ public class Burning extends Buff implements Hero.Doom {
 				target.damage( damage, this );
 			}
 
-			if (target instanceof Thief && ((Thief)target).item instanceof Scroll) {
-					((Thief)target).item = null;
+			if (target instanceof Thief) {
+
+				Item item = ((Thief) target).item;
+
+				if (item instanceof Scroll &&
+						!(item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion)) {
 					target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
+					((Thief)target).item = null;
+				}
+
 			}
 
 		} else {

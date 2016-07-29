@@ -25,7 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -37,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GhostSprite;
@@ -201,7 +204,7 @@ public class DriedRose extends Artifact {
 
 			LockedFloor lock = target.buff(LockedFloor.class);
 			if (charge < chargeCap && !cursed && (lock == null || lock.regenOn())) {
-				partialCharge += 10/75f;
+				partialCharge += 1/5f; //500 turns to a full charge
 				if (partialCharge > 1){
 					charge++;
 					partialCharge--;
@@ -252,6 +255,7 @@ public class DriedRose extends Artifact {
 				return false;
 			} if ( rose.level() >= rose.levelCap ){
 				GLog.i( Messages.get(this, "no_room") );
+				hero.spendAndNext(TIME_TO_PICK_UP);
 				return true;
 			} else {
 
@@ -292,11 +296,11 @@ public class DriedRose extends Artifact {
 
 		public GhostHero(int roseLevel){
 			this();
-			HP = HT = 10+roseLevel*3;
+			HP = HT = 10+roseLevel*4;
 		}
 
 		public void saySpawned(){
-			if (!name.equals("sad ghost")) return; //don't say anything if not on english
+			if (Messages.lang() != Languages.ENGLISH) return; //don't say anything if not on english
 			int i = (Dungeon.depth - 1) / 5;
 			if (chooseEnemy() == null)
 				yell( Random.element( VOICE_AMBIENT[i] ) );
@@ -311,13 +315,13 @@ public class DriedRose extends Artifact {
 		}
 
 		public void sayDefeated(){
-			if (!name.equals("sad ghost")) return; //don't say anything if not on english
+			if (Messages.lang() != Languages.ENGLISH) return; //don't say anything if not on english
 			yell( Random.element( VOICE_DEFEATED[ Dungeon.bossLevel() ? 1 : 0 ] ) );
 			Sample.INSTANCE.play( Assets.SND_GHOST );
 		}
 
 		public void sayHeroKilled(){
-			if (!name.equals("sad ghost")) return; //don't say anything if not on english
+			if (Messages.lang() != Languages.ENGLISH) return; //don't say anything if not on english
 			yell(Random.element(VOICE_HEROKILLED));
 			Sample.INSTANCE.play( Assets.SND_GHOST );
 		}
@@ -371,15 +375,14 @@ public class DriedRose extends Artifact {
 
 		@Override
 		public int damageRoll() {
-			//equivalent to N/2 to 5+N, where N is rose level.
 			int lvl = (HT-10)/3;
 			return Random.NormalIntRange( lvl/2, 5+lvl);
 		}
 
 		@Override
-		public int dr() {
+		public int drRoll() {
 			//defence is equal to the level of rose.
-			return (HT-10)/3;
+			return Random.NormalIntRange(0, (HT-10)/3);
 		}
 
 		@Override
@@ -421,6 +424,8 @@ public class DriedRose extends Artifact {
 		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
 		static {
 			IMMUNITIES.add( ToxicGas.class );
+			IMMUNITIES.add( VenomGas.class );
+			IMMUNITIES.add( Burning.class );
 			IMMUNITIES.add( ScrollOfPsionicBlast.class );
 		}
 

@@ -256,7 +256,7 @@ public class Generator {
 			WandOfTransfusion.class,
 			WandOfCorruption.class,
 			WandOfRegrowth.class };
-		Category.WAND.probs = new float[]{ 4, 4, 4, 4, 4, 3, /*3,*/ 3, 3, /*3,*/ 3, 3, 3 };
+		Category.WAND.probs = new float[]{ 5, 4, 4, 4, 4, 3, /*3,*/ 3, 3, /*3,*/ 3, 3, 3 };
 
 		//see generator.randomWeapon
 		Category.WEAPON.classes = new Class<?>[]{};
@@ -270,7 +270,7 @@ public class Generator {
 			Boomerang.class,
 			Dart.class
 		};
-		Category.WEP_T1.probs = new float[]{ 1, 1, 1, 1, 0, 1 };
+		Category.WEP_T1.probs = new float[]{ 1, 1, 1, 0, 0, 1 };
 
 		Category.WEP_T2.classes = new Class<?>[]{
 			NewShortsword.class,

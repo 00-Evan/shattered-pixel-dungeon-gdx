@@ -31,7 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogus;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogs;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
@@ -123,7 +123,7 @@ public class Toolbar extends Component {
 			}
 
 			protected boolean onLongClick() {
-				GameScene.show(new WndCatalogus());
+				GameScene.show(new WndCatalogs());
 				return true;
 			}
 
@@ -268,7 +268,8 @@ public class Toolbar extends Component {
 	public void pickup( Item item ) {
 		pickedUp.reset( item,
 				btnInventory.centerX(),
-				btnInventory.centerY() );
+				btnInventory.centerY(),
+					false );
 	}
 
 	private static CellSelector.Listener informer = new CellSelector.Listener() {
@@ -379,7 +380,7 @@ public class Toolbar extends Component {
 		}
 	}
 
-	private static class PickedUpItem extends ItemSprite {
+	public static class PickedUpItem extends ItemSprite {
 
 		private static final float DISTANCE = DungeonTilemap.SIZE;
 		private static final float DURATION = 0.2f;
@@ -387,6 +388,8 @@ public class Toolbar extends Component {
 		private float dstX;
 		private float dstY;
 		private float left;
+
+		private boolean rising = false;
 
 		public PickedUpItem() {
 			super();
@@ -398,19 +401,22 @@ public class Toolbar extends Component {
 							false;
 		}
 
-		public void reset( Item item, float dstX, float dstY ) {
+		public void reset( Item item, float dstX, float dstY, boolean rising ) {
 			view( item );
 
 			active =
 					visible =
 							true;
 
+			this.rising = rising;
+
 			this.dstX = dstX - ItemSprite.SIZE / 2;
 			this.dstY = dstY - ItemSprite.SIZE / 2;
 			left = DURATION;
 
-			x = this.dstX - DISTANCE;
-			y = this.dstY - DISTANCE;
+						x = this.dstX - DISTANCE;
+			if (rising) y = this.dstY + DISTANCE;
+			else        y = this.dstY - DISTANCE;
 			alpha( 1 );
 		}
 
@@ -429,8 +435,10 @@ public class Toolbar extends Component {
 				float p = left / DURATION;
 				scale.set( (float)Math.sqrt( p ) );
 				float offset = DISTANCE * p;
-				x = dstX - offset;
-				y = dstY - offset;
+
+							x = dstX - offset;
+				if (rising) y = dstY + offset;
+				else        y = dstY - offset;
 			}
 		}
 	}
