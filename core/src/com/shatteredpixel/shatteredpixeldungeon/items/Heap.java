@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -419,6 +420,7 @@ public class Heap implements Bundlable {
 						potion =  itemClass.newInstance();
 						return ClassReflection.newInstance(itemClass);
 					} catch (Exception e) {
+						ShatteredPixelDungeon.reportException(e);
 						return null;
 					}
 				}

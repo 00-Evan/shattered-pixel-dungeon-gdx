@@ -68,6 +68,7 @@ public enum Preferences {
 		try {
 			return get().getInteger(key, defValue);
 		} catch (ClassCastException | NumberFormatException e) {
+			ShatteredPixelDungeon.reportException(e);
 			return defValue;
 		}
 	}
@@ -76,6 +77,7 @@ public enum Preferences {
 		try {
 			return get().getBoolean(key, defValue);
 		} catch (ClassCastException | NumberFormatException e) {
+			ShatteredPixelDungeon.reportException(e);
 			return defValue;
 		}
 	}
@@ -84,6 +86,7 @@ public enum Preferences {
 		try {
 			return get().getString( key, defValue );
 		} catch (ClassCastException | NumberFormatException e) {
+			ShatteredPixelDungeon.reportException(e);
 			return defValue;
 		}
 	}

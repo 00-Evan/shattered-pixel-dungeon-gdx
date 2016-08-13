@@ -398,7 +398,7 @@ public class GameScene extends PixelScene {
 			Dungeon.saveAll();
 			Badges.saveGlobal();
 		} catch (IOException e) {
-			//
+			ShatteredPixelDungeon.reportException(e);
 		}
 	}
 
@@ -572,7 +572,7 @@ public class GameScene extends PixelScene {
 		banner.camera = uiCamera;
 		banner.x = align( uiCamera, (uiCamera.width - banner.width) / 2 );
 		banner.y = align( uiCamera, (uiCamera.height - banner.height) / 3 );
-		add( banner );
+		addToFront( banner );
 	}
 	
 	// -------------------------------------------------------
@@ -691,7 +691,7 @@ public class GameScene extends PixelScene {
 	
 	public static void show( Window wnd ) {
 		cancelCellSelector();
-		scene.add( wnd );
+		scene.addToFront( wnd );
 	}
 	
 	public static void afterObserve() {
@@ -759,7 +759,7 @@ public class GameScene extends PixelScene {
 					WndBag.getBag( WandHolster.class, listener, mode, title ) :
 				WndBag.lastBag( listener, mode, title );
 
-		scene.add( wnd );
+		scene.addToFront( wnd );
 		
 		return wnd;
 	}

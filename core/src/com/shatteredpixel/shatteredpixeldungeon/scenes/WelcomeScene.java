@@ -36,6 +36,8 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 
+import java.util.UUID;
+
 public class WelcomeScene extends PixelScene {
 
 	private static int LATEST_UPDATE = 114;
@@ -147,22 +149,26 @@ public class WelcomeScene extends PixelScene {
 
 	private void updateVersion(int previousVersion){
 		//rankings conversion
-		if (previousVersion < 108){
+		if (previousVersion <= 114){
 			Rankings.INSTANCE.load();
 			for (Rankings.Record rec : Rankings.INSTANCE.records){
-				try{
-					Dungeon.loadGame(rec.gameFile, false);
-					rec.gameID = rec.gameFile.replaceAll("\\D", "");
+				if (rec.gameFile != null) {
+					try {
+						Dungeon.loadGame(rec.gameFile, false);
+						rec.gameID = rec.gameFile.replaceAll("\\D", "");
 
-					Rankings.INSTANCE.saveGameData(rec);
-				} catch (Exception e){
-					rec.gameID = rec.gameFile.replaceAll("\\D", "");
-					rec.gameData = null;
+						Rankings.INSTANCE.saveGameData(rec);
+					} catch (Exception e) {
+						rec.gameID = rec.gameFile.replaceAll("\\D", "");
+						rec.gameData = null;
+					}
+
+					String file = rec.gameFile;
+					rec.gameFile = "";
+					Game.instance.deleteFile(file);
+				} else if (rec.gameID == null){
+					rec.gameID = UUID.randomUUID().toString();
 				}
-
-				String file = rec.gameFile;
-				rec.gameFile = "";
-				Game.instance.deleteFile(file);
 			}
 			Rankings.INSTANCE.save();
 		}

@@ -90,7 +90,7 @@ public class Eye extends Mob {
 		if (beamCooldown == 0) {
 			Ballistica aim = new Ballistica(pos, enemy.pos, Ballistica.STOP_TERRAIN);
 
-			if (enemy.invisible == 0 && aim.subPath(1, aim.dist).contains(enemy.pos)){
+			if (enemy.invisible == 0 && Level.fieldOfView[enemy.pos] && aim.subPath(1, aim.dist).contains(enemy.pos)){
 				beam = aim;
 				return true;
 			} else
@@ -106,7 +106,13 @@ public class Eye extends Mob {
 			beamCooldown--;
 		return super.act();
 	}
-	
+
+	@Override
+	protected Char chooseEnemy() {
+		if (beamCharged && enemy != null) return enemy;
+		return super.chooseEnemy();
+	}
+
 	@Override
 	protected boolean doAttack( Char enemy ) {
 
@@ -130,6 +136,12 @@ public class Eye extends Mob {
 			}
 		}
 
+	}
+
+	@Override
+	public void damage(int dmg, Object src) {
+		if (beamCharged) dmg /= 4;
+		super.damage(dmg, src);
 	}
 
 	public void deathGaze(){
@@ -157,7 +169,7 @@ public class Eye extends Mob {
 			}
 
 			if (hit( this, ch, true )) {
-				ch.damage( Random.NormalIntRange( 30, 40 ), this );
+				ch.damage( Random.NormalIntRange( 30, 50 ), this );
 
 				if (Dungeon.visible[pos]) {
 					ch.sprite.flash();
@@ -229,7 +241,7 @@ public class Eye extends Mob {
 		@Override
 		public boolean act(boolean enemyInFOV, boolean justAlerted) {
 			//always attack if the beam is charged, no exceptions
-			if (beamCharged)
+			if (beamCharged && enemy != null)
 				enemyInFOV = true;
 			return super.act(enemyInFOV, justAlerted);
 		}

@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.utils.Random;
 
 public class Bestiary {
@@ -31,6 +32,7 @@ public class Bestiary {
 		try {
 			return ClassReflection.newInstance(cl);
 		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 		}
 	}
@@ -56,6 +58,7 @@ public class Bestiary {
 		try {
 			return ClassReflection.newInstance(cl);
 		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 		}
 	}

@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.Journal.Feature;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -108,6 +109,7 @@ public class WaterOfTransmutation extends WellWater {
 			try {
 				n = (Weapon)c.classes[Random.chances(c.probs)].newInstance();
 			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
 				return null;
 			}
 		} while (!(n instanceof MeleeWeapon) || n.getClass() == w.getClass());

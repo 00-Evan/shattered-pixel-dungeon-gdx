@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
@@ -148,7 +149,8 @@ public class AttackIndicator extends Tag {
 			sprite.y = y + (height - sprite.height()) / 2;
 			PixelScene.align(sprite);
 			
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 		}
 	}
 	

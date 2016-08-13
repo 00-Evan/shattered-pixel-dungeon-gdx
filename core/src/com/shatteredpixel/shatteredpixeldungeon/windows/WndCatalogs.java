@@ -183,7 +183,7 @@ public class WndCatalogs extends WndTabbed {
 					label.hardlight( 0xCCCCCC );
 				}
 			} catch (Exception e) {
-				// Do nothing
+				ShatteredPixelDungeon.reportException(e);
 			}
 		}
 		
@@ -214,8 +214,12 @@ public class WndCatalogs extends WndTabbed {
 		}
 		
 		public boolean onClick( float x, float y ) {
-			if (identified && inside( x, y )) {
-				GameScene.show( new WndInfoItem( item ) );
+			if (inside( x, y )) {
+				if (identified)
+					GameScene.show( new WndInfoItem( item ) );
+				else
+					GameScene.show( new WndTitledMessage( new ItemSprite(ItemSpriteSheet.SOMETHING, null),
+							Messages.titleCase(item.trueName()), item.desc() ));
 				return true;
 			} else {
 				return false;

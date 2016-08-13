@@ -432,7 +432,7 @@ public class WndBag extends WndTabbed {
 				if (NoosaInputProcessor.modifier) {
 					onLongClick();
 				} else {
-					WndBag.this.add(new WndItem(WndBag.this, item));
+					GameScene.show(new WndItem( WndBag.this, item ) );
 				}
 				
 			}

@@ -861,7 +861,8 @@ public class Hero extends Char {
 		enemy = action.target;
 
 		if (enemy.isAlive() && canAttack( enemy ) && !isCharmedBy( enemy )) {
-			
+
+			Invisibility.dispel();
 			spend( attackDelay() );
 			sprite.attack( enemy.pos );
 
@@ -1394,8 +1395,6 @@ public class Hero extends Char {
 		}
 
 		curAction = null;
-		
-		Invisibility.dispel();
 
 		super.onAttackComplete();
 	}

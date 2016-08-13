@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.painters;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfAwareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfHealth;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfTransmutation;
@@ -60,7 +61,8 @@ public class MagicWellPainter extends Painter {
 			try {
 				water = ClassReflection.newInstance(waterClass);
 			} catch (Exception e) {
-				water = null;
+				ShatteredPixelDungeon.reportException(e);
+				return;
 			}
 		}
 		water.seed( c.x + Level.WIDTH * c.y, 1 );

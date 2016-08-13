@@ -44,10 +44,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
-import com.watabou.utils.SystemTime;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.UUID;
 
 public enum Rankings {
 	
@@ -86,7 +87,7 @@ public enum Rankings {
 
 		INSTANCE.saveGameData(rec);
 
-		rec.gameID = String.valueOf(SystemTime.now);
+		rec.gameID = UUID.randomUUID().toString();
 		
 		records.add( rec );
 		
@@ -175,6 +176,7 @@ public enum Rankings {
 		Dungeon.level = null;
 		Generator.reset();
 		Dungeon.quickslot.reset();
+		QuickSlotButton.reset();
 
 		Bundle handler = data.getBundle(HANDLERS);
 		Scroll.restore(handler);
@@ -206,6 +208,7 @@ public enum Rankings {
 			Bundle.write( bundle, output );
 			output.close();
 		} catch (IOException e) {
+			ShatteredPixelDungeon.reportException(e);
 		}
 	}
 	
@@ -242,7 +245,6 @@ public enum Rankings {
 			}
 
 		} catch (IOException e) {
-
 		}
 	}
 

@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
@@ -415,6 +416,7 @@ public class CursedWand {
 						);
 					}
 				} catch(IOException e){
+					ShatteredPixelDungeon.reportException(e);
 					//oookay maybe don't kill the game if the save failed.
 					GLog.i(Messages.get(CursedWand.class, "nothing"));
 					wand.wandUsed();

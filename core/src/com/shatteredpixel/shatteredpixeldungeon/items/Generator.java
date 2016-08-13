@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
@@ -406,6 +407,7 @@ public class Generator {
 			
 		} catch (Exception e) {
 
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 			
 		}
@@ -418,6 +420,7 @@ public class Generator {
 			
 		} catch (Exception e) {
 
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 			
 		}
@@ -436,6 +439,7 @@ public class Generator {
 			a.random();
 			return a;
 		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 		}
 	}
@@ -462,6 +466,7 @@ public class Generator {
 			w.random();
 			return w;
 		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 		}
 	}
@@ -489,6 +494,7 @@ public class Generator {
 			return artifact;
 
 		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
 			return null;
 		}
 	}
