@@ -39,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornTrap;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Graph;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.Rect;
 
@@ -170,7 +171,7 @@ public abstract class RegularLevel extends Level {
 
 	protected void placeSign(){
 		while (true) {
-			int pos = roomEntrance.random();
+			int pos = pointToCell(roomEntrance.random());
 			if (pos != entrance && traps.get(pos) == null && findMob(pos) == null) {
 				map[pos] = Terrain.SIGN;
 				break;
@@ -180,8 +181,8 @@ public abstract class RegularLevel extends Level {
 	
 	protected boolean initRooms() {
 
-		rooms = new HashSet<Room>();
-		split( new Rect( 0, 0, WIDTH - 1, HEIGHT - 1 ) );
+		rooms = new HashSet<>();
+		split( new Rect( 0, 0, width() - 1, height() - 1 ) );
 		
 		if (rooms.size() < 8) {
 			return false;
@@ -294,7 +295,7 @@ public abstract class RegularLevel extends Level {
 	
 	protected void paintWater() {
 		boolean[] lake = water();
-		for (int i=0; i < LENGTH; i++) {
+		for (int i=0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && lake[i]) {
 				map[i] = Terrain.WATER;
 			}
@@ -308,18 +309,18 @@ public abstract class RegularLevel extends Level {
 			
 			for (Room room : rooms) {
 				if (room.type != Type.NULL && room.type != Type.PASSAGE && room.type != Type.TUNNEL) {
-					grass[(room.left + 1) + (room.top + 1) * WIDTH] = true;
-					grass[(room.right - 1) + (room.top + 1) * WIDTH] = true;
-					grass[(room.left + 1) + (room.bottom - 1) * WIDTH] = true;
-					grass[(room.right - 1) + (room.bottom - 1) * WIDTH] = true;
+					grass[(room.left + 1) + (room.top + 1) * width()] = true;
+					grass[(room.right - 1) + (room.top + 1) * width()] = true;
+					grass[(room.left + 1) + (room.bottom - 1) * width()] = true;
+					grass[(room.right - 1) + (room.bottom - 1) * width()] = true;
 				}
 			}
 		}
 
-		for (int i=WIDTH+1; i < LENGTH-WIDTH-1; i++) {
+		for (int i=width()+1; i < length()-width()-1; i++) {
 			if (map[i] == Terrain.EMPTY && grass[i]) {
 				int count = 1;
-				for (int n : NEIGHBOURS8) {
+				for (int n : PathFinder.NEIGHBOURS8) {
 					if (grass[i + n]) {
 						count++;
 					}
@@ -340,7 +341,7 @@ public abstract class RegularLevel extends Level {
 
 		LinkedList<Integer> validCells = new LinkedList<Integer>();
 
-		for (int i = 0; i < LENGTH; i ++) {
+		for (int i = 0; i < length(); i ++) {
 			if (map[i] == Terrain.EMPTY){
 
 				if(Dungeon.depth == 1){
@@ -475,7 +476,7 @@ public abstract class RegularLevel extends Level {
 			}
 			
 			Room.Door d = r.connected.get( n );
-			int door = d.x + d.y * WIDTH;
+			int door = d.x + d.y * width();
 			
 			switch (d.type) {
 			case EMPTY:
@@ -593,7 +594,7 @@ public abstract class RegularLevel extends Level {
 			Room roomToSpawn = stdRoomIter.next();
 
 			Mob mob = Bestiary.mob( Dungeon.depth );
-			mob.pos = roomToSpawn.random();
+			mob.pos = pointToCell(roomToSpawn.random());
 
 			if (findMob(mob.pos) == null && Level.passable[mob.pos]) {
 				mobsToSpawn--;
@@ -602,7 +603,7 @@ public abstract class RegularLevel extends Level {
 				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
 				if (mobsToSpawn > 0 && Random.Int(4) == 0){
 					mob = Bestiary.mob( Dungeon.depth );
-					mob.pos = roomToSpawn.random();
+					mob.pos = pointToCell(roomToSpawn.random());
 
 					if (findMob(mob.pos)  == null && Level.passable[mob.pos]) {
 						mobsToSpawn--;
@@ -629,7 +630,7 @@ public abstract class RegularLevel extends Level {
 				continue;
 			}
 			
-			cell = room.random();
+			cell = pointToCell(room.random());
 			if (!Dungeon.visible[cell] && Actor.findChar( cell ) == null && Level.passable[cell]) {
 				return cell;
 			}
@@ -649,7 +650,7 @@ public abstract class RegularLevel extends Level {
 				continue;
 			}
 			
-			cell = room.random();
+			cell = pointToCell(room.random());
 			if (Level.passable[cell]) {
 				return cell;
 			}
@@ -719,7 +720,7 @@ public abstract class RegularLevel extends Level {
 	
 	public Room room( int pos ) {
 		for (Room room : rooms) {
-			if (room.type != Type.NULL && room.inside( pos )) {
+			if (room.type != Type.NULL && room.inside( cellToPoint(pos) )) {
 				return room;
 			}
 		}
@@ -731,7 +732,7 @@ public abstract class RegularLevel extends Level {
 		while (true) {
 			Room room = randomRoom( Room.Type.STANDARD, 1 );
 			if (room != null) {
-				int pos = room.random();
+				int pos = pointToCell(room.random());
 				if (passable[pos]) {
 					return pos;
 				}
@@ -743,7 +744,7 @@ public abstract class RegularLevel extends Level {
 	public int pitCell() {
 		for (Room room : rooms) {
 			if (room.type == Type.PIT) {
-				return room.random();
+				return pointToCell(room.random());
 			}
 		}
 		

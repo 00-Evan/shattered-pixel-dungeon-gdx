@@ -42,7 +42,7 @@ public class Group extends Gizmo {
 	}
 
 	@Override
-	public void destroy() {
+	public synchronized void destroy() {
 		super.destroy();
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
@@ -57,7 +57,7 @@ public class Group extends Gizmo {
 	}
 
 	@Override
-	public void update() {
+	public synchronized void update() {
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
 			if (g != null && g.exists && g.active
@@ -70,17 +70,17 @@ public class Group extends Gizmo {
 	}
 
 	@Override
-	public void draw() {
+	public synchronized void draw() {
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
-			if (g != null && g.exists && g.visible) {
+			if (g != null && g.exists && g.isVisible()) {
 				g.draw();
 			}
 		}
 	}
 
 	@Override
-	public void kill() {
+	public synchronized void kill() {
 		// A killed group keeps all its members,
 		// but they get killed too
 		for (int i=0; i < length; i++) {
@@ -93,11 +93,11 @@ public class Group extends Gizmo {
 		super.kill();
 	}
 
-	public int indexOf( Gizmo g ) {
+	public synchronized int indexOf( Gizmo g ) {
 		return members.indexOf( g );
 	}
 
-	public Gizmo add( Gizmo g ) {
+	public synchronized Gizmo add( Gizmo g ) {
 
 		if (g.parent == this) {
 			return g;
@@ -122,7 +122,7 @@ public class Group extends Gizmo {
 		return g;
 	}
 
-	public Gizmo addToFront( Gizmo g){
+	public synchronized Gizmo addToFront( Gizmo g){
 
 		if (g.parent == this) {
 			return g;
@@ -152,7 +152,7 @@ public class Group extends Gizmo {
 		return g;
 	}
 	
-	public Gizmo addToBack( Gizmo g ) {
+	public synchronized Gizmo addToBack( Gizmo g ) {
 
 		if (g.parent == this) {
 			sendToBack( g );
@@ -175,7 +175,7 @@ public class Group extends Gizmo {
 		return g;
 	}
 
-	public Gizmo recycle( Class<? extends Gizmo> c ) {
+	public synchronized Gizmo recycle( Class<? extends Gizmo> c ) {
 
 		Gizmo g = getFirstAvailable( c );
 		if (g != null) {
@@ -199,7 +199,7 @@ public class Group extends Gizmo {
 	}
 
 	// Fast removal - replacing with null
-	public Gizmo erase( Gizmo g ) {
+	public synchronized Gizmo erase( Gizmo g ) {
 		int index = members.indexOf( g );
 
 		if (index != -1) {
@@ -212,7 +212,7 @@ public class Group extends Gizmo {
 	}
 
 	// Real removal
-	public Gizmo remove( Gizmo g ) {
+	public synchronized Gizmo remove( Gizmo g ) {
 		if (members.remove( g )) {
 			length--;
 			g.parent = null;
@@ -222,7 +222,7 @@ public class Group extends Gizmo {
 		}
 	}
 
-	public Gizmo replace( Gizmo oldOne, Gizmo newOne ) {
+	public synchronized Gizmo replace( Gizmo oldOne, Gizmo newOne ) {
 		int index = members.indexOf( oldOne );
 		if (index != -1) {
 			members.set( index, newOne );
@@ -234,7 +234,7 @@ public class Group extends Gizmo {
 		}
 	}
 
-	public Gizmo getFirstAvailable( Class<? extends Gizmo> c ) {
+	public synchronized Gizmo getFirstAvailable( Class<? extends Gizmo> c ) {
 
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
@@ -246,7 +246,7 @@ public class Group extends Gizmo {
 		return null;
 	}
 
-	public int countLiving() {
+	public synchronized int countLiving() {
 
 		int count = 0;
 
@@ -260,7 +260,7 @@ public class Group extends Gizmo {
 		return count;
 	}
 
-	public int countDead() {
+	public synchronized int countDead() {
 
 		int count = 0;
 
@@ -274,7 +274,7 @@ public class Group extends Gizmo {
 		return count;
 	}
 
-	public Gizmo random() {
+	public synchronized Gizmo random() {
 		if (length > 0) {
 			return members.get( (int)(Math.random() * length) );
 		} else {
@@ -282,7 +282,7 @@ public class Group extends Gizmo {
 		}
 	}
 
-	public void clear() {
+	public synchronized void clear() {
 		for (int i=0; i < length; i++) {
 			Gizmo g = members.get( i );
 			if (g != null) {
@@ -293,7 +293,7 @@ public class Group extends Gizmo {
 		length = 0;
 	}
 
-	public Gizmo bringToFront( Gizmo g ) {
+	public synchronized Gizmo bringToFront( Gizmo g ) {
 		if (members.contains( g )) {
 			members.remove( g );
 			members.add( g );
@@ -303,7 +303,7 @@ public class Group extends Gizmo {
 		}
 	}
 
-	public Gizmo sendToBack( Gizmo g ) {
+	public synchronized Gizmo sendToBack( Gizmo g ) {
 		if (members.contains( g )) {
 			members.remove( g );
 			members.add( 0, g );

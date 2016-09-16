@@ -47,6 +47,10 @@ public class Attribute {
 	}
 	
 	public void vertexPointer( int size, int stride, FloatBuffer ptr ) {
-		Gdx.gl.glVertexAttribPointer( location, size, GL20.GL_FLOAT, false, stride * Float.SIZE / 8, ptr );
+		Gdx.gl.glVertexAttribPointer( location, size, GL20.GL_FLOAT, false, stride * 4, ptr );
+	}
+
+	public void vertexBuffer( int size, int stride, int offset) {
+		Gdx.gl.glVertexAttribPointer(location, size, GL20.GL_FLOAT, false, stride * 4, offset * 4);
 	}
 }

@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GuardSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
@@ -65,14 +66,15 @@ public class Guard extends Mob {
 
 	@Override
 	protected boolean act() {
-		Dungeon.level.updateFieldOfView( this );
+		Dungeon.level.updateFieldOfView( this, Level.fieldOfView );
 
 		if (state == HUNTING &&
 				paralysed <= 0 &&
 				enemy != null &&
 				enemy.invisible == 0 &&
 				Level.fieldOfView[enemy.pos] &&
-				Level.distance( pos, enemy.pos ) < 5 && !Level.adjacent( pos, enemy.pos ) &&
+				Dungeon.level.distance( pos, enemy.pos ) < 5 &&
+				!Dungeon.level.adjacent( pos, enemy.pos ) &&
 				Random.Int(3) == 0 &&
 
 				chain(enemy.pos)) {
@@ -116,6 +118,7 @@ public class Guard extends Mob {
 								if (enemy == Dungeon.hero) {
 									Dungeon.hero.interrupt();
 									Dungeon.observe();
+									GameScene.updateFog();
 								}
 							}
 						}), -1);

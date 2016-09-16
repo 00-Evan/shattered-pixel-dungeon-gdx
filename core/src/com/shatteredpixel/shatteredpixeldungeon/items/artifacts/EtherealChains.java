@@ -120,7 +120,7 @@ public class EtherealChains extends Artifact {
 					} else {
 						final int newMobPos = newPos;
 						final Char affected = Actor.findChar( chain.collisionPos );
-						int chargeUse = Level.distance(affected.pos, newMobPos);
+						int chargeUse = Dungeon.level.distance(affected.pos, newMobPos);
 						if (chargeUse > charge) {
 							GLog.w( Messages.get(EtherealChains.class, "no_charge") );
 							return;
@@ -141,6 +141,7 @@ public class EtherealChains extends Artifact {
 								}));
 								affected.pos = newMobPos;
 								Dungeon.observe();
+								GameScene.updateFog();
 								curUser.spendAndNext(1f);
 							}
 						}));
@@ -159,7 +160,7 @@ public class EtherealChains extends Artifact {
 						GLog.w( Messages.get(EtherealChains.class, "does_nothing") );
 					} else {
 						final int newHeroPos = newPos;
-						int chargeUse = Level.distance(curUser.pos, newHeroPos);
+						int chargeUse = Dungeon.level.distance(curUser.pos, newHeroPos);
 						if (chargeUse > charge){
 							GLog.w( Messages.get(EtherealChains.class, "no_charge") );
 							return;
@@ -178,6 +179,7 @@ public class EtherealChains extends Artifact {
 								curUser.spendAndNext(1f);
 								curUser.pos = newHeroPos;
 								Dungeon.observe();
+								GameScene.updateFog();
 							}
 						}));
 					}

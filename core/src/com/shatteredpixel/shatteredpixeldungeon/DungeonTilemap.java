@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.Tilemap;
@@ -38,7 +39,7 @@ public class DungeonTilemap extends Tilemap {
 		super(
 			Dungeon.level.tilesTex(),
 			new TextureFilm( Dungeon.level.tilesTex(), SIZE, SIZE ) );
-		map( Dungeon.level.map, Level.WIDTH );
+		map( Dungeon.level.map, Dungeon.level.width() );
 		
 		instance = this;
 	}
@@ -48,7 +49,12 @@ public class DungeonTilemap extends Tilemap {
 			offset( this.point().negate() ).
 			invScale( SIZE ).
 			floor();
-		return p.x >= 0 && p.x < Level.WIDTH && p.y >= 0 && p.y < Level.HEIGHT ? p.x + p.y * Level.WIDTH : -1;
+		return p.x >= 0
+				&& p.x < Dungeon.level.width()
+				&& p.y >= 0
+				&& p.y < Dungeon.level.height() ?
+					p.x + p.y * Dungeon.level.width()
+					: -1;
 	}
 	
 	@Override
@@ -75,21 +81,21 @@ public class DungeonTilemap extends Tilemap {
 	}
 	
 	public static PointF tileToWorld( int pos ) {
-		return new PointF( pos % Level.WIDTH, pos / Level.WIDTH  ).scale( SIZE );
+		return new PointF( pos % Dungeon.level.width(), pos / Dungeon.level.width()  ).scale( SIZE );
 	}
 	
 	public static PointF tileCenterToWorld( int pos ) {
 		return new PointF(
-			(pos % Level.WIDTH + 0.5f) * SIZE,
-			(pos / Level.WIDTH + 0.5f) * SIZE );
+			(pos % Dungeon.level.width() + 0.5f) * SIZE,
+			(pos / Dungeon.level.width() + 0.5f) * SIZE );
 	}
 
 	public static Point tileToPoint( int pos ) {
-		return new Point(pos % Level.WIDTH, pos / Level.WIDTH);
+		return new Point(pos % Dungeon.level.width(), pos / Dungeon.level.width());
 	}
 
 	public static int pointToTile( Point point ) {
-		return point.y * Level.WIDTH + point.x;
+		return point.y * Dungeon.level.width() + point.x;
 	}
 	
 	public static Image tile( int index ) {
@@ -101,5 +107,10 @@ public class DungeonTilemap extends Tilemap {
 	@Override
 	public boolean overlapsScreenPoint( int x, int y ) {
 		return true;
+	}
+
+	@Override
+	protected boolean needsRender(int pos) {
+		return (Level.discoverable[pos] || Dungeon.level.map[pos] == Terrain.CHASM) && Dungeon.level.map[pos] != Terrain.WATER;
 	}
 }

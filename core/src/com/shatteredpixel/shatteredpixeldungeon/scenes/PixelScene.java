@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.watabou.glwrap.Texture;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapText.Font;
 import com.watabou.noosa.BitmapTextMultiline;
@@ -113,16 +114,14 @@ public class PixelScene extends Scene {
 					BitmapCache.get( Assets.FONT1X), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
 			font1x.baseLine = 17;
 			font1x.tracking = -2;
-			font1x.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
-					com.badlogic.gdx.graphics.Texture.TextureFilter.Linear);
+			font1x.texture.filter(Texture.LINEAR, Texture.LINEAR);
 
 			//font1x double scaled
 			font2x = Font.colorMarked(
 					BitmapCache.get( Assets.FONT2X), 44, 0x00000000, BitmapText.Font.LATIN_FULL );
 			font2x.baseLine = 38;
 			font2x.tracking = -4;
-			font2x.texture.filter(com.badlogic.gdx.graphics.Texture.TextureFilter.Linear,
-					com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest);
+			font2x.texture.filter(Texture.LINEAR, Texture.LINEAR);
 		}
 	}
 
@@ -306,6 +305,7 @@ public class PixelScene extends Scene {
 				(int)(Game.height - Math.ceil( Game.height / zoom ) * zoom) / 2,
 				(int)Math.ceil( Game.width / zoom ),
 				(int)Math.ceil( Game.height / zoom ), zoom );
+			fullScreen = true;
 		}
 		
 		@Override

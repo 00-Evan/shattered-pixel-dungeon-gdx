@@ -21,6 +21,8 @@
 
 package com.watabou.glwrap;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.IntMap;
 
 import java.nio.ByteBuffer;
@@ -37,12 +39,9 @@ public class Quad {
 	
 	public static final int SIZE = VALUES.length;
 
-	// TODO: check if this cache is growing too much, or find another solution
-	private static final IntMap<ShortBuffer> cache = new IntMap<ShortBuffer>();
-	public static final ShortBuffer INDICES_1 = getIndices(1);
-	static {
-		cache.put(1, INDICES_1);
-	}
+	private static ShortBuffer indices;
+	private static int indexSize = 0;
+	private static int bufferIndex = -1;
 	
 	public static FloatBuffer create() {
 		return ByteBuffer.
@@ -57,14 +56,31 @@ public class Quad {
 			order( ByteOrder.nativeOrder() ).
 			asFloatBuffer();
 	}
+
+	//sets up for drawing up to 32k quads in one command, shouldn't ever need to exceed this
+	public static void setupIndices(){
+		ShortBuffer indices = getIndices( Short.MAX_VALUE );
+		if (bufferIndex == -1){
+			bufferIndex = Gdx.gl.glGenBuffer();
+		}
+		Gdx.gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, bufferIndex);
+		Gdx.gl.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, (indices.capacity()*2), indices, GL20.GL_STATIC_DRAW);
+		Gdx.gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	public static void bindIndices(){
+		Gdx.gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, bufferIndex);
+	}
+
+	public static void releaseIndices(){
+		Gdx.gl.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 	
 	public static ShortBuffer getIndices( int size ) {
 
-		ShortBuffer indices = cache.get(size);
-		if (indices == null) {
-			
-			// TODO: Optimize it!
-			
+		if (size > indexSize) {
+
+			indexSize = size;
 			indices = ByteBuffer.
 				allocateDirect( size * SIZE * Short.SIZE / 8 ).
 				order( ByteOrder.nativeOrder() ).
@@ -85,7 +101,6 @@ public class Quad {
 			indices.put( values );
 			indices.position( 0 );
 
-			cache.put(size, indices);
 		}
 
 		return indices;

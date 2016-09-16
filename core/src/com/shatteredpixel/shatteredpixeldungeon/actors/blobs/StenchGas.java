@@ -20,10 +20,12 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -35,10 +37,15 @@ public class StenchGas extends Blob {
 		super.evolve();
 
 		Char ch;
-		for (int i=0; i < LENGTH; i++) {
-			if (cur[i] > 0 && (ch = Actor.findChar(i)) != null) {
-				if (!ch.immunities().contains(this.getClass()))
-					Buff.prolong( ch, Paralysis.class, Paralysis.duration( ch )/5 );
+		int cell;
+
+		for (int i = area.left; i < area.right; i++){
+			for (int j = area.top; j < area.bottom; j++){
+				cell = i + j*Dungeon.level.width();
+				if (cur[cell] > 0 && (ch = Actor.findChar( cell )) != null) {
+					if (!ch.immunities().contains(this.getClass()))
+						Buff.prolong( ch, Paralysis.class, Paralysis.duration( ch )/5 );
+				}
 			}
 		}
 	}
@@ -47,7 +54,7 @@ public class StenchGas extends Blob {
 	public void use( BlobEmitter emitter ) {
 		super.use( emitter );
 
-		emitter.pour( Speck.factory(Speck.STENCH), 0.6f );
+		emitter.pour( Speck.factory(Speck.STENCH), 0.4f );
 	}
 
 	@Override

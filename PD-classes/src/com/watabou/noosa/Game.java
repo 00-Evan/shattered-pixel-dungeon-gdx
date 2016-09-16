@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.watabou.glscripts.Script;
 import com.watabou.gltextures.TextureCache;
+import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
@@ -132,16 +133,17 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		if (width == 0 || height == 0) {
 			return;
 		}
-		
+
 		SystemTime.tick();
 		long rightNow = SystemTime.now;
 		step = (now == 0 ? 0 : rightNow - now);
 		now = rightNow;
-		
+
 		step();
 
 		NoosaScript.get().resetCamera();
-		Gdx.gl.glScissor( 0, 0, width, height );
+		NoosaScriptNoLighting.get().resetCamera();
+		Gdx.gl.glDisable( GL20.GL_SCISSOR_TEST );
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
 		draw();
 	}
@@ -165,14 +167,12 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 
 	public void onSurfaceCreated() {
 		Gdx.gl.glEnable( GL20.GL_BLEND );
-		// For premultiplied alpha:
-		// Gdx.gl.glBlendFunc( GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA );
 		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
-
-		Gdx.gl.glEnable( GL20.GL_SCISSOR_TEST );
 		
+		//refreshes texture and vertex data stored on the gpu
 		TextureCache.reload();
 		RenderedText.reloadCache();
+		Vertexbuffer.refreshAllBuffers();
 	}
 	
 	protected void destroyGame() {

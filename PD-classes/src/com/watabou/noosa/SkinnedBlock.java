@@ -21,7 +21,7 @@
 
 package com.watabou.noosa;
 
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.watabou.glwrap.Texture;
 import com.watabou.utils.RectF;
 
 public class SkinnedBlock extends Image {
@@ -37,7 +37,7 @@ public class SkinnedBlock extends Image {
 	public SkinnedBlock( float width, float height, Object tx ) {
 		super( tx );
 		
-		texture.wrap( TextureWrap.Repeat, TextureWrap.Repeat );
+		texture.wrap( Texture.REPEAT, Texture.REPEAT );
 		
 		size( width, height );
 	}

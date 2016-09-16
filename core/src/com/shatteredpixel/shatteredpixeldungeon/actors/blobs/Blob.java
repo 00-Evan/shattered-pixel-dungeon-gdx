@@ -28,18 +28,15 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Rect;
 
 import java.util.Arrays;
 
 public class Blob extends Actor {
 
 	{
-		actPriority = 1; //take prioerity over mobs, but not the hero
+		actPriority = 1; //take priority over mobs, but not the hero
 	}
-	
-	public static final int WIDTH	= Level.WIDTH;
-	public static final int HEIGHT	= Level.HEIGHT;
-	public static final int LENGTH	= Level.LENGTH;
 	
 	public int volume = 0;
 	
@@ -47,17 +44,12 @@ public class Blob extends Actor {
 	protected int[] off;
 	
 	public BlobEmitter emitter;
-	
-	protected Blob() {
-		
-		cur = new int[LENGTH];
-		off = new int[LENGTH];
-		
-		volume = 0;
-	}
-	
+
+	public Rect area = new Rect();
+
 	private static final String CUR		= "cur";
 	private static final String START	= "start";
+	private static final String LENGTH	= "length";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -66,19 +58,20 @@ public class Blob extends Actor {
 		if (volume > 0) {
 		
 			int start;
-			for (start=0; start < LENGTH; start++) {
+			for (start=0; start < Dungeon.level.length(); start++) {
 				if (cur[start] > 0) {
 					break;
 				}
 			}
 			int end;
-			for (end=LENGTH-1; end > start; end--) {
+			for (end=Dungeon.level.length()-1; end > start; end--) {
 				if (cur[end] > 0) {
 					break;
 				}
 			}
 			
 			bundle.put( START, start );
+			bundle.put( LENGTH, cur.length );
 			bundle.put( CUR, trim( start, end + 1 ) );
 			
 		}
@@ -95,6 +88,14 @@ public class Blob extends Actor {
 	public void restoreFromBundle( Bundle bundle ) {
 		
 		super.restoreFromBundle( bundle );
+
+		if (bundle.contains(LENGTH)) {
+			cur = new int[bundle.getInt(LENGTH)];
+		} else {
+			//compatability with pre-0.4.2
+			cur = new int[1024];
+		}
+		off = new int[cur.length];
 		
 		int[] data = bundle.getIntArray( CUR );
 		if (data != null) {
@@ -103,18 +104,6 @@ public class Blob extends Actor {
 				cur[i + start] = data[i];
 				volume += data[i];
 			}
-		}
-		
-		if (Level.resizingNeeded) {
-			int[] cur = new int[Level.LENGTH];
-			Arrays.fill( cur, 0 );
-			
-			int loadedMapSize = Level.loadedMapSize;
-			for (int i=0; i < loadedMapSize; i++) {
-				System.arraycopy( this.cur, i * loadedMapSize, cur, i * Level.WIDTH, loadedMapSize );
-			}
-			
-			this.cur = cur;
 		}
 	}
 	
@@ -125,16 +114,29 @@ public class Blob extends Actor {
 		
 		if (volume > 0) {
 
+			if (area.isEmpty())
+				setupArea();
+
 			volume = 0;
+
 			evolve();
-			
 			int[] tmp = off;
 			off = cur;
 			cur = tmp;
 			
+		} else {
+			area.setEmpty();
 		}
 		
 		return true;
+	}
+
+	public void setupArea(){
+		for (int cell=0; cell < cur.length; cell++) {
+			if (cur[cell] != 0){
+				area.union(cell%Dungeon.level.width(), cell/Dungeon.level.width());
+			}
+		}
 	}
 	
 	public void use( BlobEmitter emitter ) {
@@ -143,50 +145,65 @@ public class Blob extends Actor {
 	
 	protected void evolve() {
 		
-		boolean[] notBlocking = BArray.not( Level.solid, null );
-		
-		for (int i=1; i < HEIGHT-1; i++) {
-			
-			int from = i * WIDTH + 1;
-			int to = from + WIDTH - 2;
-			
-			for (int pos=from; pos < to; pos++) {
-				if (notBlocking[pos]) {
-					
-					int count = 1;
-					int sum = cur[pos];
-					
-					if (notBlocking[pos-1]) {
-						sum += cur[pos-1];
-						count++;
+		boolean[] blocking = Level.solid;
+		int cell;
+		for (int i=area.top-1; i <= area.bottom; i++) {
+			for (int j = area.left-1; j <= area.right; j++) {
+				cell = j + i*Dungeon.level.width();
+				if (Dungeon.level.insideMap(cell)) {
+					if (!blocking[cell]) {
+
+						int count = 1;
+						int sum = cur[cell];
+
+						if (j > area.left && !blocking[cell-1]) {
+							sum += cur[cell-1];
+							count++;
+						}
+						if (j < area.right && !blocking[cell+1]) {
+							sum += cur[cell+1];
+							count++;
+						}
+						if (i > area.top && !blocking[cell-Dungeon.level.width()]) {
+							sum += cur[cell-Dungeon.level.width()];
+							count++;
+						}
+						if (i < area.bottom && !blocking[cell+Dungeon.level.width()]) {
+							sum += cur[cell+Dungeon.level.width()];
+							count++;
+						}
+
+						int value = sum >= count ? (sum / count) - 1 : 0;
+						off[cell] = value;
+
+						if (value > 0){
+							if (i < area.top)
+								area.top = i;
+							else if (i >= area.bottom)
+								area.bottom = i+1;
+							if (j < area.left)
+								area.left = j;
+							else if (j >= area.right)
+								area.right = j+1;
+						}
+
+						volume += value;
+					} else {
+						off[cell] = 0;
 					}
-					if (notBlocking[pos+1]) {
-						sum += cur[pos+1];
-						count++;
-					}
-					if (notBlocking[pos-WIDTH]) {
-						sum += cur[pos-WIDTH];
-						count++;
-					}
-					if (notBlocking[pos+WIDTH]) {
-						sum += cur[pos+WIDTH];
-						count++;
-					}
-					
-					int value = sum >= count ? (sum / count) - 1 : 0;
-					off[pos] = value;
-					
-					volume += value;
-				} else {
-					off[pos] = 0;
 				}
 			}
 		}
 	}
-	
-	public void seed( int cell, int amount ) {
+
+	public void seed( Level level, int cell, int amount ) {
+		if (cur == null) cur = new int[level.length()];
+		if (off == null) off = new int[cur.length];
+
 		cur[cell] += amount;
 		volume += amount;
+
+		area.union(cell%level.width(), cell/level.width());
 	}
 	
 	public void clear( int cell ) {
@@ -196,8 +213,9 @@ public class Blob extends Actor {
 
 	public void fullyClear(){
 		volume = 0;
-		cur = new int[LENGTH];
-		off = new int[LENGTH];
+		area.setEmpty();
+		cur = new int[Dungeon.level.length()];
+		off = new int[Dungeon.level.length()];
 	}
 	
 	public String tileDesc() {
@@ -214,7 +232,7 @@ public class Blob extends Actor {
 				Dungeon.level.blobs.put( type, gas );
 			}
 			
-			gas.seed( cell, amount );
+			gas.seed( Dungeon.level, cell, amount );
 			
 			return gas;
 			

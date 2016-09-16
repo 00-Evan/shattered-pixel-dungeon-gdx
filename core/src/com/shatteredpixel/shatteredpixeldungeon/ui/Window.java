@@ -33,7 +33,6 @@ import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.TouchArea;
 import com.watabou.utils.Signal;
 
-//TODO: need to do a big consistency pass on windows now that text size is consistent (larger in many cases)
 public class Window extends Group implements Signal.Listener<NoosaInputProcessor.Key<GameAction>> {
 
 	protected int width;
@@ -60,7 +59,7 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 		blocker = new TouchArea( 0, 0, PixelScene.uiCamera.width, PixelScene.uiCamera.height ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				if (!Window.this.chrome.overlapsScreenPoint(
+				if (Window.this.parent != null && !Window.this.chrome.overlapsScreenPoint(
 					(int)touch.current.x,
 					(int)touch.current.y )) {
 					

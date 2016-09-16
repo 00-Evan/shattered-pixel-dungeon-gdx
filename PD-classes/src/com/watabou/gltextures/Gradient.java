@@ -22,9 +22,7 @@
 package com.watabou.gltextures;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.watabou.glwrap.Texture;
 
 public class Gradient extends SmartTexture {
 	
@@ -32,18 +30,18 @@ public class Gradient extends SmartTexture {
 		
 		super(createTexture(colors));
 
-		filter( TextureFilter.Linear, TextureFilter.Linear );
-		wrap( TextureWrap.ClampToEdge, TextureWrap.ClampToEdge );
+		filter( Texture.LINEAR, Texture.LINEAR );
+		wrap( Texture.CLAMP, Texture.CLAMP );
 		
 		TextureCache.add( Gradient.class, this );
 	}
 
-	private static Texture createTexture(int[] colors) {
+	private static Pixmap createTexture(int[] colors) {
 		final Pixmap pixmap = new Pixmap( colors.length, 1, Pixmap.Format.RGBA8888 );
 		for (int i=0; i < colors.length; i++) {
 			final int color = colors[i];
 			pixmap.drawPixel(i, 0, (color << 8) | (color >>> 24));
 		}
-		return new Texture(pixmap);
+		return pixmap;
 	}
 }

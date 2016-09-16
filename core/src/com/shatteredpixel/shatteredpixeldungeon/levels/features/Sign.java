@@ -23,6 +23,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.DeadEndLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -32,9 +33,9 @@ import com.watabou.noosa.audio.Sample;
 public class Sign {
 
 	private static final String[] teaser_texts = new String[]{
-		"error RaW i work",
-		"frOthinG moBs yelp",
-		"CoCoOn furor rises"
+		"...",
+		"...",
+		"..."
 	};
 	
 	public static void read( int pos ) {
@@ -50,9 +51,8 @@ public class Sign {
 			} else {
 
 				//if we are at depths 22-24 and in english
-				if (Dungeon.depth-21 < 3 &&
-						Messages.get(Sign.class, "burn").equals("As you try to read the sign it bursts into greenish flames.")){
-					GameScene.show( new WndMessage(teaser_texts[Dungeon.depth-21]));
+				if (Dungeon.depth-21 <= 3 && Messages.lang() == Languages.ENGLISH){
+					GameScene.show( new WndMessage(teaser_texts[Dungeon.depth-22]));
 				}
 
 				Dungeon.level.destroy( pos );

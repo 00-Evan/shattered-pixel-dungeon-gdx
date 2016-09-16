@@ -22,6 +22,16 @@ package com.shatteredpixel.shatteredpixeldungeon.utils;
 
 public class BArray {
 
+	private static boolean[] falseArray;
+
+	//This is MUCH faster than making a new boolean[] or using Arrays.fill;
+	public static void setFalse( boolean[] toBeFalse ){
+		if (falseArray == null || falseArray.length < toBeFalse.length)
+			falseArray = new boolean[toBeFalse.length];
+
+		System.arraycopy(falseArray, 0, toBeFalse, 0,  toBeFalse.length);
+	}
+
 	public static boolean[] and( boolean[] a, boolean[] b, boolean[] result ) {
 		
 		int length = a.length;
@@ -36,16 +46,18 @@ public class BArray {
 		
 		return result;
 	}
+
+	public static boolean[] or( boolean[] a, boolean[] b, boolean[] result ){
+		return or( a, b, 0, a.length, result);
+	}
 	
-	public static boolean[] or( boolean[] a, boolean[] b, boolean[] result ) {
-		
-		int length = a.length;
+	public static boolean[] or( boolean[] a, boolean[] b, int offset, int length, boolean[] result ) {
 		
 		if (result == null) {
 			result = new boolean[length];
 		}
 		
-		for (int i=0; i < length; i++) {
+		for (int i=offset; i < offset+length; i++) {
 			result[i] = a[i] || b[i];
 		}
 		

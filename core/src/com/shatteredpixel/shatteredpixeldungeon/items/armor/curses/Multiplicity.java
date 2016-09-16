@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -48,8 +49,8 @@ public class Multiplicity extends Armor.Glyph {
 		if (Random.Int(20) == 0){
 			ArrayList<Integer> spawnPoints = new ArrayList<>();
 
-			for (int i = 0; i < Level.NEIGHBOURS8.length; i++) {
-				int p = defender.pos + Level.NEIGHBOURS8[i];
+			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+				int p = defender.pos + PathFinder.NEIGHBOURS8[i];
 				if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
 					spawnPoints.add( p );
 				}
@@ -67,9 +68,9 @@ public class Multiplicity extends Armor.Glyph {
 						m = Bestiary.mutable(Dungeon.depth % 5 == 0 ? Dungeon.depth - 1 : Dungeon.depth);
 					} else {
 						try {
-							m = (Mob)defender.getClass().newInstance();
+							m = (Mob)attacker.getClass().newInstance();
 							Bundle store = new Bundle();
-							defender.storeInBundle(store);
+							attacker.storeInBundle(store);
 							m.restoreFromBundle(store);
 							m.HP = m.HT;
 						} catch (Exception e) {

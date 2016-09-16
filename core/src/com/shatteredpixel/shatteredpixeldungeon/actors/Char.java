@@ -50,6 +50,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.HashSet;
@@ -67,7 +68,8 @@ public abstract class Char extends Actor {
 	public int SHLD;
 	
 	protected float baseSpeed	= 1;
-	
+	protected PathFinder.Path path;
+
 	public int paralysed	    = 0;
 	public boolean rooted		= false;
 	public boolean flying		= false;
@@ -79,7 +81,7 @@ public abstract class Char extends Actor {
 	
 	@Override
 	protected boolean act() {
-		Dungeon.level.updateFieldOfView( this );
+		Dungeon.level.updateFieldOfView( this, Level.fieldOfView );
 		return false;
 	}
 	
@@ -404,9 +406,9 @@ public abstract class Char extends Actor {
 	
 	public void move( int step ) {
 
-		if (Level.adjacent( step, pos ) && buff( Vertigo.class ) != null) {
+		if (Dungeon.level.adjacent( step, pos ) && buff( Vertigo.class ) != null) {
 			sprite.interruptMotion();
-			int newPos = pos + Level.NEIGHBOURS8[Random.Int( 8 )];
+			int newPos = pos + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
 			if (!(Level.passable[newPos] || Level.avoid[newPos]) || Actor.findChar( newPos ) != null)
 				return;
 			else {
@@ -416,13 +418,13 @@ public abstract class Char extends Actor {
 		}
 
 		if (Dungeon.level.map[pos] == Terrain.OPEN_DOOR) {
-			Door.leave( pos );
+			Door.leave( pos, this );
 		}
 
 		pos = step;
 		
 		if (flying && Dungeon.level.map[pos] == Terrain.DOOR) {
-			Door.enter( pos );
+			Door.enter( pos, this );
 		}
 		
 		if (this != Dungeon.hero) {
@@ -431,7 +433,7 @@ public abstract class Char extends Actor {
 	}
 	
 	public int distance( Char other ) {
-		return Level.distance( pos, other.pos );
+		return Dungeon.level.distance( pos, other.pos );
 	}
 	
 	public void onMotionComplete() {

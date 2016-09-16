@@ -29,7 +29,6 @@ import com.watabou.utils.Bundle;
 
 import java.util.ArrayList;
 
-//FIXME: this should be upgradeable, fix in 0.4.0
 abstract public class ClassArmor extends Armor {
 
 	private static final String AC_SPECIAL = "SPECIAL";
@@ -140,12 +139,12 @@ abstract public class ClassArmor extends Armor {
 	@Override
 	public int STRReq(int lvl) {
 		lvl = Math.max(0, lvl);
-		int effectiveTier = armorTier;
+		float effectiveTier = armorTier;
 		if (glyph != null) effectiveTier += glyph.tierSTRAdjust();
 		effectiveTier = Math.max(0, effectiveTier);
 
 		//strength req decreases at +1,+3,+6,+10,etc.
-		return (8 + effectiveTier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
+		return (8 + Math.round(effectiveTier * 2)) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 
 	@Override

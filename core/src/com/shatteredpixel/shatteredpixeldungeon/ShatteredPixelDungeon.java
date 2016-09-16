@@ -163,7 +163,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Repulsion.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stench" );
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void create() {
@@ -316,7 +316,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	}
 
 	public static int musicVol(){
-		return Preferences.INSTANCE.getInt( Preferences.KEY_MUSIC_VOL, 10 );
+		return Preferences.INSTANCE.getInt( Preferences.KEY_MUSIC_VOL, 10, 0, 10 );
 	}
 	
 	public static void soundFx( boolean value ) {
@@ -333,18 +333,16 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	}
 
 	public static int SFXVol() {
-		return Preferences.INSTANCE.getInt( Preferences.KEY_SFX_VOL, 10 );
+		return Preferences.INSTANCE.getInt( Preferences.KEY_SFX_VOL, 10, 0, 10 );
 	}
 	
 	public static void brightness( int value ) {
 		Preferences.INSTANCE.put( Preferences.KEY_BRIGHTNESS, value );
-		if (scene() instanceof GameScene) {
-			((GameScene)scene()).brightness( value );
-		}
+		GameScene.updateFog();
 	}
 	
 	public static int brightness() {
-		return Preferences.INSTANCE.getInt( Preferences.KEY_BRIGHTNESS, 0 );
+		return Preferences.INSTANCE.getInt( Preferences.KEY_BRIGHTNESS, 0, -2, 2 );
 	}
 
 	public static void language(Languages lang) {
@@ -382,7 +380,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	}
 	
 	public static int lastClass() {
-		return Preferences.INSTANCE.getInt( Preferences.KEY_LAST_CLASS, 0 );
+		return Preferences.INSTANCE.getInt( Preferences.KEY_LAST_CLASS, 0, 0, 3 );
 	}
 
 	public static void challenges( int value ) {
@@ -390,7 +388,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	}
 
 	public static int challenges() {
-		return Preferences.INSTANCE.getInt( Preferences.KEY_CHALLENGES, 0 );
+		return Preferences.INSTANCE.getInt( Preferences.KEY_CHALLENGES, 0, 0, Challenges.MAX_VALUE );
 	}
 
 	public static void quickSlots( int value ){ Preferences.INSTANCE.put( Preferences.KEY_QUICKSLOTS, value ); }
@@ -399,7 +397,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		if (Gdx.app.getType() == Application.ApplicationType.Desktop){
 			return 4;
 		} else {
-			return Preferences.INSTANCE.getInt(Preferences.KEY_QUICKSLOTS, 2);
+			return Preferences.INSTANCE.getInt(Preferences.KEY_QUICKSLOTS, 4, 0, 4);
 		}
 	}
 

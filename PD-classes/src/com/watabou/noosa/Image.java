@@ -24,6 +24,7 @@ package com.watabou.noosa;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Quad;
+import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.utils.RectF;
 
 import java.nio.FloatBuffer;
@@ -38,6 +39,7 @@ public class Image extends Visual {
 	
 	protected float[] vertices;
 	protected FloatBuffer verticesBuffer;
+	protected Vertexbuffer buffer;
 	
 	protected boolean dirty;
 	
@@ -145,10 +147,23 @@ public class Image extends Visual {
 	
 	@Override
 	public void draw() {
-		
+
+		if (texture == null || (!dirty && buffer == null))
+			return;
+
 		super.draw();
 
-		NoosaScript script = NoosaScript.get();
+		if (dirty) {
+			verticesBuffer.position( 0 );
+			verticesBuffer.put( vertices );
+			if (buffer == null)
+				buffer = new Vertexbuffer( verticesBuffer );
+			else
+				buffer.updateVertices( verticesBuffer );
+			dirty = false;
+		}
+
+		NoosaScript script = script();
 		
 		texture.bind();
 		
@@ -158,13 +173,19 @@ public class Image extends Visual {
 		script.lighting(
 			rm, gm, bm, am,
 			ra, ga, ba, aa );
+
+		script.drawQuad( buffer );
 		
-		if (dirty) {
-			verticesBuffer.position( 0 );
-			verticesBuffer.put( vertices );
-			dirty = false;
-		}
-		script.drawQuad( verticesBuffer );
-		
+	}
+
+	protected NoosaScript script(){
+		return NoosaScript.get();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if (buffer != null)
+			buffer.delete();
 	}
 }

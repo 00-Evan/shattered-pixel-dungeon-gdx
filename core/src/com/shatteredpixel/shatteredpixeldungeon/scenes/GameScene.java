@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.IntMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
@@ -91,6 +93,8 @@ import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
+import com.watabou.noosa.NoosaScript;
+import com.watabou.noosa.NoosaScriptNoLighting;
 import com.watabou.noosa.SkinnedBlock;
 import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Music;
@@ -160,16 +164,30 @@ public class GameScene extends PixelScene {
 		add( terrain );
 
 		water = new SkinnedBlock(
-			Level.WIDTH * DungeonTilemap.SIZE,
-			Level.HEIGHT * DungeonTilemap.SIZE,
-			Dungeon.level.waterTex() );
+			Dungeon.level.width() * DungeonTilemap.SIZE,
+			Dungeon.level.height() * DungeonTilemap.SIZE,
+			Dungeon.level.waterTex() ){
+
+			@Override
+			protected NoosaScript script() {
+				return NoosaScriptNoLighting.get();
+			}
+
+			@Override
+			public void draw() {
+				//water has no alpha component, this improves performance
+				Gdx.gl.glBlendFunc( GL20.GL_ONE, GL20.GL_ZERO );
+				super.draw();
+				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+			}
+		};
 		terrain.add( water );
-		
-		ripples = new Group();
-		terrain.add( ripples );
-		
+
 		tiles = new DungeonTilemap();
 		terrain.add( tiles );
+
+		ripples = new Group();
+		terrain.add( ripples );
 
 		customTiles = new Group();
 		terrain.add(customTiles);
@@ -227,11 +245,8 @@ public class GameScene extends PixelScene {
 			addBlobSprite( blob );
 		}
 
-		fog = new FogOfWar( Level.WIDTH, Level.HEIGHT );
-		fog.updateVisibility( Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped );
+		fog = new FogOfWar( Dungeon.level.width(), Dungeon.level.height() );
 		add( fog );
-
-		brightness( ShatteredPixelDungeon.brightness() );
 
 		spells = new Group();
 		add( spells );
@@ -402,6 +417,8 @@ public class GameScene extends PixelScene {
 		}
 	}
 
+	private Thread t;
+
 	@Override
 	public synchronized void update() {
 		if (Dungeon.hero == null || scene == null) {
@@ -412,7 +429,17 @@ public class GameScene extends PixelScene {
 
 		if (!freezeEmitters) water.offset( 0, -5 * Game.elapsed );
 
-		Actor.process();
+		if (!Actor.processing() && (t == null || !t.isAlive()) && Dungeon.hero.isAlive()) {
+			t = new Thread() {
+				@Override
+				public void run() {
+					Actor.process();
+				}
+			};
+			//if cpu time is limited, game should prefer drawing the current frame
+			t.setPriority(Thread.NORM_PRIORITY-1);
+			t.start();
+		}
 
 		if (Dungeon.hero.ready && Dungeon.hero.paralysed == 0) {
 			log.newLine();
@@ -495,17 +522,6 @@ public class GameScene extends PixelScene {
 		if (Dungeon.hero.ready) {
 			selectItem( null, WndBag.Mode.ALL, null );
 		}
-	}
-
-	public void brightness( int value ) {
-		float shift;
-		if (value >= 0)
-			shift = value/2f;
-		else
-			shift = value/3f;
-
-		fog.am = 1f + shift;
-		fog.aa = 0f - shift;
 	}
 
 	public void addCustomTile( CustomTileVisual visual){
@@ -666,20 +682,21 @@ public class GameScene extends PixelScene {
 
 	public static void resetMap() {
 		if (scene != null) {
-			scene.tiles.map(Dungeon.level.map, Level.WIDTH );
-
+			scene.tiles.map(Dungeon.level.map, Dungeon.level.width() );
 		}
+		updateFog();
 	}
 
+	//updates the whole map
 	public static void updateMap() {
 		if (scene != null) {
-			scene.tiles.updated.set( 0, 0, Level.WIDTH, Level.HEIGHT );
+			scene.tiles.updateMap();
 		}
 	}
-	
+
 	public static void updateMap( int cell ) {
 		if (scene != null) {
-			scene.tiles.updated.union( cell % Level.WIDTH, cell / Level.WIDTH );
+			scene.tiles.updateMapCell( cell );
 		}
 	}
 	
@@ -693,13 +710,23 @@ public class GameScene extends PixelScene {
 		cancelCellSelector();
 		scene.addToFront( wnd );
 	}
+
+	public static void updateFog(){
+		if (scene != null)
+			scene.fog.updateFog();
+	}
+
+	public static void updateFog(int x, int y, int w, int h){
+		if (scene != null) {
+			scene.fog.updateFogArea(x, y, w, h);
+		}
+	}
 	
 	public static void afterObserve() {
 		if (scene != null) {
-			scene.fog.updateVisibility( Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped );
-			
 			for (Mob mob : Dungeon.level.mobs) {
-				mob.sprite.visible = Dungeon.visible[mob.pos];
+				if (mob.sprite != null)
+					mob.sprite.visible = Dungeon.visible[mob.pos];
 			}
 		}
 	}
@@ -732,7 +759,8 @@ public class GameScene extends PixelScene {
 	
 	public static void selectCell( CellSelector.Listener listener ) {
 		cellSelector.listener = listener;
-		scene.prompt( listener.prompt() );
+		if (scene != null)
+			scene.prompt( listener.prompt() );
 	}
 	
 	private static boolean cancelCellSelector() {
@@ -792,7 +820,7 @@ public class GameScene extends PixelScene {
 			return;
 		}
 
-		if (cell < 0 || cell > Level.LENGTH || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
+		if (cell < 0 || cell > Dungeon.level.length() || (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell])) {
 			GameScene.show( new WndMessage( Messages.get(GameScene.class, "dont_know") ) ) ;
 			return;
 		}

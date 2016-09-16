@@ -126,13 +126,14 @@ public class ItemSprite extends MovieClip {
 		final int csize = DungeonTilemap.SIZE;
 		
 		return new PointF(
-			cell % Level.WIDTH * csize + (csize - SIZE) * 0.5f,
-			cell / Level.WIDTH * csize + (csize - SIZE) * 0.5f
+			cell % Dungeon.level.width() * csize + (csize - SIZE) * 0.5f,
+			cell / Dungeon.level.width() * csize + (csize - SIZE) * 0.5f
 		);
 	}
 	
 	public void place( int p ) {
-		point( worldToCamera( p ) );
+		if (Dungeon.level != null)
+			point( worldToCamera( p ) );
 	}
 	
 	public void drop() {
@@ -257,18 +258,11 @@ public class ItemSprite extends MovieClip {
 	}
 
 	public static int pick( int index, int x, int y ) {
-		Texture bmp = TextureCache.get( Assets.ITEMS ).bitmap;
+		Pixmap bmp = TextureCache.get( Assets.ITEMS ).bitmap;
 		int rows = bmp.getWidth() / SIZE;
 		int row = index / rows;
 		int col = index % rows;
-		// FIXME: I'm assuming this is super slow?
-		final TextureData td = bmp.getTextureData();
-		if (!td.isPrepared()) {
-			td.prepare();
-		}
-		final Pixmap pixmap = td.consumePixmap();
-		int pixel = pixmap.getPixel(col * SIZE + x, row * SIZE + y);
-		pixmap.dispose();
+		int pixel = bmp.getPixel(col * SIZE + x, row * SIZE + y);
 		return pixel;
 	}
 	

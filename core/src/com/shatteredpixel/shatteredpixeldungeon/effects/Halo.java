@@ -26,6 +26,8 @@ import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Image;
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+
 public class Halo extends Image {
 	
 	private static final Object CACHE_KEY = Halo.class;
@@ -44,12 +46,10 @@ public class Halo extends Image {
 			pixmap.fillCircle( RADIUS, RADIUS, (int) (RADIUS * 0.75f));
 			pixmap.setColor( 0xFFFFFF88 );
 			pixmap.fillCircle( RADIUS, RADIUS, RADIUS );
-			TextureCache.add( CACHE_KEY, new SmartTexture( new Texture(pixmap) ) );
+			TextureCache.add( CACHE_KEY, new SmartTexture( pixmap ) );
 		}
 		
 		texture( CACHE_KEY );
-		
-		origin.set( RADIUS );
 	}
 	
 	public Halo( float radius, int color, float brightness ) {
@@ -62,8 +62,9 @@ public class Halo extends Image {
 	}
 	
 	public Halo point( float x, float y ) {
-		this.x = x - RADIUS;
-		this.y = y - RADIUS;
+		this.x = x - (width()/2f);
+		this.y = y - (height()/2f);
+		PixelScene.align(this);
 		return this;
 	}
 	

@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -96,7 +97,8 @@ public abstract class Actor implements Bundlable {
 	
 	private static HashSet<Actor> all = new HashSet<>();
 	private static HashSet<Char> chars = new HashSet<>();
-	private static Actor current;
+	private static volatile Actor current;
+	private static volatile boolean processing;
 
 	private static SparseArray<Actor> ids = new SparseArray<>();
 
@@ -164,6 +166,10 @@ public abstract class Actor implements Bundlable {
 			current = null;
 		}
 	}
+
+	public static boolean processing(){
+		return current != null;
+	}
 	
 	public static void process() {
 		
@@ -191,14 +197,23 @@ public abstract class Actor implements Bundlable {
 
 			if  (current != null) {
 
-				if (current instanceof Char && ((Char)current).sprite.isMoving) {
+				Actor acting = current;
+
+				if (acting instanceof Char && ((Char) acting).sprite != null) {
 					// If it's character's turn to act, but its sprite
 					// is moving, wait till the movement is over
-					current = null;
-					break;
+					try {
+						synchronized (((Char)acting).sprite) {
+							if (((Char)acting).sprite.isMoving) {
+								((Char) acting).sprite.wait();
+							}
+						}
+					} catch (InterruptedException e) {
+						ShatteredPixelDungeon.reportException(e);
+					}
 				}
 
-				doNext = current.act();
+				doNext = acting.act();
 				if (doNext && !Dungeon.hero.isAlive()) {
 					doNext = false;
 					current = null;

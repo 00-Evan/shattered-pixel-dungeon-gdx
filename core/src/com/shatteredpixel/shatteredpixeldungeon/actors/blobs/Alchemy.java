@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.Bundle;
 
 public class Alchemy extends Blob {
@@ -35,8 +36,8 @@ public class Alchemy extends Blob {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		
-		for (int i=0; i < LENGTH; i++) {
+
+		for (int i=0; i < cur.length; i++) {
 			if (cur[i] > 0) {
 				pos = i;
 				break;
@@ -47,6 +48,7 @@ public class Alchemy extends Blob {
 	@Override
 	protected void evolve() {
 		volume = off[pos] = cur[pos];
+		area.union(pos%Dungeon.level.width(), pos/Dungeon.level.width());
 		
 		if (Dungeon.visible[pos]) {
 			Journal.add( Journal.Feature.ALCHEMY );
@@ -54,10 +56,15 @@ public class Alchemy extends Blob {
 	}
 	
 	@Override
-	public void seed( int cell, int amount ) {
+	public void seed( Level level, int cell, int amount ) {
+		super.seed(level, cell, amount);
+
 		cur[pos] = 0;
 		pos = cell;
 		volume = cur[pos] = amount;
+
+		area.setEmpty();
+		area.union(cell%level.width(), cell/level.width());
 	}
 	
 	public static void transmute( int cell ) {

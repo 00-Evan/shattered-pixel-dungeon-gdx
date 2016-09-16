@@ -37,9 +37,7 @@ public class BitmaskEmitter extends Emitter {
 
 		this.target = target;
 
-		TextureData data = target.texture.bitmap.getTextureData();
-		if (!data.isPrepared()) data.prepare();
-		map = data.consumePixmap();
+		map = target.texture.bitmap;
 		mapW = map.getWidth();
 		mapH = map.getHeight();
 	}

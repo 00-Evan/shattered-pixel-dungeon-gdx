@@ -41,7 +41,7 @@ public class RenderedText extends BitmapText {
 
 	public void text( String text ){
 		super.text( text );
-		updateVertices();
+
 		measure();
 	}
 

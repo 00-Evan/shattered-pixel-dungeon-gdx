@@ -21,88 +21,99 @@
 
 package com.watabou.gltextures;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
-import com.watabou.glwrap.NoosaTexture;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.watabou.glwrap.Texture;
 import com.watabou.utils.RectF;
 
-public class SmartTexture extends NoosaTexture {
+public class SmartTexture extends Texture {
 
 	public int width;
 	public int height;
-	
-	public TextureFilter fModeMin;
-	public TextureFilter fModeMax;
-	
-	public TextureWrap wModeH;
-	public TextureWrap wModeV;
-	
+
+	public int fModeMin;
+	public int fModeMax;
+
+	public int wModeH;
+	public int wModeV;
+
+	public Pixmap bitmap;
+
 	public Atlas atlas;
-	
-	public SmartTexture( Texture bitmap ) {
-		this( bitmap, TextureFilter.Nearest, TextureWrap.ClampToEdge );
+
+	protected SmartTexture( ) {
+		//useful for subclasses which want to manage their own texture data
+		// in cases where com.badlogic.gdx.graphics.Pixmap isn't fast enough.
+
+		//subclasses which use this MUST also override some mix of reload/generate/bind
 	}
 
-	public SmartTexture( Texture bitmap, TextureFilter filtering, TextureWrap wrapping ) {
-		
-		super(bitmap);
+	public SmartTexture( Pixmap bitmap ) {
+		this( bitmap, NEAREST, CLAMP );
+	}
+
+	public SmartTexture( Pixmap bitmap, int filtering, int wrapping ) {
+
+		this.bitmap = bitmap;
 		width = bitmap.getWidth();
 		height = bitmap.getHeight();
-		
-		filter( filtering, filtering );
-		wrap( wrapping, wrapping );
-		
+		this.fModeMin = this.fModeMax = filtering;
+		this.wModeH = this.wModeV = wrapping;
+
 	}
-	
+
 	@Override
-	public void filter(TextureFilter minMode, TextureFilter maxMode) {
-		super.filter( fModeMin = minMode, fModeMax = maxMode);
+	protected void generate() {
+		super.generate();
+		bitmap( bitmap );
+		filter( fModeMin, fModeMax );
+		wrap( wModeH, wModeV );
 	}
-	
+
 	@Override
-	public void wrap( TextureWrap u, TextureWrap v ) {
-		super.wrap( wModeH = u, wModeV = v );
+	public void filter(int minMode, int maxMode) {
+		fModeMin = minMode;
+		fModeMax = maxMode;
+		if (id != -1)
+			super.filter( fModeMin = minMode, fModeMax = maxMode);
 	}
-	
+
 	@Override
-	public void bitmap( Texture bitmap ) {
-		bitmap( bitmap, false );
+	public void wrap( int s, int t ) {
+		wModeH = s;
+		wModeV = t;
+		if (id != -1)
+			super.wrap( wModeH = s, wModeV = t );
 	}
-	
-	public void bitmap( Texture bitmap, boolean premultiplied ) {
-		if (premultiplied) {
-			super.bitmap( bitmap );
-		} else {
-			handMade( bitmap, true );
-		}
-		
+
+	@Override
+	public void bitmap( Pixmap bitmap ) {
+		super.bitmap( bitmap );
+
 		this.bitmap = bitmap;
 		width = bitmap.getWidth();
 		height = bitmap.getHeight();
 	}
-	
+
 	public void reload() {
-		// FIXME: Not sure if we need to do anything here
-//		id = new SmartTexture( bitmap ).id;
-		filter( fModeMin, fModeMax );
-		wrap( wModeH, wModeV );
+		id = -1;
+		generate();
 	}
-	
+
 	@Override
 	public void delete() {
-		
+
 		super.delete();
-		
-		bitmap.dispose();
+
+		if (bitmap != null)
+			bitmap.dispose();
 		bitmap = null;
 	}
 	
 	public RectF uvRect( int left, int top, int right, int bottom ) {
 		return new RectF(
-			(float)left		/ width,
-			(float)top		/ height,
-			(float)right	/ width,
-			(float)bottom	/ height );
+				(float)left		/ width,
+				(float)top		/ height,
+				(float)right	/ width,
+				(float)bottom	/ height );
 	}
 }

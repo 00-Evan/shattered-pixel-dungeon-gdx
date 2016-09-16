@@ -40,7 +40,7 @@ import java.util.UUID;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = 114;
+	private static int LATEST_UPDATE = 126;
 
 	@Override
 	public void create() {
@@ -133,8 +133,8 @@ public class WelcomeScene extends PixelScene {
 				//TODO: change the messages here in accordance with the type of patch.
 				message = Messages.get(this, "patch_intro");
 				message += "\n\n" + Messages.get(this, "patch_bugfixes");
-				message += "\n" + Messages.get(this, "patch_translations");
-				message += "\n" + Messages.get(this, "patch_balance");
+				//message += "\n" + Messages.get(this, "patch_translations");
+				//message += "\n" + Messages.get(this, "patch_balance");
 
 			}
 		} else {

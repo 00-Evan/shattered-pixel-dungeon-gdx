@@ -27,6 +27,7 @@ import java.util.LinkedList;
 public class PathFinder {
 	
 	public static int[] distance;
+	private static int[] maxVal;
 	
 	private static boolean[] goals;
 	private static int[] queue;
@@ -34,22 +35,38 @@ public class PathFinder {
 	private static int size = 0;
 
 	private static int[] dir;
+
+	//performance-light shortcuts for some common pathfinder cases
+	//they are in array-access order for increased memory performance
+	public static int[] NEIGHBOURS4;
+	public static int[] NEIGHBOURS8;
+	public static int[] NEIGHBOURS9;
+
+	//similar to NEIGHBOURS8, but the order is circular.
+	//Useful for some logic functions, but is slower due to lack of array-access order.
+	public static int[] CIRCLE;
 	
 	public static void setMapSize( int width, int height ) {
 		
 		int size = width * height;
-		
-		if (PathFinder.size != size) {
 			
-			PathFinder.size = size;
-			distance = new int[size];
-			goals = new boolean[size];
-			queue = new int[size];
-			
-			dir = new int[]{-1, +1, -width, +width, -width-1, -width+1, +width-1, +width+1};
-		}
+		PathFinder.size = size;
+		distance = new int[size];
+		goals = new boolean[size];
+		queue = new int[size];
+
+		maxVal = new int[size];
+		Arrays.fill(maxVal, Integer.MAX_VALUE);
+
+		dir = new int[]{-1, +1, -width, +width, -width-1, -width+1, +width-1, +width+1};
+
+		NEIGHBOURS4 = new int[]{-width, -1, +1, +width};
+		NEIGHBOURS8 = new int[]{-width-1, -width, -width+1, -1, +1, +width-1, +width, +width+1};
+		NEIGHBOURS9 = new int[]{-width-1, -width, -width+1, -1, 0, +1, +width-1, +width, +width+1};
+
+		CIRCLE = new int[]{-width-1, -width, -width+1, +1, +width+1, +width, +width-1, -1};
 	}
-	
+
 	public static Path find( int from, int to, boolean[] passable ) {
 
 		if (!buildDistanceMap( from, to, passable )) {
@@ -140,8 +157,8 @@ public class PathFinder {
 		if (from == to) {
 			return false;
 		}
-		
-		Arrays.fill( distance, Integer.MAX_VALUE );
+
+		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
 		
 		boolean pathFound = false;
 		
@@ -179,7 +196,7 @@ public class PathFinder {
 	
 	public static void buildDistanceMap( int to, boolean[] passable, int limit ) {
 		
-		Arrays.fill( distance, Integer.MAX_VALUE );
+		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
 		
 		int head = 0;
 		int tail = 0;
@@ -217,7 +234,7 @@ public class PathFinder {
 			return false;
 		}
 		
-		Arrays.fill( distance, Integer.MAX_VALUE );
+		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
 		
 		boolean pathFound = false;
 		
@@ -259,7 +276,7 @@ public class PathFinder {
 	
 	private static int buildEscapeDistanceMap( int cur, int from, float factor, boolean[] passable ) {
 		
-		Arrays.fill( distance, Integer.MAX_VALUE );
+		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
 		
 		int destDist = Integer.MAX_VALUE;
 		
@@ -306,7 +323,7 @@ public class PathFinder {
 	@SuppressWarnings("unused")
 	private static void buildDistanceMap( int to, boolean[] passable ) {
 		
-		Arrays.fill( distance, Integer.MAX_VALUE );
+		System.arraycopy(maxVal, 0, distance, 0, maxVal.length);
 		
 		int head = 0;
 		int tail = 0;

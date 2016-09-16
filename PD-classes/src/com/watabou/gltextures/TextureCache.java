@@ -21,9 +21,9 @@
 
 package com.watabou.gltextures;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.watabou.glwrap.NoosaTexture;
+import com.watabou.glwrap.Texture;
 
 import java.util.HashMap;
 
@@ -45,7 +45,7 @@ public class TextureCache {
 			pixmap.setColor( (color << 8) | (color >>> 24) );
 			pixmap.fill();
 
-			SmartTexture tx = new SmartTexture( new Texture( pixmap ) );
+			SmartTexture tx = new SmartTexture( pixmap );
 			all.put(key, tx);
 
 			return tx;
@@ -79,7 +79,7 @@ public class TextureCache {
 	
 	public static void clear() {
 		
-		for (NoosaTexture txt:all.values()) {
+		for (Texture txt:all.values()) {
 			txt.delete();
 		}
 		all.clear();
@@ -92,7 +92,7 @@ public class TextureCache {
 		}
 	}
 	
-	public static Texture getBitmap( Object src ) {
+	public static Pixmap getBitmap( Object src ) {
 		
 		try {
 			if (src instanceof Integer){
@@ -102,11 +102,11 @@ public class TextureCache {
 				
 			} else if (src instanceof String) {
 				
-				return new Texture((String)src);
+				return new Pixmap(Gdx.files.internal((String)src));
 				
-			} else if (src instanceof Texture) {
+			} else if (src instanceof Pixmap) {
 				
-				return (Texture)src;
+				return (Pixmap) src;
 				
 			} else {
 				

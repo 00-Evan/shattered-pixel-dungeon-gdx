@@ -28,6 +28,7 @@ import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Matrix;
 import com.watabou.glwrap.Quad;
+import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.utils.RectF;
 
 import java.nio.FloatBuffer;
@@ -39,6 +40,7 @@ public class BitmapText extends Visual {
 
 	protected float[] vertices = new float[16];
 	protected FloatBuffer quads;
+	protected Vertexbuffer buffer;
 	
 	public int realLength;
 	
@@ -60,15 +62,6 @@ public class BitmapText extends Visual {
 	}
 	
 	@Override
-	public void destroy() {
-		text = null;
-		font = null;
-		vertices = null;
-		quads = null;
-		super.destroy();
-	}
-	
-	@Override
 	protected void updateMatrix() {
 		// "origin" field is ignored
 		Matrix.setIdentity( matrix );
@@ -81,14 +74,19 @@ public class BitmapText extends Visual {
 	public void draw() {
 		
 		super.draw();
-		
-		NoosaScript script = NoosaScript.get();
-		
-		font.texture.bind();
-		
+
 		if (dirty) {
 			updateVertices();
+			quads.limit(quads.position());
+			if (buffer == null)
+				buffer = new Vertexbuffer(quads);
+			else
+				buffer.updateVertices(quads);
 		}
+
+		NoosaScript script = NoosaScript.get();
+
+		font.texture.bind();
 		
 		script.camera( camera() );
 		
@@ -96,11 +94,18 @@ public class BitmapText extends Visual {
 		script.lighting(
 			rm, gm, bm, am,
 			ra, ga, ba, aa );
-		script.drawQuadSet( quads, realLength );
+		script.drawQuadSet( buffer, realLength, 0 );
 		
 	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		if (buffer != null)
+			buffer.delete();
+	}
 	
-	protected void updateVertices() {
+	protected synchronized void updateVertices() {
 		
 		width = 0;
 		height = 0;
@@ -163,7 +168,7 @@ public class BitmapText extends Visual {
 		
 	}
 	
-	public void measure() {
+	public synchronized void measure() {
 		
 		width = 0;
 		height = 0;
@@ -194,7 +199,7 @@ public class BitmapText extends Visual {
 		return font.baseLine * scale.y;
 	}
 	
-	public Font font() {
+	public synchronized Font font() {
 		return font;
 	}
 	
@@ -206,7 +211,7 @@ public class BitmapText extends Visual {
 		return text;
 	}
 	
-	public void text( String str ) {
+	public synchronized void text( String str ) {
 		text = str;
 		dirty = true;
 	}
@@ -262,7 +267,7 @@ public class BitmapText extends Visual {
 			lineHeight = baseLine = height;
 		}
 
-		protected void splitBy( Texture bitmap, int height, int color, String chars ) {
+		protected void splitBy( Pixmap bitmap, int height, int color, String chars ) {
 
 			int length = chars.length();
 
@@ -272,15 +277,10 @@ public class BitmapText extends Visual {
 			int pos;
 			int line = 0;
 
-			TextureData td = bitmap.getTextureData();
-			if (!td.isPrepared()) {
-				td.prepare();
-			}
-			final Pixmap pixmap = td.consumePixmap();
 		spaceMeasuring:
 			for (pos=0; pos <  width; pos++) {
 				for (int j=0; j < height; j++) {
-					if (colorNotMatch(pixmap, pos, j, color)) break spaceMeasuring;
+					if (colorNotMatch(bitmap, pos, j, color)) break spaceMeasuring;
 				}
 			}
 			add( ' ', new RectF( 0, 0, (float)pos / width, vHeight-0.01f ) );
@@ -303,7 +303,7 @@ public class BitmapText extends Visual {
 						}
 						found = false;
 						for (int j=line; j < line + height; j++) {
-							if (colorNotMatch( pixmap, separator, j, color)) {
+							if (colorNotMatch( bitmap, separator, j, color)) {
 								found = true;
 								break;
 							}
@@ -321,7 +321,7 @@ public class BitmapText extends Visual {
 						}
 						found = true;
 						for (int j=line; j < line + height; j++) {
-							if (colorNotMatch(pixmap, separator, j, color)) {
+							if (colorNotMatch(bitmap, separator, j, color)) {
 								found = false;
 								break;
 							}
@@ -332,7 +332,6 @@ public class BitmapText extends Visual {
 					separator++;
 				}
 			}
-			pixmap.dispose();
 
 			lineHeight = baseLine = height( frames.get( chars.charAt( 0 ) ) );
 		}
@@ -345,13 +344,13 @@ public class BitmapText extends Visual {
 			return pixel != color;
 		}
 
-		public static Font colorMarked( Texture bmp, int color, String chars ) {
+		public static Font colorMarked( Pixmap bmp, int color, String chars ) {
 			Font font = new Font( TextureCache.get( bmp ) );
 			font.splitBy( bmp, bmp.getHeight(), color, chars );
 			return font;
 		}
 		 
-		public static Font colorMarked( Texture bmp, int height, int color, String chars ) {
+		public static Font colorMarked( Pixmap bmp, int height, int color, String chars ) {
 			Font font = new Font( TextureCache.get( bmp ) );
 			font.splitBy( bmp, height, color, chars );
 			return font;

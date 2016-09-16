@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Visual;
@@ -47,7 +48,7 @@ public class Swap extends Actor {
 		this.ch1 = ch1;
 		this.ch2 = ch2;
 
-		delay = Level.distance( ch1.pos,  ch2.pos ) * 0.1f;
+		delay = Dungeon.level.distance( ch1.pos,  ch2.pos ) * 0.1f;
 
 		eff1 = new Effect( ch1.sprite, ch1.pos, ch2.pos );
 		eff2 = new Effect( ch2.sprite, ch2.pos, ch1.pos );
@@ -92,6 +93,7 @@ public class Swap extends Actor {
 
 			if (ch1 == Dungeon.hero || ch2 == Dungeon.hero) {
 				Dungeon.observe();
+				GameScene.updateFog();
 			}
 		}
 	}

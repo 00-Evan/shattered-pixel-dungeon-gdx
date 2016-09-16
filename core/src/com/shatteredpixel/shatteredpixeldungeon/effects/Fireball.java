@@ -22,8 +22,8 @@ package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.watabou.glwrap.Texture;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -79,7 +79,7 @@ public class Fireball extends Component {
 		fLight.angularSpeed = 360;
 		add( fLight );
 		
-		bLight.texture.filter( TextureFilter.Linear, TextureFilter.Linear );
+		bLight.texture.filter( Texture.LINEAR, Texture.LINEAR );
 	}
 	
 	@Override

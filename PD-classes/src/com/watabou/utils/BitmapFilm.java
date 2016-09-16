@@ -21,26 +21,27 @@
 
 package com.watabou.utils;
 
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.HashMap;
 
 public class BitmapFilm {
 
-	public Texture bitmap;
+	public Pixmap bitmap;
 	
 	protected HashMap<Object,Rect> frames = new HashMap<Object, Rect>();
 	
-	public BitmapFilm( Texture bitmap ) {
+	public BitmapFilm( Pixmap bitmap ) {
 		this.bitmap = bitmap;
 		add( null, new Rect( 0, 0, bitmap.getWidth(), bitmap.getHeight() ) );
 	}
 	
-	public BitmapFilm( Texture bitmap, int width ) {
+	public BitmapFilm( Pixmap bitmap, int width ) {
 		this( bitmap, width, bitmap.getHeight() );
 	}
 	
-	public BitmapFilm( Texture bitmap, int width, int height ) {
+	public BitmapFilm( Pixmap bitmap, int width, int height ) {
 		this.bitmap = bitmap;
 		int cols = bitmap.getWidth() / width;
 		int rows = bitmap.getHeight() / height;

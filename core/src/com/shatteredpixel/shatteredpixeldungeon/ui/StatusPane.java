@@ -77,7 +77,7 @@ public class StatusPane extends Component {
 	@Override
 	protected void createChildren() {
 
-		bg = new NinePatch( Assets.STATUS, 85, 0, 45, 0 );
+		bg = new NinePatch( Assets.STATUS, 0, 0, 128, 36, 85, 0, 45, 0 );
 		add( bg );
 
 		add( new TouchArea<GameAction>( 0, 1, 31, 31 ) {
@@ -253,6 +253,8 @@ public class StatusPane extends Component {
 				true );
 	}
 
+	public static boolean needsKeyUpdate = false;
+
 	private static class JournalButton extends Button {
 
 		private Image bg;
@@ -275,6 +277,7 @@ public class StatusPane extends Component {
 
 			icon = new Image( Assets.MENU, 31, 0, 11, 7);
 			add( icon );
+			needsKeyUpdate = true;
 		}
 
 		@Override
@@ -292,10 +295,13 @@ public class StatusPane extends Component {
 		@Override
 		public void update() {
 			super.update();
-			updateKeyDisplay();
+			if (needsKeyUpdate)
+				updateKeyDisplay();
 		}
 
 		public void updateKeyDisplay() {
+			needsKeyUpdate = false;
+
 			boolean foundKeys = false;
 			boolean blackKey = false;
 			boolean specialKey = false;

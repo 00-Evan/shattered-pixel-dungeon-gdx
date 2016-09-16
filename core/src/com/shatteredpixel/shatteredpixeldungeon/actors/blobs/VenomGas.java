@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -41,10 +42,15 @@ public class VenomGas extends Blob {
 			strength = 0;
 		} else {
 			Char ch;
-			for (int i = 0; i < LENGTH; i++) {
-				if (cur[i] > 0 && (ch = Actor.findChar(i)) != null) {
-					if (!ch.immunities().contains(this.getClass()))
-						Buff.affect(ch, Venom.class).set(2f, strength);
+			int cell;
+
+			for (int i = area.left; i < area.right; i++){
+				for (int j = area.top; j < area.bottom; j++){
+					cell = i + j*Dungeon.level.width();
+					if (cur[cell] > 0 && (ch = Actor.findChar( cell )) != null) {
+						if (!ch.immunities().contains(this.getClass()))
+							Buff.affect(ch, Venom.class).set(2f, strength);
+					}
 				}
 			}
 		}
@@ -73,7 +79,7 @@ public class VenomGas extends Blob {
 	public void use( BlobEmitter emitter ) {
 		super.use( emitter );
 
-		emitter.pour( Speck.factory(Speck.VENOM), 0.6f );
+		emitter.pour( Speck.factory(Speck.VENOM), 0.4f );
 	}
 
 	@Override

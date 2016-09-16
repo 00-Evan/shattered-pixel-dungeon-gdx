@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.badlogic.gdx.Gdx;
+import com.watabou.utils.GameMath;
 
 public enum Preferences {
 
@@ -41,7 +42,6 @@ public enum Preferences {
 	public static final String KEY_BARMODE		= "toolbar_mode";
 	public static final String KEY_LANG         = "language";
 	public static final String KEY_CLASSICFONT	= "classic_font";
-	public static final String KEY_DONATED		= "donated";
 	public static final String KEY_INTRO		= "intro";
 	public static final String KEY_BRIGHTNESS	= "brightness";
 	public static final String KEY_VERSION      = "version";
@@ -63,46 +63,67 @@ public enum Preferences {
 		}
 		return prefs;
 	}
-	
-	public int getInt( String key, int defValue  ) {
+
+	public int getInt( String key, int defValue ) {
+		return getInt(key, defValue, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+
+	public int getInt( String key, int defValue, int min, int max ) {
 		try {
-			return get().getInteger(key, defValue);
+			int i = get().getInteger(key, defValue);
+			if (i < min || i > max){
+				int val = (int) GameMath.gate(min, i, max);
+				put(key, val);
+				return val;
+			} else {
+				return i;
+			}
 		} catch (ClassCastException | NumberFormatException e) {
 			ShatteredPixelDungeon.reportException(e);
+			put(key, defValue);
 			return defValue;
 		}
 	}
 	
-	public boolean getBoolean( String key, boolean defValue  ) {
+	public boolean getBoolean( String key, boolean defValue ) {
 		try {
 			return get().getBoolean(key, defValue);
 		} catch (ClassCastException | NumberFormatException e) {
 			ShatteredPixelDungeon.reportException(e);
+			put(key, defValue);
 			return defValue;
 		}
 	}
-	
-	public String getString( String key, String defValue  ) {
+
+	public String getString( String key, String defValue ) {
+		return getString(key, defValue, Integer.MAX_VALUE);
+	}
+
+	public String getString( String key, String defValue, int maxLength ) {
 		try {
-			return get().getString( key, defValue );
+			String s = get().getString( key, defValue );
+			if (s != null && s.length() > maxLength) {
+				put(key, defValue);
+				return defValue;
+			} else {
+				return s;
+			}
 		} catch (ClassCastException | NumberFormatException e) {
 			ShatteredPixelDungeon.reportException(e);
+			put(key, defValue);
 			return defValue;
 		}
 	}
 	
 	public void put( String key, int value ) {
-		get().putInteger(key, value);
-		get().flush();
+		get().putInteger(key, value).flush();
 	}
 	
 	public void put( String key, boolean value ) {
-		get().putBoolean( key, value );
-		get().flush();
+		get().putBoolean( key, value ).flush();
 	}
 	
 	public void put( String key, String value ) {
-		get().putString(key, value);
-		get().flush();
+		get().putString(key, value).flush();
 	}
 }
