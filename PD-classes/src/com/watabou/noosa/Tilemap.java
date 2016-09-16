@@ -236,12 +236,12 @@ public class Tilemap extends Visual {
 			//between them, this culls a good number of none-visible tiles while keeping to 1 draw
 			topLeft = Math.max(camX, 0)
 					+ Math.max(camY*mapWidth, 0);
-			while(bufferPositions[topLeft] == -1)
+			while(topLeft < bufferPositions.length && bufferPositions[topLeft] == -1)
 				topLeft++;
 
 			bottomRight = Math.min(camX+camW, mapWidth-1)
 					+ Math.min((camY+camH)*mapWidth, (mapHeight-1)*mapWidth);
-			while(bufferPositions[bottomRight] == -1)
+			while(bottomRight >= topLeft && bufferPositions[bottomRight] == -1)
 				bottomRight--;
 
 			length = bufferPositions[bottomRight] - bufferPositions[topLeft] + 1;
@@ -250,7 +250,8 @@ public class Tilemap extends Visual {
 		if (camX >= mapWidth
 				|| camY >= mapHeight
 				|| camW + camW <= 0
-				|| camH + camH <= 0)
+				|| camH + camH <= 0
+				|| length <= 0)
 			return;
 
 		NoosaScript script = NoosaScriptNoLighting.get();

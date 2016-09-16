@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.TouchArea;
@@ -44,12 +45,13 @@ import com.watabou.noosa.particles.BitmaskEmitter;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
+import com.watabou.utils.ColorMath;
 
 public class StatusPane extends Component {
 
 	private NinePatch bg;
 	private Image avatar;
-	private Emitter blood;
+	private float warning;
 
 	private int lastTier = 0;
 
@@ -119,13 +121,6 @@ public class StatusPane extends Component {
 
 		avatar = HeroSprite.avatar( Dungeon.hero.heroClass, lastTier );
 		add( avatar );
-
-		blood = new BitmaskEmitter( avatar );
-
-		blood.pour( BloodParticle.FACTORY, 0.3f );
-		blood.autoKill = false;
-		blood.on = false;
-		add( blood );
 
 		compass = new Compass( Dungeon.level.exit );
 		add( compass );
@@ -206,14 +201,13 @@ public class StatusPane extends Component {
 		float max = Dungeon.hero.HT;
 
 		if (!Dungeon.hero.isAlive()) {
-			avatar.tint( 0x000000, 0.6f );
-			blood.on = false;
-		} else if ((health/max) < 0.25f) {
-			avatar.tint( 0xcc0000, 0.4f );
-			blood.on = true;
+			avatar.tint(0x000000, 0.5f);
+		} else if ((health/max) < 0.3f) {
+			warning += Game.elapsed * 5f *(0.4f - (health/max));
+			warning %= 1f;
+			avatar.tint(ColorMath.interpolate(warning, 0x660000, 0xCC0000, 0x660000), 0.5f );
 		} else {
 			avatar.resetColor();
-			blood.on = false;
 		}
 
 		hp.scale.x = Math.max( 0, (health-shield)/max);

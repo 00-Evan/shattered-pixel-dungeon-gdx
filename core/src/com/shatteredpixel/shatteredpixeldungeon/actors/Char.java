@@ -325,7 +325,7 @@ public abstract class Char extends Actor {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends Buff> HashSet<T> buffs( Class<T> c ) {
+	public synchronized <T extends Buff> HashSet<T> buffs( Class<T> c ) {
 		HashSet<T> filtered = new HashSet<>();
 		for (Buff b : buffs) {
 			if (ClassReflection.isInstance( c, b )) {
@@ -334,9 +334,9 @@ public abstract class Char extends Actor {
 		}
 		return filtered;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends Buff> T buff( Class<T> c ) {
+	public synchronized  <T extends Buff> T buff( Class<T> c ) {
 		for (Buff b : buffs) {
 			if (ClassReflection.isInstance( c, b )) {
 				return (T)b;
@@ -437,7 +437,9 @@ public abstract class Char extends Actor {
 	}
 	
 	public void onMotionComplete() {
-		next();
+		//Does nothing by default
+		//The main actor thread already accounts for motion,
+		// so calling next() here isn't necessary (see Actor.process)
 	}
 	
 	public void onAttackComplete() {

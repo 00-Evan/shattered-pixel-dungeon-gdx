@@ -560,7 +560,7 @@ public class Hero extends Char {
 		curAction = lastAction;
 		lastAction = null;
 		damageInterrupt = false;
-		act();
+		next();
 	}
 
 	private boolean moved;
@@ -589,8 +589,7 @@ public class Hero extends Char {
 			
 			ready();
 			sprite.turnTo( pos, npc.pos );
-			npc.interact();
-			return false;
+			return npc.interact();
 			
 		} else {
 			
@@ -1408,8 +1407,6 @@ public class Hero extends Char {
 	public void onMotionComplete() {
 		Dungeon.observe();
 		search( false );
-			
-		super.onMotionComplete();
 	}
 	
 	@Override
