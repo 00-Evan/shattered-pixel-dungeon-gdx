@@ -39,6 +39,9 @@ public class ChangesScene extends PixelScene {
 	private static final String TXT_Update =
 			"_NOTE:_ Desktop version does not currently support translations.\nSupport will be added in the future.\n" +
 			"\n" +
+			"_v0.4.2c:_\n" +
+			"- Desktop specific: fixed various freeze glitches.\n" +
+			"\n" +
 			"_v0.4.2b:_\n" +
 			"- Various bug fixes\n" +
 			"- Improved visual clarity of low hp warning\n" +
