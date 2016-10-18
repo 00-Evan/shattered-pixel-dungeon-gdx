@@ -37,7 +37,7 @@ public class AndroidLauncher extends AndroidApplication {
 		int versionCode;
 		try {
 			version = getPackageManager().getPackageInfo( getPackageName(), 0 ).versionName;
-			versionCode = getPackageManager.getPackageInfo( getPackageName(), 0  ).versionCode;
+			versionCode = getPackageManager().getPackageInfo( getPackageName(), 0  ).versionCode;
 		} catch (PackageManager.NameNotFoundException e) {
 			version = "???";
 			versionCode = 0;

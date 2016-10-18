@@ -202,16 +202,12 @@ public class NoosaScript extends Script {
 
 		//preprocessor directives let us define precision on GLES platforms, and ignore it elsewhere
 		"#ifdef GL_ES\n" +
-		"  #define MEDIUMP mediump\n" +
-		"  #define LOWP lowp\n" +
-		"#else\n" +
-		"  #define MEDIUMP \n" +
-		"  #define LOWP \n" +
+		"precision lowp float;" +
 		"#endif\n" +
-		"varying MEDIUMP vec2 vUV;" +
-		"uniform LOWP sampler2D uTex;" +
-		"uniform LOWP vec4 uColorM;" +
-		"uniform LOWP vec4 uColorA;" +
+		"varying vec2 vUV;" +
+		"uniform sampler2D uTex;" +
+		"uniform vec4 uColorM;" +
+		"uniform vec4 uColorA;" +
 		"void main() {" +
 		"  gl_FragColor = texture2D( uTex, vUV ) * uColorM + uColorA;" +
 		"}";

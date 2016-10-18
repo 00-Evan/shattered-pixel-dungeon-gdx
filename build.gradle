@@ -2,12 +2,13 @@ buildscript {
 	repositories {
 		mavenCentral()
 		mavenLocal()
+		jcenter()
 		maven { url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/' }
 	}
 	dependencies {
 		classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
-		classpath 'com.android.tools.build:gradle:1.1.0'
-		classpath 'com.github.jtakakura:gradle-robovm-plugin:0.0.10'
+		classpath 'com.android.tools.build:gradle:2.2.1'
+		classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.2.0'
 	}
 }
 
@@ -21,8 +22,8 @@ allprojects {
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'
-		gdxVersion = '1.9.1'
-		roboVMVersion = '1.12.0'
+		gdxVersion = '1.9.4'
+		roboVMVersion = '2.2.0'
 	}
 
 	repositories {
@@ -70,8 +71,8 @@ project(":ios") {
 
 	dependencies {
 		compile project(":core")
-		compile "org.robovm:robovm-rt:${roboVMVersion}"
-		compile "org.robovm:robovm-cocoatouch:${roboVMVersion}"
+		compile "com.mobidevelop.robovm:robovm-rt:${roboVMVersion}"
+		compile "com.mobidevelop.robovm:robovm-cocoatouch:${roboVMVersion}"
 		compile "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
 		natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
 	}
