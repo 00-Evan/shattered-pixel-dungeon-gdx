@@ -76,7 +76,7 @@ public class WndInfoCell extends Window {
 				water.frame(0, 0, DungeonTilemap.SIZE, DungeonTilemap.SIZE);
 				titlebar.icon(water);
 			} else {
-				titlebar.icon(DungeonTilemap.tile(tile));
+				titlebar.icon(DungeonTilemap.tile( cell, tile ));
 			}
 			titlebar.label(Dungeon.level.tileName(tile));
 			desc += Dungeon.level.tileDesc(tile);
@@ -89,7 +89,7 @@ public class WndInfoCell extends Window {
 		add(info);
 
 		for (Blob blob:Dungeon.level.blobs.values()) {
-			if (blob.cur[cell] > 0 && blob.tileDesc() != null) {
+			if (blob.volume > 0 && blob.cur[cell] > 0 && blob.tileDesc() != null) {
 				if (desc.length() > 0) {
 					desc += "\n\n";
 				}

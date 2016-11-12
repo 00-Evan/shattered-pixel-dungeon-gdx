@@ -134,12 +134,9 @@ public class WndSettings extends WndTabbed {
 				}
 			};
 			scale.setSelectedValue(PixelScene.defaultZoom);
-			if ((int)Math.ceil(2* Game.density) < PixelScene.maxDefaultZoom) {
-				scale.setRect(0, 0, WIDTH, SLIDER_HEIGHT);
+			scale.setRect(0, 0, WIDTH, SLIDER_HEIGHT);
+			if ((int)Math.ceil(2* Game.density) < PixelScene.maxDefaultZoom)
 				add(scale);
-			} else {
-				scale.setRect(0, 0, 0, 0);
-			}
 
 			OptionSlider brightness = new OptionSlider(Messages.get(this, "brightness"),
 					Messages.get(this, "dark"), Messages.get(this, "bright"), -2, 2) {
@@ -149,7 +146,7 @@ public class WndSettings extends WndTabbed {
 				}
 			};
 			brightness.setSelectedValue(ShatteredPixelDungeon.brightness());
-			brightness.setRect(0, scale.bottom() + GAP_SML, WIDTH, SLIDER_HEIGHT);
+			brightness.setRect(0, scale.bottom() + GAP_TINY, WIDTH, SLIDER_HEIGHT);
 			add(brightness);
 
 			/*	if (Gdx.app.getType() == Application.ApplicationType.Android || Gdx.app.getType() == Application.ApplicationType.iOS) {

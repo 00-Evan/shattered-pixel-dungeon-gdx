@@ -16,9 +16,9 @@ allprojects {
 	apply plugin: "eclipse"
 	apply plugin: "idea"
 
-	version = '0.4.2c'
+	version = '0.4.3c'
 	ext {
-		versionCode = 130
+		versionCode = 148
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'

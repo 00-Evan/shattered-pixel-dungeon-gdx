@@ -70,9 +70,9 @@ public class WandOfFrost extends DamageWand {
 				return; //do nothing, can't affect a frozen target
 			}
 			if (ch.buff(Chill.class) != null){
-				//5% less damage per turn of chill remaining
+				//7.5% less damage per turn of chill remaining
 				float chill = ch.buff(Chill.class).cooldown();
-				damage = (int)Math.round(damage * Math.pow(0.95f, chill));
+				damage = (int)Math.round(damage * Math.pow(0.925f, chill));
 			} else {
 				ch.sprite.burst( 0xFF99CCFF, level() / 2 + 2 );
 			}
@@ -114,12 +114,12 @@ public class WandOfFrost extends DamageWand {
 	public void staffFx(MagesStaff.StaffParticle particle) {
 		particle.color(0x88CCFF);
 		particle.am = 0.6f;
-		particle.setLifespan(1.5f);
+		particle.setLifespan(2f);
 		float angle = Random.Float(PointF.PI2);
 		particle.speed.polar( angle, 2f);
 		particle.acc.set( 0f, 1f);
 		particle.setSize( 0f, 1.5f);
-		particle.radiateXY(Random.Float(2f));
+		particle.radiateXY(Random.Float(1f));
 	}
 
 }

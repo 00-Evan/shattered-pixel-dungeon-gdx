@@ -65,13 +65,7 @@ public class Terrain {
 	public static final int BOOKSHELF		= 27;
 	public static final int ALCHEMY			= 28;
 
-	public static final int CHASM_FLOOR		= 29;
-	public static final int CHASM_FLOOR_SP	= 30;
-	public static final int CHASM_WALL		= 31;
-	public static final int CHASM_WATER		= 32;
-
-	public static final int WATER_TILES	    = 48;
-	public static final int WATER		    = 63;
+	public static final int WATER		    = 29;
 	
 	public static final int PASSABLE		= 0x01;
 	public static final int LOS_BLOCKING	= 0x02;
@@ -82,29 +76,27 @@ public class Terrain {
 	public static final int LIQUID			= 0x40;
 	public static final int PIT				= 0x80;
 	
-	public static final int UNSTITCHABLE	= 0x100;
-	
 	public static final int[] flags = new int[256];
 	static {
-		flags[CHASM]		= AVOID	| PIT									| UNSTITCHABLE;
+		flags[CHASM]		= AVOID	| PIT;
 		flags[EMPTY]		= PASSABLE;
 		flags[GRASS]		= PASSABLE | FLAMABLE;
 		flags[EMPTY_WELL]	= PASSABLE;
-		flags[WATER]		= PASSABLE | LIQUID 							| UNSTITCHABLE;
-		flags[WALL]			= LOS_BLOCKING | SOLID 							| UNSTITCHABLE;
-		flags[DOOR]			= PASSABLE | LOS_BLOCKING | FLAMABLE | SOLID	| UNSTITCHABLE;
-		flags[OPEN_DOOR]	= PASSABLE | FLAMABLE 							| UNSTITCHABLE;
+		flags[WATER]		= PASSABLE | LIQUID;
+		flags[WALL]			= LOS_BLOCKING | SOLID;
+		flags[DOOR]			= PASSABLE | LOS_BLOCKING | FLAMABLE | SOLID;
+		flags[OPEN_DOOR]	= PASSABLE | FLAMABLE;
 		flags[ENTRANCE]		= PASSABLE/* | SOLID*/;
 		flags[EXIT]			= PASSABLE;
 		flags[EMBERS]		= PASSABLE;
-		flags[LOCKED_DOOR]	= LOS_BLOCKING | SOLID 							| UNSTITCHABLE;
-		flags[PEDESTAL]		= PASSABLE 										| UNSTITCHABLE;
+		flags[LOCKED_DOOR]	= LOS_BLOCKING | SOLID;
+		flags[PEDESTAL]		= PASSABLE;
 		flags[WALL_DECO]	= flags[WALL];
 		flags[BARRICADE]	= FLAMABLE | SOLID | LOS_BLOCKING;
-		flags[EMPTY_SP]		= flags[EMPTY]									| UNSTITCHABLE;
+		flags[EMPTY_SP]		= flags[EMPTY];
 		flags[HIGH_GRASS]	= PASSABLE | LOS_BLOCKING | FLAMABLE;
 
-		flags[SECRET_DOOR]  = flags[WALL]  | SECRET	            			| UNSTITCHABLE;
+		flags[SECRET_DOOR]  = flags[WALL]  | SECRET;
 		flags[SECRET_TRAP]  = flags[EMPTY] | SECRET;
 		flags[TRAP]         = AVOID;
 		flags[INACTIVE_TRAP]= flags[EMPTY];
@@ -115,18 +107,10 @@ public class Terrain {
 		flags[SIGN]			= PASSABLE | FLAMABLE;
 		flags[WELL]			= AVOID;
 		flags[STATUE]		= SOLID;
-		flags[STATUE_SP]	= flags[STATUE] 								| UNSTITCHABLE;
-		flags[BOOKSHELF]	= flags[BARRICADE]								| UNSTITCHABLE;
+		flags[STATUE_SP]	= flags[STATUE];
+		flags[BOOKSHELF]	= flags[BARRICADE];
 		flags[ALCHEMY]		= PASSABLE;
-		
-		flags[CHASM_WALL]		= flags[CHASM];
-		flags[CHASM_FLOOR]		= flags[CHASM];
-		flags[CHASM_FLOOR_SP]	= flags[CHASM];
-		flags[CHASM_WATER]		= flags[CHASM];
-		
-		for (int i=WATER_TILES; i < WATER_TILES + 16; i++) {
-			flags[i] = flags[WATER];
-		}
+
 	};
 
 	public static int discover( int terr ) {
@@ -138,6 +122,27 @@ public class Terrain {
 		default:
 			return terr;
 		}
+	}
+
+	//converts terrain values from pre versioncode 120 (0.4.3) saves
+	//TODO: remove when no longer supporting saves from 0.4.2b and under
+	public static int[] convertTilesFrom129(int[] map){
+		for (int i = 0; i < map.length; i++){
+
+			int c = map[i];
+
+			if (c >= 29){
+				if (c <= 32){
+					c = 0; //chasm tiles
+				} else {
+					c = 29; //water tiles
+				}
+			}
+
+			map[i] = c;
+
+		}
+		return map;
 	}
 
 	//converts terrain values from pre versioncode 44 (0.3.0c) saves

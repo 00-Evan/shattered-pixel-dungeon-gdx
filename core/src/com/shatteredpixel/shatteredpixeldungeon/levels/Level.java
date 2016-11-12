@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -173,6 +174,8 @@ public abstract class Level implements Bundlable {
 
 	public void create() {
 
+		Random.seed( Dungeon.seedCurDepth() );
+
 		setupSize();
 		PathFinder.setMapSize(width(), height());
 		passable	= new boolean[length()];
@@ -275,6 +278,8 @@ public abstract class Level implements Bundlable {
 		
 		createMobs();
 		createItems();
+
+		Random.seed();
 	}
 
 	protected void setupSize(){
@@ -328,6 +333,11 @@ public abstract class Level implements Bundlable {
 		//for pre-0.3.0c saves
 		if (version < 44){
 			map = Terrain.convertTrapsFrom43( map, traps );
+		}
+
+		//for pre-0.4.3 saves
+		if (version < 131){
+			map = Terrain.convertTilesFrom129( map );
 		}
 		
 		Collection<Bundlable> collection = bundle.getCollection( HEAPS );
@@ -583,62 +593,20 @@ public abstract class Level implements Bundlable {
 			passable[i] = avoid[i] = false;
 			passable[i + width()-1] = avoid[i + width()-1] = false;
 		}
-		 
-		for (int i=width(); i < length() - width(); i++) {
-			
-			if (water[i]) {
-				map[i] = getWaterTile( i );
-			}
-			
-			if (pit[i]) {
-				if (!pit[i - width()]) {
-					int c = map[i - width()];
-					if (c == Terrain.EMPTY_SP || c == Terrain.STATUE_SP) {
-						map[i] = Terrain.CHASM_FLOOR_SP;
-					} else if (water[i - width()]) {
-						map[i] = Terrain.CHASM_WATER;
-					} else if ((Terrain.flags[c] & Terrain.UNSTITCHABLE) != 0) {
-						map[i] = Terrain.CHASM_WALL;
-					} else {
-						map[i] = Terrain.CHASM_FLOOR;
-					}
-				}
-			}
-		}
-	}
-
-	//FIXME this is a temporary fix here to avoid changing the tiles texture
-	//This logic will be changed in 0.4.3 anyway
-	private static int[] N4Indicies = new int[]{0, 2, 3, 1};
-	private int getWaterTile( int pos ) {
-		int t = Terrain.WATER_TILES;
-		for (int j=0; j < PathFinder.NEIGHBOURS4.length; j++) {
-			if ((Terrain.flags[map[pos + PathFinder.NEIGHBOURS4[N4Indicies[j]]]] & Terrain.UNSTITCHABLE) != 0) {
-				t += 1 << j;
-			}
-		}
-		return t;
 	}
 
 	public void destroy( int pos ) {
-		if ((Terrain.flags[map[pos]] & Terrain.UNSTITCHABLE) == 0) {
 
-			set( pos, Terrain.EMBERS );
-
-		} else {
-			boolean flood = false;
+		if (!DungeonTilemap.waterStitcheable.contains(map[pos])) {
 			for (int j = 0; j < PathFinder.NEIGHBOURS4.length; j++) {
 				if (water[pos + PathFinder.NEIGHBOURS4[j]]) {
-					flood = true;
-					break;
+					set(pos, Terrain.WATER);
+					return;
 				}
 			}
-			if (flood) {
-				set( pos, getWaterTile( pos ) );
-			} else {
-				set( pos, Terrain.EMBERS );
-			}
 		}
+
+		set( pos, Terrain.EMBERS );
 	}
 
 	protected void cleanWalls() {
@@ -687,7 +655,7 @@ public abstract class Level implements Bundlable {
 		solid[cell]			= (flags & Terrain.SOLID) != 0;
 		avoid[cell]			= (flags & Terrain.AVOID) != 0;
 		pit[cell]			= (flags & Terrain.PIT) != 0;
-		water[cell]			= terrain == Terrain.WATER || terrain >= Terrain.WATER_TILES;
+		water[cell]			= terrain == Terrain.WATER;
 	}
 	
 	public Heap drop( Item item, int cell ) {
@@ -766,18 +734,19 @@ public abstract class Level implements Bundlable {
 				map[pos] == Terrain.EMPTY_DECO) {
 			map[pos] = Terrain.GRASS;
 			flamable[pos] = true;
-			GameScene.updateMap( pos );
 		}
 		
 		plant = seed.couch( pos );
 		plants.put( pos, plant );
 		
-		GameScene.add( plant );
+		GameScene.plantSeed( pos );
 		
 		return plant;
 	}
 	
 	public void uproot( int pos ) {
+		plants.remove(pos);
+		GameScene.updateMap( pos );
 		plants.remove( pos );
 	}
 
@@ -785,11 +754,10 @@ public abstract class Level implements Bundlable {
 		Trap existingTrap = traps.get(pos);
 		if (existingTrap != null){
 			traps.remove( pos );
-			if(existingTrap.sprite != null) existingTrap.sprite.kill();
 		}
 		trap.set( pos );
 		traps.put( pos, trap );
-		GameScene.add(trap);
+		GameScene.updateMap( pos );
 		return trap;
 	}
 
@@ -847,7 +815,7 @@ public abstract class Level implements Bundlable {
 			break;
 			
 		case Terrain.DOOR:
-			Door.enter( cell, ch );
+			Door.enter( cell );
 			break;
 		}
 
@@ -895,7 +863,7 @@ public abstract class Level implements Bundlable {
 			break;
 			
 		case Terrain.DOOR:
-			Door.enter( cell, mob );
+			Door.enter( cell );
 			break;
 		}
 		
@@ -1018,14 +986,6 @@ public abstract class Level implements Bundlable {
 	
 	public String tileName( int tile ) {
 		
-		if (tile >= Terrain.WATER_TILES) {
-			return tileName( Terrain.WATER );
-		}
-		
-		if (tile != Terrain.CHASM && (Terrain.flags[tile] & Terrain.PIT) != 0) {
-			return tileName( Terrain.CHASM );
-		}
-		
 		switch (tile) {
 			case Terrain.CHASM:
 				return Messages.get(Level.class, "chasm_name");
@@ -1118,12 +1078,6 @@ public abstract class Level implements Bundlable {
 			case Terrain.EMPTY_WELL:
 				return Messages.get(Level.class, "empty_well_desc");
 			default:
-				if (tile >= Terrain.WATER_TILES) {
-					return tileDesc( Terrain.WATER );
-				}
-				if ((Terrain.flags[tile] & Terrain.PIT) != 0) {
-					return tileDesc( Terrain.CHASM );
-				}
 				return Messages.get(Level.class, "default_desc");
 		}
 	}

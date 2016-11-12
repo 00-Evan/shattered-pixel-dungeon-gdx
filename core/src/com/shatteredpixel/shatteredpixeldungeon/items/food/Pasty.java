@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -37,26 +38,33 @@ public class Pasty extends Food {
 	private enum Holiday{
 		NONE,
 		EASTER, //TBD
-		HALLOWEEN,//TBD
+		HWEEN,//2nd week of october though first day of november
 		XMAS //3rd week of december through first week of january
 	}
 
 	private static Holiday holiday;
 
 	static{
-		final Calendar calendar = Calendar.getInstance();
+
 		holiday = Holiday.NONE;
-		//we add 1 to turn it into standard calendar months (1-12 instead of 0-11)
-		switch(calendar.get(Calendar.MONTH)+1){
-			case 1:
-				if (calendar.get(Calendar.WEEK_OF_MONTH) == 1){
+
+		final Calendar calendar = Calendar.getInstance();
+		switch(calendar.get(Calendar.MONTH)){
+			case Calendar.JANUARY:
+				if (calendar.get(Calendar.WEEK_OF_MONTH) == 1)
 					holiday = Holiday.XMAS;
-				}
 				break;
-			case 12:
-				if (calendar.get(Calendar.WEEK_OF_MONTH) >= 3){
+			case Calendar.OCTOBER:
+				if (calendar.get(Calendar.WEEK_OF_MONTH) >= 2)
+					holiday = Holiday.HWEEN;
+				break;
+			case Calendar.NOVEMBER:
+				if (calendar.get(Calendar.DAY_OF_MONTH) == 1)
+					holiday = Holiday.HWEEN;
+				break;
+			case Calendar.DECEMBER:
+				if (calendar.get(Calendar.WEEK_OF_MONTH) >= 3)
 					holiday = Holiday.XMAS;
-				}
 				break;
 		}
 	}
@@ -67,7 +75,11 @@ public class Pasty extends Food {
 			case NONE:
 				name = Messages.get(this, "pasty");
 				image = ItemSpriteSheet.PASTY;
-			break;
+				break;
+			case HWEEN:
+				name = Messages.get(this, "pie");
+				image = ItemSpriteSheet.PUMPKIN_PIE;
+				break;
 			case XMAS:
 				name = Messages.get(this, "cane");
 				image = ItemSpriteSheet.CANDY_CANE;
@@ -86,8 +98,13 @@ public class Pasty extends Food {
 
 		if (action.equals(AC_EAT)){
 			switch(holiday){
-				case NONE: default:
+				case NONE:
 					break; //do nothing extra
+				case HWEEN:
+					//heals for 10% max hp
+					hero.HP = Math.min(hero.HP + hero.HT/10, hero.HT);
+					hero.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
+					break;
 				case XMAS:
 					Buff.affect( hero, Recharging.class, 2f ); //half of a charge
 					ScrollOfRecharging.charge( hero );
@@ -101,6 +118,8 @@ public class Pasty extends Food {
 		switch(holiday){
 			case NONE: default:
 				return Messages.get(this, "pasty_desc");
+			case HWEEN:
+				return Messages.get(this, "pie_desc");
 			case XMAS:
 				return Messages.get(this, "cane_desc");
 		}

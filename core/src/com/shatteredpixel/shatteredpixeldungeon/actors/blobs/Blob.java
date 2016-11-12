@@ -89,21 +89,23 @@ public class Blob extends Actor {
 		
 		super.restoreFromBundle( bundle );
 
-		if (bundle.contains(LENGTH)) {
-			cur = new int[bundle.getInt(LENGTH)];
-		} else {
-			//compatability with pre-0.4.2
-			cur = new int[1024];
-		}
-		off = new int[cur.length];
-		
-		int[] data = bundle.getIntArray( CUR );
-		if (data != null) {
-			int start = bundle.getInt( START );
-			for (int i=0; i < data.length; i++) {
+		if (bundle.contains( CUR )) {
+
+			if (bundle.contains(LENGTH)) {
+				cur = new int[bundle.getInt(LENGTH)];
+			} else {
+				//compatability with pre-0.4.2
+				cur = new int[1024];
+			}
+			off = new int[cur.length];
+
+			int[] data = bundle.getIntArray(CUR);
+			int start = bundle.getInt(START);
+			for (int i = 0; i < data.length; i++) {
 				cur[i + start] = data[i];
 				volume += data[i];
 			}
+
 		}
 	}
 	
@@ -207,6 +209,7 @@ public class Blob extends Actor {
 	}
 	
 	public void clear( int cell ) {
+		if (volume == 0) return;
 		volume -= cur[cell];
 		cur[cell] = 0;
 	}
@@ -239,6 +242,15 @@ public class Blob extends Actor {
 		} catch (Exception e) {
 			ShatteredPixelDungeon.reportException(e);
 			return null;
+		}
+	}
+
+	public static int volumeAt( int cell, Class<? extends Blob> type){
+		Blob gas = Dungeon.level.blobs.get( type );
+		if (gas == null || gas.volume == 0) {
+			return 0;
+		} else {
+			return gas.cur[cell];
 		}
 	}
 }

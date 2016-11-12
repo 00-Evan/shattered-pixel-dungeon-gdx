@@ -111,9 +111,9 @@ public class WandOfRegrowth extends Wand {
 		if (strength >= 0 && Level.passable[cell] && !Level.losBlocking[cell]){
 			affectedCells.add(cell);
 			if (strength >= 1.5f) {
-				spreadRegrowth(cell + PathFinder.CIRCLE[left(direction)], strength - 1.5f);
-				spreadRegrowth(cell + PathFinder.CIRCLE[direction], strength - 1.5f);
-				spreadRegrowth(cell + PathFinder.CIRCLE[right(direction)], strength-1.5f);
+				spreadRegrowth(cell + PathFinder.CIRCLE8[left(direction)], strength - 1.5f);
+				spreadRegrowth(cell + PathFinder.CIRCLE8[direction], strength - 1.5f);
+				spreadRegrowth(cell + PathFinder.CIRCLE8[right(direction)], strength-1.5f);
 			} else {
 				visualCells.add(cell);
 			}
@@ -188,8 +188,8 @@ public class WandOfRegrowth extends Wand {
 		int maxDist = Math.round(1.2f + chargesPerCast()*.8f);
 		int dist = Math.min(bolt.dist, maxDist);
 
-		for (int i = 0; i < PathFinder.CIRCLE.length; i++){
-			if (bolt.sourcePos+PathFinder.CIRCLE[i] == bolt.path.get(1)){
+		for (int i = 0; i < PathFinder.CIRCLE8.length; i++){
+			if (bolt.sourcePos+PathFinder.CIRCLE8[i] == bolt.path.get(1)){
 				direction = i;
 				break;
 			}
@@ -200,9 +200,9 @@ public class WandOfRegrowth extends Wand {
 			strength--; //as we start at dist 1, not 0.
 			if (!Level.losBlocking[c]) {
 				affectedCells.add(c);
-				spreadRegrowth(c + PathFinder.CIRCLE[left(direction)], strength - 1);
-				spreadRegrowth(c + PathFinder.CIRCLE[direction], strength - 1);
-				spreadRegrowth(c + PathFinder.CIRCLE[right(direction)], strength - 1);
+				spreadRegrowth(c + PathFinder.CIRCLE8[left(direction)], strength - 1);
+				spreadRegrowth(c + PathFinder.CIRCLE8[direction], strength - 1);
+				spreadRegrowth(c + PathFinder.CIRCLE8[right(direction)], strength - 1);
 			} else {
 				visualCells.add(c);
 			}
@@ -235,9 +235,9 @@ public class WandOfRegrowth extends Wand {
 	public void staffFx(MagesStaff.StaffParticle particle) {
 		particle.color( ColorMath.random(0x004400, 0x88CC44) );
 		particle.am = 1f;
-		particle.setLifespan(1.2f);
-		particle.setSize( 1f, 2f);
-		particle.shuffleXY(1f);
+		particle.setLifespan(1f);
+		particle.setSize( 1f, 1.5f);
+		particle.shuffleXY(0.5f);
 		float dst = Random.Float(11f);
 		particle.x -= dst;
 		particle.y += dst;

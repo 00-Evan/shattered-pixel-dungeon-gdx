@@ -58,6 +58,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Obfuscation;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
@@ -110,6 +111,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -336,7 +338,8 @@ public class Hero extends Char {
 		}
 		if (dmg < 0) dmg = 0;
 		if (subClass == HeroSubClass.BERSERKER){
-			dmg = Buff.affect(this, Berserk.class).damageFactor(dmg);
+			berserk = Buff.affect(this, Berserk.class);
+			dmg = berserk.damageFactor(dmg);
 		}
 		return buff( Fury.class ) != null ? (int)(dmg * 1.5f) : dmg;
 	}
@@ -427,7 +430,7 @@ public class Hero extends Char {
 			//But there's going to be that one guy who gets a furor+force ring combo
 			//This is for that one guy, you shall get your fists of fury!
 			int bonus = RingOfFuror.getBonus(this, RingOfFuror.Furor.class);
-			return (float)(0.25 + (1 - 0.25)*Math.pow(0.8, bonus));
+			return (float)(0.2 + (1 - 0.2)*Math.pow(0.85, bonus));
 		}
 	}
 
@@ -967,6 +970,10 @@ public class Hero extends Char {
 			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/2;
 		}
 
+		if (subClass == HeroSubClass.BERSERKER && berserk == null){
+			berserk = Buff.affect(this, Berserk.class);
+		}
+
 		super.damage( dmg, src );
 	}
 	
@@ -1054,11 +1061,12 @@ public class Hero extends Char {
 			else if (path.getLast() != target)
 				newPath = true;
 			else {
-				//checks 2 cells ahead for validity.
+				//looks ahead for path validity, up to length-1 or 2.
 				//Note that this is shorter than for mobs, so that mobs usually yield to the hero
-				for (int i = 0; i < Math.min(path.size(), 2); i++){
+				int lookAhead = (int) GameMath.gate(0, path.size()-1, 2);
+				for (int i = 0; i < lookAhead; i++){
 					int cell = path.get(i);
-					if (!Level.passable[cell] || ((i != path.size()-1) && Dungeon.visible[cell] && Actor.findChar(cell) != null)) {
+					if (!Level.passable[cell] || (Dungeon.visible[cell] && Actor.findChar(cell) != null)) {
 						newPath = true;
 						break;
 					}
@@ -1086,9 +1094,18 @@ public class Hero extends Char {
 
 		if (step != -1) {
 
+			int moveTime = 1;
+			if (belongings.armor != null && belongings.armor.hasGlyph(Stone.class) &&
+							(Dungeon.level.map[pos] == Terrain.DOOR
+							|| Dungeon.level.map[pos] == Terrain.OPEN_DOOR
+							|| Dungeon.level.map[step] == Terrain.DOOR
+							|| Dungeon.level.map[step] == Terrain.OPEN_DOOR )){
+				moveTime *= 2;
+			}
 			sprite.move(pos, step);
 			move(step);
-			spend( 1 / speed() );
+
+			spend( moveTime / speed() );
 			
 			return true;
 
@@ -1176,7 +1193,10 @@ public class Hero extends Char {
 		HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class);
 		if (horn != null) horn.gainCharge(percent);
 
-		if (subClass == HeroSubClass.BERSERKER) Buff.affect(this, Berserk.class).recover(percent);
+		if (subClass == HeroSubClass.BERSERKER){
+			berserk = Buff.affect(this, Berserk.class);
+			berserk.recover(percent);
+		}
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
@@ -1343,6 +1363,7 @@ public class Hero extends Char {
 		Bones.leave();
 		
 		Dungeon.observe();
+		GameScene.updateFog();
 				
 		Dungeon.hero.belongings.identify();
 
@@ -1377,13 +1398,17 @@ public class Hero extends Char {
 		Dungeon.deleteGame( Dungeon.hero.heroClass, true );
 	}
 
+	//effectively cache this buff to prevent having to call buff(Berserk.class) a bunch.
+	//This is relevant because we call isAlive during drawing, which has both performance
+	//and concurrent modification implications if that method calls buff(Berserk.class)
+	private Berserk berserk;
+
 	@Override
 	public boolean isAlive() {
-		if (subClass == HeroSubClass.BERSERKER){
-			Berserk berserk = buff(Berserk.class);
-			if (berserk != null && berserk.berserking()){
-				return true;
-			}
+		if (subClass == HeroSubClass.BERSERKER
+				&& berserk != null
+				&& berserk.berserking()){
+			return true;
 		}
 		return super.isAlive();
 	}

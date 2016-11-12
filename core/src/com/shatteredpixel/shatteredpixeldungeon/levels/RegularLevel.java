@@ -29,11 +29,14 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.ShopPainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ChillingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ExplosiveTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.FireTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornTrap;
@@ -44,15 +47,13 @@ import com.watabou.utils.Random;
 import com.watabou.utils.Rect;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public abstract class RegularLevel extends Level {
 
-	protected HashSet<Room> rooms;
+	protected ArrayList<Room> rooms;
 	
 	protected Room roomEntrance;
 	protected Room roomExit;
@@ -92,7 +93,7 @@ public abstract class RegularLevel extends Level {
 		roomEntrance.type = Type.ENTRANCE;
 		roomExit.type = Type.EXIT;
 		
-		HashSet<Room> connected = new HashSet<Room>();
+		ArrayList<Room> connected = new ArrayList<>();
 		connected.add( roomEntrance );
 
 		Graph.buildDistanceMap( rooms, roomExit );
@@ -181,7 +182,7 @@ public abstract class RegularLevel extends Level {
 	
 	protected boolean initRooms() {
 
-		rooms = new HashSet<>();
+		rooms = new ArrayList<>();
 		split( new Rect( 0, 0, width() - 1, height() - 1 ) );
 		
 		if (rooms.size() < 8) {
@@ -249,7 +250,7 @@ public abstract class RegularLevel extends Level {
 					
 				} else if (Random.Int( 2 ) == 0){
 
-					HashSet<Room> neigbours = new HashSet<Room>();
+					ArrayList<Room> neigbours = new ArrayList<>();
 					for (Room n : r.neigbours) {
 						if (!r.connected.containsKey( n ) &&
 							!Room.SPECIALS.contains( n.type ) &&
@@ -281,12 +282,14 @@ public abstract class RegularLevel extends Level {
 				}
 			}
 		}
-		
+
 		while (count < 6) {
-			Room r = randomRoom( Type.TUNNEL, 1 );
+			Room r = randomRoom( Type.TUNNEL, 20 );
 			if (r != null) {
 				r.type = Type.STANDARD;
 				count++;
+			} else {
+				return false;
 			}
 		}
 
@@ -339,7 +342,7 @@ public abstract class RegularLevel extends Level {
 		float[] trapChances = trapChances();
 		Class<?>[] trapClasses = trapClasses();
 
-		LinkedList<Integer> validCells = new LinkedList<Integer>();
+		ArrayList<Integer> validCells = new ArrayList<>();
 
 		for (int i = 0; i < length(); i ++) {
 			if (map[i] == Terrain.EMPTY){
@@ -358,11 +361,10 @@ public abstract class RegularLevel extends Level {
 		//no more than one trap every 5 valid tiles.
 		nTraps = Math.min(nTraps, validCells.size()/5);
 
-		Collections.shuffle(validCells);
-
 		for (int i = 0; i < nTraps; i++) {
 			
-			int trapPos = validCells.removeFirst();
+			Integer trapPos = Random.element(validCells);
+			validCells.remove(trapPos); //removes the integer object, not at the index
 
 			try {
 				Trap trap = ((Trap)trapClasses[Random.chances( trapChances )].newInstance()).hide();
@@ -409,7 +411,7 @@ public abstract class RegularLevel extends Level {
 			split( new Rect( rect.left, vh, rect.right, rect.bottom ) );
 			
 		} else
-		if ((Math.random() <= (minRoomSize * minRoomSize / rect.square()) && w <= maxRoomSize && h <= maxRoomSize) || w < minRoomSize || h < minRoomSize) {
+		if ((Random.Float() <= (minRoomSize * minRoomSize / rect.square()) && w <= maxRoomSize && h <= maxRoomSize) || w < minRoomSize || h < minRoomSize) {
 
 			rooms.add( (Room)new Room().set( rect ) );
 			
@@ -582,7 +584,7 @@ public abstract class RegularLevel extends Level {
 		//on floor 1, 10 rats are created so the player can get level 2.
 		int mobsToSpawn = Dungeon.depth == 1 ? 10 : nMobs();
 
-		HashSet<Room> stdRooms = new HashSet<>();
+		ArrayList<Room> stdRooms = new ArrayList<>();
 		for (Room room : rooms) {
 			if (room.type == Type.STANDARD) stdRooms.add(room);
 		}
@@ -692,13 +694,20 @@ public abstract class RegularLevel extends Level {
 		}
 
 		for (Item item : itemsToSpawn) {
-			int cell = randomDropCell();
-			if (item instanceof Scroll) {
-				while ((map[cell] == Terrain.TRAP || map[cell] == Terrain.SECRET_TRAP)
-						&& traps.get( cell ) instanceof FireTrap) {
-					cell = randomDropCell();
+			int cell;
+			do {
+				cell = randomDropCell();
+				if (item instanceof Scroll) {
+					while (traps.get(cell) instanceof FireTrap) {
+						cell = randomDropCell();
+					}
+
+				} else if (item instanceof Potion) {
+					while (traps.get(cell) instanceof ChillingTrap) {
+						cell = randomDropCell();
+					}
 				}
-			}
+			} while (traps.get(cell) instanceof ExplosiveTrap);
 			drop( item, cell ).type = Heap.Type.HEAP;
 		}
 		
@@ -762,7 +771,7 @@ public abstract class RegularLevel extends Level {
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		
-		rooms = new HashSet( bundle.getCollection( "rooms" ) );
+		rooms = new ArrayList<>( (Collection<Room>) ((Collection<?>) bundle.getCollection( "rooms" )) );
 		for (Room r : rooms) {
 			if (r.type == Type.WEAK_FLOOR) {
 				weakFloorCreated = true;

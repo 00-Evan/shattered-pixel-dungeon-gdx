@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PushbackInputStream;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -77,6 +78,10 @@ public class Bundle {
 	public int getInt( String key ) {
 		return data.optInt( key );
 	}
+
+	public long getLong( String key ) {
+		return data.optLong( key );
+	}
 	
 	public float getFloat( String key ) {
 		return (float)data.optDouble( key, 0.0 );
@@ -96,6 +101,7 @@ public class Bundle {
 				Class cl = Class.forName( clName );
 				return cl;
 			} catch (ClassNotFoundException e) {
+				reportException(e);
 				return null;
 			}
 		}
@@ -115,7 +121,7 @@ public class Bundle {
 			}
 			
 			Class<?> cl = ClassReflection.forName( clName );
-			if (cl != null) {
+			if (cl != null && (!cl.isMemberClass() || Modifier.isStatic(cl.getModifiers()))) {
 				Bundlable object = (Bundlable) ClassReflection.newInstance(cl);
 				object.restoreFromBundle( this );
 				return object;
@@ -123,6 +129,7 @@ public class Bundle {
 				return null;
 			}
 		} catch (ReflectionException e ) {
+			reportException(e);
 			return null;
 		}
 	}
@@ -135,6 +142,7 @@ public class Bundle {
 		try {
 			return Enum.valueOf( enumClass, data.getString( key ) );
 		} catch (JSONException e) {
+			reportException(e);
 			return enumClass.getEnumConstants()[0];
 		}
 	}
@@ -149,6 +157,7 @@ public class Bundle {
 			}
 			return result;
 		} catch (JSONException e) {
+			reportException(e);
 			return null;
 		}
 	}
@@ -163,6 +172,7 @@ public class Bundle {
 			}
 			return result;
 		} catch (JSONException e) {
+			reportException(e);
 			return null;
 		}
 	}
@@ -177,6 +187,7 @@ public class Bundle {
 			}
 			return result;
 		} catch (JSONException e) {
+			reportException(e);
 			return null;
 		}
 	}
@@ -195,11 +206,13 @@ public class Bundle {
 					Class cl = Class.forName( clName );
 					result[i] = cl;
 				} catch (ClassNotFoundException e) {
+					reportException(e);
 					result[i] = null;
 				}
 			}
 			return result;
 		} catch (JSONException e) {
+			reportException(e);
 			return null;
 		}
 	}
@@ -215,7 +228,7 @@ public class Bundle {
 				if (O != null) list.add( O );
 			}
 		} catch (JSONException e) {
-			
+			reportException(e);
 		}
 		
 		return list;
@@ -233,7 +246,7 @@ public class Bundle {
 		try {
 			data.put( key, value );
 		} catch (JSONException e) {
-
+			reportException(e);
 		}
 	}
 	
@@ -241,7 +254,15 @@ public class Bundle {
 		try {
 			data.put( key, value );
 		} catch (JSONException e) {
+			reportException(e);
+		}
+	}
 
+	public void put( String key, long value ) {
+		try {
+			data.put( key, value );
+		} catch (JSONException e) {
+			reportException(e);
 		}
 	}
 	
@@ -249,7 +270,7 @@ public class Bundle {
 		try {
 			data.put( key, value );
 		} catch (JSONException e) {
-
+			reportException(e);
 		}
 	}
 
@@ -257,7 +278,7 @@ public class Bundle {
 		try {
 			data.put( key, value );
 		} catch (JSONException e) {
-
+			reportException(e);
 		}
 	}
 	
@@ -265,7 +286,7 @@ public class Bundle {
 		try {
 			data.put( key, bundle.data );
 		} catch (JSONException e) {
-
+			reportException(e);
 		}
 	}
 	
@@ -277,6 +298,7 @@ public class Bundle {
 				object.storeInBundle( bundle );
 				data.put( key, bundle.data );
 			} catch (JSONException e) {
+				reportException(e);
 			}
 		}
 	}
@@ -286,6 +308,7 @@ public class Bundle {
 			try {
 				data.put( key, value.name() );
 			} catch (JSONException e) {
+				reportException(e);
 			}
 		}
 	}
@@ -298,7 +321,7 @@ public class Bundle {
 			}
 			data.put( key, jsonArray );
 		} catch (JSONException e) {
-			
+			reportException(e);
 		}
 	}
 	
@@ -310,7 +333,7 @@ public class Bundle {
 			}
 			data.put( key, jsonArray );
 		} catch (JSONException e) {
-			
+			reportException(e);
 		}
 	}
 	
@@ -322,7 +345,7 @@ public class Bundle {
 			}
 			data.put( key, jsonArray );
 		} catch (JSONException e) {
-			
+			reportException(e);
 		}
 	}
 
@@ -334,24 +357,29 @@ public class Bundle {
 			}
 			data.put( key, jsonArray );
 		} catch (JSONException e) {
-
+			reportException(e);
 		}
 	}
 	
 	public void put( String key, Collection<? extends Bundlable> collection ) {
 		JSONArray array = new JSONArray();
 		for (Bundlable object : collection) {
+			//Skip none-static inner classes as they can't be instantiated through bundle restoring
+			//Classes which make use of none-static inner classes must manage instantiation manually
 			if (object != null) {
-				Bundle bundle = new Bundle();
-				bundle.put(CLASS_NAME, object.getClass().getName());
-				object.storeInBundle(bundle);
-				array.put(bundle.data);
+				Class cl = object.getClass();
+				if (!cl.isMemberClass() || Modifier.isStatic(cl.getModifiers())) {
+					Bundle bundle = new Bundle();
+					bundle.put(CLASS_NAME, cl.getName());
+					object.storeInBundle(bundle);
+					array.put(bundle.data);
+				}
 			}
 		}
 		try {
 			data.put( key, array );
 		} catch (JSONException e) {
-			
+			reportException(e);
 		}
 	}
 
@@ -375,6 +403,7 @@ public class Bundle {
 
 			return new Bundle( json );
 		} catch (Exception e) {
+			reportException(e);
 			throw new IOException();
 		}
 	}
@@ -410,11 +439,27 @@ public class Bundle {
 
 			return true;
 		} catch (IOException e) {
+			reportException(e);
 			return false;
 		}
 	}
 	
 	public static void addAlias( Class<?> cl, String alias ) {
 		aliases.put( alias, cl.getName() );
+	}
+
+	//This may be set in order to have bundles report exceptions
+	//...Yes it would be far cleaner to have the bundling methods throw exceptions
+	//But that would require too much code-changing right now.
+	public static BundleExceptionCallback exceptionReporter;
+
+	private static void reportException(Throwable t){
+		if (exceptionReporter != null){
+			exceptionReporter.call(t);
+		}
+	}
+
+	public static abstract class BundleExceptionCallback {
+		public abstract void call(Throwable t);
 	}
 }

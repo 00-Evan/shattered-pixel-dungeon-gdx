@@ -202,7 +202,7 @@ public class NoosaScript extends Script {
 
 		//preprocessor directives let us define precision on GLES platforms, and ignore it elsewhere
 		"#ifdef GL_ES\n" +
-		"precision lowp float;" +
+		"precision lowp float;\n" +
 		"#endif\n" +
 		"varying vec2 vUV;" +
 		"uniform sampler2D uTex;" +

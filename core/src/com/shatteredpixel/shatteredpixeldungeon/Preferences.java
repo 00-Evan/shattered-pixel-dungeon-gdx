@@ -28,6 +28,8 @@ public enum Preferences {
 	INSTANCE;
 
 	public static final String KEY_LANDSCAPE	= "landscape";
+	public static final String KEY_IMMERSIVE	= "immersive";
+	public static final String KEY_POWER_SAVER 	= "power_saver";
 	public static final String KEY_SCALE		= "scale";
 	public static final String KEY_MUSIC		= "music";
 	public static final String KEY_MUSIC_VOL    = "music_vol";
@@ -62,6 +64,10 @@ public enum Preferences {
 			prefs = Gdx.app.getPreferences(FILE_NAME);
 		}
 		return prefs;
+	}
+
+	boolean contains( String key ){
+		return get().contains( key );
 	}
 
 	public int getInt( String key, int defValue ) {

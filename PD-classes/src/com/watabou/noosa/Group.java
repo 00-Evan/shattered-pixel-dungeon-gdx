@@ -23,6 +23,7 @@ package com.watabou.noosa;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.noosa.particles.Emitter;
+import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
@@ -276,7 +277,7 @@ public class Group extends Gizmo {
 
 	public synchronized Gizmo random() {
 		if (length > 0) {
-			return members.get( (int)(Math.random() * length) );
+			return members.get( Random.Int(length) );
 		} else {
 			return null;
 		}

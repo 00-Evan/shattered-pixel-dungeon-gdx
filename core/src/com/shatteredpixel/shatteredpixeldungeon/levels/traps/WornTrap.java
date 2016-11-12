@@ -20,15 +20,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 
 public class WornTrap extends Trap {
 
 	{
-		color = TrapSprite.BLACK;
-		shape = TrapSprite.DOTS;
+		color = BLACK;
+		shape = DOTS;
 	}
 
 	@Override
@@ -39,6 +40,7 @@ public class WornTrap extends Trap {
 
 	@Override
 	public void activate() {
+		CellEmitter.get(pos).burst(Speck.factory(Speck.STEAM), 6);
 		GLog.i( Messages.get(this, "nothing") );
 	}
 }

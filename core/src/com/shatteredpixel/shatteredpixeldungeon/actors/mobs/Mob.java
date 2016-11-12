@@ -51,6 +51,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
 
 import java.util.HashSet;
@@ -312,9 +313,9 @@ public abstract class Mob extends Char {
 				newPath = true;
 			else if (path.getLast() != target) {
 				//if the new target is adjacent to the end of the path, adjust for that
-				//rather than scrapping the whole path. Unless the path is very long,
-				//in which case re-checking will likely result in a much better path
-				if (Dungeon.level.adjacent(target, path.getLast()) && path.size() < viewDistance) {
+				//rather than scrapping the whole path. Unless the path is too long,
+				//in which case re-checking will likely result in a better path
+				if (Dungeon.level.adjacent(target, path.getLast()) && path.size() < Dungeon.level.distance(pos, target)) {
 					int last = path.removeLast();
 
 					if (path.isEmpty()) {
@@ -351,10 +352,11 @@ public abstract class Mob extends Char {
 
 
 			if (!newPath) {
-				//checks the next 4 cells in the path for validity
-				for (int i = 0; i < Math.min(path.size(), 4); i++) {
+				//looks ahead for path validity, up to length-1 or 4, but always at least 1.
+				int lookAhead = (int)GameMath.gate(1, path.size()-1, 4);
+				for (int i = 0; i < lookAhead; i++) {
 					int cell = path.get(i);
-					if (!Level.passable[cell] || ((i != path.size() - 1) && Dungeon.visible[cell] && Actor.findChar(cell) != null)) {
+					if (!Level.passable[cell] || ( Dungeon.visible[cell] && Actor.findChar(cell) != null)) {
 						newPath = true;
 						break;
 					}

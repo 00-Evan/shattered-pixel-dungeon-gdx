@@ -162,13 +162,21 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Repulsion.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stench" );
+
+		com.watabou.utils.Bundle.exceptionReporter =
+				new com.watabou.utils.Bundle.BundleExceptionCallback() {
+					@Override
+					public void call(Throwable t) {
+						ShatteredPixelDungeon.reportException(t);
+					}
+				};
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void create() {
 		super.create();
-		
+
 		boolean landscape = Gdx.graphics.getWidth() > Gdx.graphics.getHeight();
 
 		final Preferences prefs = Preferences.INSTANCE;
@@ -234,7 +242,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		if (classicFont()) {
 			RenderedText.setFont("pixelfont.ttf");
 		} else {
-			RenderedText.setFont("font.ttf");
+			RenderedText.setFont( null );
 		}
 	}
 
@@ -366,7 +374,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		if (classic) {
 			RenderedText.setFont("pixelfont.ttf");
 		} else {
-			RenderedText.setFont("font.ttf");
+			RenderedText.setFont( null );
 		}
 	}
 
@@ -451,7 +459,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	 * <--- Preferences
 	 */
 	
-	public static void reportException( Exception e ) {
-		Gdx.app.error("PD", e.getMessage(), e);
+	public static void reportException( Throwable tr ) {
+		Gdx.app.error("PD", tr.getMessage(), tr);
 	}
 }

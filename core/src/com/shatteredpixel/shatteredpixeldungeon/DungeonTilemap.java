@@ -26,25 +26,194 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.Tilemap;
 import com.watabou.noosa.tweeners.AlphaTweener;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Point;
 import com.watabou.utils.PointF;
+import com.watabou.utils.Random;
+import com.watabou.utils.SparseArray;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class DungeonTilemap extends Tilemap {
 
 	public static final int SIZE = 16;
 	
 	private static DungeonTilemap instance;
-	
+
+	//Used to map dungeon tiles to their default visual values
+	public static SparseArray<Integer> defaultVisuals = new SparseArray<Integer>();
+	static {
+		defaultVisuals.put(Terrain.CHASM,           0);
+		defaultVisuals.put(Terrain.EMPTY,           1);
+		defaultVisuals.put(Terrain.GRASS,           2);
+		defaultVisuals.put(Terrain.EMPTY_WELL,      3);
+		defaultVisuals.put(Terrain.WALL,            4);
+		defaultVisuals.put(Terrain.DOOR,            5);
+		defaultVisuals.put(Terrain.OPEN_DOOR,       6);
+		defaultVisuals.put(Terrain.ENTRANCE,        7);
+		defaultVisuals.put(Terrain.EXIT,            8);
+		defaultVisuals.put(Terrain.EMBERS,          9);
+		defaultVisuals.put(Terrain.LOCKED_DOOR,     10);
+		defaultVisuals.put(Terrain.PEDESTAL,        11);
+		defaultVisuals.put(Terrain.WALL_DECO,       12);
+		defaultVisuals.put(Terrain.BARRICADE,       13);
+		defaultVisuals.put(Terrain.EMPTY_SP,        14);
+		defaultVisuals.put(Terrain.HIGH_GRASS,      15);
+
+		defaultVisuals.put(Terrain.SECRET_DOOR,     defaultVisuals.get(Terrain.WALL));
+		defaultVisuals.put(Terrain.SECRET_TRAP,     defaultVisuals.get(Terrain.EMPTY));
+		defaultVisuals.put(Terrain.TRAP,            defaultVisuals.get(Terrain.EMPTY));
+		defaultVisuals.put(Terrain.INACTIVE_TRAP,   defaultVisuals.get(Terrain.EMPTY));
+
+		defaultVisuals.put(Terrain.EMPTY_DECO,      16);
+		defaultVisuals.put(Terrain.LOCKED_EXIT,     17);
+		defaultVisuals.put(Terrain.UNLOCKED_EXIT,   18);
+		defaultVisuals.put(Terrain.SIGN,            19);
+		defaultVisuals.put(Terrain.WELL,            20);
+		defaultVisuals.put(Terrain.STATUE,          21);
+		defaultVisuals.put(Terrain.STATUE_SP,       22);
+		defaultVisuals.put(Terrain.BOOKSHELF,       23);
+		defaultVisuals.put(Terrain.ALCHEMY,         24);
+
+		defaultVisuals.put(Terrain.WATER,           63);
+	}
+
+	//These alt visuals will trigger 50% of the time
+	public static SparseArray<Integer> commonAltVisuals = new SparseArray<Integer>();
+	static {
+		commonAltVisuals.put(1,                 38);
+		commonAltVisuals.put(2,                 39);
+		commonAltVisuals.put(4,                 40);
+		commonAltVisuals.put(9,                 41);
+		commonAltVisuals.put(12,                42);
+		commonAltVisuals.put(14,                43);
+		commonAltVisuals.put(15,                44);
+		commonAltVisuals.put(16,                45);
+		commonAltVisuals.put(23,                46);
+	}
+
+	//These alt visuals trigger 10% of the time (and also override common alts when they show up)
+	public static SparseArray<Integer> rareAltVisuals = new SparseArray<Integer>();
+	static {
+		rareAltVisuals.put(1,                   47);
+	}
+
+	//These tiles can stitch with water
+	public static List waterStitcheable = Arrays.asList(
+			Terrain.EMPTY, Terrain.GRASS, Terrain.EMPTY_WELL,
+			Terrain.ENTRANCE, Terrain.EXIT, Terrain.EMBERS,
+			Terrain.BARRICADE, Terrain.HIGH_GRASS, Terrain.SECRET_TRAP,
+			Terrain.TRAP, Terrain.INACTIVE_TRAP, Terrain.EMPTY_DECO,
+			Terrain.SIGN, Terrain.WELL, Terrain.STATUE, Terrain.ALCHEMY
+	);
+
+	//tiles that can stitch with chasms (from above), and which visual represents the stitching
+	public static SparseArray<Integer> chasmStitcheable = new SparseArray<Integer>();
+	static {
+		//floor
+		chasmStitcheable.put( Terrain.EMPTY, 32 );
+		chasmStitcheable.put( Terrain.GRASS, 32 );
+		chasmStitcheable.put( Terrain.EMPTY_WELL, 32 );
+		chasmStitcheable.put( Terrain.HIGH_GRASS, 32 );
+		chasmStitcheable.put( Terrain.EMPTY_DECO, 32 );
+		chasmStitcheable.put( Terrain.SIGN, 32 );
+		chasmStitcheable.put( Terrain.EMPTY_WELL, 32 );
+		chasmStitcheable.put( Terrain.STATUE, 32 );
+
+		//special floor
+		chasmStitcheable.put( Terrain.EMPTY_SP, 33 );
+		chasmStitcheable.put( Terrain.STATUE_SP, 33 );
+
+		//wall
+		chasmStitcheable.put( Terrain.WALL, 34 );
+		chasmStitcheable.put( Terrain.DOOR, 34 );
+		chasmStitcheable.put( Terrain.OPEN_DOOR, 34 );
+		chasmStitcheable.put( Terrain.LOCKED_DOOR, 34 );
+		chasmStitcheable.put( Terrain.WALL_DECO, 34 );
+
+		//water
+		chasmStitcheable.put( Terrain.WATER, 35 );
+	}
+
+	private int[] map;
+	private float[] tileVariance;
+
 	public DungeonTilemap() {
 		super(
 			Dungeon.level.tilesTex(),
 			new TextureFilm( Dungeon.level.tilesTex(), SIZE, SIZE ) );
+
+		Random.seed( Dungeon.seedCurDepth());
+		tileVariance = new float[Dungeon.level.map.length];
+		for (int i = 0; i < tileVariance.length; i++)
+			tileVariance[i] = Random.Float();
+		Random.seed();
+
 		map( Dungeon.level.map, Dungeon.level.width() );
 		
 		instance = this;
 	}
-	
-	public int screenToTile( int x, int y ) {
+
+	@Override
+	//we need to retain two arrays, map is the dungeon tilemap which we can reference.
+	// Data is our own internal image representation of the tiles, which may differ.
+	public void map(int[] data, int cols) {
+		map = data;
+		super.map(new int[data.length], cols);
+	}
+
+	@Override
+	public synchronized void updateMap() {
+		super.updateMap();
+		for (int i = 0; i < data.length; i++)
+			data[i] = getTileVisual(i ,map[i]);
+	}
+
+	@Override
+	public synchronized void updateMapCell(int cell) {
+		//update in a 3x3 grid to account for neighbours which might also be affected
+		if (Dungeon.level.insideMap(cell)) {
+			super.updateMapCell(cell - mapWidth - 1);
+			super.updateMapCell(cell + mapWidth + 1);
+			for (int i : PathFinder.NEIGHBOURS9)
+				data[cell + i] = getTileVisual(cell + i, map[cell + i]);
+
+		//unless we're at the level's edge, then just do the one tile.
+		} else {
+			super.updateMapCell(cell);
+			data[cell] = getTileVisual(cell, map[cell]);
+		}
+	}
+
+	private int getTileVisual(int pos, int tile){
+		int visual = defaultVisuals.get(tile, 0);
+
+		if (tile == Terrain.WATER){
+			for (int i = 0; i < PathFinder.CIRCLE4.length; i++){
+				if (waterStitcheable.contains(map[pos + PathFinder.CIRCLE4[i]])) {
+					//equivalent to: cell -= 2^i
+					visual -= (1 << i);
+				}
+			}
+			return visual;
+
+		} else if (tile == Terrain.CHASM && pos >= mapWidth) {
+			return chasmStitcheable.get(map[pos - mapWidth], visual);
+
+		} else if (tileVariance[pos] > 0.9f
+				&& rareAltVisuals.containsKey(visual)){
+			return rareAltVisuals.get(visual);
+
+		} else if (tileVariance[pos] > 0.5f
+			&& commonAltVisuals.containsKey(visual)) {
+			return commonAltVisuals.get(visual);
+		}
+
+		return visual;
+	}
+
+	public int screenToTile(int x, int y ) {
 		Point p = camera().screenToCamera( x, y ).
 			offset( this.point().negate() ).
 			invScale( SIZE ).
@@ -64,12 +233,9 @@ public class DungeonTilemap extends Tilemap {
 	
 	public void discover( int pos, int oldValue ) {
 		
-		final Image tile = tile( oldValue );
+		final Image tile = tile( pos, oldValue );
 		tile.point( tileToWorld( pos ) );
 
-		// For bright mode
-		tile.rm = tile.gm = tile.bm = rm;
-		tile.ra = tile.ga = tile.ba = ra;
 		parent.add( tile );
 		
 		parent.add( new AlphaTweener( tile, 0, 0.6f ) {
@@ -98,9 +264,9 @@ public class DungeonTilemap extends Tilemap {
 		return point.y * Dungeon.level.width() + point.x;
 	}
 	
-	public static Image tile( int index ) {
+	public static Image tile( int pos, int tile ) {
 		Image img = new Image( instance.texture );
-		img.frame( instance.tileset.get( index ) );
+		img.frame( instance.tileset.get( instance.getTileVisual( pos, tile ) ) );
 		return img;
 	}
 	
@@ -111,6 +277,7 @@ public class DungeonTilemap extends Tilemap {
 
 	@Override
 	protected boolean needsRender(int pos) {
-		return (Level.discoverable[pos] || Dungeon.level.map[pos] == Terrain.CHASM) && Dungeon.level.map[pos] != Terrain.WATER;
+		return (Level.discoverable[pos] || data[pos] == defaultVisuals.get(Terrain.CHASM))
+				&& data[pos] != defaultVisuals.get(Terrain.WATER);
 	}
 }

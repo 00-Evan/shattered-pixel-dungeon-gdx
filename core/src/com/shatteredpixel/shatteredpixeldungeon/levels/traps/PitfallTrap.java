@@ -24,20 +24,18 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.WindParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 
 public class PitfallTrap extends Trap {
 
 	{
-		color = TrapSprite.RED;
-		shape = TrapSprite.DIAMOND;
+		color = RED;
+		shape = DIAMOND;
 	}
 
 	@Override
@@ -70,16 +68,7 @@ public class PitfallTrap extends Trap {
 		if (!(Dungeon.level.solid[pos - Dungeon.level.width()] && Dungeon.level.solid[pos + Dungeon.level.width()])
 				&& !(Dungeon.level.solid[pos - 1]&& Dungeon.level.solid[pos + 1])){
 
-			int c = Dungeon.level.map[pos - Dungeon.level.width()];
-
-			if (c == Terrain.WALL || c == Terrain.WALL_DECO) {
-				Level.set(pos, Terrain.CHASM_WALL);
-			} else {
-				Level.set( pos, Terrain.CHASM_FLOOR );
-			}
-
-			sprite.parent.add(new WindParticle.Wind(pos));
-			sprite.kill();
+			Level.set(pos, Terrain.CHASM);
 			GameScene.updateMap( pos );
 		}
 	}

@@ -49,7 +49,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
@@ -59,8 +58,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DiscardedItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.PlantSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
@@ -72,6 +69,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toast;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -113,6 +111,7 @@ public class GameScene extends PixelScene {
 
 	private SkinnedBlock water;
 	private DungeonTilemap tiles;
+	private TerrainFeaturesTilemap terrainFeatures;
 	private FogOfWar fog;
 	private HeroSprite hero;
 
@@ -157,7 +156,7 @@ public class GameScene extends PixelScene {
 		
 		super.create();
 		Camera.main.zoom( GameMath.gate(minZoom, defaultZoom + ShatteredPixelDungeon.zoom(), maxZoom));
-		
+
 		scene = this;
 
 		terrain = new Group();
@@ -195,31 +194,20 @@ public class GameScene extends PixelScene {
 		for( CustomTileVisual visual : Dungeon.level.customTiles){
 			addCustomTile(visual.create());
 		}
+
+		terrainFeatures = new TerrainFeaturesTilemap(Dungeon.level.plants, Dungeon.level.traps);
+		terrain.add(terrainFeatures);
 		
 		levelVisuals = Dungeon.level.addVisuals();
 		add(levelVisuals);
 
-		traps = new Group();
-		add(traps);
-		
-		for (IntMap.Entry<Trap> trap : Dungeon.level.traps) {
-			addTrapSprite( trap.value );
-		}
-		
-		plants = new Group();
-		add( plants );
-
-		for (IntMap.Entry<Plant> plant : Dungeon.level.plants) {
-			addPlantSprite( plant.value );
-		}
-		
 		heaps = new Group();
 		add( heaps );
 
 		for (IntMap.Entry<Heap> heap : Dungeon.level.heaps) {
 			addHeapSprite( heap.value );
 		}
-		
+
 		emitters = new Group();
 		effects = new Group();
 		emoicons = new Group();
@@ -417,7 +405,12 @@ public class GameScene extends PixelScene {
 		}
 	}
 
-	private Thread t;
+	private final Thread t = new Thread() {
+		@Override
+		public void run() {
+			Actor.process();
+		}
+	};
 
 	@Override
 	public synchronized void update() {
@@ -429,16 +422,16 @@ public class GameScene extends PixelScene {
 
 		if (!freezeEmitters) water.offset( 0, -5 * Game.elapsed );
 
-		if (!Actor.processing() && (t == null || !t.isAlive()) && Dungeon.hero.isAlive()) {
-			t = new Thread() {
-				@Override
-				public void run() {
-					Actor.process();
+		if (!Actor.processing() && Dungeon.hero.isAlive()) {
+			if (!t.isAlive()) {
+				//if cpu time is limited, game should prefer drawing the current frame
+				t.setPriority(Thread.NORM_PRIORITY - 1);
+				t.start();
+			} else {
+				synchronized (t) {
+					t.notify();
 				}
-			};
-			//if cpu time is limited, game should prefer drawing the current frame
-			t.setPriority(Thread.NORM_PRIORITY-1);
-			t.start();
+			}
 		}
 
 		if (Dungeon.hero.ready && Dungeon.hero.paralysed == 0) {
@@ -508,6 +501,7 @@ public class GameScene extends PixelScene {
 			scene.resume.setPos( tagLeft, pos - scene.resume.height() );
 			scene.resume.flip(tagLeft == 0);
 		}
+
 	}
 	
 	@Override
@@ -543,12 +537,11 @@ public class GameScene extends PixelScene {
 	}
 	
 	private void addPlantSprite( Plant plant ) {
-		(plant.sprite = (PlantSprite)plants.recycle( PlantSprite.class )).reset( plant );
+
 	}
 
 	private void addTrapSprite( Trap trap ) {
-		(trap.sprite = (TrapSprite)traps.recycle( TrapSprite.class )).reset( trap );
-		trap.sprite.visible = trap.visible;
+
 	}
 	
 	private void addBlobSprite( final Blob gas ) {
@@ -564,7 +557,7 @@ public class GameScene extends PixelScene {
 		sprite.link( mob );
 	}
 	
-	private void prompt( String text ) {
+	private synchronized void prompt( String text ) {
 		
 		if (prompt != null) {
 			prompt.killAndErase();
@@ -683,6 +676,7 @@ public class GameScene extends PixelScene {
 	public static void resetMap() {
 		if (scene != null) {
 			scene.tiles.map(Dungeon.level.map, Dungeon.level.width() );
+			scene.terrainFeatures.map(Dungeon.level.map, Dungeon.level.width() );
 		}
 		updateFog();
 	}
@@ -691,12 +685,20 @@ public class GameScene extends PixelScene {
 	public static void updateMap() {
 		if (scene != null) {
 			scene.tiles.updateMap();
+			scene.terrainFeatures.updateMap();
 		}
 	}
 
 	public static void updateMap( int cell ) {
 		if (scene != null) {
 			scene.tiles.updateMapCell( cell );
+			scene.terrainFeatures.updateMapCell( cell );
+		}
+	}
+
+	public static void plantSeed( int cell ) {
+		if (scene != null) {
+			scene.terrainFeatures.growPlant( cell );
 		}
 	}
 	
@@ -809,6 +811,7 @@ public class GameScene extends PixelScene {
 	public static void ready() {
 		selectCell( defaultCellListener );
 		QuickSlotButton.cancel();
+		if (scene != null && scene.toolbar != null) scene.toolbar.examining = false;
 	}
 
 	public static void checkKeyHold(){

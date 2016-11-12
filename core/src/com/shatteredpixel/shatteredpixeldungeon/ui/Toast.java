@@ -51,6 +51,7 @@ public class Toast extends Component {
 
 		close = new SimpleButton( Icons.get( Icons.CLOSE ) ) {
 			protected void onClick() {
+				text.destroy();
 				onClose();
 			};
 		};
@@ -76,7 +77,7 @@ public class Toast extends Component {
 		text.setPos(close.left() - MARGIN_HOR - text.width(), y + (height - text.height()) / 2);
 		PixelScene.align(text);
 	}
-	
+
 	public void text( String txt ) {
 		text.text( txt );
 	}

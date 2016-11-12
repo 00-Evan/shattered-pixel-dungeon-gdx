@@ -36,7 +36,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.TrapSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
@@ -47,8 +46,8 @@ import java.util.Collections;
 public class CursingTrap extends Trap {
 
 	{
-		color = TrapSprite.VIOLET;
-		shape = TrapSprite.WAVES;
+		color = VIOLET;
+		shape = WAVES;
 	}
 
 	@Override
@@ -110,7 +109,7 @@ public class CursingTrap extends Trap {
 		Collections.shuffle(priorityCurse);
 		Collections.shuffle(canCurse);
 
-		int numCurses = Random.Int(3) == 0 ? 1 : 2;
+		int numCurses = Random.Int(2) == 0 ? 1 : 2;
 
 		for (int i = 0; i < numCurses; i++){
 			if (!priorityCurse.isEmpty()){

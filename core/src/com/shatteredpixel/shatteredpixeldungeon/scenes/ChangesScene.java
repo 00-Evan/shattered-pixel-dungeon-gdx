@@ -39,45 +39,44 @@ public class ChangesScene extends PixelScene {
 	private static final String TXT_Update =
 			"_NOTE:_ Desktop version does not currently support translations.\nSupport will be added in the future.\n" +
 			"\n" +
-			"_v0.4.2c:_\n" +
-			"- Desktop specific: fixed various freeze glitches.\n" +
+			"_v0.4.3c:_\n" +
+			"_-_ Additional bugfixes\n" +
 			"\n" +
-			"_v0.4.2b:_\n" +
-			"- Various bug fixes\n" +
-			"- Improved visual clarity of low hp warning\n" +
+			"_v0.4.3b:_\n" +
+			"_-_ Thrown potions now trigger traps and plants\n" +
+			"_-_ Various bugfixes\n" +
 			"\n" +
-			"_v0.4.2a:_\n" +
-			"- Improved visual clarity on gas particles\n" +
+			"_v0.4.3a:_\n" +
+			"_-_ Reworked glyph of brimstone\n" +
+			"now grants shielding instead of healing\n" +
+			"_-_ Reworked glyph of stone\n" +
+			"now reduces speed in doorways\n" +
+			"_-_ Power saver looks less blurry on some devices\n" +
 			"\n" +
-			"_v0.4.2:_\n" +
-			"Optimizations:\n" +
-			"- Many general performance improvements\n" +
-			"- Game now uses 2 CPU cores, up from 1\n" +
-			"- Reduced hitching on many devices\n" +
-			"- Framerate improvements for older devices\n" +
+			"_v0.4.3:_\n" +
+			"General Improvements:\n" +
+			"_-_ Added rankings and hall of heroes sync\n" +
+			"_-_ Added Power Saver mode in settings\n" +
+			"_-_ Game now supports small screen devices\n" +
+			"_-_ Improved variety of level visuals\n" +
 			"\n" +
 			"Balance Changes:\n" +
-			"- Spear and Glaive damage reduced\n" +
-			"- Runic blade damage reduced\n" +
-			"- Grim enchant now procs more often\n" +
-			"- Glyph of stone adds more weight\n" +
-			"- Glyph of potential procs less often\n" +
-			"- Wand of Fireblast less dangerous to caster\n" +
-			"- Wand of Pris. Light reveal area reduced\n" +
-			"- Ring of Wealth slightly more effective\n" +
-			"- Ring of Sharpshooting gives more accuracy\n" +
+			"_-_ Flail max damage increased by ~15%\n" +
+			"_-_ Wand of Frost damage reduction increased\n" +
+			"from 5% per turn of chill to 7.5%\n" +
+			"_-_ Ring of Furor speed bonus reduced by\n" +
+			"~15% for slow weapons, ~0% for fast weapons\n" +
+			"_-_ Reduced sacrificial curse bleed by ~33%\n" +
+			"\n" +
+			"_v0.4.2:_\n" +
+			"_-_ Improved performance on many devices\n" +
+			"_-_ Various balance changes\n" +
 			"\n" +
 			"_v0.4.1:_\n" +
-			"- Armor effectiveness increased\n" +
-			"- Enemy damage increased to compensate\n" +
-			"- Evil Eyes reworked\n" +
-			"- All wands damage adjusted/increased\n" +
-			"- Various wand mechanics adjusted\n" +
-			"- Balance on many items adjusted\n" +
-			"- Many shop prices adjusted\n" +
-			"- Added a new journal button w/key display\n" +
+			"_-_ Armor effectiveness increased\n" +
+			"_-_ Evil Eyes reworked\n" +
 			"\n" +
-			"_v0.4.0:_ Reworked Equipment & enchants/curses.\n" +
+			"_v0.4.0:_ Reworked equips, enchants & curses\n" +
 			"\n" +
 			"_v0.3.5:_ Reworked Warrior & subclasses\n" +
 			"\n"+
@@ -125,15 +124,15 @@ public class ChangesScene extends PixelScene {
 
 		RenderedTextMultiline text = renderMultiline(TXT_Update, 6 );
 
+		NinePatch panel = Chrome.get(Chrome.Type.TOAST);
 
-		int pw = w - 6;
-		int ph = h - 20;
+		int pw = 135 + panel.marginLeft() + panel.marginRight() - 2;
+		int ph = h - 16;
 
-
-		NinePatch panel = Chrome.get(Chrome.Type.WINDOW);
 		panel.size( pw, ph );
-		panel.x = (w - pw) / 2;
-		panel.y = title.y + title.height() + 2;
+		panel.x = (w - pw) / 2f;
+		panel.y = title.y + title.height();
+		align( panel );
 		add( panel );
 
 		ScrollPane list = new ScrollPane( new Component() );
@@ -146,13 +145,13 @@ public class ChangesScene extends PixelScene {
 
 		content.add(text);
 
-		content.setSize( panel.innerWidth(), text.height() );
+		content.setSize( panel.innerWidth(), (int)Math.ceil(text.height()) );
 
 		list.setRect(
 				panel.x + panel.marginLeft(),
-				panel.y + panel.marginTop(),
+				panel.y + panel.marginTop() - 1,
 				panel.innerWidth(),
-				panel.innerHeight());
+				panel.innerHeight() + 2);
 		list.scrollTo(0, 0);
 
 		Archs archs = new Archs();

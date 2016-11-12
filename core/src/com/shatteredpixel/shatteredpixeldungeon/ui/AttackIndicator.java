@@ -77,7 +77,7 @@ public class AttackIndicator extends Tag {
 	}
 	
 	@Override
-	public void update() {
+	public synchronized void update() {
 		super.update();
 		
 		if (!bg.visible){
@@ -99,7 +99,7 @@ public class AttackIndicator extends Tag {
 		}
 	}
 	
-	private void checkEnemies() {
+	private synchronized void checkEnemies() {
 
 		candidates.clear();
 		int v = Dungeon.hero.visibleEnemies();

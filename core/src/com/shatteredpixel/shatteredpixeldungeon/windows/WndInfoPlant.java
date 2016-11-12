@@ -20,14 +20,16 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.PlantSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TerrainFeaturesTilemap;
 
 public class WndInfoPlant extends WndTitledMessage {
 	
 	public WndInfoPlant( Plant plant ) {
 		
-		super(new PlantSprite( plant.image ), plant.plantName, plant.desc());
+		super(TerrainFeaturesTilemap.tile( plant.pos, Dungeon.level.map[plant.pos]),
+				plant.plantName, plant.desc());
 
 	}
 }

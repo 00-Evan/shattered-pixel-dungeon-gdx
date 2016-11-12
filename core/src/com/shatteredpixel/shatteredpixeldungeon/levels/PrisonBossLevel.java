@@ -216,9 +216,6 @@ public class PrisonBossLevel extends Level {
 	}
 
 	private void resetTraps(){
-		for (Trap trap : traps.values()){
-			trap.sprite.kill();
-		}
 		traps.clear();
 
 		for (int i = 0; i < length(); i++){
@@ -273,7 +270,6 @@ public class PrisonBossLevel extends Level {
 		for (Plant plant : plants.values()){
 			if (safeArea == null || !safeArea.inside(cellToPoint(plant.pos))){
 				plants.remove(plant.pos);
-				plant.sprite.kill();
 			}
 		}
 	}
@@ -345,7 +341,7 @@ public class PrisonBossLevel extends Level {
 				unseal();
 
 				CustomTileVisual vis = new exitVisual();
-				vis.pos(7, 7);
+				vis.pos(11, 8);
 				customTiles.add(vis);
 				((GameScene)ShatteredPixelDungeon.scene()).addCustomTile(vis);
 
@@ -537,7 +533,15 @@ public class PrisonBossLevel extends Level {
 
 			tx = Assets.PRISON_EXIT;
 			txX = txY = 0;
-			tileW = tileH = 16;
+			tileW = 12;
+			tileH = 15;
+		}
+
+		//for compatibility with pre-0.4.3 saves
+		@Override
+		public void restoreFromBundle(Bundle bundle) {
+			super.restoreFromBundle(bundle);
+			pos(11, 8);
 		}
 
 		@Override

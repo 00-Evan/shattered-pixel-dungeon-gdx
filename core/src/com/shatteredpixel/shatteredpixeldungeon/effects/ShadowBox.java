@@ -17,6 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
+import com.watabou.gltextures.SmartTexture;
 import com.watabou.glwrap.Texture;
 import com.watabou.noosa.NinePatch;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
@@ -27,8 +28,11 @@ public class ShadowBox extends NinePatch {
 	
 	public ShadowBox() {
 		super( Assets.SHADOW, 1 );
-		texture.filter( Texture.LINEAR, Texture.LINEAR );
-		
+
+		//If this is the first time the texture is generated, set the filtering
+		if (texture.id == -1)
+			texture.filter( SmartTexture.LINEAR, SmartTexture.LINEAR );
+
 		scale.set( SIZE, SIZE );
 	}
 	
