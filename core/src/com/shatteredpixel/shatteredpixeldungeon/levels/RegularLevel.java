@@ -506,7 +506,7 @@ public abstract class RegularLevel extends Level {
 				secretDoors++;
 				break;
 			case BARRICADE:
-				map[door] = Random.Int( 3 ) == 0 ? Terrain.BOOKSHELF : Terrain.BARRICADE;
+				map[door] = Terrain.BARRICADE;
 				break;
 			case LOCKED:
 				map[door] = Terrain.LOCKED_DOOR;
@@ -601,6 +601,8 @@ public abstract class RegularLevel extends Level {
 			if (findMob(mob.pos) == null && Level.passable[mob.pos]) {
 				mobsToSpawn--;
 				mobs.add(mob);
+				if (map[mob.pos] == Terrain.HIGH_GRASS)
+					map[mob.pos] = Terrain.GRASS;
 
 				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
 				if (mobsToSpawn > 0 && Random.Int(4) == 0){
@@ -610,6 +612,8 @@ public abstract class RegularLevel extends Level {
 					if (findMob(mob.pos)  == null && Level.passable[mob.pos]) {
 						mobsToSpawn--;
 						mobs.add(mob);
+						if (map[mob.pos] == Terrain.HIGH_GRASS)
+							map[mob.pos] = Terrain.GRASS;
 					}
 				}
 			}
@@ -690,7 +694,9 @@ public abstract class RegularLevel extends Level {
 			default:
 				type = Heap.Type.HEAP;
 			}
-			drop( Generator.random(), randomDropCell() ).type = type;
+			int cell = randomDropCell();
+			if (map[cell] == Terrain.HIGH_GRASS) map[cell] = Terrain.GRASS;
+			drop( Generator.random(), cell ).type = type;
 		}
 
 		for (Item item : itemsToSpawn) {
@@ -709,11 +715,14 @@ public abstract class RegularLevel extends Level {
 				}
 			} while (traps.get(cell) instanceof ExplosiveTrap);
 			drop( item, cell ).type = Heap.Type.HEAP;
+			if (map[cell] == Terrain.HIGH_GRASS) map[cell] = Terrain.GRASS;
 		}
 		
 		Item item = Bones.get();
 		if (item != null) {
-			drop( item, randomDropCell() ).type = Heap.Type.REMAINS;
+			int cell = randomDropCell();
+			if (map[cell] == Terrain.HIGH_GRASS) map[cell] = Terrain.GRASS;
+			drop( item, cell ).type = Heap.Type.REMAINS;
 		}
 	}
 	

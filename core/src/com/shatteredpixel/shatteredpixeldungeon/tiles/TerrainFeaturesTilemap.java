@@ -18,11 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.ui;
+package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
@@ -32,71 +31,30 @@ import com.watabou.noosa.Tilemap;
 import com.watabou.noosa.tweeners.ScaleTweener;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
-import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
 
 //TODO add in a proper set of vfx for plants growing/withering, grass burning, discovering traps
-public class TerrainFeaturesTilemap extends Tilemap {
+public class TerrainFeaturesTilemap extends DungeonTilemap {
 
 	public static final int SIZE = 16;
 
 	private static TerrainFeaturesTilemap instance;
 
-	private int[] map;
-	private float[] tileVariance;
-
 	private SparseArray<Plant> plants;
 	private SparseArray<Trap> traps;
 
 	public TerrainFeaturesTilemap(SparseArray<Plant> plants, SparseArray<Trap> traps) {
-		super(Assets.TERRAIN_FEATURES, new TextureFilm( Assets.TERRAIN_FEATURES, SIZE, SIZE ));
+		super(Assets.TERRAIN_FEATURES);
 
 		this.plants = plants;
 		this.traps = traps;
-
-		Random.seed( Dungeon.seedCurDepth());
-		tileVariance = new float[Dungeon.level.map.length];
-		for (int i = 0; i < tileVariance.length; i++)
-			tileVariance[i] = Random.Float();
-		Random.seed();
 
 		map( Dungeon.level.map, Dungeon.level.width() );
 
 		instance = this;
 	}
 
-	@Override
-	//we need to retain two arrays, map is the dungeon tilemap which we can reference.
-	// Data is our own internal image representation of the tiles, which may differ.
-	public void map(int[] data, int cols) {
-		map = data;
-		super.map(new int[data.length], cols);
-	}
-
-	@Override
-	public synchronized void updateMap() {
-		super.updateMap();
-		for (int i = 0; i < data.length; i++)
-			data[i] = getTileVisual(i ,map[i]);
-	}
-
-	@Override
-	public synchronized void updateMapCell(int cell) {
-		//update in a 3x3 grid to account for neighbours which might also be affected
-		if (Dungeon.level.insideMap(cell)) {
-			super.updateMapCell(cell - mapWidth - 1);
-			super.updateMapCell(cell + mapWidth + 1);
-			for (int i : PathFinder.NEIGHBOURS9)
-				data[cell + i] = getTileVisual(cell + i, map[cell + i]);
-
-			//unless we're at the level's edge, then just do the one tile.
-		} else {
-			super.updateMapCell(cell);
-			data[cell] = getTileVisual(cell, map[cell]);
-		}
-	}
-
-	private int getTileVisual(int pos, int tile){
+	protected int getTileVisual(int pos, int tile, boolean flat){
 		if (traps.get(pos) != null){
 			Trap trap = traps.get(pos);
 			if (!trap.visible)
@@ -110,11 +68,11 @@ public class TerrainFeaturesTilemap extends Tilemap {
 		}
 
 		if (tile == Terrain.HIGH_GRASS){
-			return 9 + 16*((Dungeon.depth-1)/5) + (tileVariance[pos] > 0.5f ? 1 : 0);
+			return 9 + 16*((Dungeon.depth-1)/5) + (DungeonTileSheet.tileVariance[pos] >= 50 ? 1 : 0);
 		} else if (tile == Terrain.GRASS) {
-			return 11 + 16*((Dungeon.depth-1)/5) + (tileVariance[pos] > 0.5f ? 1 : 0);
+			return 11 + 16*((Dungeon.depth-1)/5) + (DungeonTileSheet.tileVariance[pos] >= 50 ? 1 : 0);
 		} else if (tile == Terrain.EMBERS) {
-			return 13 + (tileVariance[pos] > 0.5f ? 1 : 0);
+			return 13 + (DungeonTileSheet.tileVariance[pos] >= 50 ? 1 : 0);
 		}
 
 		return -1;
@@ -122,7 +80,7 @@ public class TerrainFeaturesTilemap extends Tilemap {
 
 	public static Image tile(int pos, int tile ) {
 		Image img = new Image( instance.texture );
-		img.frame( instance.tileset.get( instance.getTileVisual( pos, tile ) ) );
+		img.frame( instance.tileset.get( instance.getTileVisual( pos, tile, true ) ) );
 		return img;
 	}
 
@@ -141,16 +99,6 @@ public class TerrainFeaturesTilemap extends Tilemap {
 				updateMapCell(pos);
 			}
 		} );
-	}
-
-	@Override
-	public boolean overlapsPoint( float x, float y ) {
-		return true;
-	}
-
-	@Override
-	public boolean overlapsScreenPoint( int x, int y ) {
-		return true;
 	}
 
 	@Override

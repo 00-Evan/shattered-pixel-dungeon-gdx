@@ -967,7 +967,7 @@ public class Hero extends Char {
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
 				&& RingOfElements.FULL.contains(src.getClass())){
-			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/2;
+			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/3;
 		}
 
 		if (subClass == HeroSubClass.BERSERKER && berserk == null){
@@ -1106,8 +1106,11 @@ public class Hero extends Char {
 			move(step);
 
 			spend( moveTime / speed() );
-			
-			return true;
+
+			//FIXME this is a fairly sloppy fix for a crash involving pitfall traps.
+			//really there should be a way for traps to specify whether action should continue or
+			//not when they are pressed.
+			return InterlevelScene.mode != InterlevelScene.Mode.FALL;
 
 		} else {
 

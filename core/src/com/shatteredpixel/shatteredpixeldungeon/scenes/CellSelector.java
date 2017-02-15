@@ -21,10 +21,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.watabou.noosa.Camera;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -63,9 +65,25 @@ public class CellSelector extends TouchArea<GameAction> {
 			
 		} else {
 			
+			PointF p = Camera.main.screenToCamera( (int)touch.current.x, (int)touch.current.y );
+			for (Char mob : Dungeon.level.mobs){
+				if (mob.sprite != null && mob.sprite.overlapsPoint( p.x, p.y)){
+					select( mob.pos );
+					return;
+				}
+			}
+
+			for (Heap heap : Dungeon.level.heaps.values()){
+				if (heap.sprite != null && heap.sprite.overlapsPoint( p.x, p.y)){
+					select( heap.pos );
+					return;
+				}
+			}
+			
 			select( ((DungeonTilemap)target).screenToTile(
 				(int)touch.current.x,
-				(int)touch.current.y ) );
+				(int)touch.current.y,
+					true ) );
 		}
 	}
 

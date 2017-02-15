@@ -45,14 +45,14 @@ public class WndSettings extends WndTabbed {
 	private static final String TXT_BINDINGS	= "Key bindings";
 
 	private static final int WIDTH		    = 112;
-	private static final int HEIGHT         = 124;
-	private static final int SLIDER_HEIGHT	= 25;
-	private static final int BTN_HEIGHT	    = 20;
+	private static final int HEIGHT         = 138;
+	private static final int SLIDER_HEIGHT	= 24;
+	private static final int BTN_HEIGHT	    = 18;
 	private static final int GAP_TINY 		= 2;
-	private static final int GAP_SML 		= 5;
-	private static final int GAP_LRG 		= 12;
+	private static final int GAP_SML 		= 6;
+	private static final int GAP_LRG 		= 18;
 
-	private ScreenTab screen;
+	private DisplayTab display;
 	private UITab ui;
 	private AudioTab audio;
 
@@ -61,8 +61,8 @@ public class WndSettings extends WndTabbed {
 	public WndSettings() {
 		super();
 
-		screen = new ScreenTab();
-		add( screen );
+		display = new DisplayTab();
+		add( display );
 
 		ui = new UITab();
 		add( ui );
@@ -70,11 +70,11 @@ public class WndSettings extends WndTabbed {
 		audio = new AudioTab();
 		add( audio );
 
-		add( new LabeledTab(Messages.get(this, "screen")){
+		add( new LabeledTab(Messages.get(this, "display")){
 			@Override
 			protected void select(boolean value) {
 				super.select(value);
-				screen.visible = screen.active = value;
+				display.visible = display.active = value;
 				if (value) last_index = 0;
 			}
 		});
@@ -105,9 +105,9 @@ public class WndSettings extends WndTabbed {
 
 	}
 
-	private class ScreenTab extends Group {
+	private class DisplayTab extends Group {
 
-		public ScreenTab() {
+		public DisplayTab() {
 			super();
 
 			OptionSlider scale = new OptionSlider(Messages.get(this, "scale"),
@@ -133,10 +133,21 @@ public class WndSettings extends WndTabbed {
 					}
 				}
 			};
-			scale.setSelectedValue(PixelScene.defaultZoom);
-			scale.setRect(0, 0, WIDTH, SLIDER_HEIGHT);
-			if ((int)Math.ceil(2* Game.density) < PixelScene.maxDefaultZoom)
+			if ((int)Math.ceil(2* Game.density) < PixelScene.maxDefaultZoom) {
+				scale.setSelectedValue(PixelScene.defaultZoom);
+				scale.setRect(0, 0, WIDTH, SLIDER_HEIGHT);
 				add(scale);
+			}
+
+			RedButton btnResolution = new RedButton(Gdx.graphics.isFullscreen() ? TXT_SWITCH_WIN : TXT_SWITCH_FULL ) {
+				@Override
+				protected void onClick() {
+					ShatteredPixelDungeon.fullscreen(!ShatteredPixelDungeon.fullscreen());
+				}
+			};
+			btnResolution.enable(ShatteredPixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
+			btnResolution.setRect(0, scale.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
+			add(btnResolution);
 
 			OptionSlider brightness = new OptionSlider(Messages.get(this, "brightness"),
 					Messages.get(this, "dark"), Messages.get(this, "bright"), -2, 2) {
@@ -146,31 +157,19 @@ public class WndSettings extends WndTabbed {
 				}
 			};
 			brightness.setSelectedValue(ShatteredPixelDungeon.brightness());
-			brightness.setRect(0, scale.bottom() + GAP_TINY, WIDTH, SLIDER_HEIGHT);
+			brightness.setRect(0, btnResolution.bottom() + GAP_LRG, WIDTH, SLIDER_HEIGHT);
 			add(brightness);
 
-			/*	if (Gdx.app.getType() == Application.ApplicationType.Android || Gdx.app.getType() == Application.ApplicationType.iOS) {
-				RedButton btnOrientation = new RedButton( ShatteredPixelDungeon.landscape() ? TXT_SWITCH_PORT : TXT_SWITCH_LAND ) {
-					@Override
-					protected void onClick() {
-						ShatteredPixelDungeon.landscape(!ShatteredPixelDungeon.landscape());
-					}
-				};
-				btnOrientation.setRect(0, chkImmersive.bottom() + GAP_LRG, WIDTH, BTN_HEIGHT);
-				add( btnOrientation );
-			} else*/ if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
-
-				RedButton btnResolution = new RedButton(Gdx.graphics.isFullscreen() ? TXT_SWITCH_WIN : TXT_SWITCH_FULL ) {
-					@Override
-					protected void onClick() {
-						ShatteredPixelDungeon.fullscreen(!ShatteredPixelDungeon.fullscreen());
-					}
-				};
-				btnResolution.enable(ShatteredPixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
-				btnResolution.setRect(0, brightness.bottom() + GAP_LRG, WIDTH, BTN_HEIGHT);
-				add(btnResolution);
-
-			}
+			OptionSlider tileGrid = new OptionSlider(Messages.get(this, "visual_grid"),
+					Messages.get(this, "off"), Messages.get(this, "high"), -1, 3) {
+				@Override
+				protected void onChange() {
+					ShatteredPixelDungeon.visualGrid(getSelectedValue());
+				}
+			};
+			tileGrid.setSelectedValue(ShatteredPixelDungeon.visualGrid());
+			tileGrid.setRect(0, brightness.bottom() + GAP_TINY, WIDTH, SLIDER_HEIGHT);
+			add(tileGrid);
 		}
 	}
 
@@ -191,7 +190,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnSplit.setRect( 1, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnSplit.setRect( 0, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
 			add(btnSplit);
 
 			RedButton btnGrouped = new RedButton(Messages.get(this, "group")){
@@ -201,7 +200,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnGrouped.setRect( btnSplit.right()+1, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnGrouped.setRect( btnSplit.right()+GAP_TINY, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
 			add(btnGrouped);
 
 			RedButton btnCentered = new RedButton(Messages.get(this, "center")){
@@ -211,7 +210,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnCentered.setRect(btnGrouped.right()+1, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnCentered.setRect(btnGrouped.right()+GAP_TINY, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
 			add(btnCentered);
 
 			CheckBox chkFlipToolbar = new CheckBox(Messages.get(this, "flip_toolbar")){
@@ -284,7 +283,7 @@ public class WndSettings extends WndTabbed {
 					ShatteredPixelDungeon.music(!checked());
 				}
 			};
-			musicMute.setRect(0, musicVol.bottom() + GAP_SML, WIDTH, BTN_HEIGHT);
+			musicMute.setRect(0, musicVol.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
 			musicMute.checked(!ShatteredPixelDungeon.music());
 			add(musicMute);
 
@@ -308,7 +307,7 @@ public class WndSettings extends WndTabbed {
 					Sample.INSTANCE.play( Assets.SND_CLICK );
 				}
 			};
-			btnSound.setRect(0, SFXVol.bottom() + GAP_SML, WIDTH, BTN_HEIGHT);
+			btnSound.setRect(0, SFXVol.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
 			btnSound.checked(!ShatteredPixelDungeon.soundFx());
 			add( btnSound );
 

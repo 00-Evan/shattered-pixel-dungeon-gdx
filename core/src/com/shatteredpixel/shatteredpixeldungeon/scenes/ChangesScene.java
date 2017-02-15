@@ -39,42 +39,38 @@ public class ChangesScene extends PixelScene {
 	private static final String TXT_Update =
 			"_NOTE:_ Desktop version does not currently support translations.\nSupport will be added in the future.\n" +
 			"\n" +
-			"_v0.4.3c:_\n" +
-			"_-_ Additional bugfixes\n" +
-			"\n" +
-			"_v0.4.3b:_\n" +
-			"_-_ Thrown potions now trigger traps and plants\n" +
-			"_-_ Various bugfixes\n" +
-			"\n" +
-			"_v0.4.3a:_\n" +
-			"_-_ Reworked glyph of brimstone\n" +
-			"now grants shielding instead of healing\n" +
-			"_-_ Reworked glyph of stone\n" +
-			"now reduces speed in doorways\n" +
-			"_-_ Power saver looks less blurry on some devices\n" +
-			"\n" +
-			"_v0.4.3:_\n" +
-			"General Improvements:\n" +
-			"_-_ Added rankings and hall of heroes sync\n" +
-			"_-_ Added Power Saver mode in settings\n" +
-			"_-_ Game now supports small screen devices\n" +
-			"_-_ Improved variety of level visuals\n" +
-			"\n" +
+			"_v0.5.0a:_\n" +
+			"_-_ Various Bugfixes\n" +
+			"\n"+
+			"_v0.5.0:_\n" +
+			"New Visuals!:\n" +
+			"_-_ Walls and some terrain now have depth\n" +
+			"_-_ Characters & items are raised & cast shadows\n" +
+			"_-_ Added a visible tile grid in the settings menu\n" +
+			"\n"+
 			"Balance Changes:\n" +
-			"_-_ Flail max damage increased by ~15%\n" +
-			"_-_ Wand of Frost damage reduction increased\n" +
-			"from 5% per turn of chill to 7.5%\n" +
-			"_-_ Ring of Furor speed bonus reduced by\n" +
-			"~15% for slow weapons, ~0% for fast weapons\n" +
-			"_-_ Reduced sacrificial curse bleed by ~33%\n" +
+			"_-_ Quarterstaff armor bonus increased from 2 to 3\n" +
+			"_-_ Wand of Frost damage against chilled enemies\n" +
+			"  reduced from -7.5% per turn of chill to -10%\n" +
+			"_-_ Wand of Transfusion self-damage reduced\n" +
+			"  from 15% max hp to 10% max hp per zap\n" +
+			"_-_ Dried Rose charges 20% faster and the ghost\n" +
+			"  hero is stronger, especially at low levels\n" +
+			"_-_ Glyph of Entanglement activates less often\n" +
+			"  but grants significantly more herbal armor\n" +
+			"_-_ Glyph of Stone armor bonus reduced\n" +
+			"  from 2+level to 0+level\n" +
+			"_-_ Glyph of Antimagic magical damage resist\n" +
+			"  reduced from 50% of armor to 33% of armor\n" +
+			"_-_ Glyph of Viscosity damage rate increased\n" +
+			"  from 10% of deferred damage to 15%\n" +
+			"_-_ Exhausting Curse activates more often\n" +
 			"\n" +
-			"_v0.4.2:_\n" +
-			"_-_ Improved performance on many devices\n" +
-			"_-_ Various balance changes\n" +
+			"_v0.4.3:_ Various utility features and improvements\n" +
 			"\n" +
-			"_v0.4.1:_\n" +
-			"_-_ Armor effectiveness increased\n" +
-			"_-_ Evil Eyes reworked\n" +
+			"_v0.4.2:_ Performance and game engine improvements\n" +
+			"\n" +
+			"_v0.4.1:_ Balance adjustments to enemies & armor\n" +
 			"\n" +
 			"_v0.4.0:_ Reworked equips, enchants & curses\n" +
 			"\n" +
@@ -126,7 +122,7 @@ public class ChangesScene extends PixelScene {
 
 		NinePatch panel = Chrome.get(Chrome.Type.TOAST);
 
-		int pw = 135 + panel.marginLeft() + panel.marginRight() - 2;
+		int pw = 145 + panel.marginLeft() + panel.marginRight() - 2;
 		int ph = h - 16;
 
 		panel.size( pw, ph );

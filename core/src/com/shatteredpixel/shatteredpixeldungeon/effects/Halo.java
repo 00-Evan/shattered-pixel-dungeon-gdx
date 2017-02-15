@@ -42,10 +42,10 @@ public class Halo extends Image {
 		
 		if (!TextureCache.contains( CACHE_KEY )) {
 			Pixmap pixmap = new Pixmap(RADIUS * 2, RADIUS * 2, Pixmap.Format.RGBA8888);
-			pixmap.setColor( 0xFFFFFFFF );
-			pixmap.fillCircle( RADIUS, RADIUS, (int) (RADIUS * 0.75f));
-			pixmap.setColor( 0xFFFFFF88 );
-			pixmap.fillCircle( RADIUS, RADIUS, RADIUS );
+			pixmap.setColor( 0x0AFFFFFF );
+			for (int i = 0; i < 50; i++) {
+				pixmap.fillCircle(RADIUS, RADIUS, (int)(RADIUS * (i+1)/50f));
+			}
 			TextureCache.add( CACHE_KEY, new SmartTexture( pixmap ) );
 		}
 		

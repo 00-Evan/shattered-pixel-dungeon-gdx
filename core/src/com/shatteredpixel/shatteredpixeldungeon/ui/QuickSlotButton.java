@@ -21,12 +21,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
@@ -187,10 +187,12 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 				Dungeon.visible[lastTarget.pos]) {
 
 			targeting = true;
-			lastTarget.sprite.parent.add( crossM );
-			crossM.point( DungeonTilemap.tileToWorld( lastTarget.pos ) );
-			crossB.x = x + (width - crossB.width) / 2;
-			crossB.y = y + (height - crossB.height) / 2;
+			CharSprite sprite = lastTarget.sprite;
+			
+			sprite.parent.addToFront( crossM );
+			crossM.point(sprite.center(crossM));
+
+			crossB.point(slot.icon.center(crossB));
 			crossB.visible = true;
 
 		} else {

@@ -23,7 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.effects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Image;
@@ -49,6 +49,17 @@ public class Lightning extends Group {
 		this(Arrays.asList(new Arc(from, to)), callback);
 	}
 
+	public Lightning(PointF from, int to, Callback callback){
+		this(Arrays.asList(new Arc(from, to)), callback);
+	}
+
+	public Lightning(int from, PointF to, Callback callback){
+		this(Arrays.asList(new Arc(from, to)), callback);
+	}
+
+	public Lightning(PointF from, PointF to, Callback callback){
+		this(Arrays.asList(new Arc(from, to)), callback);
+	}
 	public Lightning( List<Arc> arcs, Callback callback ) {
 
 		super();
@@ -104,8 +115,21 @@ public class Lightning extends Group {
 		private PointF start, end;
 
 		public Arc(int from, int to){
-			start = DungeonTilemap.tileCenterToWorld(from);
-			end = DungeonTilemap.tileCenterToWorld(to);
+			this( DungeonTilemap.tileCenterToWorld(from),
+					DungeonTilemap.tileCenterToWorld(to));
+		}
+
+		public Arc(PointF from, int to){
+			this( from, DungeonTilemap.tileCenterToWorld(to));
+		}
+
+		public Arc(int from, PointF to){
+			this( DungeonTilemap.tileCenterToWorld(from), to);
+		}
+
+		public Arc(PointF from, PointF to){
+			start = from;
+			end = to;
 
 			arc1 = new Image(Effects.get(Effects.Type.LIGHTNING));
 			arc1.x = start.x - arc1.origin.x;
@@ -116,7 +140,6 @@ public class Lightning extends Group {
 			arc2 = new Image(Effects.get(Effects.Type.LIGHTNING));
 			arc2.origin.set( 0, arc2.height()/2 );
 			add( arc2 );
-
 		}
 
 		public void alpha(float alpha) {

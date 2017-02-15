@@ -22,7 +22,8 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTileSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -180,8 +181,10 @@ public class CavesLevel extends RegularLevel {
 			}
 		}
 		
-		for (int i=0; i < length(); i++) {
-			if (map[i] == Terrain.WALL && Random.Int( 12 ) == 0) {
+		for (int i=0; i < length() - width(); i++) {
+			if (map[i] == Terrain.WALL &&
+					DungeonTileSheet.floorTile(map[i + width()])
+					&& Random.Int( 4 ) == 0) {
 				map[i] = Terrain.WALL_DECO;
 			}
 		}

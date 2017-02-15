@@ -20,8 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.watabou.noosa.Visual;
 import com.watabou.noosa.tweeners.PosTweener;
 import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.utils.Callback;
@@ -33,30 +34,67 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 	
 	private Callback callback;
 	
-	public MissileSprite() {
-		super();
-		originToCenter();
-	}
-	
 	public void reset( int from, int to, Item item, Callback listener ) {
-		if (item == null) {
-			reset( from, to, 0, null, listener );
-		} else {
-			reset( from, to, item.image(), item.glowing(), listener );
-		}
-	}
-	
-	public void reset( int from, int to, int image, Glowing glowing, Callback listener ) {
 		revive();
-		
-		view( image, glowing );
-		
+		int image;
+
+		if (item == null)   view(image = 0, null);
+		else                view(image = item.image(), item.glowing());
+
+		setup( DungeonTilemap.tileToWorld( from ),
+				DungeonTilemap.tileToWorld( to ),
+				image,
+				listener);
+	}
+
+	public void reset( Visual from, Visual to, Item item, Callback listener ) {
+		revive();
+		int image;
+
+		if (item == null)   view(image = 0, null);
+		else                view(image = item.image(), item.glowing());
+
+		setup( from.center(this),
+				to.center(this),
+				image,
+				listener);
+	}
+
+	public void reset( Visual from, int to, Item item, Callback listener ) {
+		revive();
+		int image;
+
+		if (item == null)   view(image = 0, null);
+		else                view(image = item.image(), item.glowing());
+
+		setup( from.center(this),
+				DungeonTilemap.tileToWorld( to ),
+				image,
+				listener);
+	}
+
+	public void reset( PointF from, PointF to, Item item, Callback listener) {
+		revive();
+		int image;
+
+		if (item == null)   view(image = 0, null);
+		else                view(image = item.image(), item.glowing());
+
+		setup( from,
+				to,
+				image,
+				listener );
+	}
+
+	private void setup( PointF from, PointF to, int image, Callback listener ){
+
+		originToCenter();
+
 		this.callback = listener;
 
-		point( DungeonTilemap.tileToWorld( from ) );
-		PointF dest = DungeonTilemap.tileToWorld( to );
-		
-		PointF d = PointF.diff( dest, point() );
+		point( from );
+
+		PointF d = PointF.diff( to, from );
 		speed.set( d ).normalize().scale( SPEED );
 
 		if (image == ItemSpriteSheet.DART || image == ItemSpriteSheet.INCENDIARY_DART
@@ -70,8 +108,8 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 			angularSpeed = image == 15 || image == 106 ? 1440 : 720;
 
 		}
-		
-		PosTweener tweener = new PosTweener( this, dest, d.length() / SPEED );
+
+		PosTweener tweener = new PosTweener( this, to, d.length() / SPEED );
 		tweener.listener = this;
 		parent.add( tweener );
 	}

@@ -72,7 +72,7 @@ public class WandOfFrost extends DamageWand {
 			if (ch.buff(Chill.class) != null){
 				//7.5% less damage per turn of chill remaining
 				float chill = ch.buff(Chill.class).cooldown();
-				damage = (int)Math.round(damage * Math.pow(0.925f, chill));
+				damage = (int)Math.round(damage * Math.pow(0.9f, chill));
 			} else {
 				ch.sprite.burst( 0xFF99CCFF, level() / 2 + 2 );
 			}
@@ -91,7 +91,11 @@ public class WandOfFrost extends DamageWand {
 
 	@Override
 	protected void fx(Ballistica bolt, Callback callback) {
-		MagicMissile.blueLight(curUser.sprite.parent, bolt.sourcePos, bolt.collisionPos, callback);
+		MagicMissile.boltFromChar(curUser.sprite.parent,
+				MagicMissile.FROST,
+				curUser.sprite,
+				bolt.collisionPos,
+				callback);
 		Sample.INSTANCE.play(Assets.SND_ZAP);
 	}
 

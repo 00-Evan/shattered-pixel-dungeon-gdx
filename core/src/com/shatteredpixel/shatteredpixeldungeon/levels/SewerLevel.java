@@ -22,7 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Ripple;
 import com.shatteredpixel.shatteredpixeldungeon.items.DewVial;
@@ -204,7 +204,7 @@ public class SewerLevel extends RegularLevel {
 			this.pos = pos;
 			
 			PointF p = DungeonTilemap.tileCenterToWorld( pos );
-			pos( p.x - 2, p.y + 1, 4, 0 );
+			pos( p.x - 2, p.y + 3, 4, 0 );
 			
 			pour( factory, 0.1f );
 		}
@@ -246,7 +246,7 @@ public class SewerLevel extends RegularLevel {
 			
 			speed.set( Random.Float( -2, +2 ), 0 );
 			
-			left = lifespan = 0.5f;
+			left = lifespan = 0.4f;
 		}
 	}
 }

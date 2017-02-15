@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Camera;
@@ -110,7 +111,7 @@ public class WandOfLightning extends DamageWand {
 						//the hero is only zapped if they are adjacent
 						continue;
 					else if (n != null && !affected.contains( n )) {
-						arcs.add(new Lightning.Arc(ch.pos, n.pos));
+						arcs.add(new Lightning.Arc(ch.sprite.center(), n.sprite.center()));
 						arc(n);
 					}
 				}
@@ -122,19 +123,20 @@ public class WandOfLightning extends DamageWand {
 
 		affected.clear();
 		arcs.clear();
-		arcs.add( new Lightning.Arc(bolt.sourcePos, bolt.collisionPos));
 
 		int cell = bolt.collisionPos;
 
 		Char ch = Actor.findChar( cell );
 		if (ch != null) {
+			arcs.add( new Lightning.Arc(curUser.sprite.center(), ch.sprite.center()));
 			arc(ch);
 		} else {
+			arcs.add( new Lightning.Arc(curUser.sprite.center(), DungeonTilemap.raisedTileCenterToWorld(bolt.collisionPos)));
 			CellEmitter.center( cell ).burst( SparkParticle.FACTORY, 3 );
 		}
 
 		//don't want to wait for the effect before processing damage.
-		curUser.sprite.parent.add( new Lightning( arcs, null ) );
+		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
 		callback.call();
 	}
 

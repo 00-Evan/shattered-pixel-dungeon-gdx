@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -84,7 +83,6 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Point;
-import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
 
@@ -278,6 +276,8 @@ public abstract class Level implements Bundlable {
 		
 		createMobs();
 		createItems();
+
+		buildFlagMaps();
 
 		Random.seed();
 	}
@@ -596,16 +596,6 @@ public abstract class Level implements Bundlable {
 	}
 
 	public void destroy( int pos ) {
-
-		if (!DungeonTilemap.waterStitcheable.contains(map[pos])) {
-			for (int j = 0; j < PathFinder.NEIGHBOURS4.length; j++) {
-				if (water[pos + PathFinder.NEIGHBOURS4[j]]) {
-					set(pos, Terrain.WATER);
-					return;
-				}
-			}
-		}
-
 		set( pos, Terrain.EMBERS );
 	}
 
@@ -621,18 +611,6 @@ public abstract class Level implements Bundlable {
 				if (n >= 0 && n < length() && map[n] != Terrain.WALL && map[n] != Terrain.WALL_DECO) {
 					d = true;
 					break;
-				}
-			}
-			
-			if (d) {
-				d = false;
-				
-				for (int j=0; j < PathFinder.NEIGHBOURS9.length; j++) {
-					int n = i + PathFinder.NEIGHBOURS9[j];
-					if (n >= 0 && n < length() && !pit[n]) {
-						d = true;
-						break;
-					}
 				}
 			}
 			
@@ -874,6 +852,10 @@ public abstract class Level implements Bundlable {
 		Plant plant = plants.get( cell );
 		if (plant != null) {
 			plant.trigger();
+		}
+
+		if ( map[cell] == Terrain.HIGH_GRASS){
+			HighGrass.trample( this, cell, mob );
 		}
 	}
 	
