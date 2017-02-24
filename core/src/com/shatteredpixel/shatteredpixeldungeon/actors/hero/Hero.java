@@ -461,11 +461,6 @@ public class Hero extends Char {
 		}
 		
 		checkVisibleMobs();
-
-		if (moved) {
-			moved = false;
-			GameScene.checkKeyHold();
-		}
 		
 		if (curAction == null) {
 			
@@ -566,13 +561,11 @@ public class Hero extends Char {
 		next();
 	}
 
-	private boolean moved;
-
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
 
-			return moved = true;
+			return true;
 
 		} else {
 			if (Dungeon.level.map[pos] == Terrain.SIGN) {
@@ -1435,6 +1428,7 @@ public class Hero extends Char {
 	public void onMotionComplete() {
 		Dungeon.observe();
 		search( false );
+		GameScene.checkKeyHold();
 	}
 	
 	@Override
