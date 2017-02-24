@@ -203,6 +203,7 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (enabled && listener != null && cell != -1) {
 			
 			listener.onSelect( cell );
+			GameScene.ready();
 
 		} else {
 			
