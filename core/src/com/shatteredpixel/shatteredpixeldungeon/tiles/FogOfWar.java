@@ -129,14 +129,10 @@ public class FogOfWar extends Image {
 	public synchronized void updateFogArea(int x, int y, int w, int h){
 		updated.union(x, y);
 		updated.union(x + w, y + h);
+		updated = updated.intersect( new Rect(0, 0, mapWidth, mapHeight) );
 	}
 
 	public synchronized void moveToUpdating(){
-		updated.left = (int)GameMath.gate(0, updated.left, mapWidth);
-		updated.right = (int)GameMath.gate(0, updated.right, mapWidth);
-		updated.top = (int)GameMath.gate(0, updated.top, mapHeight);
-		updated.bottom = (int)GameMath.gate(0, updated.bottom, mapHeight);
-
 		updating = new Rect(updated);
 		updated.setEmpty();
 	}
