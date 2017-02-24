@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.GridTileMap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
@@ -66,7 +67,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BusyIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonWallsTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
@@ -135,6 +135,7 @@ public class GameScene extends PixelScene {
 	private Group terrain;
 	private Group customTiles;
 	private Group levelVisuals;
+	private Group customWalls;
 	private Group ripples;
 	private Group plants;
 	private Group traps;
@@ -202,8 +203,8 @@ public class GameScene extends PixelScene {
 		customTiles = new Group();
 		terrain.add(customTiles);
 
-		for( CustomTileVisual visual : Dungeon.level.customTiles){
-			addCustomTile(visual.create());
+		for( CustomTiledVisual visual : Dungeon.level.customTiles){
+			addCustomTile(visual);
 		}
 
 		visualGrid = new GridTileMap();
@@ -238,6 +239,13 @@ public class GameScene extends PixelScene {
 
 		walls = new DungeonWallsTilemap();
 		add(walls);
+
+		customWalls = new Group();
+		add(customWalls);
+
+		for( CustomTiledVisual visual : Dungeon.level.customWalls){
+			addCustomWall(visual);
+		}
 
 		wallBlocking = new WallBlockingTilemap();
 		add (wallBlocking);
@@ -539,8 +547,12 @@ public class GameScene extends PixelScene {
 		}
 	}
 
-	public void addCustomTile( CustomTileVisual visual){
+	public void addCustomTile( CustomTiledVisual visual){
 		customTiles.add( visual.create() );
+	}
+
+	public void addCustomWall( CustomTiledVisual visual){
+		customWalls.add( visual.create() );
 	}
 	
 	private void addHeapSprite( Heap heap ) {

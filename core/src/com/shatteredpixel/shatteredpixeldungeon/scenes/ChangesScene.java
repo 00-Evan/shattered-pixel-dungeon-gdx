@@ -39,6 +39,11 @@ public class ChangesScene extends PixelScene {
 	private static final String TXT_Update =
 			"_NOTE:_ Desktop version does not currently support translations.\nSupport will be added in the future.\n" +
 			"\n" +
+			"_v0.5.0b:_\n" +
+			"_-_ Fixed wand of fireblast not activating soul mark\n" +
+			"_-_ Various bugfixes and optimizations\n" +
+			"_-_ Translation updates\n" +
+			"\n"+
 			"_v0.5.0a:_\n" +
 			"_-_ Various Bugfixes\n" +
 			"\n"+

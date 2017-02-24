@@ -65,6 +65,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.HighGrass;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.MassGravePainter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
@@ -73,7 +74,8 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.BlandfruitBush;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTileSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Game;
@@ -142,7 +144,8 @@ public abstract class Level implements Bundlable {
 	public HashMap<Class<? extends Blob>,Blob> blobs;
 	public SparseArray<Plant> plants;
 	public SparseArray<Trap> traps;
-	public HashSet<CustomTileVisual> customTiles;
+	public HashSet<CustomTiledVisual> customTiles;
+	public HashSet<CustomTiledVisual> customWalls;
 	
 	protected ArrayList<Item> itemsToSpawn = new ArrayList<>();
 
@@ -166,6 +169,7 @@ public abstract class Level implements Bundlable {
 	private static final String PLANTS		= "plants";
 	private static final String TRAPS       = "traps";
 	private static final String CUSTOM_TILES= "customTiles";
+	private static final String CUSTOM_WALLS= "customWalls";
 	private static final String MOBS		= "mobs";
 	private static final String BLOBS		= "blobs";
 	private static final String FEELING		= "feeling";
@@ -267,6 +271,7 @@ public abstract class Level implements Bundlable {
 			plants = new SparseArray<>();
 			traps = new SparseArray<>();
 			customTiles = new HashSet<>();
+			customWalls = new HashSet<>();
 			
 		} while (!build());
 		decorate();
@@ -276,8 +281,6 @@ public abstract class Level implements Bundlable {
 		
 		createMobs();
 		createItems();
-
-		buildFlagMaps();
 
 		Random.seed();
 	}
@@ -317,6 +320,7 @@ public abstract class Level implements Bundlable {
 		plants = new SparseArray<>();
 		traps = new SparseArray<>();
 		customTiles = new HashSet<>();
+		customWalls = new HashSet<>();
 		
 		map		= bundle.getIntArray( MAP );
 
@@ -361,8 +365,39 @@ public abstract class Level implements Bundlable {
 
 		collection = bundle.getCollection( CUSTOM_TILES );
 		for (Bundlable p : collection) {
-			CustomTileVisual vis = (CustomTileVisual)p;
-			customTiles.add( vis );
+			CustomTiledVisual vis = (CustomTiledVisual)p;
+			//for compatibilities with pre-0.5.0b saves
+			//extends one of the bones visuals and discards the rest
+			if (vis instanceof MassGravePainter.Bones && vis.tileH == 0){
+				int cell = vis.tileX + vis.tileY*width;
+				if (map[cell] == Terrain.EMPTY_SP &&
+						DungeonTileSheet.wallStitcheable(map[cell - width]) &&
+						DungeonTileSheet.wallStitcheable(map[cell - 1])){
+
+					vis.tileY--; //move top to into the wall
+					vis.tileW = 1;
+					vis.tileH = 2;
+
+					while (map[cell+1] == Terrain.EMPTY_SP){
+						vis.tileW++;
+						cell++;
+					}
+					while (map[cell+width] == Terrain.EMPTY_SP){
+						vis.tileH++;
+						cell+=width;
+					}
+
+					customTiles.add(vis);
+				}
+			} else {
+				customTiles.add(vis);
+			}
+		}
+
+		collection = bundle.getCollection( CUSTOM_WALLS );
+		for (Bundlable p : collection) {
+			CustomTiledVisual vis = (CustomTiledVisual)p;
+			customWalls.add(vis);
 		}
 		
 		collection = bundle.getCollection( MOBS );
@@ -402,6 +437,7 @@ public abstract class Level implements Bundlable {
 		bundle.put( PLANTS, plants.valuesAsList() );
 		bundle.put( TRAPS, traps.valuesAsList() );
 		bundle.put( CUSTOM_TILES, customTiles );
+		bundle.put( CUSTOM_WALLS, customWalls );
 		bundle.put( MOBS, mobs );
 		bundle.put( BLOBS, blobs.values() );
 		bundle.put( FEELING, feeling );

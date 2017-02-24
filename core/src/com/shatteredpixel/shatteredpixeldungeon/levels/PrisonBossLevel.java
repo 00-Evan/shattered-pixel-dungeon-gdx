@@ -38,7 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.CustomTileVisual;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Sample;
@@ -340,10 +340,15 @@ public class PrisonBossLevel extends Level {
 			case FIGHT_ARENA:
 				unseal();
 
-				CustomTileVisual vis = new exitVisual();
+				CustomTiledVisual vis = new exitVisual();
 				vis.pos(11, 8);
 				customTiles.add(vis);
 				((GameScene)ShatteredPixelDungeon.scene()).addCustomTile(vis);
+
+				vis = new exitVisualWalls();
+				vis.pos(11, 8);
+				customWalls.add(vis);
+				((GameScene)ShatteredPixelDungeon.scene()).addCustomWall(vis);
 
 				Dungeon.hero.interrupt();
 				Dungeon.hero.pos = 5+27*32;
@@ -427,10 +432,10 @@ public class PrisonBossLevel extends Level {
 			{       W, W, W, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, e, e, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					e, e, e, D, e, e, e, D, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
-					W, W, W, W, e, e, e, W, W, M, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
-					W, W, W, W, W, M, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
-					W, W, W, W, W, D, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
+					W, W, W, W, e, e, e, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
+					W, W, W, W, W, W, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, W, W, e, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
+					W, W, W, W, W, D, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, M, W, W, e, W, W, M, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, e, e, e, W, e, W, e, e, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, e, e, e, D, e, D, e, e, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
@@ -447,7 +452,7 @@ public class PrisonBossLevel extends Level {
 					W, e, e, e, W, e, W, e, e, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, e, e, e, D, e, D, e, e, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, e, e, e, W, e, W, e, e, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
-					W, W, M, W, W, e, W, W, M, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
+					W, W, W, W, W, e, W, W, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, W, W, e, W, W, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, M, W, D, W, M, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, T, T, T, T, T, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
@@ -463,16 +468,16 @@ public class PrisonBossLevel extends Level {
 					W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W, W,
 					W, e, e, e, e, e, W, e, e, e, e, e, W, W, M, W, W, e, e, e, e, e, W, e, e, e, e, e, W, W, W, W,
 					W, e, e, e, e, e, W, e, e, e, e, W, W, e, e, e, W, W, e, e, e, e, W, e, e, e, e, e, W, W, W, W,
-					W, e, e, e, e, M, W, e, e, e, e, e, D, e, e, e, D, e, e, e, e, e, W, M, e, e, e, e, W, W, W, W,
-					W, e, e, W, W, W, W, e, e, e, e, W, W, e, e, e, W, W, e, e, e, e, W, W, W, W, e, e, W, W, W, W,
-					W, e, e, e, e, e, e, e, e, e, e, e, W, W, M, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W,
+					W, e, e, e, e, W, W, e, e, e, e, e, D, e, e, e, D, e, e, e, e, e, W, W, e, e, e, e, W, W, W, W,
+					W, e, e, W, W, W, M, e, e, e, e, W, W, e, e, e, W, W, e, e, e, e, M, W, W, W, e, e, W, W, W, W,
+					W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W,
 					W, e, e, e, e, e, e, e, e, e, e, e, e, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W,
 					W, e, e, e, e, e, e, e, e, e, W, e, e, e, e, e, e, e, W, e, e, e, e, e, e, e, e, e, W, W, W, W,
 					W, e, e, e, e, e, e, e, e, W, W, e, e, e, e, e, e, e, W, W, e, e, e, e, e, e, e, e, W, W, W, W,
 					W, e, e, e, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, e, W, e, e, e, W, W, W, W,
 					W, e, e, W, W, D, W, W, e, e, e, e, W, e, e, e, W, e, e, e, e, W, W, D, W, W, e, e, W, W, W, W,
 					W, e, W, W, e, e, e, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, e, e, e, W, W, e, W, W, W, W,
-					W, e, W, M, e, e, e, M, W, e, e, e, e, e, M, e, e, e, e, e, W, M, e, e, e, M, W, e, W, W, W, W,
+					W, e, W, W, e, e, e, W, W, e, e, e, e, e, M, e, e, e, e, e, W, W, e, e, e, W, W, e, W, W, W, W,
 					W, e, W, W, e, e, e, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, e, e, e, W, W, e, W, W, W, W,
 					W, e, e, W, W, D, W, W, e, e, e, e, W, e, e, e, W, e, e, e, e, W, W, D, W, W, e, e, W, W, W, W,
 					W, e, e, e, W, e, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, e, W, e, e, e, W, W, W, W,
@@ -483,7 +488,7 @@ public class PrisonBossLevel extends Level {
 					W, e, e, W, W, W, W, e, e, e, e, W, W, e, e, e, W, W, e, e, e, e, W, W, W, W, e, e, W, W, W, W,
 					W, e, e, e, e, M, W, e, e, e, e, e, D, e, e, e, D, e, e, e, e, e, W, M, e, e, e, e, W, W, W, W,
 					W, e, e, e, e, e, W, e, e, e, e, W, W, e, e, e, W, W, e, e, e, e, W, e, e, e, e, e, W, W, W, W,
-					W, e, e, e, e, e, W, e, e, e, e, e, W, W, M, W, W, e, e, e, e, e, W, e, e, e, e, e, W, W, W, W,
+					W, e, e, e, e, e, W, e, e, e, e, e, W, W, W, W, W, e, e, e, e, e, W, e, e, e, e, e, W, W, W, W,
 					W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W, W,
 					W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W, W, W, W, W,
 					W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
@@ -515,7 +520,7 @@ public class PrisonBossLevel extends Level {
 					W, e, e, e, W, e, W, e, e, e, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, e, e, e, D, e, D, e, e, e, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, e, e, e, W, e, W, e, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					W, W, M, W, W, e, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
+					W, W, W, W, W, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, M, W, D, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, T, T, T, T, T, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
@@ -526,15 +531,35 @@ public class PrisonBossLevel extends Level {
 					W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W};
 
 
-	public static class exitVisual extends CustomTileVisual{
+	public static class exitVisual extends CustomTiledVisual {
 
-		{
-			name = "prison exit";
+		private static short[] render = new short[]{
+				0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+				0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+				0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+				0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+				0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		};
 
-			tx = Assets.PRISON_EXIT;
-			txX = txY = 0;
+		public exitVisual() {
+			super(Assets.PRISON_EXIT);
+		}
+
+		@Override
+		public CustomTiledVisual create() {
 			tileW = 12;
-			tileH = 15;
+			tileH = 14;
+			mapSimpleImage(0, 0);
+			return super.create();
 		}
 
 		//for compatibility with pre-0.4.3 saves
@@ -545,8 +570,44 @@ public class PrisonBossLevel extends Level {
 		}
 
 		@Override
-		public String desc() {
-			return super.desc();
+		protected boolean needsRender(int pos) {
+			return render[pos] != 0;
+		}
+	}
+
+	public static class exitVisualWalls extends CustomTiledVisual {
+		private static short[] render = new short[]{
+				0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,
+				0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,
+				0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		};
+
+		public exitVisualWalls() {
+			super(Assets.PRISON_EXIT);
+		}
+
+		@Override
+		public CustomTiledVisual create() {
+			tileW = 12;
+			tileH = 14;
+			mapSimpleImage(4, 0);
+			return super.create();
+		}
+
+		@Override
+		protected boolean needsRender(int pos) {
+			return render[pos] != 0;
 		}
 	}
 }
