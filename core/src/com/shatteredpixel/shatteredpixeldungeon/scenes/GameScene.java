@@ -594,7 +594,6 @@ public class GameScene extends PixelScene {
 		
 		if (prompt != null) {
 			prompt.killAndErase();
-			prompt.destroy();
 			prompt = null;
 		}
 		
