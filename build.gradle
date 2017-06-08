@@ -7,7 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
-		classpath 'com.android.tools.build:gradle:2.2.3'
+		classpath 'com.android.tools.build:gradle:2.3.2'
 		classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.2.0'
 	}
 }
@@ -22,8 +22,8 @@ allprojects {
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'
-		gdxVersion = '1.9.5'
-		roboVMVersion = '2.3.0'
+		gdxVersion = '1.9.6'
+		roboVMVersion = '2.3.1'
 	}
 
 	repositories {

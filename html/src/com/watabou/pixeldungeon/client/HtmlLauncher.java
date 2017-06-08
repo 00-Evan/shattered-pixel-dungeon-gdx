@@ -34,7 +34,7 @@ public class HtmlLauncher extends GwtApplication {
 		}
 
 		@Override
-		public ApplicationListener getApplicationListener () {
+		public ApplicationListener createApplicationListener () {
 			String version = "???";
 			int versionCode = 0;
 			return new ShatteredPixelDungeon(new PDPlatformSupport(version, versionCode, null, null));
