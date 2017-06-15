@@ -27,7 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
-import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError;
@@ -172,8 +172,10 @@ public class InterlevelScene extends PixelScene {
 		case STATIC:
 			if (error != null) {
 				String errorMsg;
-				if (error instanceof FileNotFoundException) errorMsg = Messages.get(this, "file_not_found");
-				else if (error instanceof IOException) errorMsg = Messages.get(this, "io_error");
+				if (error instanceof FileNotFoundException)     errorMsg = Messages.get(this, "file_not_found");
+				else if (error instanceof IOException)          errorMsg = Messages.get(this, "io_error");
+				else if (error.getMessage() != null &&
+						error.getMessage().equals("old save")) errorMsg = Messages.get(this, "io_error");
 
 				else throw new RuntimeException("fatal error occured while moving between floors", error);
 
@@ -230,7 +232,7 @@ public class InterlevelScene extends PixelScene {
 			Dungeon.depth++;
 			level = Dungeon.loadLevel( Dungeon.hero.heroClass );
 		}
-		Dungeon.switchLevel( level, fallIntoPit ? level.pitCell() : level.randomRespawnCell() );
+		Dungeon.switchLevel( level, level.fallCell( fallIntoPit ));
 	}
 	
 	private void ascend() throws IOException {
@@ -287,10 +289,10 @@ public class InterlevelScene extends PixelScene {
 
 		Actor.fixTime();
 
+		SpecialRoom.resetPitRoom(Dungeon.depth+1);
+
 		Dungeon.depth--;
 		Level level = Dungeon.newLevel();
-		//FIXME this only partially addresses issues regarding weak floors.
-		RegularLevel.weakFloorCreated = false;
 		Dungeon.switchLevel( level, level.entrance );
 	}
 	

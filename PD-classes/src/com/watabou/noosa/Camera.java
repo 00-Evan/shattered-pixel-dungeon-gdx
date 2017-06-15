@@ -161,7 +161,7 @@ public class Camera extends Gizmo {
 		super.update();
 		
 		if (target != null) {
-			focusOn( target );
+			focusOn( target.x + target.width / 2, target.y + target.height / 2 );
 		}
 		
 		if ((shakeTime -= Game.elapsed) > 0) {

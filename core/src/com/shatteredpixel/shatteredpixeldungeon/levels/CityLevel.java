@@ -22,10 +22,9 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTileSheet;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.CityPainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BlazingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisarmingTrap;
@@ -45,6 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.VenomTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WarpingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WeakeningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.particles.PixelParticle;
@@ -59,6 +59,18 @@ public class CityLevel extends RegularLevel {
 	}
 	
 	@Override
+	protected int standardRooms() {
+		//7 to 10, average 7.9
+		return 7+Random.chances(new float[]{4, 3, 2, 1});
+	}
+	
+	@Override
+	protected int specialRooms() {
+		//2 to 3, average 2.33
+		return 2 + Random.chances(new float[]{2, 1});
+	}
+	
+	@Override
 	public String tilesTex() {
 		return Assets.TILES_CITY;
 	}
@@ -68,14 +80,14 @@ public class CityLevel extends RegularLevel {
 		return Assets.WATER_CITY;
 	}
 	
-	protected boolean[] water() {
-		return Patch.generate( this, feeling == Feeling.WATER ? 0.65f : 0.45f, 4 );
+	@Override
+	protected Painter painter() {
+		return new CityPainter()
+				.setWater(feeling == Feeling.WATER ? 0.90f : 0.30f, 4)
+				.setGrass(feeling == Feeling.GRASS ? 0.80f : 0.20f, 3)
+				.setTraps(nTraps(), trapClasses(), trapChances());
 	}
 	
-	protected boolean[] grass() {
-		return Patch.generate( this, feeling == Feeling.GRASS ? 0.60f : 0.40f, 3 );
-	}
-
 	@Override
 	protected Class<?>[] trapClasses() {
 		return new Class[]{ BlazingTrap.class, FrostTrap.class, SpearTrap.class, VenomTrap.class,
@@ -90,35 +102,6 @@ public class CityLevel extends RegularLevel {
 				4, 4, 4, 4, 4, 4,
 				2, 2, 2, 2, 2, 2,
 				1, 1 };
-	}
-	
-	@Override
-	protected boolean assignRoomType() {
-		if (!super.assignRoomType()) return false;
-		
-		for (Room r : rooms) {
-			if (r.type == Type.TUNNEL) {
-				r.type = Type.PASSAGE;
-			}
-		}
-
-		return true;
-	}
-	
-	@Override
-	protected void decorate() {
-		
-		for (int i=0; i < length() - width(); i++) {
-			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) {
-				map[i] = Terrain.EMPTY_DECO;
-			} else if (map[i] == Terrain.WALL
-					&& DungeonTileSheet.floorTile(map[i + width()])
-					&& Random.Int( 21 - Dungeon.depth ) == 0) {
-				map[i] = Terrain.WALL_DECO;
-			}
-		}
-		
-		placeSign();
 	}
 	
 	@Override

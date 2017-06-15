@@ -26,11 +26,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.GridTileMap;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTerrainTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.FogOfWar;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
@@ -61,20 +56,25 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.DiscardedItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTileSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonWallsTilemap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.FogOfWar;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.GridTileMap;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.WallBlockingTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BusyIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonWallsTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.TerrainFeaturesTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toast;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -416,8 +416,29 @@ public class GameScene extends PixelScene {
 	
 	public void destroy() {
 		
+		//tell the actor thread to finish, then wait for it to complete any actions it may be doing.
+		if (actorThread.isAlive()){
+			synchronized (GameScene.class){
+				synchronized (actorThread) {
+					actorThread.interrupt();
+				}
+				try {
+					GameScene.class.wait(5000);
+				} catch (InterruptedException e) {
+					ShatteredPixelDungeon.reportException(e);
+				}
+				synchronized (actorThread) {
+					if (Actor.processing()) {
+						Throwable t = new Throwable();
+						t.setStackTrace(actorThread.getStackTrace());
+						throw new RuntimeException("timeout waiting for actor thread! ", t);
+					}
+				}
+			}
+		}
+		
 		freezeEmitters = false;
-
+		
 		scene = null;
 		Badges.saveGlobal();
 		
@@ -434,7 +455,7 @@ public class GameScene extends PixelScene {
 		}
 	}
 
-	private final Thread t = new Thread() {
+	private static final Thread actorThread = new Thread() {
 		@Override
 		public void run() {
 			Actor.process();
@@ -452,13 +473,13 @@ public class GameScene extends PixelScene {
 		if (!freezeEmitters) water.offset( 0, -5 * Game.elapsed );
 
 		if (!Actor.processing() && Dungeon.hero.isAlive()) {
-			if (!t.isAlive()) {
+			if (!actorThread.isAlive()) {
 				//if cpu time is limited, game should prefer drawing the current frame
-				t.setPriority(Thread.NORM_PRIORITY - 1);
-				t.start();
+				actorThread.setPriority(Thread.NORM_PRIORITY - 1);
+				actorThread.start();
 			} else {
-				synchronized (t) {
-					t.notify();
+				synchronized (actorThread) {
+					actorThread.notify();
 				}
 			}
 		}
@@ -699,16 +720,17 @@ public class GameScene extends PixelScene {
 	}
 	
 	public static void pickUp( Item item ) {
-		scene.toolbar.pickup( item );
+		if (scene != null) scene.toolbar.pickup( item );
 	}
 
 	public static void pickUpJournal( Item item ) {
-		scene.pane.pickup( item );
+		if (scene != null) scene.pane.pickup( item );
 	}
 
 	public static void resetMap() {
 		if (scene != null) {
 			scene.tiles.map(Dungeon.level.map, Dungeon.level.width() );
+			scene.visualGrid.map(Dungeon.level.map, Dungeon.level.width() );
 			scene.terrainFeatures.map(Dungeon.level.map, Dungeon.level.width() );
 			scene.walls.map(Dungeon.level.map, Dungeon.level.width() );
 		}
@@ -749,8 +771,10 @@ public class GameScene extends PixelScene {
 	}
 	
 	public static void show( Window wnd ) {
-		cancelCellSelector();
-		scene.addToFront( wnd );
+		if (scene != null) {
+			cancelCellSelector();
+			scene.addToFront(wnd);
+		}
 	}
 
 	public static void updateFog(){

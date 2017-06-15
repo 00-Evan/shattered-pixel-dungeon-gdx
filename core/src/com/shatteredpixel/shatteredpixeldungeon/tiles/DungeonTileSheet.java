@@ -125,6 +125,12 @@ public class DungeonTileSheet {
 		chasmStitcheable.put( Terrain.SIGN,         CHASM_FLOOR );
 		chasmStitcheable.put( Terrain.EMPTY_WELL,   CHASM_FLOOR );
 		chasmStitcheable.put( Terrain.STATUE,       CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.SECRET_TRAP,  CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.INACTIVE_TRAP,CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.TRAP,         CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.BOOKSHELF,    CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.BARRICADE,    CHASM_FLOOR );
+		chasmStitcheable.put( Terrain.PEDESTAL,     CHASM_FLOOR );
 
 		//special floor
 		chasmStitcheable.put( Terrain.EMPTY_SP,     CHASM_FLOOR_SP );
@@ -269,10 +275,10 @@ public class DungeonTileSheet {
 	private static final int WALL_INTERNAL              = WALLS_INTERNAL+0;
 	private static final int WALL_INTERNAL_WOODEN       = WALLS_INTERNAL+16;
 
-	public static int stitchInternalWallTile(int tile, int right, int rightBelow, int leftBelow, int left){
+	public static int stitchInternalWallTile(int tile, int right, int rightBelow, int below, int leftBelow, int left){
 		int result;
 
-		if (tile == Terrain.BOOKSHELF)  result = WALL_INTERNAL_WOODEN;
+		if (tile == Terrain.BOOKSHELF || below == Terrain.BOOKSHELF)  result = WALL_INTERNAL_WOODEN;
 		else                            result = WALL_INTERNAL;
 
 		if (!wallStitcheable(right))        result += 1;

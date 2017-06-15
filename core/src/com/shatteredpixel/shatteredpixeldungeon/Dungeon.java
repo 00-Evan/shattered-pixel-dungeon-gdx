@@ -50,9 +50,9 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.LastShopLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
@@ -74,8 +74,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Dungeon {
-
-	public static int transmutation;	// depth number for a well of transmutation
 
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
@@ -155,9 +153,7 @@ public class Dungeon {
 			Potion.initColors();
 			Ring.initGems();
 
-			transmutation = Random.IntRange( 6, 14 );
-
-			Room.shuffleTypes();
+			SpecialRoom.initForRun();
 
 		Random.seed();
 		
@@ -267,8 +263,7 @@ public class Dungeon {
 			level = new DeadEndLevel();
 			Statistics.deepestFloor--;
 		}
-
-		visible = new boolean[level.length()];
+		
 		level.create();
 		
 		Statistics.qualifiedForNoKilling = !bossLevel();
@@ -327,6 +322,8 @@ public class Dungeon {
 		
 		Light light = hero.buff( Light.class );
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
+		
+		hero.curAction = hero.lastAction = null;
 		
 		observe();
 		try {
@@ -454,8 +451,6 @@ public class Dungeon {
 
 			quickslot.storePlaceholders( bundle );
 
-			bundle.put( WT, transmutation );
-
 			int[] dropValues = new int[limitedDrops.values().length];
 			for (limitedDrops value : limitedDrops.values())
 				dropValues[value.ordinal()] = value.count;
@@ -475,7 +470,7 @@ public class Dungeon {
 			Imp			.Quest.storeInBundle( quests );
 			bundle.put( QUESTS, quests );
 			
-			Room.storeRoomsInBundle( bundle );
+			SpecialRoom.storeRoomsInBundle( bundle );
 			
 			Statistics.storeInBundle( bundle );
 			Journal.storeInBundle( bundle );
@@ -562,8 +557,6 @@ public class Dungeon {
 		quickslot.restorePlaceholders( bundle );
 		
 		if (fullLoad) {
-			transmutation = bundle.getInt( WT );
-
 			int[] dropValues = bundle.getIntArray(LIMDROPS);
 			for (limitedDrops value : limitedDrops.values())
 				value.count = value.ordinal() < dropValues.length ?
@@ -590,7 +583,7 @@ public class Dungeon {
 				Imp.Quest.reset();
 			}
 			
-			Room.restoreRoomsFromBundle(bundle);
+			SpecialRoom.restoreRoomsFromBundle(bundle);
 		}
 		
 		Bundle badges = bundle.getBundle(BADGES);
@@ -660,10 +653,8 @@ public class Dungeon {
 	
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.depth = bundle.getInt( DEPTH );
+		info.version = bundle.getInt( VERSION );
 		info.challenges = (bundle.getInt( CHALLENGES ) != 0);
-		if (info.depth == -1) {
-			info.depth = bundle.getInt( "maxDepth" );	// FIXME
-		}
 		Hero.preview( info, bundle.getBundle( HERO ) );
 	}
 

@@ -161,6 +161,7 @@ public abstract class Scroll extends Item {
 	public void setKnown() {
 		if (!isKnown() && !ownedByBook) {
 			handler.know( this );
+			updateQuickslot();
 		}
 		
 		Badges.validateAllScrollsIdentified();

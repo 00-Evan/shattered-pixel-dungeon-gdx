@@ -40,7 +40,7 @@ import java.util.UUID;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = 157;
+	private static int LATEST_UPDATE = 181;
 
 	@Override
 	public void create() {
@@ -77,7 +77,8 @@ public class WelcomeScene extends PixelScene {
 			@Override
 			public void update() {
 				super.update();
-				am = (float)Math.sin( -(time += Game.elapsed) );
+				am = Math.max(0f, (float)Math.sin( time += Game.elapsed ));
+				if (time >= 1.5f*Math.PI) time = 0;
 			}
 			@Override
 			public void draw() {
@@ -149,28 +150,34 @@ public class WelcomeScene extends PixelScene {
 
 	private void updateVersion(int previousVersion){
 		//rankings conversion
-		if (previousVersion <= 114){
-			Rankings.INSTANCE.load();
-			for (Rankings.Record rec : Rankings.INSTANCE.records){
-				if (rec.gameFile != null) {
-					try {
-						Dungeon.loadGame(rec.gameFile, false);
-						rec.gameID = rec.gameFile.replaceAll("\\D", "");
-
-						Rankings.INSTANCE.saveGameData(rec);
-					} catch (Exception e) {
-						rec.gameID = rec.gameFile.replaceAll("\\D", "");
-						rec.gameData = null;
+		if (previousVersion <= ShatteredPixelDungeon.v0_4_1){
+			try {
+				Rankings.INSTANCE.load();
+				for (Rankings.Record rec : Rankings.INSTANCE.records) {
+					if (rec.gameFile != null) {
+						try {
+							Dungeon.loadGame(rec.gameFile, false);
+							rec.gameID = rec.gameFile.replaceAll("\\D", "");
+							
+							Rankings.INSTANCE.saveGameData(rec);
+						} catch (Exception e) {
+							rec.gameID = rec.gameFile.replaceAll("\\D", "");
+							rec.gameData = null;
+						}
+						
+						String file = rec.gameFile;
+						rec.gameFile = "";
+						Game.instance.deleteFile(file);
+					} else if (rec.gameID == null) {
+						rec.gameID = UUID.randomUUID().toString();
 					}
-
-					String file = rec.gameFile;
-					rec.gameFile = "";
-					Game.instance.deleteFile(file);
-				} else if (rec.gameID == null){
-					rec.gameID = UUID.randomUUID().toString();
 				}
+				Rankings.INSTANCE.save();
+			} catch (Exception e) {
+				//if we encounter a fatal error, then just clear the rankings
+				Game.instance.deleteFile( Rankings.RANKINGS_FILE );
 			}
-			Rankings.INSTANCE.save();
+
 		}
 
 		ShatteredPixelDungeon.version(ShatteredPixelDungeon.versionCode);

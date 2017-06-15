@@ -21,7 +21,7 @@
 
 package com.watabou.utils;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 public class Rect {
 
@@ -54,7 +54,7 @@ public class Rect {
 	}
 	
 	public int square() {
-		return (right - left) * (bottom - top);
+		return width() * height();
 	}
 	
 	public Rect set( int left, int top, int right, int bottom ) {
@@ -67,6 +67,18 @@ public class Rect {
 	
 	public Rect set( Rect rect ) {
 		return set( rect.left, rect.top, rect.right, rect.bottom );
+	}
+	
+	public Rect setPos( int x, int y ) {
+		return set( x, y, x + (right - left), y + (bottom - top));
+	}
+	
+	public Rect shift( int x, int y ) {
+		return set( left+x, top+y, right+x, bottom+y );
+	}
+	
+	public Rect resize( int w, int h ){
+		return set( left, top, left+w, top+h);
 	}
 	
 	public boolean isEmpty() {
@@ -121,8 +133,8 @@ public class Rect {
 		return shrink( 1 );
 	}
 
-	public HashSet<Point> getPoints() {
-		HashSet<Point> points = new HashSet<>(square()*2);
+	public ArrayList<Point> getPoints() {
+		ArrayList<Point> points = new ArrayList<>();
 		for (int i = left; i <= right; i++)
 			for (int j = top; j <= bottom; j++)
 				points.add(new Point(i, j));

@@ -23,16 +23,20 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Room.Type;
+import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
+import com.shatteredpixel.shatteredpixeldungeon.levels.builders.LineBuilder;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.CityPainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.EntranceRoom;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.ExitRoom;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.ImpShopRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.noosa.Group;
-import com.watabou.utils.Graph;
-import com.watabou.utils.Random;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class LastShopLevel extends RegularLevel {
 	
@@ -53,106 +57,45 @@ public class LastShopLevel extends RegularLevel {
 	
 	@Override
 	protected boolean build() {
-
 		feeling = Feeling.CHASM;
-		viewDistance = 4;
-		
-		initRooms();
-		
-		int distance;
-		int retry = 0;
-		int minDistance = (int)Math.sqrt( rooms.size() );
-		do {
-			int innerRetry = 0;
-			do {
-				if (innerRetry++ > 10) {
-					return false;
-				}
-				roomEntrance = Random.element( rooms );
-			} while (roomEntrance.width() < 4 || roomEntrance.height() < 4);
+		if (super.build()){
 			
-			innerRetry = 0;
-			do {
-				if (innerRetry++ > 10) {
-					return false;
-				}
-				roomExit = Random.element( rooms );
-			} while (roomExit == roomEntrance || roomExit.width() < 6 || roomExit.height() < 6 || roomExit.top == 0);
-	
-			Graph.buildDistanceMap( rooms, roomExit );
-			distance = Graph.buildPath( rooms, roomEntrance, roomExit ).size();
-			
-			if (retry++ > 10) {
-				return false;
-			}
-			
-		} while (distance < minDistance);
-		
-		roomEntrance.type = Type.ENTRANCE;
-		roomExit.type = Type.EXIT;
-		
-		Graph.buildDistanceMap( rooms, roomExit );
-		List<Room> path = Graph.buildPath( rooms, roomEntrance, roomExit );
-		
-		Graph.setPrice( path, roomEntrance.distance );
-		
-		Graph.buildDistanceMap( rooms, roomExit );
-		path = Graph.buildPath( rooms, roomEntrance, roomExit );
-		
-		Room room = roomEntrance;
-		for (Room next : path) {
-			room.connect( next );
-			room = next;
-		}
-		
-		Room roomShop = null;
-		int shopSquare = 0;
-		for (Room r : rooms) {
-			if (r.type == Type.NULL && r.connected.size() > 0) {
-				r.type = Type.PASSAGE;
-				if (r.square() > shopSquare) {
-					roomShop = r;
-					shopSquare = r.square();
+			for (int i=0; i < length(); i++) {
+				if (map[i] == Terrain.SECRET_DOOR) {
+					map[i] = Terrain.DOOR;
 				}
 			}
-		}
-		
-		if (roomShop == null || shopSquare < 54) {
-			return false;
+			
+			return true;
 		} else {
-			roomShop.type = Imp.Quest.isCompleted() ? Room.Type.SHOP : Room.Type.STANDARD;
+			return false;
 		}
-		
-		paint();
-		
-		paintWater();
-		paintGrass();
-		
-		return true;
 	}
 	
 	@Override
-	protected void decorate() {
+	protected ArrayList<Room> initRooms() {
+		ArrayList<Room> rooms = new ArrayList<>();
 		
-		for (int i=0; i < length(); i++) {
-			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) {
-				
-				map[i] = Terrain.EMPTY_DECO;
-				
-			} else if (map[i] == Terrain.WALL && Random.Int( 8 ) == 0) {
-				
-				map[i] = Terrain.WALL_DECO;
-				
-			} else if (map[i] == Terrain.SECRET_DOOR) {
-				
-				map[i] = Terrain.DOOR;
-				
-			}
-		}
+		rooms.add ( roomEntrance = new EntranceRoom());
+		rooms.add( new ImpShopRoom() );
+		rooms.add( roomExit = new ExitRoom());
 		
-		if (Imp.Quest.isCompleted()) {
-			placeSign();
-		}
+		return rooms;
+	}
+	
+	@Override
+	protected Builder builder() {
+		return new LineBuilder()
+				.setPathVariance(0f)
+				.setPathLength(1f, new float[]{1})
+				.setTunnelLength(new float[]{0, 0, 1}, new float[]{1});
+	}
+	
+	@Override
+	protected Painter painter() {
+		return new CityPainter()
+				.setWater( 0.10f, 4 )
+				.setGrass( 0.10f, 3 );
 	}
 	
 	@Override
@@ -212,16 +155,6 @@ public class LastShopLevel extends RegularLevel {
 			default:
 				return super.tileDesc( tile );
 		}
-	}
-
-	@Override
-	protected boolean[] water() {
-		return Patch.generate( this, 0.35f, 4 );
-	}
-
-	@Override
-	protected boolean[] grass() {
-		return Patch.generate( this, 0.30f, 3 );
 	}
 
 	@Override

@@ -408,9 +408,15 @@ public class CursedWand {
 					} else {
 						GameScene.show(
 								new WndOptions("CURSED WAND ERROR", "this application will now self-destruct", "abort", "retry", "fail") {
+									
 									@Override
-									public void hide() {
-										throw new RuntimeException("critical wand exception");
+									protected void onSelect(int index) {
+										Game.instance.finish();
+									}
+									
+									@Override
+									public void onBackPressed() {
+										//do nothing
 									}
 								}
 						);

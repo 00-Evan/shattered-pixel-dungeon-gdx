@@ -45,7 +45,7 @@ public class HallsBossLevel extends Level {
 		color1 = 0x801500;
 		color2 = 0xa68521;
 		
-		viewDistance = 3;
+		viewDistance = 4;
 	}
 
 	private static final int WIDTH = 32;
@@ -93,53 +93,51 @@ public class HallsBossLevel extends Level {
 	@Override
 	protected boolean build() {
 		
-		for (int i=0; i < 5; i++) {
+		setSize(32, 32);
+		
+		for (int i = 0; i < 5; i++) {
 			
-			int top = Random.IntRange( 2, ROOM_TOP - 1 );
-			int bottom = Random.IntRange( ROOM_BOTTOM + 1, 22 );
-			Painter.fill( this, 2 + i * 4, top, 4, bottom - top + 1, Terrain.EMPTY );
+			int top = Random.IntRange(2, ROOM_TOP - 1);
+			int bottom = Random.IntRange(ROOM_BOTTOM + 1, 22);
+			Painter.fill(this, 2 + i * 4, top, 4, bottom - top + 1, Terrain.EMPTY);
 			
 			if (i == 2) {
-				exit = (i * 4 + 3) + (top - 1) * width() ;
+				exit = (i * 4 + 3) + (top - 1) * width();
 			}
 			
-			for (int j=0; j < 4; j++) {
-				if (Random.Int( 2 ) == 0) {
-					int y = Random.IntRange( top + 1, bottom - 1 );
-					map[i*4+j + y*width()] = Terrain.WALL_DECO;
+			for (int j = 0; j < 4; j++) {
+				if (Random.Int(2) == 0) {
+					int y = Random.IntRange(top + 1, bottom - 1);
+					map[i * 4 + j + y * width()] = Terrain.WALL_DECO;
 				}
 			}
 		}
 		
 		map[exit] = Terrain.LOCKED_EXIT;
 		
-		Painter.fill( this, ROOM_LEFT - 1, ROOM_TOP - 1,
-			ROOM_RIGHT - ROOM_LEFT + 3, ROOM_BOTTOM - ROOM_TOP + 3, Terrain.WALL );
-		Painter.fill( this, ROOM_LEFT, ROOM_TOP,
-			ROOM_RIGHT - ROOM_LEFT + 1, ROOM_BOTTOM - ROOM_TOP + 1, Terrain.EMPTY );
+		Painter.fill(this, ROOM_LEFT - 1, ROOM_TOP - 1,
+				ROOM_RIGHT - ROOM_LEFT + 3, ROOM_BOTTOM - ROOM_TOP + 3, Terrain.WALL);
+		Painter.fill(this, ROOM_LEFT, ROOM_TOP,
+				ROOM_RIGHT - ROOM_LEFT + 1, ROOM_BOTTOM - ROOM_TOP + 1, Terrain.EMPTY);
 		
-		entrance = Random.Int( ROOM_LEFT + 1, ROOM_RIGHT - 1 ) +
-			Random.Int( ROOM_TOP + 1, ROOM_BOTTOM - 1 ) * width();
+		entrance = Random.Int(ROOM_LEFT + 1, ROOM_RIGHT - 1) +
+				Random.Int(ROOM_TOP + 1, ROOM_BOTTOM - 1) * width();
 		map[entrance] = Terrain.ENTRANCE;
 		
-		boolean[] patch = Patch.generate( this, 0.45f, 6 );
-		for (int i=0; i < length(); i++) {
+		boolean[] patch = Patch.generate(width, height, 0.30f, 6, true);
+		for (int i = 0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && patch[i]) {
 				map[i] = Terrain.WATER;
 			}
 		}
 		
-		return true;
-	}
-	
-	@Override
-	protected void decorate() {
-		
-		for (int i=0; i < length(); i++) {
-			if (map[i] == Terrain.EMPTY && Random.Int( 10 ) == 0) {
+		for (int i = 0; i < length(); i++) {
+			if (map[i] == Terrain.EMPTY && Random.Int(10) == 0) {
 				map[i] = Terrain.EMPTY_DECO;
 			}
 		}
+		
+		return true;
 	}
 	
 	@Override
@@ -164,10 +162,10 @@ public class HallsBossLevel extends Level {
 	
 	@Override
 	public int randomRespawnCell() {
-		if (entrance == -1) return entrance;
-		int cell = entrance + PathFinder.NEIGHBOURS8[Random.Int(8)];
+		int pos = entrance == -1 ? stairs : entrance;
+		int cell = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
 		while (!passable[cell]){
-			cell = entrance + PathFinder.NEIGHBOURS8[Random.Int(8)];
+			cell = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
 		}
 		return cell;
 	}

@@ -22,10 +22,12 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Torch;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.HallsPainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BlazingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisarmingTrap;
@@ -46,22 +48,41 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.VenomTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WarpingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WeakeningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.particles.PixelParticle;
-import com.watabou.utils.PathFinder;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
 
 public class HallsLevel extends RegularLevel {
 
 	{
-		minRoomSize = 6;
 		
-		viewDistance = Math.max( 25 - Dungeon.depth, 1 );
+		viewDistance = Math.max( 26 - Dungeon.depth, 1 );
 		
 		color1 = 0x801500;
 		color2 = 0xa68521;
+	}
+	
+	@Override
+	protected int standardRooms() {
+		//8 to 10, average 8.67
+		return 8+Random.chances(new float[]{3, 2, 1});
+	}
+	
+	@Override
+	protected int specialRooms() {
+		//2 to 3, average 2.5
+		return 2 + Random.chances(new float[]{1, 1});
+	}
+	
+	@Override
+	protected Painter painter() {
+		return new HallsPainter()
+				.setWater(feeling == Feeling.WATER ? 0.70f : 0.15f, 6)
+				.setGrass(feeling == Feeling.GRASS ? 0.65f : 0.10f, 3)
+				.setTraps(nTraps(), trapClasses(), trapChances());
 	}
 	
 	@Override
@@ -80,14 +101,6 @@ public class HallsLevel extends RegularLevel {
 		return Assets.WATER_HALLS;
 	}
 	
-	protected boolean[] water() {
-		return Patch.generate( this, feeling == Feeling.WATER ? 0.55f : 0.40f, 6 );
-	}
-	
-	protected boolean[] grass() {
-		return Patch.generate( this, feeling == Feeling.GRASS ? 0.55f : 0.30f, 3 );
-	}
-
 	@Override
 	protected Class<?>[] trapClasses() {
 		return new Class[]{ BlazingTrap.class, DisintegrationTrap.class, FrostTrap.class, SpearTrap.class, VenomTrap.class,
@@ -102,36 +115,6 @@ public class HallsLevel extends RegularLevel {
 				4, 4, 4, 4, 4,
 				2, 2, 2, 2, 2, 2,
 				1, 1, 1 };
-	}
-	
-	@Override
-	protected void decorate() {
-		
-		for (int i=width() + 1; i < length() - width() - 1; i++) {
-			if (map[i] == Terrain.EMPTY) {
-				
-				int count = 0;
-				for (int j=0; j < PathFinder.NEIGHBOURS8.length; j++) {
-					if ((Terrain.flags[map[i + PathFinder.NEIGHBOURS8[j]]] & Terrain.PASSABLE) > 0) {
-						count++;
-					}
-				}
-				
-				if (Random.Int( 80 ) < count) {
-					map[i] = Terrain.EMPTY_DECO;
-				}
-				
-			} else
-			if (map[i] == Terrain.WALL &&
-				map[i-1] != Terrain.WALL_DECO && map[i-width()] != Terrain.WALL_DECO &&
-				Random.Int( 20 ) == 0) {
-
-				map[i] = Terrain.WALL_DECO;
-
-			}
-		}
-		
-		placeSign();
 	}
 	
 	@Override

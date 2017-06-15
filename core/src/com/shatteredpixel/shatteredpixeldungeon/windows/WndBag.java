@@ -80,8 +80,9 @@ public class WndBag extends WndTabbed {
 
 	protected static final int COLS_P    = 4;
 	protected static final int COLS_L    = 6;
-
-	protected static final int SLOT_SIZE	= 28;
+	
+	protected static final int SLOT_WIDTH	= 28;
+	protected static final int SLOT_HEIGHT	= 28;
 	protected static final int SLOT_MARGIN	= 1;
 	
 	protected static final int TITLE_HEIGHT	= 12;
@@ -112,10 +113,10 @@ public class WndBag extends WndTabbed {
 		lastBag = bag;
 
 		nCols = ShatteredPixelDungeon.landscape() ? COLS_L : COLS_P;
-		nRows = (Belongings.BACKPACK_SIZE + 4 + 1) / nCols + ((Belongings.BACKPACK_SIZE + 4 + 1) % nCols > 0 ? 1 : 0);
+		nRows = (int)Math.ceil((Belongings.BACKPACK_SIZE + 4 + 1) / (float)nCols);
 
-		int slotsWidth = SLOT_SIZE * nCols + SLOT_MARGIN * (nCols - 1);
-		int slotsHeight = SLOT_SIZE * nRows + SLOT_MARGIN * (nRows - 1);
+		int slotsWidth = SLOT_WIDTH * nCols + SLOT_MARGIN * (nCols - 1);
+		int slotsHeight = SLOT_HEIGHT * nRows + SLOT_MARGIN * (nRows - 1);
 
 		RenderedText txtTitle = PixelScene.renderText( title != null ? title : Messages.titleCase( bag.name() ), 9 );
 		txtTitle.hardlight( TITLE_COLOR );
@@ -212,8 +213,8 @@ public class WndBag extends WndTabbed {
 	
 	protected void placeItem( final Item item ) {
 		
-		int x = col * (SLOT_SIZE + SLOT_MARGIN);
-		int y = TITLE_HEIGHT + row * (SLOT_SIZE + SLOT_MARGIN);
+		int x = col * (SLOT_WIDTH + SLOT_MARGIN);
+		int y = TITLE_HEIGHT + row * (SLOT_HEIGHT + SLOT_MARGIN);
 		
 		add( new ItemButton( item ).setPos( x, y ) );
 		
@@ -339,12 +340,13 @@ public class WndBag extends WndTabbed {
 				bg.visible = false;
 			}
 			
-			width = height = SLOT_SIZE;
+			width = SLOT_WIDTH;
+			height = SLOT_HEIGHT;
 		}
 		
 		@Override
 		protected void createChildren() {
-			bg = new ColorBlock( SLOT_SIZE, SLOT_SIZE, NORMAL );
+			bg = new ColorBlock( SLOT_WIDTH, SLOT_HEIGHT, NORMAL );
 			add( bg );
 			
 			super.createChildren();

@@ -21,15 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
-import com.watabou.noosa.TextureFilm;
-import com.watabou.noosa.Tilemap;
-import com.watabou.utils.PathFinder;
-import com.watabou.utils.Random;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class DungeonWallsTilemap extends DungeonTilemap {
 
@@ -59,6 +51,7 @@ public class DungeonWallsTilemap extends DungeonTilemap {
 						tile,
 						(pos+1) % mapWidth != 0 ?                           map[pos + 1] : -1,
 						(pos+1) % mapWidth != 0 && pos + mapWidth < size ?  map[pos + 1 + mapWidth] : -1,
+						pos + mapWidth < size ?                             map[pos + mapWidth] : -1,
 						pos % mapWidth != 0 && pos + mapWidth < size ?      map[pos - 1 + mapWidth] : -1,
 						pos % mapWidth != 0 ?                               map[pos - 1] : -1
 				);

@@ -21,11 +21,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.SparseArray;
@@ -173,26 +173,25 @@ public abstract class Actor implements Bundlable {
 	
 	public static void process() {
 		
-		if (current != null) {
-			return;
-		}
-	
 		boolean doNext;
+		boolean interrupted = false;
 
 		do {
-			now = Float.MAX_VALUE;
-			current = null;
-
 			
-			for (Actor actor : all) {
-
-				//some actors will always go before others if time is equal.
-				if (actor.time < now ||
-						actor.time == now && (current == null || actor.actPriority < current.actPriority)) {
-					now = actor.time;
-					current = actor;
+			current = null;
+			if (!interrupted) {
+				now = Float.MAX_VALUE;
+				
+				for (Actor actor : all) {
+					
+					//some actors will always go before others if time is equal.
+					if (actor.time < now ||
+							actor.time == now && (current == null || actor.actPriority < current.actPriority)) {
+						now = actor.time;
+						current = actor;
+					}
+					
 				}
-
 			}
 
 			if  (current != null) {
@@ -209,25 +208,38 @@ public abstract class Actor implements Bundlable {
 							}
 						}
 					} catch (InterruptedException e) {
-						ShatteredPixelDungeon.reportException(e);
+						interrupted = true;
 					}
 				}
-
-				doNext = acting.act();
-				if (doNext && !Dungeon.hero.isAlive()) {
+				
+				interrupted = interrupted || Thread.interrupted();
+				
+				if (interrupted){
 					doNext = false;
 					current = null;
+				} else {
+					doNext = acting.act();
+					if (doNext && !Dungeon.hero.isAlive()) {
+						doNext = false;
+						current = null;
+					}
 				}
 			} else {
 				doNext = false;
 			}
 
 			if (!doNext){
+				interrupted = false;
+				
 				synchronized (Thread.currentThread()) {
+					synchronized (GameScene.class){
+						//signals to the gamescene that actor processing is finished for now
+						GameScene.class.notify();
+					}
 					try {
 						Thread.currentThread().wait();
 					} catch (InterruptedException e) {
-						ShatteredPixelDungeon.reportException(e);
+						interrupted = true;
 					}
 				}
 			}

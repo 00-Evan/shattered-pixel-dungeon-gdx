@@ -99,6 +99,8 @@ public class CavesBossLevel extends Level {
 	@Override
 	protected boolean build() {
 		
+		setSize(32, 32);
+		
 		int topMost = Integer.MAX_VALUE;
 		
 		for (int i=0; i < 8; i++) {
@@ -143,7 +145,7 @@ public class CavesBossLevel extends Level {
 			Random.Int( ROOM_TOP + 1, ROOM_BOTTOM - 1 ) * width();
 		map[entrance] = Terrain.ENTRANCE;
 		
-		boolean[] patch = Patch.generate( this, 0.45f, 6 );
+		boolean[] patch = Patch.generate( width, height, 0.30f, 6, true );
 		for (int i=0; i < length(); i++) {
 			if (map[i] == Terrain.EMPTY && patch[i]) {
 				map[i] = Terrain.WATER;
@@ -158,12 +160,6 @@ public class CavesBossLevel extends Level {
 				setTrap(t, i);
 			}
 		}
-		
-		return true;
-	}
-	
-	@Override
-	protected void decorate() {
 		
 		for (int i=width() + 1; i < length() - width(); i++) {
 			if (map[i] == Terrain.EMPTY) {
@@ -185,7 +181,7 @@ public class CavesBossLevel extends Level {
 				}
 			}
 		}
-
+		
 		for (int i=0; i < length() - width(); i++) {
 			if (map[i] == Terrain.WALL
 					&& DungeonTileSheet.floorTile(map[i + width()])
@@ -199,6 +195,9 @@ public class CavesBossLevel extends Level {
 			sign = Random.Int( ROOM_LEFT, ROOM_RIGHT ) + Random.Int( ROOM_TOP, ROOM_BOTTOM ) * width();
 		} while (sign == entrance || map[sign] == Terrain.INACTIVE_TRAP);
 		map[sign] = Terrain.SIGN;
+		
+		
+		return true;
 	}
 	
 	@Override

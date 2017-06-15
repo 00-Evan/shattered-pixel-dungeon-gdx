@@ -32,7 +32,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
-import com.shatteredpixel.shatteredpixeldungeon.levels.painters.MazePainter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.MazeRoom;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -117,8 +118,9 @@ public class PrisonBossLevel extends Level {
 	@Override
 	protected boolean build() {
 		
+		setSize(32, 32);
+		
 		map = MAP_START.clone();
-		decorate();
 
 		buildFlagMaps();
 		cleanWalls();
@@ -130,11 +132,6 @@ public class PrisonBossLevel extends Level {
 		resetTraps();
 
 		return true;
-	}
-
-	@Override
-	protected void decorate() {
-		//do nothing, all decorations are hard-coded.
 	}
 
 	@Override
@@ -301,11 +298,11 @@ public class PrisonBossLevel extends Level {
 				HealthIndicator.instance.target(null);
 				tengu.sprite.kill();
 
-				Room maze = new Room();
+				Room maze = new MazeRoom();
 				maze.set(10, 1, 31, 29);
 				maze.connected.put(null, new Room.Door(10, 2));
 				maze.connected.put(maze, new Room.Door(20, 29));
-				MazePainter.paint(this, maze);
+				maze.paint(this);
 				buildFlagMaps();
 				cleanWalls();
 				GameScene.resetMap();

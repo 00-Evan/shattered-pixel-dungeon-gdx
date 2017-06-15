@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -65,8 +66,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.HighGrass;
-import com.shatteredpixel.shatteredpixeldungeon.levels.painters.MassGravePainter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.MassGraveRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -115,7 +116,7 @@ public abstract class Level implements Bundlable {
 	public boolean[] visited;
 	public boolean[] mapped;
 
-	public int viewDistance = Dungeon.isChallenged( Challenges.DARKNESS ) ? 3: 8;
+	public int viewDistance = Dungeon.isChallenged( Challenges.DARKNESS ) ? 4 : 8;
 
 	//FIXME should not be static!
 	public static boolean[] fieldOfView;
@@ -154,10 +155,6 @@ public abstract class Level implements Bundlable {
 	public int color1 = 0x004400;
 	public int color2 = 0x88CC44;
 
-	//FIXME this is sloppy. Should be able to keep track of this without static variables
-	protected static boolean pitRoomNeeded = false;
-	public static boolean weakFloorCreated = false;
-
 	private static final String VERSION     = "version";
 	private static final String MAP			= "map";
 	private static final String VISITED		= "visited";
@@ -177,23 +174,6 @@ public abstract class Level implements Bundlable {
 	public void create() {
 
 		Random.seed( Dungeon.seedCurDepth() );
-
-		setupSize();
-		PathFinder.setMapSize(width(), height());
-		passable	= new boolean[length()];
-		losBlocking	= new boolean[length()];
-		flamable	= new boolean[length()];
-		secret		= new boolean[length()];
-		solid		= new boolean[length()];
-		avoid		= new boolean[length()];
-		water		= new boolean[length()];
-		pit			= new boolean[length()];
-		
-		map = new int[length()];
-		visited = new boolean[length()];
-		Arrays.fill( visited, false );
-		mapped = new boolean[length()];
-		Arrays.fill( mapped, false );
 		
 		if (!(Dungeon.bossLevel() || Dungeon.depth == 21) /*final shop floor*/) {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
@@ -251,19 +231,14 @@ public abstract class Level implements Bundlable {
 				case 3:
 					feeling = Feeling.DARK;
 					addItemToSpawn(new Torch());
-					viewDistance = (int)Math.ceil(viewDistance/3f);
+					viewDistance = Math.round(viewDistance/2f);
 					break;
 				}
 			}
 		}
 		
-		boolean pitNeeded = Dungeon.depth > 1 && weakFloorCreated;
-		
 		do {
-			Arrays.fill( map, feeling == Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
-			
-			pitRoomNeeded = pitNeeded;
-			weakFloorCreated = false;
+			width = height = length = 0;
 
 			mobs = new HashSet<>();
 			heaps = new SparseArray<>();
@@ -274,7 +249,6 @@ public abstract class Level implements Bundlable {
 			customWalls = new HashSet<>();
 			
 		} while (!build());
-		decorate();
 		
 		buildFlagMaps();
 		cleanWalls();
@@ -284,11 +258,33 @@ public abstract class Level implements Bundlable {
 
 		Random.seed();
 	}
-
-	protected void setupSize(){
-		if (width == 0 || height == 0)
-			width = height = 32;
-		length = width * height;
+	
+	public void setSize(int w, int h){
+		
+		width = w;
+		height = h;
+		length = w * h;
+		
+		map = new int[length];
+		Arrays.fill( map, Terrain.WALL );
+		Arrays.fill( map, feeling == Level.Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
+		
+		visited = new boolean[length];
+		mapped = new boolean[length];
+		Dungeon.visible = new boolean[length];
+		
+		fieldOfView = new boolean[length()];
+		
+		passable	= new boolean[length()];
+		losBlocking	= new boolean[length()];
+		flamable	= new boolean[length()];
+		secret		= new boolean[length()];
+		solid		= new boolean[length()];
+		avoid		= new boolean[length()];
+		water		= new boolean[length()];
+		pit			= new boolean[length()];
+		
+		PathFinder.setMapSize(w, h);
 	}
 	
 	public void reset() {
@@ -305,14 +301,16 @@ public abstract class Level implements Bundlable {
 	public void restoreFromBundle( Bundle bundle ) {
 
 		version = bundle.getInt( VERSION );
+		
+		//saves from before 0.4.0 are not supported
+		if (version < ShatteredPixelDungeon.v0_4_0){
+			throw new RuntimeException("old save");
+		}
 
 		if (bundle.contains("width") && bundle.contains("height")){
-			width = bundle.getInt("width");
-			height = bundle.getInt("height");
+			setSize( bundle.getInt("width"), bundle.getInt("height"));
 		} else
-			width = height = 32; //default sizes
-		length = width * height;
-		PathFinder.setMapSize(width(), height());
+			setSize( 32, 32); //default sizes
 		
 		mobs = new HashSet<>();
 		heaps = new SparseArray<>();
@@ -331,16 +329,9 @@ public abstract class Level implements Bundlable {
 		exit		= bundle.getInt( EXIT );
 
 		locked      = bundle.getBoolean( LOCKED );
-		
-		weakFloorCreated = false;
-
-		//for pre-0.3.0c saves
-		if (version < 44){
-			map = Terrain.convertTrapsFrom43( map, traps );
-		}
 
 		//for pre-0.4.3 saves
-		if (version < 131){
+		if (version <= ShatteredPixelDungeon.v0_4_2c){
 			map = Terrain.convertTilesFrom129( map );
 		}
 		
@@ -368,7 +359,7 @@ public abstract class Level implements Bundlable {
 			CustomTiledVisual vis = (CustomTiledVisual)p;
 			//for compatibilities with pre-0.5.0b saves
 			//extends one of the bones visuals and discards the rest
-			if (vis instanceof MassGravePainter.Bones && vis.tileH == 0){
+			if (vis instanceof MassGraveRoom.Bones && vis.tileH == 0){
 				int cell = vis.tileX + vis.tileY*width;
 				if (map[cell] == Terrain.EMPTY_SP &&
 						DungeonTileSheet.wallStitcheable(map[cell - width]) &&
@@ -416,7 +407,7 @@ public abstract class Level implements Bundlable {
 
 		feeling = bundle.getEnum( FEELING, Feeling.class );
 		if (feeling == Feeling.DARK)
-			viewDistance = (int)Math.ceil(viewDistance/3f);
+			viewDistance = Math.round(viewDistance/2f);
 
 		buildFlagMaps();
 		cleanWalls();
@@ -448,20 +439,14 @@ public abstract class Level implements Bundlable {
 	}
 
 	public int width() {
-		if (width == 0)
-			setupSize();
 		return width;
 	}
 
 	public int height() {
-		if (height == 0)
-			setupSize();
 		return height;
 	}
 
 	public int length() {
-		if (length == 0)
-			setupSize();
 		return length;
 	}
 	
@@ -474,8 +459,6 @@ public abstract class Level implements Bundlable {
 	}
 	
 	abstract protected boolean build();
-
-	abstract protected void decorate();
 
 	abstract protected void createMobs();
 
@@ -596,17 +579,6 @@ public abstract class Level implements Bundlable {
 	}
 
 	protected void buildFlagMaps() {
-
-		fieldOfView = new boolean[length()];
-
-		passable	= new boolean[length()];
-		losBlocking	= new boolean[length()];
-		flamable	= new boolean[length()];
-		secret		= new boolean[length()];
-		solid		= new boolean[length()];
-		avoid		= new boolean[length()];
-		water		= new boolean[length()];
-		pit			= new boolean[length()];
 		
 		for (int i=0; i < length(); i++) {
 			int flags = Terrain.flags[map[i]];
@@ -731,11 +703,15 @@ public abstract class Level implements Bundlable {
 		if (Dungeon.level != null) {
 			press( cell, null );
 		}
-				
+		
 		return heap;
 	}
 	
 	public Plant plant( Plant.Seed seed, int pos ) {
+		
+		if (Dungeon.isChallenged(Challenges.NO_HERBALISM)){
+			return null;
+		}
 
 		Plant plant = plants.get( pos );
 		if (plant != null) {
@@ -776,7 +752,6 @@ public abstract class Level implements Bundlable {
 	}
 
 	public void disarmTrap( int pos ) {
-		traps.remove(pos);
 		set(pos, Terrain.INACTIVE_TRAP);
 		GameScene.updateMap(pos);
 	}
@@ -789,8 +764,14 @@ public abstract class Level implements Bundlable {
 		GameScene.updateMap( cell );
 	}
 	
-	public int pitCell() {
-		return randomRespawnCell();
+	public int fallCell( boolean fallIntoPit ) {
+		int result;
+		do {
+			result = randomRespawnCell();
+		} while (traps.get(result) != null
+				|| findMob(result) != null
+				|| heaps.get(result) != null);
+		return result;
 	}
 	
 	public void press( int cell, Char ch ) {
