@@ -47,7 +47,7 @@ project(":desktop") {
 	}
 }
 
-project(":android") {
+/*project(":android") {
 	apply plugin: "android"
 
 	configurations { natives }
@@ -92,7 +92,7 @@ project(":html") {
 		compile "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion"
 		compile "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion:sources"
 	}
-}
+}*/
 
 project(":core") {
 	apply plugin: "java"
