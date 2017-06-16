@@ -52,14 +52,14 @@ public class ChangesScene extends PixelScene {
 			"_-_ Sewers are now smaller, caves+ are now larger\n" +
 			"_-_ Some rooms can now be much larger than before\n" +
 			"_-_ Added 8 new standard room types,\n" +
-			"\t\t and loads of new standard room layouts\n" +
+			"  and loads of new standard room layouts\n" +
 			"\n"+
 			"Environment Balance Changes:\n"+
 			"_-_ Falling damage tweaked to be less random\n" +
 			"_-_ Reduced number of traps in later chapters\n" +
 			"_-_ Floor 2 entry doors only hidden for new players\n" +
 			"_-_ Visiting floor 21 before completing the imp quest\n" +
-			"\t\t no longer prevents his shop from spawning\n" +
+			"  no longer prevents his shop from spawning\n" +
 			"_-_ Light sources now grant significantly more vision\n" +
 			"_-_ Light from torches now lasts 20% longer\n" +
 			"_-_ Slightly increased visibility on floor 22+\n" +
@@ -72,15 +72,15 @@ public class ChangesScene extends PixelScene {
 			"_-_ Greatshield base damage increased by ~17%\n" +
 			"_-_ Vampiric enchant lifesteal reduced by 20%\n" +
 			"_-_ Lucky enchant rebalanced:\n" +
-			"\t\t now deals 2x/0x damage, instead of min/max\n" +
-			"\t\t base chance to deal 2x increased by ~10%\n" +
+			"  now deals 2x/0x damage, instead of min/max\n" +
+			"  base chance to deal 2x increased by ~10%\n" +
 			"_-_ Glyph of Viscosity rebalanced:\n" +
-			"\t\t proc chance reduced by ~25% \n" +
-			"\t\t damage over time reverted from 15% to 10%\n" +
+			"  proc chance reduced by ~25% \n" +
+			"  damage over time reverted from 15% to 10%\n" +
 			"_-_ Glyph of Entanglement root time reduced by 40%\n" +
 			"_-_ Glyph of Potential rebalanced:\n" +
-			"\t\t self-damage no longer scales with max hp\n" +
-			"\t\t grants more charge at higher levels\n" +
+			"  self-damage no longer scales with max hp\n" +
+			"  grants more charge at higher levels\n" +
 			"\n"+
 			"_v0.5.0:_ New visual style, shadows and depth!\n" +
 			"\n"+
