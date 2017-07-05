@@ -98,7 +98,7 @@ public class DM300 extends Mob {
 		
 		if (Dungeon.level.map[step] == Terrain.INACTIVE_TRAP && HP < HT) {
 			
-			HP += 1 + (int)(Random.Int( 1, HT - HP ) / healFactor);
+			HP += healFactor + (int)(Random.Int( 1, HT - HP ) / healFactor);
 			HP= HP >= HT ? HT : HP
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
 			healFactor=(++healFactor)>=6?6:healFactor; 
