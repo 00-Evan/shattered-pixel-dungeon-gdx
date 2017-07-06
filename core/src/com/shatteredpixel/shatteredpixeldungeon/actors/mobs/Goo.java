@@ -62,7 +62,7 @@ public class Goo extends Mob {
 		spriteClass = GooSprite.class;
 
 		loot = new LloydsBeacon().identify();
-		lootChance = 0.333f;
+		lootChance = 0.5f;
 
 		properties.add(Property.BOSS);
 		properties.add(Property.DEMONIC);
@@ -82,7 +82,7 @@ public class Goo extends Mob {
 					CellEmitter.get(i).burst(ElmoParticle.FACTORY, 10);
 			}
 			Sample.INSTANCE.play( Assets.SND_BURNING );
-			return Random.NormalIntRange( min*3, max*3 );
+			return Random.NormalIntRange( (int)min*2.5, (int)max*2.5 );
 		} else {
 			return Random.NormalIntRange( min, max );
 		}
@@ -93,12 +93,13 @@ public class Goo extends Mob {
 		int attack = 10;
 		if (HP*2 <= HT) attack = 15;
 		if (pumpedUp > 0) attack *= 2;
+		if (pumpedUp>0 && (HP*2<=HT)) attack=(int)(attack*0.8f);
 		return attack;
 	}
 
 	@Override
 	public int defenseSkill(Char enemy) {
-		return (int)(super.defenseSkill(enemy) * ((HP*2 <= HT)? 1.5 : 1));
+		return (int)(super.defenseSkill(enemy) * ((HP*2 <= HT)? 1.45 : 1));
 	}
 
 	@Override
@@ -128,7 +129,7 @@ public class Goo extends Mob {
 
 	@Override
 	public int attackProc( Char enemy, int damage ) {
-		if (Random.Int( 3 ) == 0) {
+		if (Random.Int( 4 ) == 0) {
 			Buff.affect( enemy, Ooze.class );
 			enemy.sprite.burst( 0x000000, 5 );
 		}
