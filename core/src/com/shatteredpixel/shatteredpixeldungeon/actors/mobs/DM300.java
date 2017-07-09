@@ -54,7 +54,8 @@ import com.watabou.utils.Random;
 import java.util.HashSet;
 
 public class DM300 extends Mob {
-	private int healFactor=1;
+	
+	private int healFactor = 1;
 	
 	{
 		spriteClass = DM300Sprite.class;
@@ -98,9 +99,9 @@ public class DM300 extends Mob {
 		
 		if (Dungeon.level.map[step] == Terrain.INACTIVE_TRAP && HP < HT) {
 			
-			HP += healFactor + (int)(Random.Int( 1, HT - HP ) / healFactor);
-			HP= HP >= HT ? HT : HP
+			HP += (Random.Int( 1, (int)((HT - HP)/healFactor) );
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
+			       
 			healFactor=(++healFactor)>=6?6:healFactor; 
 			
 			if (Dungeon.visible[step] && Dungeon.hero.isAlive()) {
@@ -166,6 +167,7 @@ public class DM300 extends Mob {
 		super.notice();
 		BossHealthBar.assignBoss(this);
 		yell( Messages.get(this, "notice") );
+		healFactor = 1;
 	}
 	
 	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
