@@ -55,6 +55,8 @@ import java.util.HashSet;
 
 public class DM300 extends Mob {
 	
+	private int healFactor = 1;
+	
 	{
 		spriteClass = DM300Sprite.class;
 		
@@ -63,7 +65,7 @@ public class DM300 extends Mob {
 		defenseSkill = 18;
 		
 		loot = new CapeOfThorns().identify();
-		lootChance = 0.333f;
+		lootChance = 0.4f;
 
 		properties.add(Property.BOSS);
 	}
@@ -97,8 +99,10 @@ public class DM300 extends Mob {
 		
 		if (Dungeon.level.map[step] == Terrain.INACTIVE_TRAP && HP < HT) {
 			
-			HP += Random.Int( 1, HT - HP );
+			HP += Random.Int( 1, (int)((HT - HP)/healFactor) );
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
+			       
+			healFactor=(++healFactor)>=6?6:healFactor; 
 			
 			if (Dungeon.visible[step] && Dungeon.hero.isAlive()) {
 				GLog.n( Messages.get(this, "repair") );
@@ -163,6 +167,7 @@ public class DM300 extends Mob {
 		super.notice();
 		BossHealthBar.assignBoss(this);
 		yell( Messages.get(this, "notice") );
+		healFactor = 1;
 	}
 	
 	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
