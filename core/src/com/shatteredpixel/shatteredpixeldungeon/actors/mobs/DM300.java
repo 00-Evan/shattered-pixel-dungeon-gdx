@@ -99,7 +99,7 @@ public class DM300 extends Mob {
 		
 		if (Dungeon.level.map[step] == Terrain.INACTIVE_TRAP && HP < HT) {
 			
-			HP += (Random.Int( 1, (int)((HT - HP)/healFactor) );
+			HP += Random.Int( 1, (int)((HT - HP)/healFactor) );
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
 			       
 			healFactor=(++healFactor)>=6?6:healFactor; 
