@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -30,8 +29,9 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogs;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Image;
@@ -121,13 +121,13 @@ public class Toolbar extends Component {
 			protected void onClick() {
 				GameScene.show(new WndBag(Dungeon.hero.belongings.backpack, null, WndBag.Mode.ALL, null));
 			}
-
+			
+			@Override
 			protected boolean onLongClick() {
-				GameScene.show(new WndCatalogs());
+				WndJournal.last_index = 2; //catalog page
+				GameScene.show(new WndJournal());
 				return true;
 			}
-
-			;
 
 			@Override
 			protected void createChildren() {
@@ -162,8 +162,8 @@ public class Toolbar extends Component {
 		for(int i = 0; i <= 3; i++) {
 			btnQuick[i].visible = btnQuick[i].active = slots > i;
 			//decides on quickslot layout, depending on available screen size.
-			if (slots == 4 && width < 150){
-				if (width < 139){
+			if (slots == 4 && width < 152){
+				if (width < 138){
 					if ((ShatteredPixelDungeon.flipToolbar() && i == 3) ||
 							(!ShatteredPixelDungeon.flipToolbar() && i == 0)) {
 						btnQuick[i].border(0, 0);

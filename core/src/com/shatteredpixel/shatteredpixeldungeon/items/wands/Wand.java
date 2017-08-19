@@ -36,6 +36,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -200,8 +202,9 @@ public abstract class Wand extends Item {
 
 		super.upgrade();
 
-		if (Random.Float() > Math.pow(0.9, level()))
+		if (Random.Float() > Math.pow(0.8, level())) {
 			cursed = false;
+		}
 
 		updateLevel();
 		curCharges = Math.min( curCharges + 1, maxCharges );
@@ -424,6 +427,8 @@ public abstract class Wand extends Item {
 
 		private void recharge(){
 			int missingCharges = maxCharges - curCharges;
+			missingCharges += Ring.getBonus(target, RingOfEnergy.Energy.class);
+			missingCharges = Math.max(0, missingCharges);
 
 			float turnsToCharge = (float) (BASE_CHARGE_DELAY
 					+ (SCALING_CHARGE_ADDITION * Math.pow(scalingFactor, missingCharges)));
@@ -432,9 +437,10 @@ public abstract class Wand extends Item {
 			if (lock == null || lock.regenOn())
 				partialCharge += 1f/turnsToCharge;
 
-			Recharging bonus = target.buff(Recharging.class);
-			if (bonus != null && bonus.remainder() > 0f){
-				partialCharge += CHARGE_BUFF_BONUS * bonus.remainder();
+			for (Recharging bonus : target.buffs(Recharging.class)){
+				if (bonus != null && bonus.remainder() > 0f) {
+					partialCharge += CHARGE_BUFF_BONUS * bonus.remainder();
+				}
 			}
 		}
 

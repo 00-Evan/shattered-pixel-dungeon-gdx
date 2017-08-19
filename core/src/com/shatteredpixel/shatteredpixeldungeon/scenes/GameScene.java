@@ -47,6 +47,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
@@ -156,6 +157,9 @@ public class GameScene extends PixelScene {
 	private ActionIndicator action;
 	private ResumeIndicator resume;
 	
+	//temporary, see Ghostsprite
+	public Group ghostHP;
+	
 	@Override
 	public void create() {
 		
@@ -230,6 +234,8 @@ public class GameScene extends PixelScene {
 		mobs = new Group();
 		add( mobs );
 		
+		ghostHP = new Group();
+		
 		for (Mob mob : Dungeon.level.mobs) {
 			addMobSprite( mob );
 			if (Statistics.amuletObtained) {
@@ -280,6 +286,8 @@ public class GameScene extends PixelScene {
 
 
 		add( new HealthIndicator() );
+		
+		add( ghostHP );
 		
 		add( cellSelector = new CellSelector( tiles ) );
 
@@ -441,6 +449,7 @@ public class GameScene extends PixelScene {
 		
 		scene = null;
 		Badges.saveGlobal();
+		Journal.saveGlobal();
 		
 		super.destroy();
 	}
@@ -450,6 +459,7 @@ public class GameScene extends PixelScene {
 		try {
 			Dungeon.saveAll();
 			Badges.saveGlobal();
+			Journal.saveGlobal();
 		} catch (IOException e) {
 			ShatteredPixelDungeon.reportException(e);
 		}
@@ -474,8 +484,10 @@ public class GameScene extends PixelScene {
 
 		if (!Actor.processing() && Dungeon.hero.isAlive()) {
 			if (!actorThread.isAlive()) {
-				//if cpu time is limited, game should prefer drawing the current frame
-				actorThread.setPriority(Thread.NORM_PRIORITY - 1);
+				//if cpu cores are limited, game should prefer drawing the current frame
+				if (Runtime.getRuntime().availableProcessors() == 1) {
+					actorThread.setPriority(Thread.NORM_PRIORITY - 1);
+				}
 				actorThread.start();
 			} else {
 				synchronized (actorThread) {
@@ -726,6 +738,10 @@ public class GameScene extends PixelScene {
 	public static void pickUpJournal( Item item ) {
 		if (scene != null) scene.pane.pickup( item );
 	}
+	
+	public static void flashJournal(){
+		if (scene != null) scene.pane.flash();
+	}
 
 	public static void resetMap() {
 		if (scene != null) {
@@ -872,8 +888,8 @@ public class GameScene extends PixelScene {
 				mode == Mode.WAND ?
 					WndBag.getBag( WandHolster.class, listener, mode, title ) :
 				WndBag.lastBag( listener, mode, title );
-
-		scene.addToFront( wnd );
+		
+		if (scene != null) scene.addToFront( wnd );
 		
 		return wnd;
 	}

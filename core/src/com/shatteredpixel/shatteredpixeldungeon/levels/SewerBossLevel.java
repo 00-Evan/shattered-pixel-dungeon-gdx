@@ -21,10 +21,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Goo;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
@@ -76,19 +74,6 @@ public class SewerBossLevel extends SewerLevel {
 	}
 	
 	@Override
-	protected void placeSign() {
-		while (true) {
-			int pos = pointToCell(roomEntrance.random(2));
-			if (map[pos] != Terrain.LOCKED_EXIT
-					&& map[pos] != Terrain.WALL_DECO
-					&& map[pos] != Terrain.ENTRANCE) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
-	}
-	
-	@Override
 	protected float waterFill(){
 		return 0.50f;
 	}
@@ -114,13 +99,13 @@ public class SewerBossLevel extends SewerLevel {
 
 	@Override
 	protected void createMobs() {
-		Mob mob = Bestiary.mob( Dungeon.depth );
+		Goo boss = new Goo();
 		Room room;
 		do {
 			room = randomRoom(StandardRoom.class);
 		} while (room == roomEntrance);
-		mob.pos = pointToCell(room.random());
-		mobs.add( mob );
+		boss.pos = pointToCell(room.random());
+		mobs.add( boss );
 	}
 	
 	public Actor respawner() {
@@ -134,7 +119,7 @@ public class SewerBossLevel extends SewerLevel {
 			int pos;
 			do {
 				pos = pointToCell(roomEntrance.random());
-			} while (pos == entrance || map[pos] == Terrain.SIGN || solid[pos]);
+			} while (pos == entrance || solid[pos]);
 			drop( item, pos ).type = Heap.Type.REMAINS;
 		}
 	}
@@ -144,7 +129,7 @@ public class SewerBossLevel extends SewerLevel {
 		int pos;
 		do {
 			pos = pointToCell(roomEntrance.random());
-		} while (pos == entrance || map[pos] == Terrain.SIGN || solid[pos]);
+		} while (pos == entrance || solid[pos]);
 		return pos;
 	}
 

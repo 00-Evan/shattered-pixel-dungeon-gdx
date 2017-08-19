@@ -30,9 +30,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.journal.GuidePage;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.LoopBuilder;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -81,12 +82,7 @@ public abstract class RegularLevel extends Level {
 			rooms = builder.build((ArrayList<Room>)initRooms.clone());
 		} while (rooms == null);
 		
-		if (painter().paint(this, rooms)){
-			placeSign();
-			return true;
-		} else {
-			return false;
-		}
+		return painter().paint(this, rooms);
 		
 	}
 	
@@ -127,7 +123,7 @@ public abstract class RegularLevel extends Level {
 	protected Builder builder(){
 		return new LoopBuilder()
 				.setLoopShape( 2 ,
-						Random.Float(0.55f, 0.85f),
+						Random.Float(0.4f, 0.7f),
 						Random.Float(0f, 0.5f));
 	}
 	
@@ -191,6 +187,21 @@ public abstract class RegularLevel extends Level {
 		}
 	}
 	
+	private ArrayList<Class<?extends Mob>> mobsToSpawn = new ArrayList<>();
+	
+	@Override
+	public Mob createMob() {
+		if (mobsToSpawn == null || mobsToSpawn.isEmpty())
+			mobsToSpawn = Bestiary.getMobRotation(Dungeon.depth);
+		
+		try {
+			return mobsToSpawn.remove(0).newInstance();
+		} catch (Exception e) {
+			ShatteredPixelDungeon.reportException(e);
+			return null;
+		}
+	}
+	
 	@Override
 	protected void createMobs() {
 		//on floor 1, 10 rats are created so the player can get level 2.
@@ -215,7 +226,7 @@ public abstract class RegularLevel extends Level {
 				stdRoomIter = stdRooms.iterator();
 			Room roomToSpawn = stdRoomIter.next();
 			
-			Mob mob = Bestiary.mob( Dungeon.depth );
+			Mob mob = createMob();
 			mob.pos = pointToCell(roomToSpawn.random());
 			
 			if (findMob(mob.pos) == null && Level.passable[mob.pos]) {
@@ -224,7 +235,7 @@ public abstract class RegularLevel extends Level {
 				
 				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
 				if (mobsToSpawn > 0 && Random.Int(4) == 0){
-					mob = Bestiary.mob( Dungeon.depth );
+					mob = createMob();
 					mob.pos = pointToCell(roomToSpawn.random());
 					
 					if (findMob(mob.pos)  == null && Level.passable[mob.pos]) {
@@ -260,8 +271,8 @@ public abstract class RegularLevel extends Level {
 			if (room == null || room == roomEntrance) {
 				continue;
 			}
-			
-			cell = pointToCell(room.random());
+
+			cell = pointToCell(room.random(1));
 			if (!Dungeon.visible[cell]
 					&& Actor.findChar( cell ) == null
 					&& Level.passable[cell]
@@ -295,14 +306,8 @@ public abstract class RegularLevel extends Level {
 	@Override
 	protected void createItems() {
 		
-		int nItems = 3;
-		int bonus = RingOfWealth.getBonus(Dungeon.hero, RingOfWealth.Wealth.class);
-
-		//just incase someone gets a ridiculous ring, cap this at 80%
-		bonus = Math.min(bonus, 10);
-		while (Random.Float() < (0.3f + bonus*0.05f)) {
-			nItems++;
-		}
+		// drops 3/4/5 items 60%/30%/10% of the time
+		int nItems = 3 + Random.chances(new float[]{6, 3, 1});
 		
 		for (int i=0; i < nItems; i++) {
 			Heap.Type type = null;
@@ -361,6 +366,34 @@ public abstract class RegularLevel extends Level {
 			}
 			drop( item, cell ).type = Heap.Type.REMAINS;
 		}
+
+		//guide pages
+		Collection<String> allPages = Document.ADVENTURERS_GUIDE.pages();
+		ArrayList<String> missingPages = new ArrayList<>();
+		for ( String page : allPages){
+			if (!Document.ADVENTURERS_GUIDE.hasPage(page)){
+				missingPages.add(page);
+			}
+		}
+
+		//these are dropped specially
+		missingPages.remove(Document.GUIDE_INTRO_PAGE);
+		missingPages.remove(Document.GUIDE_SEARCH_PAGE);
+
+		int foundPages = allPages.size() - (missingPages.size() + 2);
+
+		//chance to find a page scales with pages missing and depth
+		if (missingPages.size() > 0 && Random.Float() < (Dungeon.depth/(float)(foundPages + 1))){
+			GuidePage p = new GuidePage();
+			p.page(missingPages.get(0));
+			int cell = randomDropCell();
+			if (map[cell] == Terrain.HIGH_GRASS) {
+				map[cell] = Terrain.GRASS;
+				losBlocking[cell] = false;
+			}
+			drop( p, cell );
+		}
+
 	}
 	
 	protected Room randomRoom( Class<?extends Room> type ) {
@@ -420,6 +453,7 @@ public abstract class RegularLevel extends Level {
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
 		bundle.put( "rooms", rooms );
+		bundle.put( "mobs_to_spawn", mobsToSpawn.toArray(new Class[0]));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -434,6 +468,12 @@ public abstract class RegularLevel extends Level {
 				roomEntrance = r;
 			} else if (r instanceof ExitRoom  || r.legacyType.equals("EXIT")){
 				roomExit = r;
+			}
+		}
+		
+		if (bundle.contains( "mobs_to_spawn" )) {
+			for (Class<? extends Mob> mob : bundle.getClassArray("mobs_to_spawn")) {
+				if (mob != null) mobsToSpawn.add(mob);
 			}
 		}
 	}

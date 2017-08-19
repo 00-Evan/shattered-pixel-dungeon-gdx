@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Golem;
@@ -30,13 +29,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Monk;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ImpSprite;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndImp;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 public class Imp extends NPC {
@@ -104,7 +106,7 @@ public class Imp extends NPC {
 			Quest.given = true;
 			Quest.completed = false;
 			
-			Journal.add( Journal.Feature.IMP );
+			Notes.add( Notes.Landmark.IMP );
 		}
 
 		return false;
@@ -183,7 +185,13 @@ public class Imp extends NPC {
 				Imp npc = new Imp();
 				do {
 					npc.pos = level.randomRespawnCell();
-				} while (npc.pos == -1 || level.heaps.get( npc.pos ) != null || level.findMob( npc.pos ) != null);
+				} while (
+						npc.pos == -1 ||
+						level.heaps.get( npc.pos ) != null ||
+						level.findMob( npc.pos ) != null ||
+						//The imp doesn't move, so he cannot obstruct a passageway
+						!(Level.passable[npc.pos + PathFinder.CIRCLE4[0]] && Level.passable[npc.pos + PathFinder.CIRCLE4[2]]) ||
+						!(Level.passable[npc.pos + PathFinder.CIRCLE4[1]] && Level.passable[npc.pos + PathFinder.CIRCLE4[3]]));
 				level.mobs.add( npc );
 				
 				spawned = true;
@@ -213,7 +221,7 @@ public class Imp extends NPC {
 			reward = null;
 			completed = true;
 			
-			Journal.remove( Journal.Feature.IMP );
+			Notes.remove( Notes.Landmark.IMP );
 		}
 		
 		public static boolean isCompleted() {

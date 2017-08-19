@@ -21,11 +21,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.Bundle;
 
@@ -52,7 +52,7 @@ public class Alchemy extends Blob {
 		area.union(pos%Dungeon.level.width(), pos/Dungeon.level.width());
 		
 		if (Dungeon.visible[pos]) {
-			Journal.add( Journal.Feature.ALCHEMY );
+			Notes.add( Notes.Landmark.ALCHEMY );
 		}
 	}
 	

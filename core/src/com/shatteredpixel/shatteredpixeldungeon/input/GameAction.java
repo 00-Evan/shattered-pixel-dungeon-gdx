@@ -24,7 +24,6 @@ public enum GameAction {
 	BACK( null ),
 
 	HERO_INFO("Hero Info"),
-	CATALOGUS("Catalogus"),
 	JOURNAL("Journal"),
 
 	REST("Wait"),

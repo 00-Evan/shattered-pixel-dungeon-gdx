@@ -20,12 +20,13 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -113,8 +114,10 @@ public abstract class Scroll extends Item {
 	@Override
 	public void reset(){
 		super.reset();
-		image = handler.image( this );
-		rune = handler.label( this );
+		if (handler != null) {
+			image = handler.image(this);
+			rune = handler.label(this);
+		}
 	};
 	
 	@Override
@@ -146,7 +149,10 @@ public abstract class Scroll extends Item {
 		}
 	}
 	
-	abstract protected void doRead();
+	public abstract void doRead();
+	
+	//currently only used in scrolls owned by the unstable spellbook
+	public abstract void empoweredRead();
 
 	protected void readAnimation() {
 		curUser.spend( TIME_TO_READ );
@@ -159,12 +165,16 @@ public abstract class Scroll extends Item {
 	}
 	
 	public void setKnown() {
-		if (!isKnown() && !ownedByBook) {
-			handler.know( this );
-			updateQuickslot();
+		if (!ownedByBook) {
+			if (!isKnown()) {
+				handler.know(this);
+				updateQuickslot();
+			}
+			
+			if (Dungeon.hero.isAlive()) {
+				Catalog.setSeen(getClass());
+			}
 		}
-		
-		Badges.validateAllScrollsIdentified();
 	}
 	
 	@Override

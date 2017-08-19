@@ -25,7 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DM300;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -44,6 +44,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+import com.watabou.utils.Rect;
 
 public class CavesBossLevel extends Level {
 	
@@ -57,8 +58,8 @@ public class CavesBossLevel extends Level {
 	private static final int WIDTH = 32;
 	private static final int HEIGHT = 32;
 
-	private static final int ROOM_LEFT		= WIDTH / 2 - 2;
-	private static final int ROOM_RIGHT		= WIDTH / 2 + 2;
+	private static final int ROOM_LEFT		= WIDTH / 2 - 3;
+	private static final int ROOM_RIGHT		= WIDTH / 2 + 1;
 	private static final int ROOM_TOP		= HEIGHT / 2 - 2;
 	private static final int ROOM_BOTTOM	= HEIGHT / 2 + 2;
 	
@@ -99,34 +100,20 @@ public class CavesBossLevel extends Level {
 	@Override
 	protected boolean build() {
 		
-		setSize(32, 32);
-		
-		int topMost = Integer.MAX_VALUE;
-		
-		for (int i=0; i < 8; i++) {
-			int left, right, top, bottom;
-			if (Random.Int( 2 ) == 0) {
-				left = Random.Int( 1, ROOM_LEFT - 3 );
-				right = ROOM_RIGHT + 3;
-			} else {
-				left = ROOM_LEFT - 3;
-				right = Random.Int( ROOM_RIGHT + 3, width() - 1 );
-			}
-			if (Random.Int( 2 ) == 0) {
-				top = Random.Int( 2, ROOM_TOP - 3 );
-				bottom = ROOM_BOTTOM + 3;
-			} else {
-				top = ROOM_LEFT - 3;
-				bottom = Random.Int( ROOM_TOP + 3, height() - 1 );
-			}
-			
-			Painter.fill( this, left, top, right - left + 1, bottom - top + 1, Terrain.EMPTY );
-			
-			if (top < topMost) {
-				topMost = top;
-				exit = Random.Int( left, right ) + (top - 1) * width();
-			}
-		}
+		setSize(WIDTH, HEIGHT);
+
+		Rect space = new Rect();
+
+		space.set(
+				Random.IntRange(2, 2 + (int)(width*0.2f)),
+				Random.IntRange(2, 2 + (int)(height*0.2f)),
+				Random.IntRange((int)(width * 0.8f - 2), width-2 ),
+				Random.IntRange((int)(height * 0.8f - 2), height-2 )
+		);
+
+		Painter.fillEllipse( this, space, Terrain.EMPTY );
+
+		exit = space.left + space.width()/2 + (space.top - 1) * width();
 		
 		map[exit] = Terrain.LOCKED_EXIT;
 		
@@ -190,14 +177,12 @@ public class CavesBossLevel extends Level {
 			}
 		}
 		
-		int sign;
-		do {
-			sign = Random.Int( ROOM_LEFT, ROOM_RIGHT ) + Random.Int( ROOM_TOP, ROOM_BOTTOM ) * width();
-		} while (sign == entrance || map[sign] == Terrain.INACTIVE_TRAP);
-		map[sign] = Terrain.SIGN;
-		
-		
 		return true;
+	}
+	
+	@Override
+	public Mob createMob() {
+		return null;
 	}
 	
 	@Override
@@ -215,7 +200,7 @@ public class CavesBossLevel extends Level {
 			int pos;
 			do {
 				pos = Random.IntRange( ROOM_LEFT, ROOM_RIGHT ) + Random.IntRange( ROOM_TOP + 1, ROOM_BOTTOM ) * width();
-			} while (pos == entrance || map[pos] == Terrain.SIGN);
+			} while (pos == entrance);
 			drop( item, pos ).type = Heap.Type.REMAINS;
 		}
 	}
@@ -239,7 +224,16 @@ public class CavesBossLevel extends Level {
 			enteredArena = true;
 			seal();
 			
-			Mob boss = Bestiary.mob( Dungeon.depth );
+			for (Mob m : mobs){
+				//bring the first ally with you
+				if (m.ally){
+					m.pos = Dungeon.hero.pos + (Random.Int(2) == 0 ? +1 : -1);
+					m.sprite.place(m.pos);
+					break;
+				}
+			}
+			
+			DM300 boss = new DM300();
 			boss.state = boss.WANDERING;
 			do {
 				boss.pos = Random.Int( length() );

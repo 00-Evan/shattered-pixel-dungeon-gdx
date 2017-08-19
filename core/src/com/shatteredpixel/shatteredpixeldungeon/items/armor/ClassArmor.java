@@ -69,10 +69,11 @@ abstract public class ClassArmor extends Armor {
 			classArmor = new HuntressArmor();
 			break;
 		}
-
+		
 		classArmor.level(armor.level());
 		classArmor.armorTier = armor.tier;
 		classArmor.inscribe( armor.glyph );
+		classArmor.identify();
 		
 		return classArmor;
 	}

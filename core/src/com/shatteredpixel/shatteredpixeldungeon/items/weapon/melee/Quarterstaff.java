@@ -20,7 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Quarterstaff extends MeleeWeapon {
@@ -38,7 +38,7 @@ public class Quarterstaff extends MeleeWeapon {
 	}
 
 	@Override
-	public int defenseFactor(Hero hero) {
+	public int defenseFactor( Char owner ) {
 		return 3;	//3 extra defence
 	}
 }

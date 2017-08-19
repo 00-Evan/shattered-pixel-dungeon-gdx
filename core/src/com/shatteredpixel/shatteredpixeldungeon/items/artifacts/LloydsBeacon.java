@@ -116,7 +116,8 @@ public class LloydsBeacon extends Artifact {
 			}
 			
 			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
-				if (Actor.findChar( hero.pos + PathFinder.NEIGHBOURS8[i] ) != null) {
+				Char ch = Actor.findChar(hero.pos + PathFinder.NEIGHBOURS8[i]);
+				if (ch != null && !(ch instanceof Mob && !((Mob) ch).hostile)) {
 					GLog.w( Messages.get(this, "creatures") );
 					return;
 				}
@@ -164,9 +165,6 @@ public class LloydsBeacon extends Artifact {
 
 				Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 				if (buff != null) buff.detach();
-
-				for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
-					if (mob instanceof DriedRose.GhostHero) mob.destroy();
 
 				InterlevelScene.mode = InterlevelScene.Mode.RETURN;
 				InterlevelScene.returnDepth = returnDepth;

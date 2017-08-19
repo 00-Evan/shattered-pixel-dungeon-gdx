@@ -20,6 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
@@ -27,11 +29,11 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
+import com.watabou.noosa.audio.Sample;
 
 public class ScrollOfRemoveCurse extends InventoryScroll {
 
@@ -39,7 +41,19 @@ public class ScrollOfRemoveCurse extends InventoryScroll {
 		initials = 8;
 		mode = WndBag.Mode.UNIDED_OR_CURSED;
 	}
-
+	
+	@Override
+	public void empoweredRead() {
+		for (Item item : curUser.belongings){
+			if (item.cursed){
+				item.cursedKnown = true;
+			}
+		}
+		Sample.INSTANCE.play( Assets.SND_READ );
+		Invisibility.dispel();
+		doRead();
+	}
+	
 	@Override
 	protected void onItemSelected(Item item) {
 		new Flare( 6, 32 ).show( curUser.sprite, 2f ) ;
@@ -79,9 +93,6 @@ public class ScrollOfRemoveCurse extends InventoryScroll {
 					procced = true;
 				}
 			}
-			if (item instanceof Ring && item.level() <= 0){
-				item.upgrade(1 - item.level());
-			}
 			if (item instanceof Bag){
 				for (Item bagItem : ((Bag)item).items){
 					if (bagItem != null && bagItem.cursed) {
@@ -94,6 +105,7 @@ public class ScrollOfRemoveCurse extends InventoryScroll {
 		
 		if (procced) {
 			hero.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10 );
+			hero.updateHT( false ); //for ring of might
 		}
 		
 		return procced;

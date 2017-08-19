@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -31,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.MassGraveRoom;
@@ -162,7 +162,7 @@ public class Wandmaker extends NPC {
 				}
 			});
 
-			Journal.add( Journal.Feature.WANDMAKER );
+			Notes.add( Notes.Landmark.WANDMAKER );
 			Quest.given = true;
 		}
 
@@ -265,14 +265,12 @@ public class Wandmaker extends NPC {
 				given = false;
 				wand1 = (Wand) Generator.random(Generator.Category.WAND);
 				wand1.cursed = false;
-				wand1.identify();
 				wand1.upgrade();
 
 				do {
 					wand2 = (Wand) Generator.random(Generator.Category.WAND);
 				} while (wand2.getClass().equals(wand1.getClass()));
 				wand2.cursed = false;
-				wand2.identify();
 				wand2.upgrade();
 				
 			}
@@ -308,7 +306,7 @@ public class Wandmaker extends NPC {
 			wand1 = null;
 			wand2 = null;
 			
-			Journal.remove( Journal.Feature.WANDMAKER );
+			Notes.remove( Notes.Landmark.WANDMAKER );
 		}
 	}
 }

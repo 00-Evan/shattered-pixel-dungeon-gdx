@@ -23,7 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
@@ -40,7 +40,7 @@ import java.util.UUID;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = 181;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_1;
 
 	@Override
 	public void create() {
@@ -149,35 +149,26 @@ public class WelcomeScene extends PixelScene {
 	}
 
 	private void updateVersion(int previousVersion){
-		//rankings conversion
-		if (previousVersion <= ShatteredPixelDungeon.v0_4_1){
+		
+		//update rankings, to update any data which may be outdated
+		if (previousVersion < LATEST_UPDATE){
 			try {
 				Rankings.INSTANCE.load();
-				for (Rankings.Record rec : Rankings.INSTANCE.records) {
-					if (rec.gameFile != null) {
-						try {
-							Dungeon.loadGame(rec.gameFile, false);
-							rec.gameID = rec.gameFile.replaceAll("\\D", "");
-							
-							Rankings.INSTANCE.saveGameData(rec);
-						} catch (Exception e) {
-							rec.gameID = rec.gameFile.replaceAll("\\D", "");
-							rec.gameData = null;
-						}
-						
-						String file = rec.gameFile;
-						rec.gameFile = "";
-						Game.instance.deleteFile(file);
-					} else if (rec.gameID == null) {
-						rec.gameID = UUID.randomUUID().toString();
-					}
-				}
 				Rankings.INSTANCE.save();
 			} catch (Exception e) {
 				//if we encounter a fatal error, then just clear the rankings
 				Game.instance.deleteFile( Rankings.RANKINGS_FILE );
 			}
-
+		}
+		
+		//remove changed badges
+		if (previousVersion <= ShatteredPixelDungeon.v0_6_0b){
+			Badges.disown(Badges.Badge.ALL_WANDS_IDENTIFIED);
+			Badges.disown(Badges.Badge.ALL_RINGS_IDENTIFIED);
+			Badges.disown(Badges.Badge.ALL_SCROLLS_IDENTIFIED);
+			Badges.disown(Badges.Badge.ALL_POTIONS_IDENTIFIED);
+			Badges.disown(Badges.Badge.ALL_ITEMS_IDENTIFIED);
+			Badges.saveGlobal();
 		}
 
 		ShatteredPixelDungeon.version(ShatteredPixelDungeon.versionCode);

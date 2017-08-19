@@ -122,6 +122,12 @@ public class ItemSlot extends Button<GameAction> {
 		PixelScene.align(icon);
 		
 		if (topLeft != null) {
+			topLeft.measure();
+			if (topLeft.width > width){
+				topLeft.scale.set(PixelScene.align(0.8f));
+			} else {
+				topLeft.scale.set(1f);
+			}
 			topLeft.x = x;
 			topLeft.y = y;
 			PixelScene.align(topLeft);
@@ -148,7 +154,10 @@ public class ItemSlot extends Button<GameAction> {
 	
 	public void item( Item item ) {
 		if (this.item == item) {
-			if (item != null) icon.frame(item.image());
+			if (item != null) {
+				icon.frame(item.image());
+				icon.glow(item.glowing());
+			}
 			updateText();
 			return;
 		}

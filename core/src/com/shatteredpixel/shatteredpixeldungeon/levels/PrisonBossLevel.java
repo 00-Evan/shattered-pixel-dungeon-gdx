@@ -133,7 +133,12 @@ public class PrisonBossLevel extends Level {
 
 		return true;
 	}
-
+	
+	@Override
+	public Mob createMob() {
+		return null;
+	}
+	
 	@Override
 	protected void createMobs() {
 		tengu = new Tengu(); //We want to keep track of tengu independently of other mobs, he's not always in the level.
@@ -279,6 +284,15 @@ public class PrisonBossLevel extends Level {
 				set(5 + 25 * 32, Terrain.LOCKED_DOOR);
 				GameScene.updateMap(5 + 25 * 32);
 
+				for (Mob m : mobs){
+					//bring the first ally with you
+					if (m.ally){
+						m.pos = 5 + 25 * 32; //they should immediately walk out of the door
+						m.sprite.place(m.pos);
+						break;
+					}
+				}
+				
 				tengu.state = tengu.HUNTING;
 				tengu.pos = 5 + 28*32; //in the middle of the fight room
 				GameScene.add( tengu );
@@ -291,7 +305,7 @@ public class PrisonBossLevel extends Level {
 			case FIGHT_START:
 
 				changeMap(MAP_MAZE);
-				clearEntities((Room) new Room().set(0, 5, 8, 32)); //clear all but the entrance
+				clearEntities((Room) new Room().set(0, 5, 8, 32)); //clear the entrance
 
 				Actor.remove(tengu);
 				mobs.remove(tengu);
@@ -321,7 +335,15 @@ public class PrisonBossLevel extends Level {
 				Dungeon.hero.sprite.place(Dungeon.hero.pos);
 
 				changeMap(MAP_ARENA);
-				clearEntities(null);
+				clearEntities( (Room) new Room().set(0, 0, 10, 4)); //clear all but the area right around the teleport spot
+				
+				//if any allies are left over, move them along the same way as the hero
+				for (Mob m : mobs){
+					if (m.ally) {
+						m.pos += 9 + 3 * 32;
+						m.sprite().place(m.pos);
+					}
+				}
 
 				tengu.state = tengu.HUNTING;
 				do {
@@ -329,6 +351,9 @@ public class PrisonBossLevel extends Level {
 				} while (solid[tengu.pos] || distance(tengu.pos, Dungeon.hero.pos) < 8);
 				GameScene.add(tengu);
 				tengu.notice();
+				
+				GameScene.flash(0xFFFFFF);
+				Sample.INSTANCE.play(Assets.SND_BLAST);
 
 				state = State.FIGHT_ARENA;
 				break;
@@ -356,13 +381,32 @@ public class PrisonBossLevel extends Level {
 				tengu.sprite.place(5 + 28 * 32);
 
 				changeMap(MAP_END);
+				
+				//remove all mobs, but preserve allies
+				ArrayList<Mob> allies = new ArrayList<>();
+				for(Mob m : mobs.toArray(new Mob[0])){
+					if (m.ally){
+						allies.add(m);
+						mobs.remove(m);
+					}
+				}
 				clearEntities(null);
+				for (Mob m : allies){
+					do{
+						m.pos = Random.IntRange(3, 7) + Random.IntRange(26, 30)*32;
+					} while (findMob(m.pos) != null);
+					m.sprite().place(m.pos);
+					mobs.add(m);
+				}
 
 				tengu.die(Dungeon.hero);
 
 				for (Item item : storedItems)
 					drop(item, randomPrisonCell());
-
+				
+				GameScene.flash(0xFFFFFF);
+				Sample.INSTANCE.play(Assets.SND_BLAST);
+				
 				state = State.WON;
 				break;
 		}
@@ -379,7 +423,6 @@ public class PrisonBossLevel extends Level {
 	private static final int D = Terrain.DOOR;
 	private static final int L = Terrain.LOCKED_DOOR;
 	private static final int e = Terrain.EMPTY;
-	private static final int S = Terrain.SIGN;
 
 	private static final int T = Terrain.INACTIVE_TRAP;
 
@@ -396,7 +439,7 @@ public class PrisonBossLevel extends Level {
 					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, E, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					W, W, W, W, S, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
+					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, D, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, M, W, W, e, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
@@ -428,7 +471,7 @@ public class PrisonBossLevel extends Level {
 	private static final int[] MAP_MAZE =
 			{       W, W, W, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, e, e, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					e, e, e, D, e, e, e, D, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
+					W, W, e, D, e, e, e, D, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, W, e, e, e, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, W, W, W, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
 					W, W, W, W, W, e, W, W, W, W, W, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, W, W,
@@ -498,7 +541,7 @@ public class PrisonBossLevel extends Level {
 					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, E, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
-					W, W, W, W, S, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
+					W, W, W, W, e, e, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, D, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, W, W, W, e, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
 					W, W, M, W, W, e, W, W, M, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W,
@@ -557,13 +600,6 @@ public class PrisonBossLevel extends Level {
 			tileH = 14;
 			mapSimpleImage(0, 0);
 			return super.create();
-		}
-
-		//for compatibility with pre-0.4.3 saves
-		@Override
-		public void restoreFromBundle(Bundle bundle) {
-			super.restoreFromBundle(bundle);
-			pos(11, 8);
 		}
 
 		@Override

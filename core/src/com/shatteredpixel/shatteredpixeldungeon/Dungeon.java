@@ -35,9 +35,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel;
@@ -77,33 +79,32 @@ public class Dungeon {
 
 	//enum of items which have limited spawns, records how many have spawned
 	//could all be their own separate numbers, but this allows iterating, much nicer for bundling/initializing.
-	//TODO: this is fairly brittle when it comes to bundling, should look into a more flexible solution.
-	public static enum limitedDrops{
+	public static enum LimitedDrops {
 		//limited world drops
-		strengthPotions,
-		upgradeScrolls,
-		arcaneStyli,
+		STRENGTH_POTIONS,
+		UPGRADE_SCROLLS,
+		ARCANE_STYLI,
 
-		//all unlimited health potion sources (except guards, which are at the bottom.
-		swarmHP,
-		batHP,
-		warlockHP,
-		scorpioHP,
-		cookingHP,
-		//blandfruit, which can technically be an unlimited health potion source
-		blandfruitSeed,
+		//Health potion sources
+		//enemies
+		SWARM_HP,
+		GUARD_HP,
+		BAT_HP,
+		WARLOCK_HP,
+		SCORPIO_HP,
+		//alchemy
+		COOKING_HP,
+		BLANDFRUIT_SEED,
 
 		//doesn't use Generator, so we have to enforce one armband drop here
-		armband,
+		THIEVES_ARMBAND,
 
 		//containers
-		dewVial,
-		seedBag,
-		scrollBag,
-		potionBag,
-		wandBag,
-
-		guardHP;
+		DEW_VIAL,
+		SEED_POUCH,
+		SCROLL_HOLDER,
+		POTION_BANDOLIER,
+		WAND_HOLSTER;
 
 		public int count = 0;
 
@@ -114,6 +115,49 @@ public class Dungeon {
 		public void drop(){
 			count = 1;
 		}
+
+		public static void reset(){
+			for (LimitedDrops lim : values()){
+				lim.count = 0;
+			}
+		}
+
+		public static void store( Bundle bundle ){
+			for (LimitedDrops lim : values()){
+				bundle.put(lim.name(), lim.count);
+			}
+		}
+
+		public static void restore( Bundle bundle ){
+			for (LimitedDrops lim : values()){
+				if (bundle.contains(lim.name())){
+					lim.count = bundle.getInt(lim.name());
+				} else {
+					lim.count = 0;
+				}
+			}
+		}
+
+		//for saves prior to 0.6.1
+		public static void legacyRestore( int[] counts ){
+			STRENGTH_POTIONS.count =    counts[0];
+			UPGRADE_SCROLLS.count =     counts[1];
+			ARCANE_STYLI.count =        counts[2];
+			SWARM_HP.count =            counts[3];
+			BAT_HP.count =              counts[4];
+			WARLOCK_HP.count =          counts[5];
+			SCORPIO_HP.count =          counts[6];
+			COOKING_HP.count =          counts[7];
+			BLANDFRUIT_SEED.count =     counts[8];
+			THIEVES_ARMBAND.count =     counts[9];
+			DEW_VIAL.count =            counts[10];
+			SEED_POUCH.count =          counts[11];
+			SCROLL_HOLDER.count =       counts[12];
+			POTION_BANDOLIER.count =    counts[13];
+			WAND_HOLSTER.count =        counts[14];
+			GUARD_HP.count =            counts[15];
+		}
+
 	}
 
 	public static int challenges;
@@ -158,7 +202,7 @@ public class Dungeon {
 		Random.seed();
 		
 		Statistics.reset();
-		Journal.reset();
+		Notes.reset();
 
 		quickslot.reset();
 		QuickSlotButton.reset();
@@ -168,7 +212,7 @@ public class Dungeon {
 
 		droppedItems = new SparseArray<ArrayList<Item>>();
 
-		for (limitedDrops a : limitedDrops.values())
+		for (LimitedDrops a : LimitedDrops.values())
 			a.count = 0;
 		
 		chapters = new HashSet<Integer>();
@@ -178,6 +222,7 @@ public class Dungeon {
 		Blacksmith.Quest.reset();
 		Imp.Quest.reset();
 
+		Generator.reset();
 		Generator.initArtifacts();
 		hero = new Hero();
 		hero.live();
@@ -307,10 +352,16 @@ public class Dungeon {
 	@SuppressWarnings("deprecation")
 	public static void switchLevel( final Level level, int pos ) {
 		
-		Dungeon.level = level;
-		Actor.init();
-
+		if (pos < 0 || pos >= level.length()){
+			pos = level.exit;
+		}
+		
 		PathFinder.setMapSize(level.width(), level.height());
+		
+		Dungeon.level = level;
+		DriedRose.restoreGhostHero( level, pos );
+		Actor.init();
+		
 		visible = new boolean[level.length()];
 		
 		Actor respawner = level.respawner();
@@ -318,7 +369,7 @@ public class Dungeon {
 			Actor.add( level.respawner() );
 		}
 
-		hero.pos = pos != -1 ? pos : level.exit;
+		hero.pos = pos;
 		
 		Light light = hero.buff( Light.class );
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
@@ -346,7 +397,7 @@ public class Dungeon {
 
 	public static boolean posNeeded() {
 		//2 POS each floor set
-		int posLeftThisSet = 2 - (limitedDrops.strengthPotions.count - (depth / 5) * 2);
+		int posLeftThisSet = 2 - (LimitedDrops.STRENGTH_POTIONS.count - (depth / 5) * 2);
 		if (posLeftThisSet <= 0) return false;
 
 		int floorThisSet = (depth % 5);
@@ -362,7 +413,7 @@ public class Dungeon {
 	
 	public static boolean souNeeded() {
 		//3 SOU each floor set
-		int souLeftThisSet = 3 - (limitedDrops.upgradeScrolls.count - (depth / 5) * 3);
+		int souLeftThisSet = 3 - (LimitedDrops.UPGRADE_SCROLLS.count - (depth / 5) * 3);
 		if (souLeftThisSet <= 0) return false;
 
 		int floorThisSet = (depth % 5);
@@ -372,7 +423,7 @@ public class Dungeon {
 	
 	public static boolean asNeeded() {
 		//1 AS each floor set
-		int asLeftThisSet = 1 - (limitedDrops.arcaneStyli.count - (depth / 5));
+		int asLeftThisSet = 1 - (LimitedDrops.ARCANE_STYLI.count - (depth / 5));
 		if (asLeftThisSet <= 0) return false;
 
 		int floorThisSet = (depth % 5);
@@ -400,9 +451,7 @@ public class Dungeon {
 	private static final String DEPTH		= "depth";
 	private static final String DROPPED     = "dropped%d";
 	private static final String LEVEL		= "level";
-	private static final String LIMDROPS    = "limiteddrops";
-	private static final String DV			= "dewVial";
-	private static final String WT			= "transmutation";
+	private static final String LIMDROPS    = "limited_drops";
 	private static final String CHAPTERS	= "chapters";
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
@@ -451,10 +500,9 @@ public class Dungeon {
 
 			quickslot.storePlaceholders( bundle );
 
-			int[] dropValues = new int[limitedDrops.values().length];
-			for (limitedDrops value : limitedDrops.values())
-				dropValues[value.ordinal()] = value.count;
-			bundle.put ( LIMDROPS, dropValues );
+			Bundle limDrops = new Bundle();
+			LimitedDrops.store( limDrops );
+			bundle.put ( LIMDROPS, limDrops );
 			
 			int count = 0;
 			int ids[] = new int[chapters.size()];
@@ -473,7 +521,7 @@ public class Dungeon {
 			SpecialRoom.storeRoomsInBundle( bundle );
 			
 			Statistics.storeInBundle( bundle );
-			Journal.storeInBundle( bundle );
+			Notes.storeInBundle( bundle );
 			Generator.storeInBundle( bundle );
 			
 			Scroll.save( bundle );
@@ -538,8 +586,6 @@ public class Dungeon {
 
 		seed = bundle.contains( SEED ) ? bundle.getLong( SEED ) : DungeonSeed.randomSeed();
 
-		Generator.reset();
-
 		Actor.restoreNextID( bundle );
 
 		quickslot.reset();
@@ -557,10 +603,13 @@ public class Dungeon {
 		quickslot.restorePlaceholders( bundle );
 		
 		if (fullLoad) {
-			int[] dropValues = bundle.getIntArray(LIMDROPS);
-			for (limitedDrops value : limitedDrops.values())
-				value.count = value.ordinal() < dropValues.length ?
-						dropValues[value.ordinal()] : 0;
+
+			//pre-0.6.1
+			if( bundle.contains("limiteddrops") ){
+				LimitedDrops.legacyRestore( bundle.getIntArray("limiteddrops") );
+			} else {
+				LimitedDrops.restore( bundle.getBundle(LIMDROPS) );
+			}
 
 			chapters = new HashSet<Integer>();
 			int ids[] = bundle.getIntArray( CHAPTERS );
@@ -593,6 +642,8 @@ public class Dungeon {
 			Badges.reset();
 		}
 		
+		Notes.restoreFromBundle( bundle );
+		
 		hero = null;
 		hero = (Hero)bundle.get( HERO );
 		
@@ -600,10 +651,9 @@ public class Dungeon {
 		depth = bundle.getInt( DEPTH );
 		
 		Statistics.restoreFromBundle( bundle );
-		Journal.restoreFromBundle( bundle );
 		Generator.restoreFromBundle( bundle );
 
-		droppedItems = new SparseArray<ArrayList<Item>>();
+		droppedItems = new SparseArray<>();
 		for (int i=2; i <= Statistics.deepestFloor + 1; i++) {
 			ArrayList<Item> dropped = new ArrayList<Item>();
 			if (bundle.contains(Messages.format( DROPPED, i )))
@@ -625,7 +675,7 @@ public class Dungeon {
 		Bundle bundle = Bundle.read( input );
 		input.close();
 		
-		return (Level)bundle.get( "level" );
+		return (Level)bundle.get( LEVEL );
 	}
 	
 	public static void deleteGame( HeroClass cl, boolean deleteLevels ) {

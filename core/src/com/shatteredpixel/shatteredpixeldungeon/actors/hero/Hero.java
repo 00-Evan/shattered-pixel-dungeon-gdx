@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
@@ -37,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Regeneration;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
@@ -67,7 +69,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
@@ -85,11 +90,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.AlchemyPot;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
-import com.shatteredpixel.shatteredpixeldungeon.levels.features.Sign;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
@@ -160,6 +165,8 @@ public class Hero extends Char {
 	public int lvl = 1;
 	public int exp = 0;
 	
+	public int HTBoost = 0;
+	
 	private ArrayList<Mob> visibleEnemies;
 
 	//This list is maintained so that some logic checks can be skipped
@@ -178,11 +185,24 @@ public class Hero extends Char {
 		
 		visibleEnemies = new ArrayList<Mob>();
 	}
+	
+	public void updateHT( boolean boostHP ){
+		int curHT = HT;
+		
+		HT = 20 + 5*(lvl-1) + HTBoost;
+		float multiplier = RingOfMight.HTMultiplier(this);
+		HT = Math.round(multiplier * HT);
+		
+		if (boostHP){
+			HP += Math.max(HT - curHT, 0);
+		}
+		HP = Math.min(HP, HT);
+	}
 
 	public int STR() {
 		int STR = this.STR;
 
-		STR += RingOfMight.getBonus(this, RingOfMight.Might.class);
+		STR += RingOfMight.strengthBonus( this );
 
 		return weakened ? STR - 2 : STR;
 	}
@@ -192,6 +212,7 @@ public class Hero extends Char {
 	private static final String STRENGTH	= "STR";
 	private static final String LEVEL		= "lvl";
 	private static final String EXPERIENCE	= "exp";
+	private static final String HTBOOST     = "htboost";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -208,6 +229,8 @@ public class Hero extends Char {
 		
 		bundle.put( LEVEL, lvl );
 		bundle.put( EXPERIENCE, exp );
+		
+		bundle.put( HTBOOST, HTBoost );
 
 		belongings.storeInBundle( bundle );
 	}
@@ -219,6 +242,8 @@ public class Hero extends Char {
 		heroClass = HeroClass.restoreInBundle( bundle );
 		subClass = HeroSubClass.restoreInBundle( bundle );
 		
+		berserk = subClass == HeroSubClass.BERSERKER ? buff(Berserk.class) : null;
+		
 		attackSkill = bundle.getInt( ATTACK );
 		defenseSkill = bundle.getInt( DEFENSE );
 		
@@ -227,6 +252,8 @@ public class Hero extends Char {
 		
 		lvl = bundle.getInt( LEVEL );
 		exp = bundle.getInt( EXPERIENCE );
+		
+		HTBoost = bundle.getInt(HTBOOST);
 		
 		belongings.restoreFromBundle( bundle );
 	}
@@ -280,9 +307,8 @@ public class Hero extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 		
-		int bonus = RingOfEvasion.getBonus(this, RingOfEvasion.Evasion.class);
-
-		float evasion = (float)Math.pow( 1.125, bonus );
+		float evasion = 1f * RingOfEvasion.evasionMultiplier( this );
+		
 		if (paralysed > 0) {
 			evasion /= 2;
 		}
@@ -293,7 +319,7 @@ public class Hero extends Char {
 			return (int)(defenseSkill * evasion / Math.pow( 1.5, aEnc ));
 		} else {
 
-			bonus = 0;
+			int bonus = 0;
 			if (heroClass == HeroClass.ROGUE) bonus += -aEnc;
 
 			if (belongings.armor != null && belongings.armor.hasGlyph(Swiftness.class))
@@ -325,16 +351,11 @@ public class Hero extends Char {
 	public int damageRoll() {
 		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		int dmg;
-		int bonus = RingOfForce.getBonus(this, RingOfForce.Force.class);
 
 		if (wep != null) {
-			dmg = wep.damageRoll( this ) + bonus;
+			dmg = wep.damageRoll( this ) + RingOfForce.armedDamageBonus(this);
 		} else {
-			if (bonus != 0){
-				dmg = RingOfForce.damageRoll(this);
-			} else {
-				dmg = Random.NormalIntRange(1, Math.max(STR()-8, 1));
-			}
+			dmg = RingOfForce.damageRoll(this);
 		}
 		if (dmg < 0) dmg = 0;
 		if (subClass == HeroSubClass.BERSERKER){
@@ -349,10 +370,7 @@ public class Hero extends Char {
 
 		float speed = super.speed();
 
-		int hasteLevel = RingOfHaste.getBonus(this, RingOfHaste.Haste.class);
-
-		if (hasteLevel != 0)
-			speed *= Math.pow(1.2, hasteLevel);
+		speed *= RingOfHaste.speedMultiplier(this);
 
 		Armor armor = belongings.armor;
 
@@ -429,8 +447,7 @@ public class Hero extends Char {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
 			//But there's going to be that one guy who gets a furor+force ring combo
 			//This is for that one guy, you shall get your fists of fury!
-			int bonus = RingOfFuror.getBonus(this, RingOfFuror.Furor.class);
-			return (float)(0.2 + (1 - 0.2)*Math.pow(0.85, bonus));
+			return RingOfFuror.modifyAttackDelay(1f, this);
 		}
 	}
 
@@ -462,7 +479,7 @@ public class Hero extends Char {
 		
 		checkVisibleMobs();
 		
-		if (curAction == null) {
+		if (curAction == null || search(false)) {
 			
 			if (resting) {
 				spend( TIME_TO_REST ); next();
@@ -566,15 +583,10 @@ public class Hero extends Char {
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
-
 			return true;
 
 		} else {
-			if (Dungeon.level.map[pos] == Terrain.SIGN) {
-				Sign.read(pos);
-			}
 			ready();
-
 			return false;
 		}
 	}
@@ -703,7 +715,7 @@ public class Hero extends Char {
 			if (heap != null && (heap.type != Type.HEAP && heap.type != Type.FOR_SALE)) {
 				
 				if ((heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST)
-						&& belongings.specialKeys[Dungeon.depth] < 1) {
+						&& Notes.keyCount(new GoldenKey(Dungeon.depth)) < 1) {
 
 						GLog.w( Messages.get(this, "locked_chest") );
 						ready();
@@ -750,12 +762,12 @@ public class Hero extends Char {
 			int door = Dungeon.level.map[doorCell];
 			
 			if (door == Terrain.LOCKED_DOOR
-					&& belongings.ironKeys[Dungeon.depth] > 0) {
+					&& Notes.keyCount(new IronKey(Dungeon.depth)) > 0) {
 				
 				hasKey = true;
 				
 			} else if (door == Terrain.LOCKED_EXIT
-					&& belongings.specialKeys[Dungeon.depth] > 0) {
+					&& Notes.keyCount(new SkeletonKey(Dungeon.depth)) > 0) {
 
 				hasKey = true;
 				
@@ -793,9 +805,6 @@ public class Hero extends Char {
 
 			Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
 			if (buff != null) buff.detach();
-
-			for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
-				if (mob instanceof DriedRose.GhostHero) mob.destroy();
 			
 			InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
 			Game.switchScene( InterlevelScene.class );
@@ -830,17 +839,9 @@ public class Hero extends Char {
 			} else {
 				
 				curAction = null;
-				
-				Hunger hunger = buff( Hunger.class );
-				if (hunger != null && !hunger.isStarving()) {
-					hunger.reduceHunger( -Hunger.STARVING / 10 );
-				}
 
 				Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
 				if (buff != null) buff.detach();
-
-				for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] ))
-					if (mob instanceof DriedRose.GhostHero) mob.destroy();
 
 				InterlevelScene.mode = InterlevelScene.Mode.ASCEND;
 				Game.switchScene( InterlevelScene.class );
@@ -910,7 +911,9 @@ public class Hero extends Char {
 			break;
 		default:
 		}
-
+		if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
+			Dungeon.observe();
+		}
 		
 		return damage;
 	}
@@ -955,9 +958,7 @@ public class Hero extends Char {
 			dmg = thorns.proc(dmg, (src instanceof Char ? (Char)src : null),  this);
 		}
 
-		int tenacity = RingOfTenacity.getBonus(this, RingOfTenacity.Tenacity.class);
-		if (tenacity != 0) //(HT - HP)/HT = heroes current % missing health.
-			dmg = (int)Math.ceil((float)dmg * Math.pow(0.85, tenacity*((float)(HT - HP)/HT)));
+		dmg = (int)Math.ceil(dmg * RingOfTenacity.damageMultiplier( this ));
 
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
@@ -1203,8 +1204,7 @@ public class Hero extends Char {
 				lvl++;
 				levelUp = true;
 
-				HT += 5;
-				HP += 5;
+				updateHT( true );
 				attackSkill++;
 				defenseSkill++;
 
@@ -1280,7 +1280,7 @@ public class Hero extends Char {
 	public int stealth() {
 		int stealth = super.stealth();
 
-		stealth += RingOfEvasion.getBonus(this, RingOfEvasion.Evasion.class);
+		stealth += RingOfEvasion.stealthBonus( this );
 
 		if (belongings.armor != null && belongings.armor.hasGlyph(Obfuscation.class)){
 			stealth += belongings.armor.level();
@@ -1464,10 +1464,10 @@ public class Hero extends Char {
 			int door = Dungeon.level.map[doorCell];
 
 			if (door == Terrain.LOCKED_DOOR){
-				belongings.ironKeys[Dungeon.depth]--;
+				Notes.remove(new IronKey(Dungeon.depth));
 				Level.set( doorCell, Terrain.DOOR );
 			} else {
-				belongings.specialKeys[Dungeon.depth]--;
+				Notes.remove(new SkeletonKey(Dungeon.depth));
 				Level.set( doorCell, Terrain.UNLOCKED_EXIT );
 			}
 			StatusPane.needsKeyUpdate = true;
@@ -1481,7 +1481,7 @@ public class Hero extends Char {
 			if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
 				Sample.INSTANCE.play( Assets.SND_BONES );
 			} else if (heap.type == Type.LOCKED_CHEST || heap.type == Type.CRYSTAL_CHEST){
-				belongings.specialKeys[Dungeon.depth]--;
+				Notes.remove(new GoldenKey(Dungeon.depth));
 			}
 			StatusPane.needsKeyUpdate = true;
 			heap.open( this );
@@ -1595,8 +1595,7 @@ public class Hero extends Char {
 	
 	@Override
 	public HashSet<Class<?>> resistances() {
-		RingOfElements.Resistance r = buff( RingOfElements.Resistance.class );
-		return r == null ? super.resistances() : r.resistances();
+		return RingOfElements.resistances( this );
 	}
 	
 	@Override

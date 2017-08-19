@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -43,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -74,7 +74,7 @@ public class Ghost extends NPC {
 
 	@Override
 	protected boolean act() {
-		if (Quest.completed())
+		if (Quest.processed())
 			target = Dungeon.hero.pos;
 		return super.act();
 	}
@@ -86,7 +86,7 @@ public class Ghost extends NPC {
 	
 	@Override
 	public float speed() {
-		return Quest.completed() ? 2f : 0.5f;
+		return Quest.processed() ? 2f : 0.5f;
 	}
 	
 	@Override
@@ -169,7 +169,7 @@ public class Ghost extends NPC {
 				GameScene.add(questBoss);
 				GameScene.show( new WndQuest( this, txt_quest ) );
 				Quest.given = true;
-				Journal.add( Journal.Feature.GHOST );
+				Notes.add( Notes.Landmark.GHOST );
 			}
 
 		}
@@ -325,8 +325,6 @@ public class Ghost extends NPC {
 					armor.inscribe();
 				}
 
-				weapon.identify();
-				armor.identify();
 			}
 		}
 		
@@ -335,7 +333,6 @@ public class Ghost extends NPC {
 				GLog.n( Messages.get(Ghost.class, "find_me") );
 				Sample.INSTANCE.play( Assets.SND_GHOST );
 				processed = true;
-				Generator.Category.ARTIFACT.probs[10] = 1; //flags the dried rose as spawnable.
 			}
 		}
 		
@@ -343,11 +340,15 @@ public class Ghost extends NPC {
 			weapon = null;
 			armor = null;
 			
-			Journal.remove( Journal.Feature.GHOST );
+			Notes.remove( Notes.Landmark.GHOST );
 		}
 
-		public static boolean completed(){
+		public static boolean processed(){
 			return spawned && processed;
+		}
+		
+		public static boolean completed(){
+			return processed() && weapon == null && armor == null;
 		}
 	}
 }

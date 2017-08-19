@@ -59,6 +59,7 @@ public class Messages {
 	private static String[] prop_files = new String[]{
 			"com.shatteredpixel.shatteredpixeldungeon.messages.actors.actors",
 			"com.shatteredpixel.shatteredpixeldungeon.messages.items.items",
+			"com.shatteredpixel.shatteredpixeldungeon.messages.journal.journal",
 			"com.shatteredpixel.shatteredpixeldungeon.messages.levels.levels",
 			"com.shatteredpixel.shatteredpixeldungeon.messages.plants.plants",
 			"com.shatteredpixel.shatteredpixeldungeon.messages.scenes.scenes",
@@ -146,7 +147,7 @@ public class Messages {
 	private static final HashSet<String> noCaps = new HashSet<>(
 			Arrays.asList(new String[]{
 					//English
-					"a", "of", "by", "to", "the", "x"
+					"a", "an", "and", "of", "by", "to", "the", "x"
 			})
 	);
 

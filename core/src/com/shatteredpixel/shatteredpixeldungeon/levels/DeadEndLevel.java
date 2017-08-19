@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 
 public class DeadEndLevel extends Level {
 
@@ -64,13 +65,16 @@ public class DeadEndLevel extends Level {
 		entrance = SIZE * width() + SIZE / 2 + 1;
 		map[entrance] = Terrain.ENTRANCE;
 		
-		map[(SIZE / 2 + 1) * (width() + 1)] = Terrain.SIGN;
-		
 		exit = 0;
 		
 		return true;
 	}
-
+	
+	@Override
+	public Mob createMob() {
+		return null;
+	}
+	
 	@Override
 	protected void createMobs() {
 	}

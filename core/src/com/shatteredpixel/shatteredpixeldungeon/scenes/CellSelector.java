@@ -283,7 +283,7 @@ public class CellSelector extends TouchArea<GameAction> {
 			if (startSpan != 0){
 				camera.zoom( GameMath.gate(
 					PixelScene.minZoom,
-					startZoom * curSpan / startSpan,
+					PixelScene.align(startZoom * curSpan / startSpan),
 					PixelScene.maxZoom ) );
 			}
 

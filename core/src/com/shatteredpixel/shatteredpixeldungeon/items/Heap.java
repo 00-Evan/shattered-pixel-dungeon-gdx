@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
@@ -45,11 +46,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
+import com.shatteredpixel.shatteredpixeldungeon.items.journal.DocumentPage;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
@@ -63,6 +66,7 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -148,6 +152,11 @@ public class Heap implements Bundlable {
 
 		if (type != Type.MIMIC) {
 			type = Type.HEAP;
+			ArrayList<Item> bonus = RingOfWealth.tryRareDrop(hero, 1);
+			if (bonus != null){
+				items.addAll(0, bonus);
+				new Flare(8, 32).color(0xFFFF00, true).show(sprite, 2f);
+			}
 			sprite.link();
 			sprite.drop();
 		}
@@ -434,11 +443,14 @@ public class Heap implements Bundlable {
 				if (Random.Int(1000/bonus) == 0)
 					return new PotionOfExperience();
 
-			while (potion instanceof PotionOfHealing && Random.Int(10) < Dungeon.limitedDrops.cookingHP.count)
-				potion = Generator.random( Generator.Category.POTION );
+			while (potion instanceof PotionOfHealing
+					&& Random.Int(10) < Dungeon.LimitedDrops.COOKING_HP.count) {
+				potion = Generator.random(Generator.Category.POTION);
+			}
 
-			if (potion instanceof PotionOfHealing)
-				Dungeon.limitedDrops.cookingHP.count++;
+			if (potion instanceof PotionOfHealing) {
+				Dungeon.LimitedDrops.COOKING_HP.count++;
+			}
 
 			return potion;
 
@@ -527,6 +539,16 @@ public class Heap implements Bundlable {
 		type = Type.valueOf( bundle.getString( TYPE ) );
 		items = new LinkedList( bundle.getCollection( ITEMS ) );
 		items.removeAll(Collections.singleton(null));
+		
+		//remove any document pages that either don't exist anymore or that the player already has
+		for (Item item : items.toArray(new Item[0])){
+			if (item instanceof DocumentPage
+					&& ( !((DocumentPage) item).document().pages().contains(((DocumentPage) item).page())
+					||    ((DocumentPage) item).document().hasPage(((DocumentPage) item).page()))){
+				items.remove(item);
+			}
+		}
+		
 	}
 
 	@Override

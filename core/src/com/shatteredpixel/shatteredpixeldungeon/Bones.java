@@ -155,7 +155,7 @@ public class Bones {
 
 				//Enforces artifact uniqueness
 				if (item instanceof Artifact){
-					if (Generator.removeArtifact((Artifact)item)) {
+					if (Generator.removeArtifact(((Artifact)item).getClass())) {
 						try {
 							Artifact artifact = (Artifact)item.getClass().newInstance();
 							//caps displayed artifact level

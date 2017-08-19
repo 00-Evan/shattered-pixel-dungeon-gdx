@@ -51,9 +51,11 @@ public class Thief extends Mob {
 		EXP = 5;
 		maxLvl = 10;
 		
-		loot = new MasterThievesArmband().identify();
+		//see createloot
+		loot = null;
 		lootChance = 0.01f;
 
+		WANDERING = new Wandering();
 		FLEEING = new Fleeing();
 
 		properties.add(Property.DEMONIC);
@@ -103,9 +105,9 @@ public class Thief extends Mob {
 
 	@Override
 	protected Item createLoot(){
-		if (!Dungeon.limitedDrops.armband.dropped()) {
-			Dungeon.limitedDrops.armband.drop();
-			return super.createLoot();
+		if (!Dungeon.LimitedDrops.THIEVES_ARMBAND.dropped()) {
+			Dungeon.LimitedDrops.THIEVES_ARMBAND.drop();
+			return new MasterThievesArmband().identify();
 		} else
 			return new Gold(Random.NormalIntRange(100, 250));
 	}
@@ -145,7 +147,9 @@ public class Thief extends Mob {
 		if (item != null && !item.unique && item.level() < 1 ) {
 
 			GLog.w( Messages.get(Thief.class, "stole", item.name()) );
-			Dungeon.quickslot.clearItem( item );
+			if (!item.stackable || hero.belongings.getSimilar(item) == null) {
+				Dungeon.quickslot.convertToPlaceholder(item);
+			}
 			item.updateQuickslot();
 
 			if (item instanceof Honeypot){
@@ -173,6 +177,21 @@ public class Thief extends Mob {
 
 		return desc;
 	}
+	
+	private class Wandering extends Mob.Wandering {
+		
+		@Override
+		public boolean act(boolean enemyInFOV, boolean justAlerted) {
+			super.act(enemyInFOV, justAlerted);
+			
+			//if an enemy is just noticed and the thief posses an item, run, don't fight.
+			if (state == HUNTING && item != null){
+				state = FLEEING;
+			}
+			
+			return true;
+		}
+	}
 
 	private class Fleeing extends Mob.Fleeing {
 		@Override
@@ -181,7 +200,7 @@ public class Thief extends Mob {
 				if (enemySeen) {
 					sprite.showStatus(CharSprite.NEGATIVE, Messages.get(Mob.class, "rage"));
 					state = HUNTING;
-				} else {
+				} else if (item != null && !Dungeon.visible[pos]) {
 
 					int count = 32;
 					int newPos;
@@ -204,6 +223,8 @@ public class Thief extends Mob {
 
 					if (item != null) GLog.n( Messages.get(Thief.class, "escapes", item.name()));
 					item = null;
+					state = WANDERING;
+				} else {
 					state = WANDERING;
 				}
 			} else {

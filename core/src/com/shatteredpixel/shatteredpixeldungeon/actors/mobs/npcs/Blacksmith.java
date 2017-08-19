@@ -23,14 +23,16 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.BlacksmithRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -85,7 +87,7 @@ public class Blacksmith extends NPC {
 				}
 			} );
 			
-			Journal.add( Journal.Feature.TROLL );
+			Notes.add( Notes.Landmark.TROLL );
 			
 		} else if (!Quest.completed) {
 			if (Quest.alternative) {
@@ -200,9 +202,16 @@ public class Blacksmith extends NPC {
 		}
 		second.detachAll( Dungeon.hero.belongings.backpack );
 		
+		if (second instanceof Armor){
+			BrokenSeal seal = ((Armor) second).checkSeal();
+			if (seal != null){
+				Dungeon.level.drop( seal, Dungeon.hero.pos );
+			}
+		}
+		
 		Quest.reforged = true;
 		
-		Journal.remove( Journal.Feature.TROLL );
+		Notes.remove( Notes.Landmark.TROLL );
 	}
 	
 	@Override

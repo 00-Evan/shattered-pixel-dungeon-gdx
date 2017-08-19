@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -33,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -125,8 +125,10 @@ public class Potion extends Item {
 	@Override
 	public void reset(){
 		super.reset();
-		image = handler.image( this );
-		color = handler.label( this );
+		if (handler != null) {
+			image = handler.image(this);
+			color = handler.label(this);
+		}
 	};
 	
 	@Override
@@ -251,8 +253,10 @@ public class Potion extends Item {
 				handler.know(this);
 				updateQuickslot();
 			}
-
-			Badges.validateAllPotionsIdentified();
+			
+			if (Dungeon.hero.isAlive()) {
+				Catalog.setSeen(getClass());
+			}
 		}
 	}
 	
@@ -260,7 +264,7 @@ public class Potion extends Item {
 	public Item identify() {
 
 		setKnown();
-		return this;
+		return super.identify();
 	}
 	
 	@Override

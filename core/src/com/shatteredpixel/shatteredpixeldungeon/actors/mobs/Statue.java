@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -31,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon.Enchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite;
 import com.watabou.utils.Bundle;
@@ -56,7 +56,6 @@ public class Statue extends Mob {
 			weapon = (Weapon)Generator.random( Generator.Category.WEAPON );
 		} while (!(weapon instanceof MeleeWeapon) || weapon.cursed);
 		
-		weapon.identify();
 		weapon.enchant( Enchantment.random() );
 		
 		HP = HT = 15 + Dungeon.depth * 5;
@@ -80,34 +79,34 @@ public class Statue extends Mob {
 	@Override
 	protected boolean act() {
 		if (Dungeon.visible[pos]) {
-			Journal.add( Journal.Feature.STATUE );
+			Notes.add( Notes.Landmark.STATUE );
 		}
 		return super.act();
 	}
 	
 	@Override
 	public int damageRoll() {
-		return Random.NormalIntRange( weapon.min(), weapon.max() );
+		return weapon.damageRoll(this);
 	}
 	
 	@Override
 	public int attackSkill( Char target ) {
-		return (int)((9 + Dungeon.depth) * weapon.ACC);
+		return (int)((9 + Dungeon.depth) * weapon.accuracyFactor(this));
 	}
 	
 	@Override
 	protected float attackDelay() {
-		return weapon.DLY;
+		return weapon.speedFactor( this );
 	}
 
 	@Override
 	protected boolean canAttack(Char enemy) {
-		return Dungeon.level.distance( pos, enemy.pos ) <= weapon.RCH;
+		return Dungeon.level.distance( pos, enemy.pos ) <= weapon.reachFactor(this);
 	}
 
 	@Override
 	public int drRoll() {
-		return Random.NormalIntRange(0, Dungeon.depth + weapon.defenseFactor(null));
+		return Random.NormalIntRange(0, Dungeon.depth + weapon.defenseFactor(this));
 	}
 	
 	@Override
@@ -132,13 +131,14 @@ public class Statue extends Mob {
 	
 	@Override
 	public void die( Object cause ) {
+		weapon.identify();
 		Dungeon.level.drop( weapon, pos ).sprite.drop();
 		super.die( cause );
 	}
 	
 	@Override
 	public void destroy() {
-		Journal.remove( Journal.Feature.STATUE );
+		Notes.remove( Notes.Landmark.STATUE );
 		super.destroy();
 	}
 	

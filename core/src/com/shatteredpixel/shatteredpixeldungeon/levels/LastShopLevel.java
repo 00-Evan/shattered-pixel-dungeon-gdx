@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
@@ -99,6 +100,11 @@ public class LastShopLevel extends RegularLevel {
 	}
 	
 	@Override
+	public Mob createMob() {
+		return null;
+	}
+	
+	@Override
 	protected void createMobs() {
 	}
 	
@@ -113,7 +119,7 @@ public class LastShopLevel extends RegularLevel {
 			int pos;
 			do {
 				pos = pointToCell(roomEntrance.random());
-			} while (pos == entrance || map[pos] == Terrain.SIGN);
+			} while (pos == entrance);
 			drop( item, pos ).type = Heap.Type.REMAINS;
 		}
 	}

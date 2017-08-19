@@ -84,26 +84,13 @@ public class ScrollOfUpgrade extends InventoryScroll {
 				GLog.w( Messages.get(Armor.class, "incompatible") );
 			}
 
-		} else if (item instanceof Wand) {
+		} else if (item instanceof Wand || item instanceof Ring) {
 			boolean wasCursed = item.cursed;
 
 			item.upgrade();
 
 			if (wasCursed && !item.cursed){
 				removeCurse( Dungeon.hero );
-			}
-
-		} else if (item instanceof Ring) {
-			boolean wasCursed = item.cursed;
-
-			item.upgrade();
-
-			if (wasCursed && !item.cursed){
-				if (item.level() < 1){
-					weakenCurse( Dungeon.hero );
-				} else {
-					removeCurse( Dungeon.hero );
-				}
 			}
 
 		} else {
@@ -126,7 +113,12 @@ public class ScrollOfUpgrade extends InventoryScroll {
 		GLog.p( Messages.get(ScrollOfUpgrade.class, "remove_curse") );
 		hero.sprite.emitter().start( ShadowParticle.UP, 0.05f, 10 );
 	}
-
+	
+	@Override
+	public void empoweredRead() {
+		//does nothing for now, this should never happen.
+	}
+	
 	@Override
 	public int price() {
 		return isKnown() ? 50 * quantity : super.price();

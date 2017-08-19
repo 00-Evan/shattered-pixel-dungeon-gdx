@@ -91,7 +91,7 @@ public class Eye extends Mob {
 		if (beamCooldown == 0) {
 			Ballistica aim = new Ballistica(pos, enemy.pos, Ballistica.STOP_TERRAIN);
 
-			if (enemy.invisible == 0 && Level.fieldOfView[enemy.pos] && aim.subPath(1, aim.dist).contains(enemy.pos)){
+			if (enemy.invisible == 0 && !isCharmedBy(enemy) && Level.fieldOfView[enemy.pos] && aim.subPath(1, aim.dist).contains(enemy.pos)){
 				beam = aim;
 				beamTarget = aim.collisionPos;
 				return true;
@@ -132,7 +132,8 @@ public class Eye extends Mob {
 		} else {
 
 			spend( attackDelay() );
-
+			
+			beam = new Ballistica(pos, beamTarget, Ballistica.STOP_TERRAIN);
 			if (Dungeon.visible[pos] || Dungeon.visible[beam.collisionPos] ) {
 				sprite.zap( beam.collisionPos );
 				return false;
@@ -197,7 +198,6 @@ public class Eye extends Mob {
 
 		beam = null;
 		beamTarget = -1;
-		sprite.idle();
 	}
 
 	private static final String BEAM_TARGET     = "beamTarget";
@@ -247,8 +247,10 @@ public class Eye extends Mob {
 		@Override
 		public boolean act(boolean enemyInFOV, boolean justAlerted) {
 			//always attack if the beam is charged, no exceptions
-			if (beamCharged && enemy != null)
-				enemyInFOV = true;
+			if (beamCharged && canAttack(enemy)) {
+				enemySeen = enemyInFOV;
+				return doAttack(enemy);
+			}
 			return super.act(enemyInFOV, justAlerted);
 		}
 	}

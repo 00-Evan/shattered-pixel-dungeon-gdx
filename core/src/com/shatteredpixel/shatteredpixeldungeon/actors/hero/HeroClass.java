@@ -122,7 +122,7 @@ public enum HeroClass {
 			Dungeon.quickslot.setSlot(1, darts);
 		}
 
-		new PotionOfHealing().setKnown();
+		new PotionOfHealing().identify();
 	}
 
 	private static void initMage( Hero hero ) {
@@ -140,7 +140,7 @@ public enum HeroClass {
 
 		Dungeon.quickslot.setSlot(0, staff);
 
-		new ScrollOfUpgrade().setKnown();
+		new ScrollOfUpgrade().identify();
 	}
 
 	private static void initRogue( Hero hero ) {
@@ -156,7 +156,7 @@ public enum HeroClass {
 		Dungeon.quickslot.setSlot(0, cloak);
 		Dungeon.quickslot.setSlot(1, darts);
 
-		new ScrollOfMagicMapping().setKnown();
+		new ScrollOfMagicMapping().identify();
 	}
 
 	private static void initHuntress( Hero hero ) {
@@ -167,7 +167,7 @@ public enum HeroClass {
 
 		Dungeon.quickslot.setSlot(0, boomerang);
 
-		new PotionOfMindVision().setKnown();
+		new PotionOfMindVision().identify();
 	}
 	
 	public String title() {

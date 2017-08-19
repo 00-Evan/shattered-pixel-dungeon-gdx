@@ -23,9 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
-import com.shatteredpixel.shatteredpixeldungeon.Journal.Feature;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -33,9 +30,12 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Identification;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes.Landmark;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 
@@ -69,7 +69,7 @@ public class WaterOfAwareness extends WellWater {
 	
 		GLog.p( Messages.get(this, "procced") );
 		
-		Journal.remove( Feature.WELL_OF_AWARENESS );
+		Notes.remove( Landmark.WELL_OF_AWARENESS );
 		
 		return true;
 	}
@@ -84,7 +84,7 @@ public class WaterOfAwareness extends WellWater {
 			
 			emitter.parent.add( new Identification( DungeonTilemap.tileCenterToWorld( pos ) ) );
 			
-			Journal.remove( Feature.WELL_OF_AWARENESS );
+			Notes.remove( Landmark.WELL_OF_AWARENESS );
 			
 			return item;
 		}

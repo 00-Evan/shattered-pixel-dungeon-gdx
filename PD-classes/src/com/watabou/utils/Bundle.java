@@ -162,6 +162,21 @@ public class Bundle {
 		}
 	}
 	
+	public float[] getFloatArray( String key ) {
+		try {
+			JSONArray array = data.getJSONArray( key );
+			int length = array.length();
+			float[] result = new float[length];
+			for (int i=0; i < length; i++) {
+				result[i] = (float)array.optDouble( i, 0.0 );
+			}
+			return result;
+		} catch (JSONException e) {
+			reportException(e);
+			return null;
+		}
+	}
+	
 	public boolean[] getBooleanArray( String key ) {
 		try {
 			JSONArray array = data.getJSONArray( key );
@@ -314,6 +329,18 @@ public class Bundle {
 	}
 	
 	public void put( String key, int[] array ) {
+		try {
+			JSONArray jsonArray = new JSONArray();
+			for (int i=0; i < array.length; i++) {
+				jsonArray.put( i, array[i] );
+			}
+			data.put( key, jsonArray );
+		} catch (JSONException e) {
+			reportException(e);
+		}
+	}
+	
+	public void put( String key, float[] array ) {
 		try {
 			JSONArray jsonArray = new JSONArray();
 			for (int i=0; i < array.length; i++) {

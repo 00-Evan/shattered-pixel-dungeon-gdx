@@ -250,6 +250,8 @@ public class Armor extends EquipableItem {
 		} else if (!inscribe && Random.Float() > Math.pow(0.9, level())){
 			inscribe(null);
 		}
+		
+		cursed = false;
 
 		if (seal != null && seal.level() == 0)
 			seal.upgrade();
@@ -265,7 +267,7 @@ public class Armor extends EquipableItem {
 		
 		if (!levelKnown) {
 			if (--hitsToKnow <= 0) {
-				levelKnown = true;
+				identify();
 				GLog.w( Messages.get(Armor.class, "identify") );
 				Badges.validateItemLevelAquired( this );
 			}

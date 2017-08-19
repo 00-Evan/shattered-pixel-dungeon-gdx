@@ -25,7 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.King;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -138,9 +138,6 @@ public class CityBossLevel extends Level {
 			}
 		}
 		
-		int sign = arenaDoor + 2*width() + 1;
-		map[sign] = Terrain.SIGN;
-		
 		return true;
 	}
 	
@@ -150,6 +147,11 @@ public class CityBossLevel extends Level {
 		} else {
 			return (TOP + HALL_HEIGHT / 2) * width() + CENTER + 2;
 		}
+	}
+	
+	@Override
+	public Mob createMob() {
+		return null;
 	}
 	
 	@Override
@@ -169,7 +171,7 @@ public class CityBossLevel extends Level {
 				pos =
 					Random.IntRange( LEFT + 1, LEFT + HALL_WIDTH - 2 ) +
 					Random.IntRange( TOP + HALL_HEIGHT + 1, TOP + HALL_HEIGHT  + CHAMBER_HEIGHT ) * width();
-			} while (pos == entrance || map[pos] == Terrain.SIGN);
+			} while (pos == entrance);
 			drop( item, pos ).type = Heap.Type.REMAINS;
 		}
 	}
@@ -193,7 +195,16 @@ public class CityBossLevel extends Level {
 			enteredArena = true;
 			seal();
 			
-			Mob boss = Bestiary.mob( Dungeon.depth );
+			for (Mob m : mobs){
+				//bring the first ally with you
+				if (m.ally){
+					m.pos = Dungeon.hero.pos + (Random.Int(2) == 0 ? +1 : -1);
+					m.sprite.place(m.pos);
+					break;
+				}
+			}
+			
+			King boss = new King();
 			boss.state = boss.WANDERING;
 			int count = 0;
 			do {

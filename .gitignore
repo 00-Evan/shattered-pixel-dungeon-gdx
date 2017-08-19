@@ -54,10 +54,10 @@ nbdist/
 nbactions.xml
 nb-configuration.xml
 
-## Gradle
-
+# Gradle build files
 .gradle
 build/
+release/
 
 ## OS Specific
 .DS_Store

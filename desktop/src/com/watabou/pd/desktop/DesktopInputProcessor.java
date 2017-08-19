@@ -178,7 +178,6 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	private static final HashMap<GameAction, KeyPair> DEFAULTS = new HashMap<>();
 	static {
 		DEFAULTS.put( GameAction.HERO_INFO, new KeyPair( Input.Keys.H ) );
-		DEFAULTS.put( GameAction.CATALOGUS, new KeyPair( Input.Keys.C ) );
 		DEFAULTS.put( GameAction.JOURNAL, new KeyPair( Input.Keys.J ) );
 
 		DEFAULTS.put( GameAction.REST, new KeyPair( Input.Keys.SPACE, Input.Keys.NUMPAD_5 ) );

@@ -77,7 +77,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected float shadowOffset    = 0.25f;
 
 	public enum State {
-		BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED
+		BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED, HEALING
 	}
 	
 	protected Animation idle;
@@ -95,6 +95,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected Emitter chilled;
 	protected Emitter marked;
 	protected Emitter levitation;
+	protected Emitter health;
 	
 	protected IceBlock iceBlock;
 	protected DarkBlock darkBlock;
@@ -159,7 +160,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	}
 	
 	public void idle() {
-		play( idle );
+		if (curAnim != die) {
+			play(idle);
+		}
 	}
 	
 	public void move( int from, int to ) {
@@ -323,6 +326,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 				marked = emitter();
 				marked.pour(ShadowParticle.UP, 0.1f);
 				break;
+			case HEALING:
+				health = emitter();
+				health.pour(Speck.factory(Speck.HEALING), 0.5f);
 		}
 	}
 	
@@ -380,11 +386,18 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 					marked = null;
 				}
 				break;
+			case HEALING:
+				if (health != null){
+					health.on = false;
+					health = null;
+				}
+				break;
 		}
 	}
 	
 	@Override
-	public void update() {
+	//syncronized due to EmoIcon handling
+	public synchronized void update() {
 		
 		super.update();
 		
@@ -421,7 +434,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		}
 	}
 	
-	public void showSleep() {
+	public synchronized void showSleep() {
 		if (emo instanceof EmoIcon.Sleep) {
 			
 		} else {
@@ -434,13 +447,14 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		idle();
 	}
 	
-	public void hideSleep() {
+	public synchronized void hideSleep() {
 		if (emo instanceof EmoIcon.Sleep) {
 			emo.killAndErase();
+			emo = null;
 		}
 	}
 	
-	public void showAlert() {
+	public synchronized void showAlert() {
 		if (emo instanceof EmoIcon.Alert) {
 			
 		} else {
@@ -452,9 +466,10 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		}
 	}
 	
-	public void hideAlert() {
+	public synchronized void hideAlert() {
 		if (emo instanceof EmoIcon.Alert) {
 			emo.killAndErase();
+			emo = null;
 		}
 	}
 	

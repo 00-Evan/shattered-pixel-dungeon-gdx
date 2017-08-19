@@ -139,7 +139,9 @@ public class Window extends Group implements Signal.Listener<NoosaInputProcessor
 	}
 	
 	public void hide() {
-		parent.erase( this );
+		if (parent != null) {
+			parent.erase(this);
+		}
 		destroy();
 	}
 	

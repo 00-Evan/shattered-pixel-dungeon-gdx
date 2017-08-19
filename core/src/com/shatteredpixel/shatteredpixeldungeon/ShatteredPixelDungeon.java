@@ -39,12 +39,14 @@ import java.util.Locale;
 public class ShatteredPixelDungeon extends Game<GameAction> {
 	
 	//variable constants for specific older versions of shattered, used for data conversion
-	//versions older than v0.4.0 are no longer supported, and data from them is ignored
-	public static final int v0_4_0  = 107;
-	public static final int v0_4_1  = 114;
-	public static final int v0_4_2c = 130;
+	//versions older than v0.4.3c are no longer supported, and data from them is ignored
+	public static final int v0_4_3c = 148;
 	
 	public static final int v0_5_0b = 157;
+	
+	public static final int v0_6_0b = 185;
+	
+	public static final int v0_6_1  = 205;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -279,15 +281,8 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	}
 
 	public static Languages language() {
-		String code = Preferences.INSTANCE.getString(Preferences.KEY_LANG, null);
-		if (code == null){
-			Languages lang = Languages.matchLocale(Locale.getDefault());
-			if (lang.status() == Languages.Status.REVIEWED)
-				return lang;
-			else
-				return Languages.ENGLISH;
-		}
-		else return Languages.matchCode(code);
+		//multi-language does not currently work
+		return Languages.ENGLISH;
 	}
 
 	public static void classicFont(boolean classic){

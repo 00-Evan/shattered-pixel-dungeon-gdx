@@ -21,11 +21,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.Journal;
-import com.shatteredpixel.shatteredpixeldungeon.Journal.Feature;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes.Landmark;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -57,11 +57,11 @@ public class WellWater extends Blob {
 		
 		if (Dungeon.visible[pos]) {
 			if (this instanceof WaterOfAwareness) {
-				Journal.add( Feature.WELL_OF_AWARENESS );
+				Notes.add( Landmark.WELL_OF_AWARENESS );
 			} else if (this instanceof WaterOfHealth) {
-				Journal.add( Feature.WELL_OF_HEALTH );
+				Notes.add( Notes.Landmark.WELL_OF_HEALTH );
 			} else if (this instanceof WaterOfTransmutation) {
-				Journal.add( Feature.WELL_OF_TRANSMUTATION );
+				Notes.add( Landmark.WELL_OF_TRANSMUTATION );
 			}
 		}
 	}

@@ -38,7 +38,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Shadows;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.WindParticle;
@@ -57,9 +56,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
@@ -156,6 +153,8 @@ public abstract class Level implements Bundlable {
 	public int color2 = 0x88CC44;
 
 	private static final String VERSION     = "version";
+	private static final String WIDTH       = "width";
+	private static final String HEIGHT      = "height";
 	private static final String MAP			= "map";
 	private static final String VISITED		= "visited";
 	private static final String MAPPED		= "mapped";
@@ -178,32 +177,22 @@ public abstract class Level implements Bundlable {
 		if (!(Dungeon.bossLevel() || Dungeon.depth == 21) /*final shop floor*/) {
 			addItemToSpawn( Generator.random( Generator.Category.FOOD ) );
 
-			int bonus = RingOfWealth.getBonus(Dungeon.hero, RingOfWealth.Wealth.class);
-
 			if (Dungeon.posNeeded()) {
-				if (Random.Float() > Math.pow(0.925, bonus))
-					addItemToSpawn( new PotionOfMight() );
-				else
-					addItemToSpawn( new PotionOfStrength() );
-				Dungeon.limitedDrops.strengthPotions.count++;
+				addItemToSpawn( new PotionOfStrength() );
+				Dungeon.LimitedDrops.STRENGTH_POTIONS.count++;
 			}
 			if (Dungeon.souNeeded()) {
-				if (Random.Float() > Math.pow(0.925, bonus))
-					addItemToSpawn( new ScrollOfMagicalInfusion() );
-				else
-					addItemToSpawn( new ScrollOfUpgrade() );
-				Dungeon.limitedDrops.upgradeScrolls.count++;
+				addItemToSpawn( new ScrollOfUpgrade() );
+				Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++;
 			}
 			if (Dungeon.asNeeded()) {
-				if (Random.Float() > Math.pow(0.925, bonus))
-					addItemToSpawn( new Stylus() );
 				addItemToSpawn( new Stylus() );
-				Dungeon.limitedDrops.arcaneStyli.count++;
+				Dungeon.LimitedDrops.ARCANE_STYLI.count++;
 			}
 
 			DriedRose rose = Dungeon.hero.belongings.getItem( DriedRose.class );
-			if (rose != null && !rose.cursed){
-				//this way if a rose is dropped later in the game, player still has a chance to max it out.
+			if (rose != null && rose.isIdentified() && !rose.cursed){
+				//aim to drop 1 petal every 2 floors
 				int petalsNeeded = (int) Math.ceil((float)((Dungeon.depth / 2) - rose.droppedPetals) / 3);
 
 				for (int i=1; i <= petalsNeeded; i++) {
@@ -302,15 +291,12 @@ public abstract class Level implements Bundlable {
 
 		version = bundle.getInt( VERSION );
 		
-		//saves from before 0.4.0 are not supported
-		if (version < ShatteredPixelDungeon.v0_4_0){
+		//saves from before 0.4.3c are not supported
+		if (version < ShatteredPixelDungeon.v0_4_3c){
 			throw new RuntimeException("old save");
 		}
 
-		if (bundle.contains("width") && bundle.contains("height")){
-			setSize( bundle.getInt("width"), bundle.getInt("height"));
-		} else
-			setSize( 32, 32); //default sizes
+		setSize( bundle.getInt(WIDTH), bundle.getInt(HEIGHT));
 		
 		mobs = new HashSet<>();
 		heaps = new SparseArray<>();
@@ -329,10 +315,10 @@ public abstract class Level implements Bundlable {
 		exit		= bundle.getInt( EXIT );
 
 		locked      = bundle.getBoolean( LOCKED );
-
-		//for pre-0.4.3 saves
-		if (version <= ShatteredPixelDungeon.v0_4_2c){
-			map = Terrain.convertTilesFrom129( map );
+		
+		// pre-0.6.1 saves
+		if (version <= ShatteredPixelDungeon.v0_6_0b){
+			map = Terrain.convertTilesFrom0_6_0b( map );
 		}
 		
 		Collection<Bundlable> collection = bundle.getCollection( HEAPS );
@@ -416,8 +402,8 @@ public abstract class Level implements Bundlable {
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( VERSION, Game.versionCode );
-		bundle.put( "width", width );
-		bundle.put( "height", height );
+		bundle.put( WIDTH, width );
+		bundle.put( HEIGHT, height );
 		bundle.put( MAP, map );
 		bundle.put( VISITED, visited );
 		bundle.put( MAPPED, mapped );
@@ -459,6 +445,8 @@ public abstract class Level implements Bundlable {
 	}
 	
 	abstract protected boolean build();
+	
+	abstract public Mob createMob();
 
 	abstract protected void createMobs();
 
@@ -518,7 +506,7 @@ public abstract class Level implements Bundlable {
 			protected boolean act() {
 				if (mobs.size() < nMobs()) {
 
-					Mob mob = Bestiary.mutable( Dungeon.depth );
+					Mob mob = createMob();
 					mob.state = mob.WANDERING;
 					mob.pos = randomRespawnCell();
 					if (Dungeon.hero.isAlive() && mob.pos != -1 && distance(Dungeon.hero.pos, mob.pos) >= 4) {

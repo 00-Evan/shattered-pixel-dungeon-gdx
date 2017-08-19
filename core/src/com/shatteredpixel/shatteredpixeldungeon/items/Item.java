@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
@@ -189,7 +190,7 @@ public class Item implements Bundlable {
 			}
 			
 			items.add( this );
-			if (stackable || this instanceof Boomerang) Dungeon.quickslot.replaceSimilar(this);
+			Dungeon.quickslot.replacePlaceholder(this);
 			updateQuickslot();
 			Collections.sort( items, itemComparator );
 			return true;
@@ -281,7 +282,6 @@ public class Item implements Bundlable {
 	
 	public Item upgrade() {
 		
-		cursed = false;
 		this.level++;
 
 		updateQuickslot();
@@ -336,6 +336,10 @@ public class Item implements Bundlable {
 		
 		levelKnown = true;
 		cursedKnown = true;
+		
+		if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+			Catalog.setSeen(getClass());
+		}
 		
 		return this;
 	}

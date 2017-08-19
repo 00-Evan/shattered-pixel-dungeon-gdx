@@ -22,13 +22,15 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndCatalogs;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndHero;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
@@ -97,9 +99,6 @@ public class StatusPane extends Component {
 				case HERO_INFO:
 					onClick( null );
 					break;
-				case CATALOGUS:
-					GameScene.show( new WndCatalogs() );
-					break;
 				case JOURNAL:
 					GameScene.show( new WndJournal() );
 					break;
@@ -120,7 +119,7 @@ public class StatusPane extends Component {
 		avatar = HeroSprite.avatar( Dungeon.hero.heroClass, lastTier );
 		add( avatar );
 
-		compass = new Compass( Dungeon.level.exit );
+		compass = new Compass( Statistics.amuletObtained ? Dungeon.level.entrance : Dungeon.level.exit );
 		add( compass );
 
 		rawShielding = new Image( Assets.SHLD_BAR );
@@ -244,6 +243,10 @@ public class StatusPane extends Component {
 				btnJournal.icon.y + btnJournal.icon.height()/2f,
 				true );
 	}
+	
+	public void flash(){
+		btnJournal.flashing = true;
+	}
 
 	public static boolean needsKeyUpdate = false;
 
@@ -252,6 +255,8 @@ public class StatusPane extends Component {
 		private Image bg;
 		//used to display key state to the player
 		private Image icon;
+		
+		private boolean flashing;
 
 		public JournalButton() {
 			super();
@@ -284,39 +289,41 @@ public class StatusPane extends Component {
 			PixelScene.align(icon);
 		}
 
+		private float time;
+		
 		@Override
 		public void update() {
 			super.update();
 			if (needsKeyUpdate)
 				updateKeyDisplay();
+			
+			if (flashing){
+				icon.am = (float)Math.abs(Math.cos( 3 * (time += Game.elapsed) ));
+				if (time >= 0.333f*Math.PI) {
+					time = 0;
+				}
+			}
 		}
 
 		public void updateKeyDisplay() {
 			needsKeyUpdate = false;
-
-			boolean foundKeys = false;
+			
 			boolean blackKey = false;
 			boolean specialKey = false;
 			int ironKeys = 0;
-			for (int i = 1; i <= Math.min(Dungeon.depth, 25); i++) {
-				if (Dungeon.hero.belongings.ironKeys[i] > 0 || Dungeon.hero.belongings.specialKeys[i] > 0) {
-					foundKeys = true;
-
-					if (i < Dungeon.depth){
-						blackKey = true;
-
+			for (Notes.KeyRecord rec : Notes.getRecords(Notes.KeyRecord.class)){
+				if (rec.depth() < Dungeon.depth){
+					blackKey = true;
+				} else if (rec.depth() == Dungeon.depth){
+					if (rec.type().equals(IronKey.class)) {
+						ironKeys += rec.quantity();
 					} else {
-						if (Dungeon.hero.belongings.specialKeys[i] > 0){
-							specialKey = true;
-						}
-						ironKeys = Dungeon.hero.belongings.ironKeys[i];
+						specialKey = true;
 					}
 				}
 			}
 
-			if (!foundKeys){
-				icon.frame(31, 0, 11, 7);
-			} else {
+			if (blackKey || specialKey || ironKeys > 0){
 				int left = 46, top = 0, width = 0, height = 7;
 				if (blackKey){
 					left = 43;
@@ -329,6 +336,8 @@ public class StatusPane extends Component {
 				width += ironKeys*3;
 				width = Math.min( width, 9);
 				icon.frame(left, top, width, height);
+			} else {
+				icon.frame(31, 0, 11, 7);
 			}
 			layout();
 
@@ -349,6 +358,8 @@ public class StatusPane extends Component {
 
 		@Override
 		protected void onClick() {
+			flashing = false;
+			time = 0;
 			GameScene.show( new WndJournal() );
 		}
 

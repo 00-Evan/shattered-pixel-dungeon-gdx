@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.watabou.noosa.Game;
@@ -160,6 +161,7 @@ public enum Rankings {
 		Dungeon.hero = null;
 		Dungeon.level = null;
 		Generator.reset();
+		Notes.reset();
 		Dungeon.quickslot.reset();
 		QuickSlotButton.reset();
 
@@ -237,10 +239,6 @@ public enum Rankings {
 	}
 
 	public static class Record implements Bundlable {
-		
-		//pre 0.4.1
-		public String gameFile;
-		private static final String FILE    = "gameFile";
 
 		private static final String CAUSE   = "cause";
 		private static final String WIN		= "win";
@@ -291,8 +289,7 @@ public enum Rankings {
 
 			heroClass	= HeroClass.restoreInBundle( bundle );
 			armorTier	= bundle.getInt( TIER );
-
-			if (bundle.contains(FILE))  gameFile = bundle.getString(FILE);
+			
 			if (bundle.contains(DATA))  gameData = bundle.getBundle(DATA);
 			if (bundle.contains(ID))    gameID = bundle.getString(ID);
 

@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -37,6 +38,7 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Ring extends KindofMisc {
 
@@ -51,7 +53,7 @@ public class Ring extends KindofMisc {
 		RingOfForce.class,
 		RingOfFuror.class,
 		RingOfHaste.class,
-		RingOfMagic.class,
+		RingOfEnergy.class,
 		RingOfMight.class,
 		RingOfSharpshooting.class,
 		RingOfTenacity.class,
@@ -106,8 +108,10 @@ public class Ring extends KindofMisc {
 	
 	public void reset() {
 		super.reset();
-		image	= handler.image( this );
-		gem		= handler.label( this );
+		if (handler != null){
+			image = handler.image(this);
+			gem = handler.label(this);
+		}
 	}
 	
 	public void activate( Char ch ) {
@@ -140,7 +144,9 @@ public class Ring extends KindofMisc {
 			handler.know( this );
 		}
 		
-		Badges.validateAllRingsIdentified();
+		if (Dungeon.hero.isAlive()) {
+			Catalog.setSeen(getClass());
+		}
 	}
 	
 	@Override
@@ -167,6 +173,17 @@ public class Ring extends KindofMisc {
 	}
 	
 	@Override
+	public Item upgrade() {
+		super.upgrade();
+		
+		if (Random.Float() > Math.pow(0.8, level())) {
+			cursed = false;
+		}
+		
+		return this;
+	}
+	
+	@Override
 	public boolean isIdentified() {
 		return super.isIdentified() && isKnown();
 	}
@@ -179,21 +196,28 @@ public class Ring extends KindofMisc {
 	
 	@Override
 	public Item random() {
-		int n = 1;
+		int n = 0;
 		if (Random.Int(3) == 0) {
 			n++;
 			if (Random.Int(5) == 0){
 				n++;
 			}
 		}
-
+		
+		level(n);
 		if (Random.Float() < 0.3f) {
-			level(-n);
 			cursed = true;
-		} else
-			level(n);
-
+		}
+		
 		return this;
+	}
+	
+	public static HashSet<Class<? extends Ring>> getKnown() {
+		return handler.known();
+	}
+	
+	public static HashSet<Class<? extends Ring>> getUnknown() {
+		return handler.unknown();
 	}
 	
 	public static boolean allKnown() {
@@ -237,6 +261,11 @@ public class Ring extends KindofMisc {
 		if ((ticksToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
 			ticksToKnow = TICKS_TO_KNOW;
 		}
+		
+		//pre-0.6.1 saves
+		if (level() < 0){
+			upgrade(-level());
+		}
 	}
 
 	public static int getBonus(Char target, Class<?extends RingBuff> type){
@@ -276,7 +305,11 @@ public class Ring extends KindofMisc {
 		}
 
 		public int level(){
-			return Ring.this.level();
+			if (Ring.this.cursed){
+				return Math.min( 0, Ring.this.level()-2 );
+			} else {
+				return Ring.this.level()+1;
+			}
 		}
 
 	}

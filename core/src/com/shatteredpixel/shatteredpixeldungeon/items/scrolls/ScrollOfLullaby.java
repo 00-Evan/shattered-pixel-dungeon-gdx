@@ -39,7 +39,7 @@ public class ScrollOfLullaby extends Scroll {
 	}
 
 	@Override
-	protected void doRead() {
+	public void doRead() {
 		
 		curUser.sprite.centerEmitter().start( Speck.factory( Speck.NOTE ), 0.3f, 5 );
 		Sample.INSTANCE.play( Assets.SND_LULLABY );
@@ -59,6 +59,17 @@ public class ScrollOfLullaby extends Scroll {
 		setKnown();
 
 		readAnimation();
+	}
+	
+	@Override
+	public void empoweredRead() {
+		doRead();
+		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
+			if (Level.fieldOfView[mob.pos]) {
+				Buff drowsy = mob.buff(Drowsy.class);
+				if (drowsy != null) drowsy.act();
+			}
+		}
 	}
 	
 	@Override

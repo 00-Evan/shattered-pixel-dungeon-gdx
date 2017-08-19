@@ -32,9 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -66,16 +64,19 @@ public class Badges {
 		LEVEL_REACHED_2( 9 ),
 		LEVEL_REACHED_3( 10 ),
 		LEVEL_REACHED_4( 11 ),
-		ALL_POTIONS_IDENTIFIED( 16 ),
-		ALL_SCROLLS_IDENTIFIED( 17 ),
-		ALL_RINGS_IDENTIFIED( 18 ),
-		ALL_WANDS_IDENTIFIED( 19 ),
-		ALL_ITEMS_IDENTIFIED( 35, true ),
+		ALL_WEAPONS_IDENTIFIED( 16 ),
+		ALL_ARMOR_IDENTIFIED( 17 ),
+		ALL_WANDS_IDENTIFIED( 18 ),
+		ALL_RINGS_IDENTIFIED( 19 ),
+		ALL_ARTIFACTS_IDENTIFIED( 20 ),
+		ALL_POTIONS_IDENTIFIED( 21 ),
+		ALL_SCROLLS_IDENTIFIED( 22 ),
+		ALL_ITEMS_IDENTIFIED( 23, true ),
 		BAG_BOUGHT_SEED_POUCH,
 		BAG_BOUGHT_SCROLL_HOLDER,
 		BAG_BOUGHT_POTION_BANDOLIER,
 		BAG_BOUGHT_WAND_HOLSTER,
-		ALL_BAGS_BOUGHT( 23 ),
+		ALL_BAGS_BOUGHT( 58 ),
 		DEATH_FROM_FIRE( 24 ),
 		DEATH_FROM_POISON( 25 ),
 		DEATH_FROM_GAS( 26 ),
@@ -101,8 +102,6 @@ public class Badges {
 		BOSS_SLAIN_3_SNIPER,
 		BOSS_SLAIN_3_WARDEN,
 		BOSS_SLAIN_3_ALL_SUBCLASSES( 33, true ),
-		RING_OF_HAGGLER( 20 ),
-		RING_OF_THORNS( 21 ),
 		STRENGTH_ATTAINED_1( 40 ),
 		STRENGTH_ATTAINED_2( 41 ),
 		STRENGTH_ATTAINED_3( 42 ),
@@ -131,7 +130,7 @@ public class Badges {
 		VICTORY_MAGE,
 		VICTORY_ROGUE,
 		VICTORY_HUNTRESS,
-		VICTORY( 22 ),
+		VICTORY( 31 ),
 		VICTORY_ALL_CLASSES( 36, true ),
 		MASTERY_COMBO( 56 ),
 		POTIONS_COOKED_1( 52 ),
@@ -141,14 +140,12 @@ public class Badges {
 		NO_MONSTERS_SLAIN( 28 ),
 		GRIM_WEAPON( 29 ),
 		PIRANHAS( 30 ),
-		NIGHT_HUNTER( 58 ),
 		GAMES_PLAYED_1( 60, true ),
 		GAMES_PLAYED_2( 61, true ),
 		GAMES_PLAYED_3( 62, true ),
 		GAMES_PLAYED_4( 63, true ),
 		HAPPY_END( 38 ),
-		CHAMPION( 39, true ),
-		SUPPORTER( 31, true );
+		CHAMPION( 39, true );
 
 		public boolean meta;
 
@@ -438,55 +435,6 @@ public class Badges {
 		displayBadge( badge );
 	}
 	
-	public static void validateAllPotionsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
-			!local.contains( Badge.ALL_POTIONS_IDENTIFIED ) && Potion.allKnown()) {
-			
-			Badge badge = Badge.ALL_POTIONS_IDENTIFIED;
-			local.add( badge );
-			displayBadge( badge );
-			
-			validateAllItemsIdentified();
-		}
-	}
-	
-	public static void validateAllScrollsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
-			!local.contains( Badge.ALL_SCROLLS_IDENTIFIED ) && Scroll.allKnown()) {
-			
-			Badge badge = Badge.ALL_SCROLLS_IDENTIFIED;
-			local.add( badge );
-			displayBadge( badge );
-			
-			validateAllItemsIdentified();
-		}
-	}
-	
-	public static void validateAllRingsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
-			!local.contains( Badge.ALL_RINGS_IDENTIFIED ) && Ring.allKnown()) {
-			
-			Badge badge = Badge.ALL_RINGS_IDENTIFIED;
-			local.add( badge );
-			displayBadge( badge );
-			
-			validateAllItemsIdentified();
-		}
-	}
-
-	//TODO: no longer in use, deal with new wand related badges in the badge rework.
-	/**public static void validateAllWandsIdentified() {
-		if (Dungeon.hero != null && Dungeon.hero.isAlive() &&
-			!local.contains( Badge.ALL_WANDS_IDENTIFIED ) && Wand.allKnown()) {
-			
-			Badge badge = Badge.ALL_WANDS_IDENTIFIED;
-			local.add( badge );
-			displayBadge( badge );
-			
-			validateAllItemsIdentified();
-		}
-	}*/
-	
 	public static void validateAllBagsBought( Item bag ) {
 		
 		Badge badge = null;
@@ -517,15 +465,27 @@ public class Badges {
 		}
 	}
 	
-	public static void validateAllItemsIdentified() {
+	public static void validateItemsIdentified() {
+		
+		for (Catalog cat : Catalog.values()){
+			if (cat.allSeen()){
+				Badge b = Catalog.catalogBadges.get(cat);
+				if (!global.contains(b)){
+					displayBadge(b);
+				}
+			}
+		}
+		
 		if (!global.contains( Badge.ALL_ITEMS_IDENTIFIED ) &&
+			global.contains( Badge.ALL_WEAPONS_IDENTIFIED ) &&
+			global.contains( Badge.ALL_ARMOR_IDENTIFIED ) &&
+			global.contains( Badge.ALL_WANDS_IDENTIFIED ) &&
+			global.contains( Badge.ALL_RINGS_IDENTIFIED ) &&
+			global.contains( Badge.ALL_ARTIFACTS_IDENTIFIED ) &&
 			global.contains( Badge.ALL_POTIONS_IDENTIFIED ) &&
-			global.contains( Badge.ALL_SCROLLS_IDENTIFIED ) &&
-			global.contains( Badge.ALL_RINGS_IDENTIFIED )) {
-			//global.contains( Badge.ALL_WANDS_IDENTIFIED )) {
+			global.contains( Badge.ALL_SCROLLS_IDENTIFIED )) {
 			
-			Badge badge = Badge.ALL_ITEMS_IDENTIFIED;
-			displayBadge( badge );
+			displayBadge( Badge.ALL_ITEMS_IDENTIFIED );
 		}
 	}
 	
@@ -565,19 +525,25 @@ public class Badges {
 		Badge badge = Badge.DEATH_FROM_GLYPH;
 		local.add( badge );
 		displayBadge( badge );
+
+		validateYASD();
 	}
 	
 	public static void validateDeathFromFalling() {
 		Badge badge = Badge.DEATH_FROM_FALLING;
 		local.add( badge );
 		displayBadge( badge );
+
+		validateYASD();
 	}
 	
 	private static void validateYASD() {
 		if (global.contains( Badge.DEATH_FROM_FIRE ) &&
 			global.contains( Badge.DEATH_FROM_POISON ) &&
 			global.contains( Badge.DEATH_FROM_GAS ) &&
-			global.contains( Badge.DEATH_FROM_HUNGER)) {
+			global.contains( Badge.DEATH_FROM_HUNGER) &&
+			global.contains( Badge.DEATH_FROM_GLYPH) &&
+			global.contains( Badge.DEATH_FROM_FALLING)) {
 			
 			Badge badge = Badge.YASD;
 			local.add( badge );
@@ -726,24 +692,6 @@ public class Badges {
 			displayBadge( badge );
 		}
 	}
-
-	//TODO: Replace this badge, delayed until an eventual badge rework
-	public static void validateRingOfHaggler() {
-		if (!local.contains( Badge.RING_OF_HAGGLER )/* && new RingOfThorns().isKnown()*/) {
-			Badge badge = Badge.RING_OF_HAGGLER;
-			local.add( badge );
-			displayBadge( badge );
-		}
-	}
-
-	//TODO: Replace this badge, delayed until an eventual badge rework
-	public static void validateRingOfThorns() {
-		if (!local.contains( Badge.RING_OF_THORNS )/* && new RingOfThorns().isKnown()*/) {
-			Badge badge = Badge.RING_OF_THORNS;
-			local.add( badge );
-			displayBadge( badge );
-		}
-	}
 	
 	public static void validateRare( Mob mob ) {
 		
@@ -848,34 +796,18 @@ public class Badges {
 		}
 	}
 	
-	public static void validateNightHunter() {
-		if (!local.contains( Badge.NIGHT_HUNTER ) && Statistics.nightHunt >= 15) {
-			Badge badge = Badge.NIGHT_HUNTER;
-			local.add( badge );
-			displayBadge( badge );
-		}
-	}
-	
-	public static void validateSupporter() {
-
-		global.add( Badge.SUPPORTER );
-		saveNeeded = true;
-		
-		PixelScene.showBadge( Badge.SUPPORTER );
-	}
-	
 	public static void validateGamesPlayed() {
 		Badge badge = null;
 		if (Rankings.INSTANCE.totalNumber >= 10) {
 			badge = Badge.GAMES_PLAYED_1;
 		}
-		if (Rankings.INSTANCE.totalNumber >= 100) {
+		if (Rankings.INSTANCE.totalNumber >= 50) {
 			badge = Badge.GAMES_PLAYED_2;
 		}
-		if (Rankings.INSTANCE.totalNumber >= 500) {
+		if (Rankings.INSTANCE.totalNumber >= 250) {
 			badge = Badge.GAMES_PLAYED_3;
 		}
-		if (Rankings.INSTANCE.totalNumber >= 2000) {
+		if (Rankings.INSTANCE.totalNumber >= 1000) {
 			badge = Badge.GAMES_PLAYED_4;
 		}
 		
@@ -946,18 +878,19 @@ public class Badges {
 		leaveBest( filtered, Badge.FOOD_EATEN_1, Badge.FOOD_EATEN_2, Badge.FOOD_EATEN_3, Badge.FOOD_EATEN_4 );
 		leaveBest( filtered, Badge.ITEM_LEVEL_1, Badge.ITEM_LEVEL_2, Badge.ITEM_LEVEL_3, Badge.ITEM_LEVEL_4 );
 		leaveBest( filtered, Badge.POTIONS_COOKED_1, Badge.POTIONS_COOKED_2, Badge.POTIONS_COOKED_3, Badge.POTIONS_COOKED_4 );
-		leaveBest( filtered, Badge.BOSS_SLAIN_1_ALL_CLASSES, Badge.BOSS_SLAIN_3_ALL_SUBCLASSES );
 		leaveBest( filtered, Badge.DEATH_FROM_FIRE, Badge.YASD );
 		leaveBest( filtered, Badge.DEATH_FROM_GAS, Badge.YASD );
 		leaveBest( filtered, Badge.DEATH_FROM_HUNGER, Badge.YASD );
 		leaveBest( filtered, Badge.DEATH_FROM_POISON, Badge.YASD );
+		leaveBest( filtered, Badge.DEATH_FROM_GLYPH, Badge.YASD );
+		leaveBest( filtered, Badge.DEATH_FROM_FALLING, Badge.YASD );
+		leaveBest( filtered, Badge.ALL_WEAPONS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
+		leaveBest( filtered, Badge.ALL_ARMOR_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
+		leaveBest( filtered, Badge.ALL_WANDS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
+		leaveBest( filtered, Badge.ALL_RINGS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
+		leaveBest( filtered, Badge.ALL_ARTIFACTS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
 		leaveBest( filtered, Badge.ALL_POTIONS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
 		leaveBest( filtered, Badge.ALL_SCROLLS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
-		leaveBest( filtered, Badge.ALL_RINGS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
-		leaveBest( filtered, Badge.ALL_WANDS_IDENTIFIED, Badge.ALL_ITEMS_IDENTIFIED );
-		leaveBest( filtered, Badge.VICTORY, Badge.VICTORY_ALL_CLASSES );
-		leaveBest( filtered, Badge.VICTORY, Badge.HAPPY_END );
-		leaveBest( filtered, Badge.VICTORY, Badge.CHAMPION );
 		leaveBest( filtered, Badge.GAMES_PLAYED_1, Badge.GAMES_PLAYED_2, Badge.GAMES_PLAYED_3, Badge.GAMES_PLAYED_4 );
 		
 		ArrayList<Badge> list = new ArrayList<Badge>( filtered );

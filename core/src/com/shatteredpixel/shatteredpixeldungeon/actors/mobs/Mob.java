@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
@@ -46,7 +47,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -54,6 +54,7 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public abstract class Mob extends Char {
@@ -239,9 +240,17 @@ public abstract class Mob extends Char {
 
 				//and add the hero to the list of targets.
 				enemies.add(Dungeon.hero);
-
-				//target one at random.
-				return Random.element(enemies);
+				
+				//go after the closest enemy, preferring the hero if two are equidistant
+				Char closest = null;
+				for (Char curr : enemies){
+					if (closest == null
+							|| Dungeon.level.distance(pos, curr.pos) < Dungeon.level.distance(pos, closest.pos)
+							|| Dungeon.level.distance(pos, curr.pos) == Dungeon.level.distance(pos, closest.pos) && curr == Dungeon.hero){
+						closest = curr;
+					}
+				}
+				return closest;
 
 			}
 
@@ -313,7 +322,7 @@ public abstract class Mob extends Char {
 			//or if it's extremely inefficient and checking again may result in a much better path
 			if (path == null || path.isEmpty()
 					|| !Dungeon.level.adjacent(pos, path.getFirst())
-					|| path.size() >= 2*Dungeon.level.distance(pos, target))
+					|| path.size() > 2*Dungeon.level.distance(pos, target))
 				newPath = true;
 			else if (path.getLast() != target) {
 				//if the new target is adjacent to the end of the path, adjust for that
@@ -372,8 +381,14 @@ public abstract class Mob extends Char {
 						Level.fieldOfView);
 			}
 
-			if (path == null)
+			//if hunting something, don't follow a path that is extremely inefficient
+			//FIXME this is fairly brittle, primarily it assumes that hunting mobs can't see through
+			// permanent terrain, such that if their path is inefficient it's always because
+			// of a temporary blockage, and therefore waiting for it to clear is the best option.
+			if (path == null ||
+					(state == HUNTING && path.size() > Math.max(9, 2*Dungeon.level.distance(pos, target)))) {
 				return false;
+			}
 
 			step = path.removeFirst();
 		}
@@ -443,9 +458,7 @@ public abstract class Mob extends Char {
 		boolean seen = enemySeen || (enemy == Dungeon.hero && !Dungeon.hero.canSurpriseAttack());
 		if (seen && paralysed == 0) {
 			int defenseSkill = this.defenseSkill;
-			int penalty = RingOfAccuracy.getBonus(enemy, RingOfAccuracy.Accuracy.class);
-			if (penalty != 0 && enemy == Dungeon.hero)
-				defenseSkill *= Math.pow(0.75, penalty);
+			defenseSkill *= RingOfAccuracy.enemyEvasionMultiplier( enemy );
 			return defenseSkill;
 		} else {
 			return 0;
@@ -463,12 +476,11 @@ public abstract class Mob extends Char {
 			}
 		}
 
-		//become aggro'd by a corrupted enemy
-		if (enemy.buff(Corruption.class) != null) {
+		//if attacked by something else than current target, and that thing is closer, switch targets
+		if (this.enemy == null
+				|| (enemy != this.enemy && (Dungeon.level.distance(pos, enemy.pos) < Dungeon.level.distance(pos, this.enemy.pos)))) {
 			aggro(enemy);
 			target = enemy.pos;
-			if (state == SLEEPING || state == WANDERING)
-				state = HUNTING;
 		}
 
 		if (buff(SoulMark.class) != null) {
@@ -519,13 +531,6 @@ public abstract class Mob extends Char {
 				Statistics.enemiesSlain++;
 				Badges.validateMonstersSlain();
 				Statistics.qualifiedForNoKilling = false;
-				
-				if (Dungeon.level.feeling == Feeling.DARK) {
-					Statistics.nightHunt++;
-				} else {
-					Statistics.nightHunt = 0;
-				}
-				Badges.validateNightHunter();
 			}
 
 			int exp = exp();
@@ -546,13 +551,23 @@ public abstract class Mob extends Char {
 		super.die( cause );
 
 		float lootChance = this.lootChance;
-		int bonus = RingOfWealth.getBonus(Dungeon.hero, RingOfWealth.Wealth.class);
-		lootChance *= Math.pow(1.15, bonus);
+		lootChance *= RingOfWealth.dropChanceMultiplier( Dungeon.hero );
 		
 		if (Random.Float() < lootChance && Dungeon.hero.lvl <= maxLvl + 2) {
 			Item loot = createLoot();
 			if (loot != null)
 				Dungeon.level.drop( loot , pos ).sprite.drop();
+		}
+		
+		if (hostile && Dungeon.hero.lvl <= maxLvl + 2){
+			int rolls = 1;
+			if (properties.contains(Property.BOSS))             rolls = 15;
+			else if (properties.contains(Property.MINIBOSS))    rolls = 5;
+			ArrayList<Item> bonus = RingOfWealth.tryRareDrop(Dungeon.hero, rolls);
+			if (bonus != null){
+				for (Item b : bonus) Dungeon.level.drop( b , pos ).sprite.drop();
+				new Flare(8, 32).color(0xFFFF00, true).show(sprite, 2f);
+			}
 		}
 		
 		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {
