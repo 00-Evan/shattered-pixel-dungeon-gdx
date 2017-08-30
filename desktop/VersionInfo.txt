@@ -1,5 +1,5 @@
-206
+209
 205
-v0.6.1a
+v0.6.1b
 v0.6.1!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.6.1a/ShatteredPD.Desktop.v0.6.1a.jar
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.6.1b/ShatteredPD.Desktop.v0.6.1b.jar
