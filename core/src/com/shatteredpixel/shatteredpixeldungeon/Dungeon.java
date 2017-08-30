@@ -554,7 +554,7 @@ public class Dungeon {
 	}
 	
 	public static void saveAll() throws IOException {
-		if (hero.isAlive()) {
+		if (hero != null && hero.isAlive()) {
 			
 			Actor.fixTime();
 			saveGame( gameFile( hero.heroClass ) );
@@ -675,7 +675,13 @@ public class Dungeon {
 		Bundle bundle = Bundle.read( input );
 		input.close();
 		
-		return (Level)bundle.get( LEVEL );
+		Level level = (Level)bundle.get( LEVEL );
+		
+		if (level == null){
+			throw new IOException();
+		} else {
+			return level;
+		}
 	}
 	
 	public static void deleteGame( HeroClass cl, boolean deleteLevels ) {

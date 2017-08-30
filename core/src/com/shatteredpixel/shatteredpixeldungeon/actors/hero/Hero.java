@@ -479,7 +479,7 @@ public class Hero extends Char {
 		
 		checkVisibleMobs();
 		
-		if (curAction == null || search(false)) {
+		if (curAction == null) {
 			
 			if (resting) {
 				spend( TIME_TO_REST ); next();
@@ -1102,6 +1102,8 @@ public class Hero extends Char {
 			move(step);
 
 			spend( moveTime / speed() );
+			
+			search(false);
 
 			//FIXME this is a fairly sloppy fix for a crash involving pitfall traps.
 			//really there should be a way for traps to specify whether action should continue or
@@ -1535,7 +1537,7 @@ public class Hero extends Char {
 		for (int y = ay; y <= by; y++) {
 			for (int x = ax, p = ax + y * Dungeon.level.width(); x <= bx; x++, p++) {
 				
-				if (Dungeon.visible[p]) {
+				if (Dungeon.visible[p] && p != pos) {
 					
 					if (intentional) {
 						sprite.parent.addToBack( new CheckedCell( p ) );

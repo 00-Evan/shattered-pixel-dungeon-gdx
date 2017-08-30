@@ -33,7 +33,9 @@ import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.noosa.ui.Button;
 import com.watabou.noosa.ui.Component;
-import com.watabou.utils.SparseArray;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class BuffIndicator extends Component {
 
@@ -91,8 +93,8 @@ public class BuffIndicator extends Component {
 	private SmartTexture texture;
 	private TextureFilm film;
 	
-	private SparseArray<BuffIcon> icons = new SparseArray<BuffIcon>();
-	
+	private LinkedHashMap<Buff, BuffIcon> buffIcons = new LinkedHashMap<>();
+	private boolean needsRefresh;
 	private Char ch;
 	
 	public BuffIndicator( Char ch ) {
@@ -120,23 +122,28 @@ public class BuffIndicator extends Component {
 	}
 	
 	@Override
+	public synchronized void update() {
+		super.update();
+		if (needsRefresh){
+			layout();
+			needsRefresh = false;
+		}
+	}
+	
+	@Override
 	protected void layout() {
-		clear();
 		
-		SparseArray<BuffIcon> newIcons = new SparseArray<BuffIcon>();
-		
+		ArrayList<Buff> newBuffs = new ArrayList<>();
 		for (Buff buff : ch.buffs()) {
 			if (buff.icon() != NONE) {
-				BuffIcon icon = new BuffIcon( buff );
-				icon.setRect(x + members.size() * (SIZE + 2), y, 9, 12);
-				add(icon);
-				newIcons.put( buff.icon(), icon );
+				newBuffs.add(buff);
 			}
 		}
 		
-		for (Integer key : icons.keyArray()) {
-			if (newIcons.get( key ) == null) {
-				Image icon = icons.get( key ).icon;
+		//remove any icons no longer present
+		for (Buff buff : buffIcons.keySet().toArray(new Buff[0])){
+			if (!newBuffs.contains(buff)){
+				Image icon = buffIcons.get( buff ).icon;
 				icon.origin.set( SIZE / 2 );
 				add( icon );
 				add( new AlphaTweener( icon, 0, 0.6f ) {
@@ -144,19 +151,36 @@ public class BuffIndicator extends Component {
 					protected void updateValues( float progress ) {
 						super.updateValues( progress );
 						image.scale.set( 1 + 5 * progress );
-					};
-
+					}
+					
 					@Override
 					protected void onComplete() {
 						image.killAndErase();
 					}
 				} );
-
-				icons.get( key ).destroy();
+				
+				buffIcons.get( buff ).destroy();
+				remove(buffIcons.get( buff ));
+				buffIcons.remove( buff );
 			}
 		}
 		
-		icons = newIcons;
+		//add new icons
+		for (Buff buff : newBuffs) {
+			if (!buffIcons.containsKey(buff)) {
+				BuffIcon icon = new BuffIcon( buff );
+				add(icon);
+				buffIcons.put( buff, icon );
+			}
+		}
+		
+		//layout
+		int pos = 0;
+		for (BuffIcon icon : buffIcons.values()){
+			icon.updateIcon();
+			icon.setRect(x + pos * (SIZE + 2), y, 9, 12);
+			pos++;
+		}
 	}
 
 	private class BuffIcon extends Button {
@@ -172,6 +196,10 @@ public class BuffIndicator extends Component {
 			icon = new Image( texture );
 			icon.frame( film.get( buff.icon() ) );
 			add( icon );
+		}
+		
+		public void updateIcon(){
+			icon.frame( film.get( buff.icon() ) );
 		}
 
 		@Override
@@ -190,7 +218,7 @@ public class BuffIndicator extends Component {
 	
 	public static void refreshHero() {
 		if (heroInstance != null) {
-			heroInstance.layout();
+			heroInstance.needsRefresh = true;
 		}
 	}
 }

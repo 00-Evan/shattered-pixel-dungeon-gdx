@@ -101,6 +101,8 @@ public class WndSadGhost extends Window {
 		
 		hide();
 		
+		if (reward == null) return;
+		
 		reward.identify();
 		if (reward.doPickUp( Dungeon.hero )) {
 			GLog.i( Messages.get(Dungeon.hero, "you_now_have", reward.name()) );
