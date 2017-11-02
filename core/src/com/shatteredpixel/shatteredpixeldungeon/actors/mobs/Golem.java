@@ -28,8 +28,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.GolemSprite;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class Golem extends Mob {
 	
 	{
@@ -68,24 +66,10 @@ public class Golem extends Mob {
 		
 		super.die( cause );
 	}
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-	}
 	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Amok.class );
-		IMMUNITIES.add( Terror.class );
-		IMMUNITIES.add( Sleep.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Amok.class );
+		immunities.add( Terror.class );
+		immunities.add( Sleep.class );
 	}
 }

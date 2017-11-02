@@ -24,7 +24,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -73,7 +72,7 @@ public class Hunger extends Buff implements Hero.Doom {
 
 			if (isStarving()) {
 
-				partialDamage += target.HT/100f;
+				partialDamage += STEP * target.HT/1000f;
 
 				if (partialDamage > 1){
 					target.damage( (int)partialDamage, this);
@@ -106,9 +105,8 @@ public class Hunger extends Buff implements Hero.Doom {
 				}
 
 			}
-
-			float step = ((Hero)target).heroClass == HeroClass.ROGUE ? STEP * 1.2f : STEP;
-			spend( target.buff( Shadows.class ) == null ? step : step * 1.5f );
+			
+			spend( target.buff( Shadows.class ) == null ? STEP : STEP * 1.5f );
 
 		} else {
 
@@ -138,7 +136,9 @@ public class Hunger extends Buff implements Hero.Doom {
 		if (level < 0) {
 			level = 0;
 		} else if (level > STARVING) {
+			float excess = level - STARVING;
 			level = STARVING;
+			partialDamage += excess * (target.HT/1000f);
 		}
 
 		BuffIndicator.refreshHero();

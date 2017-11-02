@@ -36,8 +36,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class Statue extends Mob {
 	
 	{
@@ -78,7 +76,7 @@ public class Statue extends Mob {
 	
 	@Override
 	protected boolean act() {
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			Notes.add( Notes.Landmark.STATUE );
 		}
 		return super.act();
@@ -121,6 +119,7 @@ public class Statue extends Mob {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		return weapon.proc( this, enemy, damage );
 	}
 	
@@ -153,22 +152,13 @@ public class Statue extends Mob {
 		return Messages.get(this, "desc", weapon.name());
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		RESISTANCES.add( ToxicGas.class );
-		RESISTANCES.add( Poison.class );
-		RESISTANCES.add( Grim.class );
-		IMMUNITIES.add( Vampiric.class );
+	{
+		resistances.add(ToxicGas.class);
+		resistances.add(Poison.class);
+		resistances.add(Grim.class);
 	}
 	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Vampiric.class );
 	}
 }

@@ -16,14 +16,14 @@ allprojects {
 	apply plugin: "eclipse"
 	apply plugin: "idea"
 
-	version = '0.6.1b'
+	version = '0.6.2a'
 	ext {
-		versionCode = 209
+		versionCode = 224
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'
-		gdxVersion = '1.9.6'
-		roboVMVersion = '2.3.1'
+		gdxVersion = '1.9.7'
+		roboVMVersion = '2.3.3'
 	}
 
 	repositories {

@@ -121,6 +121,15 @@ public abstract class Wand extends Item {
 		}
 	}
 	
+	public void gainCharge( float amt ){
+		partialCharge += amt;
+		while (partialCharge >= 1) {
+			curCharges = Math.min(maxCharges, curCharges+1);
+			partialCharge--;
+			updateQuickslot();
+		}
+	}
+	
 	public void charge( Char owner ) {
 		if (charger == null) charger = new Charger();
 		charger.attachTo( owner );
@@ -337,8 +346,15 @@ public abstract class Wand extends Item {
 		public void onSelect( Integer target ) {
 			
 			if (target != null) {
-
-				final Wand curWand = (Wand)Wand.curItem;
+				
+				//FIXME this safety check shouldn't be necessary
+				//it would be better to eliminate the curItem static variable.
+				final Wand curWand;
+				if (curItem instanceof Wand) {
+					curWand = (Wand) Wand.curItem;
+				} else {
+					return;
+				}
 
 				final Ballistica shot = new Ballistica( curUser.pos, target, curWand.collisionProperties);
 				int cell = shot.collisionPos;

@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas;
@@ -31,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 
 public class Earthroot extends Plant {
@@ -47,7 +49,7 @@ public class Earthroot extends Plant {
 			Buff.affect( ch, Armor.class ).level(ch.HT);
 		}
 		
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			CellEmitter.bottom( pos ).start( EarthParticle.FACTORY, 0.05f, 8 );
 			Camera.main.shake( 1, 0.4f );
 		}
@@ -96,6 +98,7 @@ public class Earthroot extends Plant {
 				return damage - level;
 			} else {
 				level -= damage-damage/2;
+				BuffIndicator.refreshHero();
 				return damage/2;
 			}
 		}
@@ -103,6 +106,7 @@ public class Earthroot extends Plant {
 		public void level( int value ) {
 			if (level < value) {
 				level = value;
+				BuffIndicator.refreshHero();
 			}
 			pos = target.pos;
 		}
@@ -110,6 +114,11 @@ public class Earthroot extends Plant {
 		@Override
 		public int icon() {
 			return BuffIndicator.ARMOR;
+		}
+		
+		@Override
+		public void tintIcon(Image icon) {
+			FlavourBuff.greyIcon(icon, target.HT/4f, level);
 		}
 		
 		@Override

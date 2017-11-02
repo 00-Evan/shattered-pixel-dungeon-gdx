@@ -48,7 +48,7 @@ public abstract class InventoryScroll extends Scroll {
 	}
 	
 	private void confirmCancelation() {
-		GameScene.show( new WndOptions( name(), Messages.get(this, "warning"),
+		GameScene.show( new WndOptions( Messages.titleCase(name()), Messages.get(this, "warning"),
 				Messages.get(this, "yes"), Messages.get(this, "no") ) {
 			@Override
 			protected void onSelect( int index ) {
@@ -72,6 +72,13 @@ public abstract class InventoryScroll extends Scroll {
 	protected static WndBag.Listener itemSelector = new WndBag.Listener() {
 		@Override
 		public void onSelect( Item item ) {
+			
+			//FIXME this safety check shouldn't be necessary
+			//it would be better to eliminate the curItem static variable.
+			if (!(curItem instanceof InventoryScroll)){
+				return;
+			}
+			
 			if (item != null) {
 				
 				((InventoryScroll)curItem).onItemSelected( item );

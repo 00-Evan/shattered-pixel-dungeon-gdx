@@ -29,8 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampir
 import com.shatteredpixel.shatteredpixeldungeon.sprites.BatSprite;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class Bat extends Mob {
 
 	{
@@ -66,7 +64,7 @@ public class Bat extends Mob {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
-		
+		damage = super.attackProc( enemy, damage );
 		int reg = Math.min( damage, HT - HP );
 		
 		if (reg > 0) {
@@ -90,13 +88,7 @@ public class Bat extends Mob {
 		return super.createLoot();
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( Vampiric.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
+	{
+		resistances.add( Vampiric.class );
 	}
 }

@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -32,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 
 public class Sungrass extends Plant {
@@ -48,7 +50,7 @@ public class Sungrass extends Plant {
 			Buff.affect( ch, Health.class ).boost(ch.HT);
 		}
 		
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
 		}
 	}
@@ -101,16 +103,22 @@ public class Sungrass extends Plant {
 			} else {
 				count++;
 			}
-			if (level <= 0)
+			if (level <= 0) {
 				detach();
+			} else {
+				BuffIndicator.refreshHero();
+			}
 			spend( STEP );
 			return true;
 		}
 
 		public int absorb( int damage ) {
 			level -= damage;
-			if (level <= 0)
+			if (level <= 0) {
 				detach();
+			} else {
+				BuffIndicator.refreshHero();
+			}
 			return damage;
 		}
 
@@ -122,6 +130,11 @@ public class Sungrass extends Plant {
 		@Override
 		public int icon() {
 			return BuffIndicator.HEALING;
+		}
+		
+		@Override
+		public void tintIcon(Image icon) {
+			FlavourBuff.greyIcon(icon, target.HT/4f, level);
 		}
 		
 		@Override

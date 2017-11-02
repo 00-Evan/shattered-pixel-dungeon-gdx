@@ -117,7 +117,7 @@ public class LloydsBeacon extends Artifact {
 			
 			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
 				Char ch = Actor.findChar(hero.pos + PathFinder.NEIGHBOURS8[i]);
-				if (ch != null && !(ch instanceof Mob && !((Mob) ch).hostile)) {
+				if (ch != null && ch.alignment == Char.Alignment.ENEMY) {
 					GLog.w( Messages.get(this, "creatures") );
 					return;
 				}
@@ -231,8 +231,11 @@ public class LloydsBeacon extends Artifact {
 										} else  {
 
 											ch.pos = pos;
+											if (ch instanceof Mob && ((Mob) ch).state == ((Mob) ch).HUNTING){
+												((Mob) ch).state = ((Mob) ch).WANDERING;
+											}
 											ch.sprite.place(ch.pos);
-											ch.sprite.visible = Dungeon.visible[pos];
+											ch.sprite.visible = Dungeon.level.heroFOV[pos];
 
 										}
 									}

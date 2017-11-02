@@ -28,7 +28,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MimicSprite;
 import com.watabou.noosa.audio.Sample;
@@ -38,7 +37,6 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 public class Mimic extends Mob {
@@ -115,7 +113,7 @@ public class Mimic extends Mob {
 			ArrayList<Integer> candidates = new ArrayList<>();
 			for (int n : PathFinder.NEIGHBOURS8) {
 				int cell = pos + n;
-				if ((Level.passable[cell] || Level.avoid[cell]) && Actor.findChar( cell ) == null) {
+				if ((Dungeon.level.passable[cell] || Dungeon.level.avoid[cell]) && Actor.findChar( cell ) == null) {
 					candidates.add( cell );
 				}
 			}
@@ -144,7 +142,7 @@ public class Mimic extends Mob {
 		
 		m.sprite.turnTo( pos, Dungeon.hero.pos );
 		
-		if (Dungeon.visible[m.pos]) {
+		if (Dungeon.level.heroFOV[m.pos]) {
 			CellEmitter.get( pos ).burst( Speck.factory( Speck.STAR ), 10 );
 			Sample.INSTANCE.play( Assets.SND_MIMIC );
 		}
@@ -164,13 +162,7 @@ public class Mimic extends Mob {
 		return m;
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( ScrollOfPsionicBlast.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( ScrollOfPsionicBlast.class );
 	}
 }

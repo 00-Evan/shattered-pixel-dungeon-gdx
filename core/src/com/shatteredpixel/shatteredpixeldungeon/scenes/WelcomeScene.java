@@ -40,7 +40,7 @@ import java.util.UUID;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_1;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_2;
 
 	@Override
 	public void create() {

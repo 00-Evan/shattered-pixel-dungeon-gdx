@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.Tilemap;
 
@@ -57,7 +56,7 @@ public class WallBlockingTilemap extends Tilemap {
 		if (prev == CLEARED){
 			return;
 
-		} else if (!Level.discoverable[cell]) {
+		} else if (!Dungeon.level.discoverable[cell]) {
 			curr = CLEARED;
 
 			//handles blocking wall overhang (which is technically on a none wall tile)

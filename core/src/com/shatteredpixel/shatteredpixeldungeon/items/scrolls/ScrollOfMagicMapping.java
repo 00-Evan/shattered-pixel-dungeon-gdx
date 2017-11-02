@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -48,7 +47,7 @@ public class ScrollOfMagicMapping extends Scroll {
 		int length = Dungeon.level.length();
 		int[] map = Dungeon.level.map;
 		boolean[] mapped = Dungeon.level.mapped;
-		boolean[] discoverable = Level.discoverable;
+		boolean[] discoverable = Dungeon.level.discoverable;
 		
 		boolean noticed = false;
 		
@@ -63,7 +62,7 @@ public class ScrollOfMagicMapping extends Scroll {
 					
 					Dungeon.level.discover( i );
 					
-					if (Dungeon.visible[i]) {
+					if (Dungeon.level.heroFOV[i]) {
 						GameScene.discoverTile( i, terr );
 						discover( i );
 						

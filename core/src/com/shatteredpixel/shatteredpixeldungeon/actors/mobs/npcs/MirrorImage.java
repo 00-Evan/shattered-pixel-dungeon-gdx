@@ -26,19 +26,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MirrorSprite;
 import com.watabou.utils.Bundle;
-
-import java.util.HashSet;
 
 public class MirrorImage extends NPC {
 	
 	{
 		spriteClass = MirrorSprite.class;
 		
+		alignment = Alignment.ALLY;
 		state = HUNTING;
 	}
 	
@@ -85,38 +82,12 @@ public class MirrorImage extends NPC {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
-		int dmg = super.attackProc( enemy, damage );
+		damage = super.attackProc( enemy, damage );
 
 		destroy();
 		sprite.die();
 		
-		return dmg;
-	}
-	
-	protected Char chooseEnemy() {
-		
-		if (enemy == null || !enemy.isAlive()) {
-			HashSet<Mob> enemies = new HashSet<>();
-			for (Mob mob : Dungeon.level.mobs) {
-				if (mob.hostile
-						&& Level.fieldOfView[mob.pos]
-						&& mob.state != mob.PASSIVE) {
-					enemies.add(mob);
-				}
-			}
-			
-			//go for closest enemy
-			Char closest = null;
-			for (Char curr : enemies){
-				if (closest == null
-						|| Dungeon.level.distance(pos, curr.pos) < Dungeon.level.distance(pos, closest.pos)){
-					closest = curr;
-				}
-			}
-			return closest;
-		}
-		
-		return enemy;
+		return damage;
 	}
 	
 	@Override
@@ -142,16 +113,10 @@ public class MirrorImage extends NPC {
 
 		return true;
 	}
-
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( ToxicGas.class );
-		IMMUNITIES.add( VenomGas.class );
-		IMMUNITIES.add( Burning.class );
-	}
-
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	
+	{
+		immunities.add( ToxicGas.class );
+		immunities.add( VenomGas.class );
+		immunities.add( Burning.class );
 	}
 }

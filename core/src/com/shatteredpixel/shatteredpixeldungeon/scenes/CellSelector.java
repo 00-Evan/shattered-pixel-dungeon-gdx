@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -66,7 +67,7 @@ public class CellSelector extends TouchArea<GameAction> {
 		} else {
 			
 			PointF p = Camera.main.screenToCamera( (int)touch.current.x, (int)touch.current.y );
-			for (Char mob : Dungeon.level.mobs){
+			for (Char mob : Dungeon.level.mobs.toArray(new Mob[0])){
 				if (mob.sprite != null && mob.sprite.overlapsPoint( p.x, p.y)){
 					select( mob.pos );
 					return;
@@ -280,12 +281,11 @@ public class CellSelector extends TouchArea<GameAction> {
 		if (pinching) {
 
 			float curSpan = PointF.distance( touch.current, another.current );
-			if (startSpan != 0){
-				camera.zoom( GameMath.gate(
+			float zoom = (startZoom * curSpan / startSpan);
+			camera.zoom( GameMath.gate(
 					PixelScene.minZoom,
-					PixelScene.align(startZoom * curSpan / startSpan),
+					zoom - (zoom % 0.1f),
 					PixelScene.maxZoom ) );
-			}
 
 		} else {
 		

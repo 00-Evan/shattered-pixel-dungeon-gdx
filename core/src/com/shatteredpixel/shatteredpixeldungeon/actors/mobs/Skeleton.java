@@ -74,7 +74,7 @@ public class Skeleton extends Mob {
 			}
 		}
 		
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			Sample.INSTANCE.play( Assets.SND_BONES );
 		}
 		

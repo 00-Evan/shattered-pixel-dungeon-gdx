@@ -68,7 +68,6 @@ import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class DriedRose extends Artifact {
 
@@ -129,7 +128,7 @@ public class DriedRose extends Artifact {
 				ArrayList<Integer> spawnPoints = new ArrayList<Integer>();
 				for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
 					int p = hero.pos + PathFinder.NEIGHBOURS8[i];
-					if (Actor.findChar(p) == null && (Level.passable[p] || Level.avoid[p])) {
+					if (Actor.findChar(p) == null && (Dungeon.level.passable[p] || Dungeon.level.avoid[p])) {
 						spawnPoints.add(p);
 					}
 				}
@@ -268,7 +267,7 @@ public class DriedRose extends Artifact {
 			int ghostPos;
 			do {
 				ghostPos = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
-			} while (Level.solid[ghostPos] || level.findMob(ghostPos) != null);
+			} while (Dungeon.level.solid[ghostPos] || level.findMob(ghostPos) != null);
 			
 			heldGhost.pos = ghostPos;
 			heldGhost = null;
@@ -317,7 +316,7 @@ public class DriedRose extends Artifact {
 
 				for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
 					int p = target.pos + PathFinder.NEIGHBOURS8[i];
-					if (Actor.findChar(p) == null && (Level.passable[p] || Level.avoid[p])) {
+					if (Actor.findChar(p) == null && (Dungeon.level.passable[p] || Dungeon.level.avoid[p])) {
 						spawnPoints.add(p);
 					}
 				}
@@ -377,13 +376,11 @@ public class DriedRose extends Artifact {
 
 			flying = true;
 
-			ally = true;
+			alignment = Alignment.ALLY;
 			
 			WANDERING = new Wandering();
-			HUNTING = new Hunting();
 			
-			state = WANDERING;
-			enemy = null;
+			state = HUNTING;
 			
 			//after hero, but before mobs
 			actPriority = 1;
@@ -415,6 +412,8 @@ public class DriedRose extends Artifact {
 		public void saySpawned(){
 			if (Messages.lang() != Languages.ENGLISH) return; //don't say anything if not on english
 			int i = (Dungeon.depth - 1) / 5;
+			fieldOfView = new boolean[Dungeon.level.length()];
+			Dungeon.level.updateFieldOfView(this, fieldOfView);
 			if (chooseEnemy() == null)
 				yell( Random.element( VOICE_AMBIENT[i] ) );
 			else
@@ -462,36 +461,16 @@ public class DriedRose extends Artifact {
 			return super.act();
 		}
 		
-		//prioritizes closest enemy, and will never attack something far from the player
 		@Override
 		protected Char chooseEnemy() {
-			if (enemy == null
-					|| !enemy.isAlive()
-					|| !Dungeon.level.mobs.contains(enemy)
-					|| Dungeon.level.distance(enemy.pos, Dungeon.hero.pos) > 8
-					|| state == WANDERING) {
-				
-				HashSet<Mob> enemies = new HashSet<>();
-				for (Mob mob : Dungeon.level.mobs) {
-					if (mob.hostile
-							&& Level.fieldOfView[mob.pos]
-							&& Dungeon.level.distance(mob.pos, Dungeon.hero.pos) <= 8
-							&& mob.state != mob.PASSIVE) {
-						enemies.add(mob);
-					}
-				}
-				
-				//go for closest enemy
-				Char closest = null;
-				for (Char curr : enemies){
-					if (closest == null
-							|| Dungeon.level.distance(pos, curr.pos) < Dungeon.level.distance(pos, closest.pos)){
-						closest = curr;
-					}
-				}
-				return closest;
+			Char enemy = super.chooseEnemy();
+			
+			//will never attack something far from the player
+			if (enemy != null &&  Dungeon.level.distance(enemy.pos, Dungeon.hero.pos) <= 8){
+				return enemy;
+			} else {
+				return null;
 			}
-			return enemy;
 		}
 
 		@Override
@@ -538,11 +517,11 @@ public class DriedRose extends Artifact {
 		
 		@Override
 		public int attackProc(Char enemy, int damage) {
+			damage = super.attackProc(enemy, damage);
 			if (rose != null && rose.weapon != null) {
-				return rose.weapon.proc( this, enemy, damage );
-			} else {
-				return super.attackProc(enemy, damage);
+				damage = rose.weapon.proc( this, enemy, damage );
 			}
+			return damage;
 		}
 		
 		@Override
@@ -572,7 +551,7 @@ public class DriedRose extends Artifact {
 			if (rose != null && rose.armor != null){
 				if (rose.armor.hasGlyph(Swiftness.class)) {
 					speed *= (1.1f + 0.01f * rose.armor.level());
-				} else if (rose.armor.hasGlyph(Flow.class) && Level.water[pos]){
+				} else if (rose.armor.hasGlyph(Flow.class) && Dungeon.level.water[pos]){
 					speed *= (1.5f + 0.05f * rose.armor.level());
 				}
 			}
@@ -626,7 +605,7 @@ public class DriedRose extends Artifact {
 				rose.talkedTo = true;
 				GameScene.show(new WndQuest(this, Messages.get(this, "introduce") ));
 				return false;
-			} else if (Level.passable[pos] || Dungeon.hero.flying) {
+			} else if (Dungeon.level.passable[pos] || Dungeon.hero.flying) {
 				int curPos = pos;
 
 				moveSprite( pos, Dungeon.hero.pos );
@@ -658,18 +637,12 @@ public class DriedRose extends Artifact {
 			}
 			super.destroy();
 		}
-
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<Class<?>>();
-		static {
-			IMMUNITIES.add( ToxicGas.class );
-			IMMUNITIES.add( VenomGas.class );
-			IMMUNITIES.add( Burning.class );
-			IMMUNITIES.add( ScrollOfPsionicBlast.class );
-		}
-
-		@Override
-		public HashSet<Class<?>> immunities() {
-			return IMMUNITIES;
+		
+		{
+			immunities.add( ToxicGas.class );
+			immunities.add( VenomGas.class );
+			immunities.add( Burning.class );
+			immunities.add( ScrollOfPsionicBlast.class );
 		}
 		
 		private class Wandering extends Mob.Wandering {
@@ -681,6 +654,7 @@ public class DriedRose extends Artifact {
 					enemySeen = true;
 					
 					notice();
+					alerted = true;
 					state = HUNTING;
 					target = enemy.pos;
 					
@@ -703,40 +677,6 @@ public class DriedRose extends Artifact {
 					
 				}
 				return true;
-			}
-			
-		}
-		
-		private class Hunting extends Mob.Hunting {
-			
-			@Override
-			public boolean act( boolean enemyInFOV, boolean justAlerted ) {
-				
-				enemySeen = enemyInFOV;
-				if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
-					
-					return doAttack( enemy );
-					
-				} else {
-					
-					if (enemyInFOV) {
-						target = enemy.pos;
-					}
-					
-					int oldPos = pos;
-					if (enemyInFOV && getCloser( target )) {
-						
-						spend( 1 / speed() );
-						return moveSprite( oldPos,  pos );
-						
-					} else {
-						
-						//don't lose a turn due to the transition, immediately act instead
-						state = WANDERING;
-						return state.act( false, justAlerted );
-						
-					}
-				}
 			}
 			
 		}

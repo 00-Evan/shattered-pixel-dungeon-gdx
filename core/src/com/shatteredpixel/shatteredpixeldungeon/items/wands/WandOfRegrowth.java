@@ -108,7 +108,7 @@ public class WandOfRegrowth extends Wand {
 	}
 
 	private void spreadRegrowth(int cell, float strength){
-		if (strength >= 0 && Level.passable[cell] && !Level.losBlocking[cell]){
+		if (strength >= 0 && Dungeon.level.passable[cell] && !Dungeon.level.losBlocking[cell]){
 			affectedCells.add(cell);
 			if (strength >= 1.5f) {
 				spreadRegrowth(cell + PathFinder.CIRCLE8[left(direction)], strength - 1.5f);
@@ -117,7 +117,7 @@ public class WandOfRegrowth extends Wand {
 			} else {
 				visualCells.add(cell);
 			}
-		} else if (!Level.passable[cell] || Level.losBlocking[cell])
+		} else if (!Dungeon.level.passable[cell] || Dungeon.level.losBlocking[cell])
 			visualCells.add(cell);
 	}
 
@@ -129,7 +129,7 @@ public class WandOfRegrowth extends Wand {
 			Plant.Seed seed = (Plant.Seed) Generator.random(Generator.Category.SEED);
 
 			if (seed instanceof BlandfruitBush.Seed) {
-				if (Random.Int(15) - Dungeon.LimitedDrops.BLANDFRUIT_SEED.count >= 0) {
+				if (Random.Int(5) - Dungeon.LimitedDrops.BLANDFRUIT_SEED.count >= 0) {
 					floor.plant(seed, cells.next());
 					Dungeon.LimitedDrops.BLANDFRUIT_SEED.count++;
 				}
@@ -198,7 +198,7 @@ public class WandOfRegrowth extends Wand {
 		float strength = maxDist;
 		for (int c : bolt.subPath(1, dist)) {
 			strength--; //as we start at dist 1, not 0.
-			if (!Level.losBlocking[c]) {
+			if (!Dungeon.level.losBlocking[c]) {
 				affectedCells.add(c);
 				spreadRegrowth(c + PathFinder.CIRCLE8[left(direction)], strength - 1);
 				spreadRegrowth(c + PathFinder.CIRCLE8[direction], strength - 1);
@@ -261,11 +261,11 @@ public class WandOfRegrowth extends Wand {
 		@Override
 		public void activate() {
 
-			int nDrops = Random.NormalIntRange(2, 8);
+			int nDrops = Random.NormalIntRange(3, 6);
 
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			for (int i : PathFinder.NEIGHBOURS8){
-				if (Level.passable[pos+i]){
+				if (Dungeon.level.passable[pos+i]){
 					candidates.add(pos+i);
 				}
 			}
@@ -295,11 +295,11 @@ public class WandOfRegrowth extends Wand {
 		@Override
 		public void activate() {
 
-			int nSeeds = Random.NormalIntRange(1, 5);
+			int nSeeds = Random.NormalIntRange(2, 4);
 
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			for (int i : PathFinder.NEIGHBOURS8){
-				if (Level.passable[pos+i]){
+				if (Dungeon.level.passable[pos+i]){
 					candidates.add(pos+i);
 				}
 			}

@@ -32,7 +32,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Thief;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.MirrorImage;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.watabou.utils.Bundle;
@@ -53,7 +52,7 @@ public class Multiplicity extends Armor.Glyph {
 
 			for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
 				int p = defender.pos + PathFinder.NEIGHBOURS8[i];
-				if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
+				if (Actor.findChar( p ) == null && (Dungeon.level.passable[p] || Dungeon.level.avoid[p])) {
 					spawnPoints.add( p );
 				}
 			}
@@ -72,6 +71,8 @@ public class Multiplicity extends Armor.Glyph {
 						m = Dungeon.level.createMob();
 					} else {
 						try {
+							Actor.fixTime();
+							
 							m = (Mob)attacker.getClass().newInstance();
 							Bundle store = new Bundle();
 							attacker.storeInBundle(store);

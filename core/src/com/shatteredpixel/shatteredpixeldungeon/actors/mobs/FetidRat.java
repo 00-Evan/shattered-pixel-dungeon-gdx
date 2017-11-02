@@ -30,8 +30,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.FetidRatSprite;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class FetidRat extends Rat {
 
 	{
@@ -60,6 +58,7 @@ public class FetidRat extends Rat {
 
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		if (Random.Int(3) == 0) {
 			Buff.affect(enemy, Ooze.class);
 		}
@@ -81,14 +80,8 @@ public class FetidRat extends Rat {
 
 		Ghost.Quest.process();
 	}
-
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( StenchGas.class );
-	}
-
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	
+	{
+		immunities.add( StenchGas.class );
 	}
 }

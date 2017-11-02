@@ -41,7 +41,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -86,7 +85,7 @@ public class Yog extends Mob {
 		do {
 			fist1.pos = pos + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
 			fist2.pos = pos + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
-		} while (!Level.passable[fist1.pos] || !Level.passable[fist2.pos] || fist1.pos == fist2.pos);
+		} while (!Dungeon.level.passable[fist1.pos] || !Dungeon.level.passable[fist2.pos] || fist1.pos == fist2.pos);
 		
 		GameScene.add( fist1 );
 		GameScene.add( fist2 );
@@ -131,7 +130,7 @@ public class Yog extends Mob {
 		
 		for (int i=0; i < PathFinder.NEIGHBOURS8.length; i++) {
 			int p = pos + PathFinder.NEIGHBOURS8[i];
-			if (Actor.findChar( p ) == null && (Level.passable[p] || Level.avoid[p])) {
+			if (Actor.findChar( p ) == null && (Dungeon.level.passable[p] || Dungeon.level.avoid[p])) {
 				spawnPoints.add( p );
 			}
 		}
@@ -181,23 +180,17 @@ public class Yog extends Mob {
 		yell( Messages.get(this, "notice") );
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
+	{
 		
-		IMMUNITIES.add( Grim.class );
-		IMMUNITIES.add( Terror.class );
-		IMMUNITIES.add( Amok.class );
-		IMMUNITIES.add( Charm.class );
-		IMMUNITIES.add( Sleep.class );
-		IMMUNITIES.add( Burning.class );
-		IMMUNITIES.add( ToxicGas.class );
-		IMMUNITIES.add( ScrollOfPsionicBlast.class );
-		IMMUNITIES.add( Vertigo.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+		immunities.add( Grim.class );
+		immunities.add( Terror.class );
+		immunities.add( Amok.class );
+		immunities.add( Charm.class );
+		immunities.add( Sleep.class );
+		immunities.add( Burning.class );
+		immunities.add( ToxicGas.class );
+		immunities.add( ScrollOfPsionicBlast.class );
+		immunities.add( Vertigo.class );
 	}
 
 	@Override
@@ -241,6 +234,8 @@ public class Yog extends Mob {
 		
 		@Override
 		public int attackProc( Char enemy, int damage ) {
+			damage = super.attackProc( enemy, damage );
+			
 			if (Random.Int( 3 ) == 0) {
 				Buff.affect( enemy, Ooze.class );
 				enemy.sprite.burst( 0xFF000000, 5 );
@@ -252,7 +247,7 @@ public class Yog extends Mob {
 		@Override
 		public boolean act() {
 			
-			if (Level.water[pos] && HP < HT) {
+			if (Dungeon.level.water[pos] && HP < HT) {
 				sprite.emitter().burst( ShadowParticle.UP, 2 );
 				HP += REGENERATION;
 			}
@@ -267,30 +262,18 @@ public class Yog extends Mob {
 			if (lock != null) lock.addTime(dmg*0.5f);
 		}
 		
-		private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-		static {
-			RESISTANCES.add( ToxicGas.class );
-			RESISTANCES.add( Grim.class );
-			RESISTANCES.add( ScrollOfPsionicBlast.class );
+		{
+			resistances.add( ToxicGas.class );
+			resistances.add( Grim.class );
+			resistances.add( ScrollOfPsionicBlast.class );
 		}
 		
-		@Override
-		public HashSet<Class<?>> resistances() {
-			return RESISTANCES;
-		}
-		
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-		static {
-			IMMUNITIES.add( Amok.class );
-			IMMUNITIES.add( Sleep.class );
-			IMMUNITIES.add( Terror.class );
-			IMMUNITIES.add( Poison.class );
-			IMMUNITIES.add( Vertigo.class );
-		}
-		
-		@Override
-		public HashSet<Class<?>> immunities() {
-			return IMMUNITIES;
+		{
+			immunities.add( Amok.class );
+			immunities.add( Sleep.class );
+			immunities.add( Terror.class );
+			immunities.add( Poison.class );
+			immunities.add( Vertigo.class );
 		}
 	}
 	
@@ -377,31 +360,19 @@ public class Yog extends Mob {
 			if (lock != null) lock.addTime(dmg*0.5f);
 		}
 		
-		private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-		static {
-			RESISTANCES.add( ToxicGas.class );
-			RESISTANCES.add( Grim.class );
+		{
+			resistances.add( ToxicGas.class );
+			resistances.add( Grim.class );
 
 		}
 		
-		@Override
-		public HashSet<Class<?>> resistances() {
-			return RESISTANCES;
-		}
-		
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-		static {
-			IMMUNITIES.add( Amok.class );
-			IMMUNITIES.add( Sleep.class );
-			IMMUNITIES.add( Terror.class );
-			IMMUNITIES.add( Burning.class );
-			IMMUNITIES.add( ScrollOfPsionicBlast.class );
-			IMMUNITIES.add( Vertigo.class );
-		}
-		
-		@Override
-		public HashSet<Class<?>> immunities() {
-			return IMMUNITIES;
+		{
+			immunities.add( Amok.class );
+			immunities.add( Sleep.class );
+			immunities.add( Terror.class );
+			immunities.add( Burning.class );
+			immunities.add( ScrollOfPsionicBlast.class );
+			immunities.add( Vertigo.class );
 		}
 	}
 	

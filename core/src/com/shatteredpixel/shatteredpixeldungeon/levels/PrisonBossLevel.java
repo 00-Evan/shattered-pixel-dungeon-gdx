@@ -34,13 +34,14 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.MazeRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
-import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
@@ -222,7 +223,7 @@ public class PrisonBossLevel extends Level {
 
 		for (int i = 0; i < length(); i++){
 			if (map[i] == Terrain.INACTIVE_TRAP) {
-				Trap t = new SpearTrap().reveal();
+				Trap t = new GrippingTrap().reveal();
 				t.active = false;
 				setTrap(t, i);
 				map[i] = Terrain.INACTIVE_TRAP;
@@ -242,7 +243,9 @@ public class PrisonBossLevel extends Level {
 			else if (map[i] == Terrain.EXIT)
 				exit = i;
 
-		visited = mapped = new boolean[length()];
+		BArray.setFalse(visited);
+		BArray.setFalse(mapped);
+		
 		for (Blob blob: blobs.values()){
 			blob.fullyClear();
 		}
@@ -286,7 +289,7 @@ public class PrisonBossLevel extends Level {
 
 				for (Mob m : mobs){
 					//bring the first ally with you
-					if (m.ally){
+					if (m.alignment == Char.Alignment.ALLY){
 						m.pos = 5 + 25 * 32; //they should immediately walk out of the door
 						m.sprite.place(m.pos);
 						break;
@@ -309,7 +312,7 @@ public class PrisonBossLevel extends Level {
 
 				Actor.remove(tengu);
 				mobs.remove(tengu);
-				HealthIndicator.instance.target(null);
+				TargetHealthIndicator.instance.target(null);
 				tengu.sprite.kill();
 
 				Room maze = new MazeRoom();
@@ -339,7 +342,7 @@ public class PrisonBossLevel extends Level {
 				
 				//if any allies are left over, move them along the same way as the hero
 				for (Mob m : mobs){
-					if (m.ally) {
+					if (m.alignment == Char.Alignment.ALLY) {
 						m.pos += 9 + 3 * 32;
 						m.sprite().place(m.pos);
 					}
@@ -385,7 +388,7 @@ public class PrisonBossLevel extends Level {
 				//remove all mobs, but preserve allies
 				ArrayList<Mob> allies = new ArrayList<>();
 				for(Mob m : mobs.toArray(new Mob[0])){
-					if (m.ally){
+					if (m.alignment == Char.Alignment.ALLY){
 						allies.add(m);
 						mobs.remove(m);
 					}

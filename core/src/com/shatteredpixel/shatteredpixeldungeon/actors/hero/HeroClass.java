@@ -78,8 +78,7 @@ public enum HeroClass {
 				initHuntress( hero );
 				break;
 		}
-
-		hero.updateAwareness();
+		
 	}
 
 	private static void initCommon( Hero hero ) {
@@ -216,7 +215,6 @@ public enum HeroClass {
 					Messages.get(HeroClass.class, "rogue_perk3"),
 					Messages.get(HeroClass.class, "rogue_perk4"),
 					Messages.get(HeroClass.class, "rogue_perk5"),
-					Messages.get(HeroClass.class, "rogue_perk6"),
 			};
 		case HUNTRESS:
 			return new String[]{

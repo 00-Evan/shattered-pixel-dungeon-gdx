@@ -38,8 +38,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class BuffIndicator extends Component {
-
-	public static final int NONE	= -1;
+	
+	//transparent icon
+	public static final int NONE	= 63;
 
 	//TODO consider creating an enum to store both index, and tint. Saves making separate images for color differences.
 	public static final int MIND_VISION	= 0;
@@ -82,9 +83,9 @@ public class BuffIndicator extends Component {
 	public static final int BLESS       = 37;
 	public static final int RAGE		= 38;
 	public static final int SACRIFICE	= 39;
-	public static final int ANGERED     = 40;
-	public static final int EXHAUSTED   = 41;
-	public static final int RECOVERING  = 42;
+	public static final int BERSERK     = 40;
+	public static final int MOMENTUM    = 41;
+	public static final int PREPARATION = 42;
 
 	public static final int SIZE	= 7;
 	
@@ -125,8 +126,8 @@ public class BuffIndicator extends Component {
 	public synchronized void update() {
 		super.update();
 		if (needsRefresh){
-			layout();
 			needsRefresh = false;
+			layout();
 		}
 	}
 	
@@ -200,6 +201,7 @@ public class BuffIndicator extends Component {
 		
 		public void updateIcon(){
 			icon.frame( film.get( buff.icon() ) );
+			buff.tintIcon(icon);
 		}
 
 		@Override
@@ -218,7 +220,9 @@ public class BuffIndicator extends Component {
 	
 	public static void refreshHero() {
 		if (heroInstance != null) {
-			heroInstance.needsRefresh = true;
+			synchronized (heroInstance) {
+				heroInstance.needsRefresh = true;
+			}
 		}
 	}
 }

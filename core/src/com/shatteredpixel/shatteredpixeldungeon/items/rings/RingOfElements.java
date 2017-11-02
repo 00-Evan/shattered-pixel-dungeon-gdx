@@ -26,9 +26,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Venom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Eye;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.watabou.utils.Random;
 
 import java.util.HashSet;
@@ -40,21 +40,20 @@ public class RingOfElements extends Ring {
 		return new Resistance();
 	}
 
-	private static final HashSet<Class<?>> EMPTY = new HashSet<Class<?>>();
-	public static final HashSet<Class<?>> FULL;
+	private static final HashSet<Class> EMPTY = new HashSet<>();
+	public static final HashSet<Class> FULL = new HashSet<>();
 	static {
-		FULL = new HashSet<Class<?>>();
 		FULL.add( Burning.class );
 		FULL.add( ToxicGas.class );
 		FULL.add( Poison.class );
 		FULL.add( Venom.class );
-		FULL.add( LightningTrap.Electricity.class );
+		FULL.add( Shaman.class );
 		FULL.add( Warlock.class );
 		FULL.add( Eye.class );
 		FULL.add( Yog.BurningFist.class );
 	}
 	
-	public static HashSet<Class<?>> resistances( Char target ){
+	public static HashSet<Class> resistances( Char target ){
 		if (Random.Int( getBonus(target, Resistance.class) + 2 ) >= 2) {
 			return FULL;
 		} else {

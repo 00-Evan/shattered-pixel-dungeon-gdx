@@ -54,8 +54,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class Ghost extends NPC {
 
 	{
@@ -143,7 +141,7 @@ public class Ghost extends NPC {
 						CellEmitter.get(pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
 						pos = newPos;
 						sprite.place(pos);
-						sprite.visible = Dungeon.visible[pos];
+						sprite.visible = Dungeon.level.heroFOV[pos];
 					}
 				}
 			}
@@ -176,16 +174,10 @@ public class Ghost extends NPC {
 
 		return false;
 	}
-
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Paralysis.class );
-		IMMUNITIES.add( Roots.class );
-	}
 	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Paralysis.class );
+		immunities.add( Roots.class );
 	}
 
 	public static class Quest {

@@ -24,13 +24,16 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.CrystalKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class VaultRoom extends SpecialRoom {
 
@@ -44,39 +47,27 @@ public class VaultRoom extends SpecialRoom {
 		int cy = (top + bottom) / 2;
 		int c = cx + cy * level.width();
 		
-		switch (Random.Int( 3 )) {
+		Random.shuffle(prizeClasses);
 		
-		case 0:
-			level.drop( prize( level ), c ).type = Heap.Type.LOCKED_CHEST;
-			level.addItemToSpawn( new GoldenKey( Dungeon.depth ) );
-			break;
-			
-		case 1:
-			Item i1, i2;
-			do {
-				i1 = prize( level );
-				i2 = prize( level );
-			} while (i1.getClass() == i2.getClass());
-			level.drop( i1, c ).type = Heap.Type.CRYSTAL_CHEST;
-			level.drop( i2, c + PathFinder.NEIGHBOURS8[Random.Int( 8 )]).type = Heap.Type.CRYSTAL_CHEST;
-			level.addItemToSpawn( new GoldenKey( Dungeon.depth ) );
-			break;
-			
-		case 2:
-			level.drop( prize( level ), c );
-			Painter.set( level, c, Terrain.PEDESTAL );
-			break;
-		}
+		Item i1, i2;
+		do {
+			i1 = prize( level );
+			i2 = prize( level );
+		} while (i1.getClass() == i2.getClass());
+		level.drop( i1, c ).type = Heap.Type.CRYSTAL_CHEST;
+		level.drop( i2, c + PathFinder.NEIGHBOURS8[Random.Int( 8 )]).type = Heap.Type.CRYSTAL_CHEST;
+		level.addItemToSpawn( new CrystalKey( Dungeon.depth ) );
 		
 		entrance().set( Door.Type.LOCKED );
 		level.addItemToSpawn( new IronKey( Dungeon.depth ) );
 	}
 	
-	private static Item prize( Level level ) {
-		return Generator.random( Random.oneOf(
-			Generator.Category.WAND,
-			Generator.Category.RING,
-			Generator.Category.ARTIFACT
-		) );
+	private Item prize( Level level ) {
+		return Generator.random( prizeClasses.remove(0) );
 	}
+	
+	private ArrayList<Generator.Category> prizeClasses = new ArrayList<>(
+			Arrays.asList(Generator.Category.WAND,
+					Generator.Category.RING,
+					Generator.Category.ARTIFACT));
 }

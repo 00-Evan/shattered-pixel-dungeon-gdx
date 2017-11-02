@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -39,7 +40,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
-import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes.Landmark;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
@@ -69,14 +69,10 @@ public class WaterOfTransmutation extends WellWater {
 		} else {
 			item = null;
 		}
-
-		if (item != null) {
-			Notes.remove( Landmark.WELL_OF_TRANSMUTATION );
-			
-			//incase a never-seen item pops out
-			if (item.isIdentified()){
-				Catalog.setSeen(item.getClass());
-			}
+		
+		//incase a never-seen item pops out
+		if (item != null&& item.isIdentified()){
+			Catalog.setSeen(item.getClass());
 		}
 
 		return item;
@@ -84,9 +80,19 @@ public class WaterOfTransmutation extends WellWater {
 	}
 	
 	@Override
+	protected boolean affectHero(Hero hero) {
+		return false;
+	}
+	
+	@Override
 	public void use( BlobEmitter emitter ) {
 		super.use( emitter );
 		emitter.start( Speck.factory( Speck.CHANGE ), 0.2f, 0 );
+	}
+	
+	@Override
+	protected Landmark record() {
+		return Landmark.WELL_OF_TRANSMUTATION;
 	}
 
 	private MagesStaff changeStaff( MagesStaff staff ){

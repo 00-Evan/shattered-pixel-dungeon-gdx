@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ParalyticGas;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+package com.shatteredpixel.shatteredpixeldungeon.items.keys;
 
-public class ParalyticTrap extends Trap{
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
+public class CrystalKey extends Key {
+	
 	{
-		color = YELLOW;
-		shape = GRILL;
+		image = ItemSpriteSheet.CRYSTAL_KEY;
 	}
-
-	@Override
-	public void activate() {
-
-		GameScene.add( Blob.seed( pos, 80 + 5 * Dungeon.depth, ParalyticGas.class ) );
-
+	
+	public CrystalKey() {
+		this( 0 );
 	}
+	
+	public CrystalKey( int depth ) {
+		super();
+		this.depth = depth;
+	}
+	
 }

@@ -30,7 +30,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -57,33 +56,13 @@ public class Guard extends Mob {
 		lootChance = 0.25f;
 
 		properties.add(Property.DEMONIC);
+		
+		HUNTING = new Hunting();
 	}
 
 	@Override
 	public int damageRoll() {
 		return Random.NormalIntRange(4, 12);
-	}
-
-	@Override
-	protected boolean act() {
-		Dungeon.level.updateFieldOfView( this, Level.fieldOfView );
-
-		if (state == HUNTING &&
-				paralysed <= 0 &&
-				enemy != null &&
-				enemy.invisible == 0 &&
-				Level.fieldOfView[enemy.pos] &&
-				Dungeon.level.distance( pos, enemy.pos ) < 5 &&
-				!Dungeon.level.adjacent( pos, enemy.pos ) &&
-				Random.Int(3) == 0 &&
-
-				chain(enemy.pos)) {
-
-			return false;
-
-		} else {
-			return super.act();
-		}
 	}
 
 	private boolean chain(int target){
@@ -92,12 +71,14 @@ public class Guard extends Mob {
 
 		Ballistica chain = new Ballistica(pos, target, Ballistica.PROJECTILE);
 
-		if (chain.collisionPos != enemy.pos || chain.path.size() < 2 || Level.pit[chain.path.get(1)])
+		if (chain.collisionPos != enemy.pos
+				|| chain.path.size() < 2
+				|| Dungeon.level.pit[chain.path.get(1)])
 			return false;
 		else {
 			int newPos = -1;
 			for (int i : chain.subPath(1, chain.dist)){
-				if (!Level.solid[i] && Actor.findChar(i) == null){
+				if (!Dungeon.level.solid[i] && Actor.findChar(i) == null){
 					newPos = i;
 					break;
 				}
@@ -107,6 +88,7 @@ public class Guard extends Mob {
 				return false;
 			} else {
 				final int newPosFinal = newPos;
+				this.target = newPos;
 				yell( Messages.get(this, "scorpion") );
 				sprite.parent.add(new Chains(sprite.center(), enemy.sprite.center(), new Callback() {
 					public void call() {
@@ -176,5 +158,26 @@ public class Guard extends Mob {
 	public void restoreFromBundle(Bundle bundle) {
 		super.restoreFromBundle(bundle);
 		chainsUsed = bundle.getBoolean(CHAINSUSED);
+	}
+	
+	private class Hunting extends Mob.Hunting{
+		@Override
+		public boolean act( boolean enemyInFOV, boolean justAlerted ) {
+			enemySeen = enemyInFOV;
+			
+			if (!chainsUsed
+					&& enemyInFOV
+					&& !isCharmedBy( enemy )
+					&& !canAttack( enemy )
+					&& Dungeon.level.distance( pos, enemy.pos ) < 5
+					&& Random.Int(3) == 0
+					
+					&& chain(enemy.pos)){
+				return false;
+			} else {
+				return super.act( enemyInFOV, justAlerted );
+			}
+			
+		}
 	}
 }

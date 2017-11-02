@@ -31,11 +31,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.PoolRoom;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PiranhaSprite;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class Piranha extends Mob {
 	
@@ -45,6 +45,8 @@ public class Piranha extends Mob {
 		baseSpeed = 2f;
 		
 		EXP = 0;
+		
+		HUNTING = new Hunting();
 	}
 	
 	public Piranha() {
@@ -56,28 +58,12 @@ public class Piranha extends Mob {
 	
 	@Override
 	protected boolean act() {
-		if (!Level.water[pos]) {
+		
+		if (!Dungeon.level.water[pos]) {
 			die( null );
 			sprite.killAndErase();
 			return true;
 		} else {
-			//this causes pirahna to move away when a door is closed on them.
-			Dungeon.level.updateFieldOfView( this, Level.fieldOfView );
-			enemy = chooseEnemy();
-			if (state == this.HUNTING &&
-					!(enemy != null && enemy.isAlive() && Level.fieldOfView[enemy.pos] && enemy.invisible <= 0)){
-				state = this.WANDERING;
-				int oldPos = pos;
-				int i = 0;
-				do {
-					i++;
-					target = Dungeon.level.randomDestination();
-					if (i == 100) return true;
-				} while (!getCloser(target));
-				moveSprite( oldPos, pos );
-				return true;
-			}
-
 			return super.act();
 		}
 	}
@@ -119,8 +105,8 @@ public class Piranha extends Mob {
 		}
 		
 		int step = Dungeon.findStep( this, pos, target,
-			Level.water,
-			Level.fieldOfView );
+			Dungeon.level.water,
+			fieldOfView );
 		if (step != -1) {
 			move( step );
 			return true;
@@ -132,8 +118,8 @@ public class Piranha extends Mob {
 	@Override
 	protected boolean getFurther( int target ) {
 		int step = Dungeon.flee( this, pos, target,
-			Level.water,
-			Level.fieldOfView );
+			Dungeon.level.water,
+			fieldOfView );
 		if (step != -1) {
 			move( step );
 			return true;
@@ -142,18 +128,28 @@ public class Piranha extends Mob {
 		}
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Burning.class );
-		IMMUNITIES.add( Paralysis.class );
-		IMMUNITIES.add( ToxicGas.class );
-		IMMUNITIES.add( VenomGas.class );
-		IMMUNITIES.add( Roots.class );
-		IMMUNITIES.add( Frost.class );
+	{
+		immunities.add( Burning.class );
+		immunities.add( Paralysis.class );
+		immunities.add( ToxicGas.class );
+		immunities.add( VenomGas.class );
+		immunities.add( Roots.class );
+		immunities.add( Frost.class );
 	}
 	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	private class Hunting extends Mob.Hunting{
+		
+		@Override
+		public boolean act(boolean enemyInFOV, boolean justAlerted) {
+			boolean result = super.act(enemyInFOV, justAlerted);
+			//this causes piranha to move away when a door is closed on them in a pool room.
+			if (state == WANDERING && Dungeon.level instanceof RegularLevel){
+				Room curRoom = ((RegularLevel)Dungeon.level).room(pos);
+				if (curRoom instanceof PoolRoom) {
+					target = Dungeon.level.pointToCell(curRoom.random(1));
+				}
+			}
+			return result;
+		}
 	}
 }

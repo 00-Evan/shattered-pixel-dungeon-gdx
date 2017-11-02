@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
@@ -64,8 +65,11 @@ public class FireImbue extends Buff {
 
 		spend(TICK);
 		left -= TICK;
-		if (left <= 0)
+		if (left <= 0){
 			detach();
+		} else if (left < 5){
+			BuffIndicator.refreshHero();
+		}
 
 		return true;
 	}
@@ -80,6 +84,11 @@ public class FireImbue extends Buff {
 	@Override
 	public int icon() {
 		return BuffIndicator.FIRE;
+	}
+	
+	@Override
+	public void tintIcon(Image icon) {
+		FlavourBuff.greyIcon(icon, 5f, left);
 	}
 
 	@Override

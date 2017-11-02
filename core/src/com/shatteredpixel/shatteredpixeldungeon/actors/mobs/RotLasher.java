@@ -30,8 +30,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.RotLasherSprite;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class RotLasher extends Mob {
 
 	{
@@ -70,6 +68,7 @@ public class RotLasher extends Mob {
 
 	@Override
 	public int attackProc(Char enemy, int damage) {
+		damage = super.attackProc( enemy, damage );
 		Buff.affect( enemy, Cripple.class, 2f );
 		return super.attackProc(enemy, damage);
 	}
@@ -103,15 +102,9 @@ public class RotLasher extends Mob {
 	public int drRoll() {
 		return Random.NormalIntRange(0, 8);
 	}
-
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( ToxicGas.class );
-	}
-
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	
+	{
+		immunities.add( ToxicGas.class );
 	}
 
 	private class Waiting extends Mob.Wandering{}

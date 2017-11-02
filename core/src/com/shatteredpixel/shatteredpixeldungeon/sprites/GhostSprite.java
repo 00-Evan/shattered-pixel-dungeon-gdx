@@ -23,21 +23,11 @@ package com.shatteredpixel.shatteredpixeldungeon.sprites;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.HealthBar;
 import com.watabou.noosa.TextureFilm;
 
-//FIXME the healthbar added here is a quick fix.
-// The game should have a much more flexible health bar system which works for any character
-// However I want a ghost HP bar to get into 0.6.1, so this will have to do for now.
 public class GhostSprite extends MobSprite {
-	
-	private HealthBar hpBar;
 	
 	public GhostSprite() {
 		super();
@@ -62,24 +52,6 @@ public class GhostSprite extends MobSprite {
 	}
 	
 	@Override
-	public void link(Char ch) {
-		super.link(ch);
-		if (ch instanceof DriedRose.GhostHero){
-			final Char finalCH = ch;
-			hpBar = new HealthBar(){
-				@Override
-				public synchronized void update() {
-					super.update();
-					hpBar.setRect(finalCH.sprite.x, finalCH.sprite.y-3, finalCH.sprite.width, hpBar.height());
-					hpBar.level( finalCH );
-					visible = finalCH.sprite.visible;
-				}
-			};
-			((GameScene)ShatteredPixelDungeon.scene()).ghostHP.add(hpBar);
-		}
-	}
-	
-	@Override
 	public void draw() {
 		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
 		super.draw();
@@ -89,7 +61,6 @@ public class GhostSprite extends MobSprite {
 	@Override
 	public void die() {
 		super.die();
-		if (hpBar != null) hpBar.killAndErase();
 		emitter().start( ShaftParticle.FACTORY, 0.3f, 4 );
 		emitter().start( Speck.factory( Speck.LIGHT ), 0.2f, 3 );
 	}

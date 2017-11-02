@@ -49,12 +49,13 @@ public abstract class KindofMisc extends EquipableItem {
 						protected void onSelect(int index) {
 
 							KindofMisc equipped = (index == 0 ? m1 : m2);
-							detach( hero.belongings.backpack );
+							//temporarily give 1 extra backpack spot to support swapping with a full inventory
+							hero.belongings.backpack.size++;
 							if (equipped.doUnequip(hero, true, false)) {
+								//fully re-execute rather than just call doEquip as we want to preserve quickslot
 								execute(hero, AC_EQUIP);
-							} else {
-								collect( hero.belongings.backpack );
 							}
+							hero.belongings.backpack.size--;
 						}
 					});
 

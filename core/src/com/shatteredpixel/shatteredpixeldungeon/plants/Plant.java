@@ -73,7 +73,7 @@ public abstract class Plant implements Bundlable {
 	public void wither() {
 		Dungeon.level.uproot( pos );
 
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).burst( LeafParticle.GENERAL, 6 );
 		}
 		
@@ -89,7 +89,7 @@ public abstract class Plant implements Bundlable {
 				Item seed = Generator.random(Generator.Category.SEED);
 
 				if (seed instanceof BlandfruitBush.Seed) {
-					if (Random.Int(15) - Dungeon.LimitedDrops.BLANDFRUIT_SEED.count >= 0) {
+					if (Random.Int(5) - Dungeon.LimitedDrops.BLANDFRUIT_SEED.count >= 0) {
 						Dungeon.level.drop(seed, pos).sprite.drop();
 						Dungeon.LimitedDrops.BLANDFRUIT_SEED.count++;
 					}
@@ -142,7 +142,9 @@ public abstract class Plant implements Bundlable {
 		
 		@Override
 		protected void onThrow( int cell ) {
-			if (Dungeon.level.map[cell] == Terrain.ALCHEMY || Level.pit[cell] || Dungeon.level.traps.get(cell) != null) {
+			if (Dungeon.level.map[cell] == Terrain.ALCHEMY
+					|| Dungeon.level.pit[cell]
+					|| Dungeon.level.traps.get(cell) != null) {
 				super.onThrow( cell );
 			} else {
 				Dungeon.level.plant( this, cell );
@@ -165,9 +167,9 @@ public abstract class Plant implements Bundlable {
 			}
 		}
 		
-		public Plant couch( int pos ) {
+		public Plant couch( int pos, Level level ) {
 			try {
-				if (Dungeon.visible != null && Dungeon.visible[pos]) {
+				if (level.heroFOV != null && level.heroFOV[pos]) {
 					Sample.INSTANCE.play(Assets.SND_PLANT);
 				}
 				Plant plant = ClassReflection.newInstance(plantClass);

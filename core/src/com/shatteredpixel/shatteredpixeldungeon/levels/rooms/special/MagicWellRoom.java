@@ -20,8 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 
-import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfAwareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfHealth;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WaterOfTransmutation;
@@ -57,17 +55,7 @@ public class MagicWellRoom extends SpecialRoom {
 			SpecialRoom.disableGuaranteedWell();
 		}
 		
-		WellWater water = (WellWater)level.blobs.get( waterClass );
-		if (water == null) {
-			try {
-				water = ClassReflection.newInstance(waterClass);
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return;
-			}
-		}
-		water.seed( level, c.x + level.width() * c.y, 1 );
-		level.blobs.put( waterClass, water );
+		WellWater.seed(c.x + level.width() * c.y, 1, waterClass, level);
 		
 		entrance().set( Door.Type.REGULAR );
 	}

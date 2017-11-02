@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
@@ -29,11 +30,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ElementalSprite;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class Elemental extends Mob {
 
@@ -71,6 +69,7 @@ public class Elemental extends Mob {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		if (Random.Int( 2 ) == 0) {
 			Buff.affect( enemy, Burning.class ).reignite( enemy );
 		}
@@ -86,7 +85,7 @@ public class Elemental extends Mob {
 				sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			}
 		} else if (buff instanceof Frost || buff instanceof Chill) {
-				if (Level.water[this.pos])
+				if (Dungeon.level.water[this.pos])
 					damage( Random.NormalIntRange( HT / 2, HT ), buff );
 				else
 					damage( Random.NormalIntRange( 1, HT * 2 / 3 ), buff );
@@ -95,15 +94,9 @@ public class Elemental extends Mob {
 		}
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Burning.class );
-		IMMUNITIES.add( Blazing.class );
-		IMMUNITIES.add( WandOfFireblast.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Burning.class );
+		immunities.add( Blazing.class );
+		immunities.add( WandOfFireblast.class );
 	}
 }

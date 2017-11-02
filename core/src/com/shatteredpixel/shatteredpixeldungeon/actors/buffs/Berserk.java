@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal.WarriorShield;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 
@@ -37,7 +38,7 @@ public class Berserk extends Buff {
 	}
 	private State state = State.NORMAL;
 
-	private static final int EXHAUSTION_START = 40;
+	private static final int EXHAUSTION_START = 60;
 	private int exhaustion;
 
 	private static final float LEVEL_RECOVER_START = 3f;
@@ -93,11 +94,13 @@ public class Berserk extends Buff {
 	public int damageFactor(int dmg){
 		float bonus;
 
-		if (state == State.EXHAUSTED) {
-			bonus = (50 - exhaustion) / 50f;
+		if (state == State.BERSERK){
+			bonus = 2f;
+		} else if (state == State.EXHAUSTED) {
+			bonus = 1f - ((float)Math.sqrt(exhaustion) / 10f);
 		} else {
 			float percentMissing = 1f - target.HP/(float)target.HT;
-			bonus = 1f + (float)Math.pow(percentMissing, 3);
+			bonus = 1f + (0.5f * (float)Math.pow(percentMissing, 2));
 		}
 
 		return Math.round(dmg * bonus);
@@ -135,18 +138,28 @@ public class Berserk extends Buff {
 
 	@Override
 	public int icon() {
+		return BuffIndicator.BERSERK;
+	}
+	
+	@Override
+	public void tintIcon(Image icon) {
 		switch (state){
 			case NORMAL: default:
-				return BuffIndicator.ANGERED;
+				icon.hardlight(1f, 0.67f, 0.2f);
+				break;
 			case BERSERK:
-				return BuffIndicator.FURY;
+				icon.hardlight(1f, 0.1f, 0.1f);
+				break;
 			case EXHAUSTED:
-				return BuffIndicator.EXHAUSTED;
+				icon.resetColor();
+				break;
 			case RECOVERING:
-				return BuffIndicator.RECOVERING;
+				//icon.hardlight(0.12f, 0.20f, 0.55f);
+				icon.hardlight(0.35f, 0.45f, 0.75f);
+				break;
 		}
 	}
-
+	
 	@Override
 	public String toString() {
 		switch (state){
@@ -163,7 +176,7 @@ public class Berserk extends Buff {
 
 	@Override
 	public String desc() {
-		float dispDamage = damageFactor(10000)/100f;
+		float dispDamage = damageFactor(100);
 		switch (state){
 			case NORMAL: default:
 				return Messages.get(this, "angered_desc", dispDamage);

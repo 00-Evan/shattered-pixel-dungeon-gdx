@@ -70,12 +70,13 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.AttackIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Banner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BusyIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CharHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.GameLog;
-import com.shatteredpixel.shatteredpixeldungeon.ui.HealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LootIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ResumeIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
+import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toast;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -148,6 +149,7 @@ public class GameScene extends PixelScene {
 	private Group spells;
 	private Group statuses;
 	private Group emoicons;
+	private Group healthIndicators;
 	
 	private Toolbar toolbar;
 	private Toast prompt;
@@ -156,9 +158,6 @@ public class GameScene extends PixelScene {
 	private LootIndicator loot;
 	private ActionIndicator action;
 	private ResumeIndicator resume;
-	
-	//temporary, see Ghostsprite
-	public Group ghostHP;
 	
 	@Override
 	public void create() {
@@ -229,12 +228,11 @@ public class GameScene extends PixelScene {
 
 		emitters = new Group();
 		effects = new Group();
+		healthIndicators = new Group();
 		emoicons = new Group();
 		
 		mobs = new Group();
 		add( mobs );
-		
-		ghostHP = new Group();
 		
 		for (Mob mob : Dungeon.level.mobs) {
 			addMobSprite( mob );
@@ -276,18 +274,17 @@ public class GameScene extends PixelScene {
 		
 		statuses = new Group();
 		add( statuses );
-
+		
+		add( healthIndicators );
+		//always appears ontop of other health indicators
+		add( new TargetHealthIndicator() );
+		
 		add( emoicons );
 		
 		hero = new HeroSprite();
 		hero.place( Dungeon.hero.pos );
 		hero.updateArmor();
 		mobs.add( hero );
-
-
-		add( new HealthIndicator() );
-		
-		add( ghostHP );
 		
 		add( cellSelector = new CellSelector( tiles ) );
 
@@ -319,6 +316,7 @@ public class GameScene extends PixelScene {
 
 		log = new GameLog();
 		log.camera = uiCamera;
+		log.newLine();
 		add( log );
 
 		layoutTags();
@@ -387,11 +385,14 @@ public class GameScene extends PixelScene {
 		Camera.main.target = hero;
 
 		if (InterlevelScene.mode != InterlevelScene.Mode.NONE) {
-			if (Dungeon.depth < Statistics.deepestFloor) {
-				GLog.h(Messages.get(this, "welcome_back"), Dungeon.depth);
-			} else {
-				GLog.h(Messages.get(this, "welcome"), Dungeon.depth);
+			if (Dungeon.depth == Statistics.deepestFloor
+					&& (InterlevelScene.mode == InterlevelScene.Mode.DESCEND || InterlevelScene.mode == InterlevelScene.Mode.FALL)) {
+				GLog.h(Messages.get(this, "descend"), Dungeon.depth);
 				Sample.INSTANCE.play(Assets.SND_DESCEND);
+			} else if (InterlevelScene.mode == InterlevelScene.Mode.RESET) {
+				GLog.h(Messages.get(this, "warp"));
+			} else {
+				GLog.h(Messages.get(this, "return"), Dungeon.depth);
 			}
 
 			switch (Dungeon.level.feeling) {
@@ -618,7 +619,7 @@ public class GameScene extends PixelScene {
 	
 	private void addMobSprite( Mob mob ) {
 		CharSprite sprite = mob.sprite();
-		sprite.visible = Dungeon.visible[mob.pos];
+		sprite.visible = Dungeon.level.heroFOV[mob.pos];
 		mobs.add( sprite );
 		sprite.link( mob );
 	}
@@ -699,6 +700,10 @@ public class GameScene extends PixelScene {
 		scene.emoicons.add( icon );
 	}
 	
+	public static void add( CharHealthIndicator indicator ){
+		if (scene != null) scene.healthIndicators.add(indicator);
+	}
+	
 	public static void effect( Visual effect ) {
 		scene.effects.add( effect );
 	}
@@ -731,16 +736,20 @@ public class GameScene extends PixelScene {
 		return scene != null ? (FloatingText)scene.statuses.recycle( FloatingText.class ) : null;
 	}
 	
-	public static void pickUp( Item item ) {
-		if (scene != null) scene.toolbar.pickup( item );
+	public static void pickUp( Item item, int pos ) {
+		if (scene != null) scene.toolbar.pickup( item, pos );
 	}
 
-	public static void pickUpJournal( Item item ) {
-		if (scene != null) scene.pane.pickup( item );
+	public static void pickUpJournal( Item item, int pos ) {
+		if (scene != null) scene.pane.pickup( item, pos );
 	}
 	
 	public static void flashJournal(){
 		if (scene != null) scene.pane.flash();
+	}
+	
+	public static void updateKeyDisplay(){
+		if (scene != null) scene.pane.updateKeys();
 	}
 
 	public static void resetMap() {
@@ -828,7 +837,7 @@ public class GameScene extends PixelScene {
 		if (scene != null) {
 			for (Mob mob : Dungeon.level.mobs) {
 				if (mob.sprite != null)
-					mob.sprite.visible = Dungeon.visible[mob.pos];
+					mob.sprite.visible = Dungeon.level.heroFOV[mob.pos];
 			}
 		}
 	}
@@ -933,7 +942,7 @@ public class GameScene extends PixelScene {
 			objects.add(Dungeon.hero);
 			names.add(Dungeon.hero.className().toUpperCase(Locale.ENGLISH));
 		} else {
-			if (Dungeon.visible[cell]) {
+			if (Dungeon.level.heroFOV[cell]) {
 				Mob mob = (Mob) Actor.findChar(cell);
 				if (mob != null) {
 					objects.add(mob);

@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -58,6 +57,15 @@ public class Combo extends Buff implements ActionIndicator.Action {
 	}
 	
 	@Override
+	public void tintIcon(Image icon) {
+		if (comboTime >= 3f){
+			icon.resetColor();
+		} else {
+			icon.tint(0xb3b3b3, 0.5f + 0.5f*(3f + 1 - comboTime)/3f);
+		}
+	}
+	
+	@Override
 	public String toString() {
 		return Messages.get(this, "name");
 	}
@@ -67,6 +75,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		count++;
 		comboTime = 4f;
 		misses = 0;
+		BuffIndicator.refreshHero();
 		
 		if (count >= 2) {
 
@@ -97,6 +106,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 	public boolean act() {
 		comboTime-=TICK;
 		spend(TICK);
+		BuffIndicator.refreshHero();
 		if (comboTime <= 0) {
 			detach();
 		}
@@ -172,7 +182,10 @@ public class Combo extends Buff implements ActionIndicator.Action {
 		public void onSelect(Integer cell) {
 			if (cell == null) return;
 			final Char enemy = Actor.findChar( cell );
-			if (enemy == null || !((Hero)target).canAttack(enemy) || target.isCharmedBy( enemy )){
+			if (enemy == null
+					|| !Dungeon.level.heroFOV[cell]
+					|| !((Hero)target).canAttack(enemy)
+					|| target.isCharmedBy( enemy )){
 				GLog.w( Messages.get(Combo.class, "bad_target") );
 			} else {
 				target.sprite.attack(cell, new Callback() {
@@ -236,7 +249,8 @@ public class Combo extends Buff implements ActionIndicator.Action {
 								int ofs = PathFinder.NEIGHBOURS8[i];
 								if (enemy.pos - target.pos == ofs) {
 									int newPos = enemy.pos + ofs;
-									if ((Level.passable[newPos] || Level.avoid[newPos]) && Actor.findChar( newPos ) == null) {
+									if ((Dungeon.level.passable[newPos] || Dungeon.level.avoid[newPos])
+											&& Actor.findChar( newPos ) == null) {
 
 										Actor.addDelayed( new Pushing( enemy, enemy.pos, newPos ), -1 );
 

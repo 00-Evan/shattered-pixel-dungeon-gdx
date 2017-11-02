@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
@@ -157,7 +156,7 @@ public class ItemSprite extends MovieClip {
 		speed.set( 0, -100 );
 		acc.set(0, -speed.y / DROP_INTERVAL * 2);
 		
-		if (visible && heap != null && heap.peek() instanceof Gold) {
+		if (heap != null && heap.seen && heap.peek() instanceof Gold) {
 			CellEmitter.center( heap.pos ).burst( Speck.factory( Speck.COIN ), 5 );
 			Sample.INSTANCE.play( Assets.SND_GOLD, 1, 1, Random.Float( 0.9f, 1.1f ) );
 		}
@@ -209,7 +208,7 @@ public class ItemSprite extends MovieClip {
 		}
 	}
 	
-	public void glow( Glowing glowing ){
+	public synchronized void glow( Glowing glowing ){
 		this.glowing = glowing;
 		if (glowing == null) resetColor();
 	}
@@ -270,7 +269,7 @@ public class ItemSprite extends MovieClip {
 	}
 
 	@Override
-	public void update() {
+	public synchronized void update() {
 		super.update();
 
 		visible = (heap == null || heap.seen);
@@ -286,7 +285,7 @@ public class ItemSprite extends MovieClip {
 				place(heap.pos);
 
 				if (visible) {
-					boolean water = Level.water[heap.pos];
+					boolean water = Dungeon.level.water[heap.pos];
 
 					if (water) {
 						GameScene.ripple(heap.pos);

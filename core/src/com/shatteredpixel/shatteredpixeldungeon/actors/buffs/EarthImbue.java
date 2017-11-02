@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 
 public class EarthImbue extends FlavourBuff {
 
@@ -38,6 +39,11 @@ public class EarthImbue extends FlavourBuff {
 	@Override
 	public int icon() {
 		return BuffIndicator.ROOTS;
+	}
+	
+	@Override
+	public void tintIcon(Image icon) {
+		greyIcon(icon, 5f, cooldown());
 	}
 
 	@Override

@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -161,7 +160,7 @@ public class FogOfWar extends Image {
 
 				if (cell >= Dungeon.level.length()) continue; //do nothing
 
-				if (!Level.discoverable[cell]
+				if (!Dungeon.level.discoverable[cell]
 						|| (!visible[cell] && !visited[cell] && !mapped[cell])){
 					//we skip filling cells here if it isn't a full update
 					// because they must already be dark
@@ -355,7 +354,7 @@ public class FogOfWar extends Image {
 	public void draw() {
 
 		if (!updated.isEmpty()){
-			updateTexture(Dungeon.visible, Dungeon.level.visited, Dungeon.level.mapped);
+			updateTexture(Dungeon.level.heroFOV, Dungeon.level.visited, Dungeon.level.mapped);
 			updating.setEmpty();
 		}
 

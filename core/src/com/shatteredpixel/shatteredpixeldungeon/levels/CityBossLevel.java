@@ -197,7 +197,7 @@ public class CityBossLevel extends Level {
 			
 			for (Mob m : mobs){
 				//bring the first ally with you
-				if (m.ally){
+				if (m.alignment == Char.Alignment.ALLY){
 					m.pos = Dungeon.hero.pos + (Random.Int(2) == 0 ? +1 : -1);
 					m.sprite.place(m.pos);
 					break;
@@ -212,10 +212,10 @@ public class CityBossLevel extends Level {
 			} while (
 				!passable[boss.pos] ||
 				!outsideEntraceRoom( boss.pos ) ||
-				(Dungeon.visible[boss.pos] && count++ < 20));
+				(heroFOV[boss.pos] && count++ < 20));
 			GameScene.add( boss );
 
-			if (Dungeon.visible[boss.pos]) {
+			if (heroFOV[boss.pos]) {
 				boss.notice();
 				boss.sprite.alpha( 0 );
 				boss.sprite.parent.add( new AlphaTweener( boss.sprite, 1, 0.1f ) );

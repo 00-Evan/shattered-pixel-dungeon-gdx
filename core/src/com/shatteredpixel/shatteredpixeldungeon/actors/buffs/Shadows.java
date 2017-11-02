@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 
@@ -95,6 +96,11 @@ public class Shadows extends Invisibility {
 	@Override
 	public int icon() {
 		return BuffIndicator.SHADOWS;
+	}
+	
+	@Override
+	public void tintIcon(Image icon) {
+		icon.resetColor();
 	}
 	
 	@Override

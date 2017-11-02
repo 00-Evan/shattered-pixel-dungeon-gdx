@@ -30,24 +30,29 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.journal.GuidePage;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.GoldenKey;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.LoopBuilder;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.PitRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.ShopRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.EntranceRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.ExitRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.StandardRoom;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BlazingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BurningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ChillingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisintegrationTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ExplosiveTrap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.FireTrap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.FrostTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
@@ -109,6 +114,10 @@ public abstract class RegularLevel extends Level {
 		for (int i = 0; i < specials; i++)
 			initRooms.add(SpecialRoom.createRoom());
 		
+		int secrets = SecretRoom.secretsForFloor(Dungeon.depth);
+		for (int i = 0; i < secrets; i++)
+			initRooms.add(SecretRoom.createRoom());
+		
 		return initRooms;
 	}
 	
@@ -169,7 +178,7 @@ public abstract class RegularLevel extends Level {
 	}
 	
 	protected Class<?>[] trapClasses(){
-		return new Class<?>[]{WornTrap.class};
+		return new Class<?>[]{WornDartTrap.class};
 	}
 
 	protected float[] trapChances() {
@@ -229,7 +238,7 @@ public abstract class RegularLevel extends Level {
 			Mob mob = createMob();
 			mob.pos = pointToCell(roomToSpawn.random());
 			
-			if (findMob(mob.pos) == null && Level.passable[mob.pos]) {
+			if (findMob(mob.pos) == null && passable[mob.pos] && mob.pos != exit) {
 				mobsToSpawn--;
 				mobs.add(mob);
 				
@@ -238,7 +247,7 @@ public abstract class RegularLevel extends Level {
 					mob = createMob();
 					mob.pos = pointToCell(roomToSpawn.random());
 					
-					if (findMob(mob.pos)  == null && Level.passable[mob.pos]) {
+					if (findMob(mob.pos)  == null && passable[mob.pos] && mob.pos != exit) {
 						mobsToSpawn--;
 						mobs.add(mob);
 					}
@@ -273,9 +282,9 @@ public abstract class RegularLevel extends Level {
 			}
 
 			cell = pointToCell(room.random(1));
-			if ((Dungeon.level != this || !Dungeon.visible[cell])
+			if (!heroFOV[cell]
 					&& Actor.findChar( cell ) == null
-					&& Level.passable[cell]
+					&& passable[cell]
 					&& cell != exit) {
 				return cell;
 			}
@@ -296,7 +305,7 @@ public abstract class RegularLevel extends Level {
 			}
 			
 			cell = pointToCell(room.random());
-			if (Level.passable[cell]) {
+			if (passable[cell]) {
 				return cell;
 			}
 			
@@ -332,24 +341,23 @@ public abstract class RegularLevel extends Level {
 				map[cell] = Terrain.GRASS;
 				losBlocking[cell] = false;
 			}
-			drop( Generator.random(), cell ).type = type;
+			
+			Item toDrop = Generator.random();
+			if ((toDrop instanceof Artifact && Random.Int(2) == 0) ||
+					(toDrop.isUpgradable() && Random.Int(4 - toDrop.level()) == 0)){
+				Heap dropped = drop( toDrop, cell );
+				if (heaps.get(cell) == dropped) {
+					dropped.type = Heap.Type.LOCKED_CHEST;
+					addItemToSpawn(new GoldenKey(Dungeon.depth));
+				}
+			} else {
+				drop( toDrop, cell ).type = type;
+			}
+			
 		}
 
 		for (Item item : itemsToSpawn) {
-			int cell;
-			do {
-				cell = randomDropCell();
-				if (item instanceof Scroll) {
-					while (traps.get(cell) instanceof FireTrap) {
-						cell = randomDropCell();
-					}
-
-				} else if (item instanceof Potion) {
-					while (traps.get(cell) instanceof ChillingTrap) {
-						cell = randomDropCell();
-					}
-				}
-			} while (traps.get(cell) instanceof ExplosiveTrap);
+			int cell = randomDropCell();
 			drop( item, cell ).type = Heap.Type.HEAP;
 			if (map[cell] == Terrain.HIGH_GRASS) {
 				map[cell] = Terrain.GRASS;
@@ -423,8 +431,20 @@ public abstract class RegularLevel extends Level {
 			Room room = randomRoom( StandardRoom.class );
 			if (room != null && room != roomEntrance) {
 				int pos = pointToCell(room.random());
-				if (passable[pos] && pos != exit) {
-					return pos;
+				if (passable[pos]
+						&& pos != exit
+						&& heaps.get(pos) == null) {
+					
+					Trap t = traps.get(pos);
+					
+					//items cannot spawn on traps which destroy items
+					if (t == null ||
+							! (t instanceof BurningTrap || t instanceof BlazingTrap
+							|| t instanceof ChillingTrap || t instanceof FrostTrap
+							|| t instanceof ExplosiveTrap || t instanceof DisintegrationTrap)) {
+						
+						return pos;
+					}
 				}
 			}
 		}

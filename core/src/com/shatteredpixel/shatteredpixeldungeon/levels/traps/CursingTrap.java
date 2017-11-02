@@ -31,8 +31,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -52,7 +50,7 @@ public class CursingTrap extends Trap {
 
 	@Override
 	public void activate() {
-		if (Dungeon.visible[ pos ]) {
+		if (Dungeon.level.heroFOV[ pos ]) {
 			CellEmitter.get(pos).burst(ShadowParticle.UP, 5);
 			Sample.INSTANCE.play(Assets.SND_CURSED);
 		}
@@ -93,16 +91,12 @@ public class CursingTrap extends Trap {
 		}
 
 		KindofMisc misc1 = hero.belongings.misc1;
-		if (misc1 instanceof Artifact){
-			priorityCurse.add(misc1);
-		} else if (misc1 instanceof Ring){
+		if (misc1 != null){
 			canCurse.add(misc1);
 		}
 
 		KindofMisc misc2 = hero.belongings.misc2;
-		if (misc2 instanceof Artifact){
-			priorityCurse.add(misc2);
-		} else if (misc2 instanceof Ring){
+		if (misc2 != null){
 			canCurse.add(misc2);
 		}
 

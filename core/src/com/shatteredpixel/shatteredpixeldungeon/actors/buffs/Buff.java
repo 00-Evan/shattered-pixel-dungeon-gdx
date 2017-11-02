@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
 
 import java.text.DecimalFormat;
 import java.util.HashSet;
@@ -40,10 +41,18 @@ public class Buff extends Actor {
 	//buffs that work behind the scenes, or have other visual indicators can usually be silent.
 	public enum buffType {POSITIVE, NEGATIVE, NEUTRAL, SILENT};
 	public buffType type = buffType.SILENT;
-
-	public HashSet<Class<?>> resistances = new HashSet<Class<?>>();
-
-	public HashSet<Class<?>> immunities = new HashSet<Class<?>>();
+	
+	protected HashSet<Class> resistances = new HashSet<>();
+	
+	public HashSet<Class> resistances() {
+		return new HashSet<>(resistances);
+	}
+	
+	protected HashSet<Class> immunities = new HashSet<>();
+	
+	public HashSet<Class> immunities() {
+		return new HashSet<>(immunities);
+	}
 	
 	public boolean attachTo( Char target ) {
 
@@ -74,6 +83,10 @@ public class Buff extends Actor {
 	
 	public int icon() {
 		return BuffIndicator.NONE;
+	}
+	
+	public void tintIcon( Image icon ){
+		//do nothing by default
 	}
 
 	public void fx(boolean on) {

@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.noosa.audio.Sample;
@@ -76,7 +75,7 @@ public class Honeypot extends Item {
 	
 	@Override
 	protected void onThrow( int cell ) {
-		if (Level.pit[cell]) {
+		if (Dungeon.level.pit[cell]) {
 			super.onThrow( cell );
 		} else {
 			Dungeon.level.drop(shatter( null, cell ), cell);
@@ -85,7 +84,7 @@ public class Honeypot extends Item {
 	
 	public Item shatter( Char owner, int pos ) {
 		
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			Sample.INSTANCE.play( Assets.SND_SHATTER );
 			Splash.at( pos, 0xffd500, 5 );
 		}
@@ -93,7 +92,7 @@ public class Honeypot extends Item {
 		int newPos = pos;
 		if (Actor.findChar( pos ) != null) {
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
-			boolean[] passable = Level.passable;
+			boolean[] passable = Dungeon.level.passable;
 			
 			for (int n : PathFinder.NEIGHBOURS4) {
 				int c = pos + n;

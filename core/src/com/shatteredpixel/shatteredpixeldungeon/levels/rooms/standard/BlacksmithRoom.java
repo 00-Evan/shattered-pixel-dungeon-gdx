@@ -25,7 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.FireTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BurningTrap;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 
@@ -60,7 +60,7 @@ public class BlacksmithRoom extends StandardRoom {
 		}
 		
 		for (Door door : connected.values()) {
-			door.set( Door.Type.UNLOCKED );
+			door.set( Door.Type.REGULAR );
 			Painter.drawInside( level, this, door, 1, Terrain.EMPTY );
 		}
 		
@@ -73,7 +73,7 @@ public class BlacksmithRoom extends StandardRoom {
 		for(Point p : getPoints()) {
 			int cell = level.pointToCell(p);
 			if (level.map[cell] == Terrain.TRAP){
-				level.setTrap(new FireTrap().reveal(), cell);
+				level.setTrap(new BurningTrap().reveal(), cell);
 			}
 		}
 	}

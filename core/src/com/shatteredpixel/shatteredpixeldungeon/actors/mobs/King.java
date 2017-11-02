@@ -41,7 +41,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportat
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityBossLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.KingSprite;
@@ -51,8 +50,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class King extends Mob {
 	
@@ -186,7 +183,7 @@ public class King extends Mob {
 		sprite.centerEmitter().start( Speck.factory( Speck.SCREAM ), 0.4f, 2 );
 		Sample.INSTANCE.play( Assets.SND_CHALLENGE );
 		
-		boolean[] passable = Level.passable.clone();
+		boolean[] passable = Dungeon.level.passable.clone();
 		for (Char c : Actor.chars()) {
 			passable[c.pos] = false;
 		}
@@ -229,29 +226,17 @@ public class King extends Mob {
 		yell( Messages.get(this, "notice") );
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( ToxicGas.class );
-		RESISTANCES.add( Grim.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
-		RESISTANCES.add( WandOfDisintegration.class );
+	{
+		resistances.add( ToxicGas.class );
+		resistances.add( Grim.class );
+		resistances.add( ScrollOfPsionicBlast.class );
+		resistances.add( WandOfDisintegration.class );
 	}
 	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Paralysis.class );
-		IMMUNITIES.add( Vertigo.class );
-		IMMUNITIES.add( Terror.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Paralysis.class );
+		immunities.add( Vertigo.class );
+		immunities.add( Terror.class );
 	}
 	
 	public static class Undead extends Mob {
@@ -295,6 +280,7 @@ public class King extends Mob {
 		
 		@Override
 		public int attackProc( Char enemy, int damage ) {
+			damage = super.attackProc( enemy, damage );
 			if (Random.Int( MAX_ARMY_SIZE ) == 0) {
 				Buff.prolong( enemy, Paralysis.class, 1 );
 			}
@@ -314,7 +300,7 @@ public class King extends Mob {
 		public void die( Object cause ) {
 			super.die( cause );
 			
-			if (Dungeon.visible[pos]) {
+			if (Dungeon.level.heroFOV[pos]) {
 				Sample.INSTANCE.play( Assets.SND_BONES );
 			}
 		}
@@ -324,15 +310,9 @@ public class King extends Mob {
 			return Random.NormalIntRange(0, 5);
 		}
 
-		private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-		static {
-			IMMUNITIES.add( Grim.class );
-			IMMUNITIES.add( Paralysis.class );
-		}
-		
-		@Override
-		public HashSet<Class<?>> immunities() {
-			return IMMUNITIES;
+		{
+			immunities.add( Grim.class );
+			immunities.add( Paralysis.class );
 		}
 	}
 }

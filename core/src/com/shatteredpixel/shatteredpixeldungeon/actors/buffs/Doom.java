@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,29 +18,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
+
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
-public class WornTrap extends Trap {
-
+public class Doom extends Buff {
+	
 	{
-		color = BLACK;
-		shape = DOTS;
+		type = buffType.NEGATIVE;
 	}
-
+	
 	@Override
-	public Trap hide() {
-		//this one can't be hidden
-		return reveal();
+	public void fx(boolean on) {
+		if (on) target.sprite.add( CharSprite.State.DARKENED );
+		else if (target.invisible == 0) target.sprite.remove( CharSprite.State.DARKENED );
 	}
-
+	
 	@Override
-	public void activate() {
-		CellEmitter.get(pos).burst(Speck.factory(Speck.STEAM), 6);
-		GLog.i( Messages.get(this, "nothing") );
+	public int icon() {
+		return BuffIndicator.CORRUPT;
+	}
+	
+	@Override
+	public String toString() {
+		return Messages.get(this, "name");
+	}
+	
+	@Override
+	public String desc() {
+		return Messages.get(this, "desc");
 	}
 }

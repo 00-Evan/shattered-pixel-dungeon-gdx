@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -31,7 +30,9 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Random;
@@ -40,28 +41,41 @@ public class DisintegrationTrap extends Trap {
 
 	{
 		color = VIOLET;
-		shape = LARGE_DOT;
+		shape = CROSSHAIR;
+	}
+	
+	@Override
+	public Trap hide() {
+		//this one can't be hidden
+		return reveal();
 	}
 
 	@Override
 	public void activate() {
-
-		if (Dungeon.visible[ pos ]) {
-			ShatteredPixelDungeon.scene().add( new Beam.DeathRay( DungeonTilemap.tileCenterToWorld(pos-1),
-					DungeonTilemap.tileCenterToWorld(pos+1)));
-			ShatteredPixelDungeon.scene().add(new Beam.DeathRay(DungeonTilemap.tileCenterToWorld(pos - Dungeon.level.width()),
-					DungeonTilemap.tileCenterToWorld(pos + Dungeon.level.width())));
-			Sample.INSTANCE.play( Assets.SND_RAY );
+		Char target = Actor.findChar(pos);
+		
+		//find the closest char that can be aimed at
+		if (target == null){
+			for (Char ch : Actor.chars()){
+				Ballistica bolt = new Ballistica(pos, ch.pos, Ballistica.PROJECTILE);
+				if (bolt.collisionPos == ch.pos &&
+						(target == null || Dungeon.level.distance(pos, ch.pos) < Dungeon.level.distance(pos, target.pos))){
+					target = ch;
+				}
+			}
 		}
-
+		
 		Heap heap = Dungeon.level.heaps.get(pos);
 		if (heap != null) heap.explode();
-
-		Char ch = Actor.findChar(pos);
-		if (ch != null){
-			ch.damage( Math.max( ch.HT/5, Random.Int(ch.HP / 2, 2 * ch.HP / 3) ), this );
-			if (ch == Dungeon.hero){
-				Hero hero = (Hero)ch;
+		
+		if (target != null) {
+			if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[target.pos]) {
+				Sample.INSTANCE.play(Assets.SND_RAY);
+				ShatteredPixelDungeon.scene().add(new Beam.DeathRay(DungeonTilemap.tileCenterToWorld(pos), target.sprite.center()));
+			}
+			target.damage( Math.max( target.HT/5, Random.Int(target.HP / 2, 2 * target.HP / 3) ), this );
+			if (target == Dungeon.hero){
+				Hero hero = (Hero)target;
 				if (!hero.isAlive()){
 					Dungeon.fail( getClass() );
 					GLog.n( Messages.get(this, "ondeath") );

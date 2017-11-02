@@ -51,8 +51,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class DM300 extends Mob {
 	
 	{
@@ -100,7 +98,7 @@ public class DM300 extends Mob {
 			HP += Random.Int( 1, HT - HP );
 			sprite.emitter().burst( ElmoParticle.FACTORY, 5 );
 			
-			if (Dungeon.visible[step] && Dungeon.hero.isAlive()) {
+			if (Dungeon.level.heroFOV[step] && Dungeon.hero.isAlive()) {
 				GLog.n( Messages.get(this, "repair") );
 			}
 		}
@@ -114,12 +112,12 @@ public class DM300 extends Mob {
 		};
 		int cell = cells[Random.Int( cells.length )];
 		
-		if (Dungeon.visible[cell]) {
+		if (Dungeon.level.heroFOV[cell]) {
 			CellEmitter.get( cell ).start( Speck.factory( Speck.ROCK ), 0.07f, 10 );
 			Camera.main.shake( 3, 0.7f );
 			Sample.INSTANCE.play( Assets.SND_ROCKS );
 			
-			if (Level.water[cell]) {
+			if (Dungeon.level.water[cell]) {
 				GameScene.ripple( cell );
 			} else if (Dungeon.level.map[cell] == Terrain.EMPTY) {
 				Level.set( cell, Terrain.EMPTY_DECO );
@@ -165,26 +163,14 @@ public class DM300 extends Mob {
 		yell( Messages.get(this, "notice") );
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( Grim.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
+	{
+		resistances.add( Grim.class );
+		resistances.add( ScrollOfPsionicBlast.class );
 	}
 	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( ToxicGas.class );
-		IMMUNITIES.add( Terror.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( ToxicGas.class );
+		immunities.add( Terror.class );
 	}
 
 	@Override

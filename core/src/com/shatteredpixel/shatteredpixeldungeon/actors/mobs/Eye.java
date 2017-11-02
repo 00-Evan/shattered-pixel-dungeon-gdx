@@ -31,7 +31,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -40,8 +39,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.EyeSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class Eye extends Mob {
 	
@@ -91,12 +88,12 @@ public class Eye extends Mob {
 		if (beamCooldown == 0) {
 			Ballistica aim = new Ballistica(pos, enemy.pos, Ballistica.STOP_TERRAIN);
 
-			if (enemy.invisible == 0 && !isCharmedBy(enemy) && Level.fieldOfView[enemy.pos] && aim.subPath(1, aim.dist).contains(enemy.pos)){
+			if (enemy.invisible == 0 && !isCharmedBy(enemy) && fieldOfView[enemy.pos] && aim.subPath(1, aim.dist).contains(enemy.pos)){
 				beam = aim;
 				beamTarget = aim.collisionPos;
 				return true;
 			} else
-				//if the beam is charged, it has to attack, will aim at previous location of hero.
+				//if the beam is charged, it has to attack, will aim at previous location of target.
 				return beamCharged;
 		} else
 			return super.canAttack(enemy);
@@ -104,6 +101,9 @@ public class Eye extends Mob {
 
 	@Override
 	protected boolean act() {
+		if (beamCharged && state != HUNTING){
+			beamCharged = false;
+		}
 		if (beam == null && beamTarget != -1) {
 			beam = new Ballistica(pos, beamTarget, Ballistica.STOP_TERRAIN);
 			sprite.turnTo(pos, beamTarget);
@@ -111,12 +111,6 @@ public class Eye extends Mob {
 		if (beamCooldown > 0)
 			beamCooldown--;
 		return super.act();
-	}
-
-	@Override
-	protected Char chooseEnemy() {
-		if (beamCharged && enemy != null) return enemy;
-		return super.chooseEnemy();
 	}
 
 	@Override
@@ -134,7 +128,7 @@ public class Eye extends Mob {
 			spend( attackDelay() );
 			
 			beam = new Ballistica(pos, beamTarget, Ballistica.STOP_TERRAIN);
-			if (Dungeon.visible[pos] || Dungeon.visible[beam.collisionPos] ) {
+			if (Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[beam.collisionPos] ) {
 				sprite.zap( beam.collisionPos );
 				return false;
 			} else {
@@ -162,7 +156,7 @@ public class Eye extends Mob {
 
 		for (int pos : beam.subPath(1, beam.dist)) {
 
-			if (Level.flamable[pos]) {
+			if (Dungeon.level.flamable[pos]) {
 
 				Dungeon.level.destroy( pos );
 				GameScene.updateMap( pos );
@@ -178,7 +172,7 @@ public class Eye extends Mob {
 			if (hit( this, ch, true )) {
 				ch.damage( Random.NormalIntRange( 30, 50 ), this );
 
-				if (Dungeon.visible[pos]) {
+				if (Dungeon.level.heroFOV[pos]) {
 					ch.sprite.flash();
 					CellEmitter.center( pos ).burst( PurpleParticle.BURST, Random.IntRange( 1, 2 ) );
 				}
@@ -221,33 +215,21 @@ public class Eye extends Mob {
 		beamCharged = bundle.getBoolean(BEAM_CHARGED);
 	}
 
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( WandOfDisintegration.class );
-		RESISTANCES.add( Grim.class );
-		RESISTANCES.add( Vampiric.class );
+	{
+		resistances.add( WandOfDisintegration.class );
+		resistances.add( Grim.class );
+		resistances.add( Vampiric.class );
 	}
 	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
-	}
-	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Terror.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Terror.class );
 	}
 
 	private class Hunting extends Mob.Hunting{
 		@Override
 		public boolean act(boolean enemyInFOV, boolean justAlerted) {
-			//always attack if the beam is charged, no exceptions
-			if (beamCharged && canAttack(enemy)) {
+			//even if enemy isn't seen, attack them if the beam is charged
+			if (beamCharged && enemy != null && canAttack(enemy)) {
 				enemySeen = enemyInFOV;
 				return doAttack(enemy);
 			}

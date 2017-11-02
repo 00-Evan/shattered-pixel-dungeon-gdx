@@ -39,7 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SpearTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -48,8 +48,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BossHealthBar;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class Tengu extends Mob {
 	
@@ -164,49 +162,53 @@ public class Tengu extends Mob {
 }
 
 	private void jump() {
-
-		for (int i=0; i < 4; i++) {
-			int trapPos;
-			do {
-				trapPos = Random.Int( Dungeon.level.length() );
-			} while (!Level.fieldOfView[trapPos] || Level.solid[trapPos]);
-			
-			if (Dungeon.level.map[trapPos] == Terrain.INACTIVE_TRAP) {
-				Dungeon.level.setTrap( new SpearTrap().reveal(), trapPos );
-				Level.set( trapPos, Terrain.TRAP );
-				ScrollOfMagicMapping.discover( trapPos );
-			}
-		}
-
+		
+		Level level = Dungeon.level;
 		if (enemy == null) enemy = chooseEnemy();
+		if (enemy == null) return;
 
 		int newPos;
 		//if we're in phase 1, want to warp around within the room
 		if (HP > HT/2) {
+			
+			//place new traps
+			for (int i=0; i < 4; i++) {
+				int trapPos;
+				do {
+					trapPos = Random.Int( level.length() );
+				} while (level.map[trapPos] != Terrain.INACTIVE_TRAP
+						&& level.map[trapPos] != Terrain.TRAP);
+				
+				if (level.map[trapPos] == Terrain.INACTIVE_TRAP) {
+					level.setTrap( new GrippingTrap().reveal(), trapPos );
+					Level.set( trapPos, Terrain.TRAP );
+					ScrollOfMagicMapping.discover( trapPos );
+				}
+			}
+			
 			int tries = 50;
 			do {
 				newPos = Random.IntRange(3, 7) + 32*Random.IntRange(26, 30);
-			} while ( (Dungeon.level.adjacent(newPos, enemy.pos) || Actor.findChar(newPos) != null)
+			} while ( (level.adjacent(newPos, enemy.pos) || Actor.findChar(newPos) != null)
 					&& --tries > 0);
 			if (tries <= 0) return;
 
 		//otherwise go wherever, as long as it's a little bit away
 		} else {
 			do {
-				newPos = Random.Int(Dungeon.level.length());
+				newPos = Random.Int(level.length());
 			} while (
-					Level.solid[newPos] ||
-					Dungeon.level.distance(newPos, enemy.pos) < 8 ||
+					level.solid[newPos] ||
+					level.distance(newPos, enemy.pos) < 8 ||
 					Actor.findChar(newPos) != null);
 		}
 		
-		if (Dungeon.visible[pos]) CellEmitter.get( pos ).burst( Speck.factory( Speck.WOOL ), 6 );
-
+		if (level.heroFOV[pos]) CellEmitter.get( pos ).burst( Speck.factory( Speck.WOOL ), 6 );
 
 		sprite.move( pos, newPos );
 		move( newPos );
 		
-		if (Dungeon.visible[newPos]) CellEmitter.get( newPos ).burst( Speck.factory( Speck.WOOL ), 6 );
+		if (level.heroFOV[newPos]) CellEmitter.get( newPos ).burst( Speck.factory( Speck.WOOL ), 6 );
 		Sample.INSTANCE.play( Assets.SND_PUFF );
 		
 		spend( 1 / speed() );
@@ -224,17 +226,11 @@ public class Tengu extends Mob {
 		}
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( ToxicGas.class );
-		RESISTANCES.add( Poison.class );
-		RESISTANCES.add( Grim.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
+	{
+		resistances.add( ToxicGas.class );
+		resistances.add( Poison.class );
+		resistances.add( Grim.class );
+		resistances.add( ScrollOfPsionicBlast.class );
 	}
 
 	@Override
@@ -260,7 +256,9 @@ public class Tengu extends Mob {
 					target = enemy.pos;
 				} else {
 					chooseEnemy();
-					target = enemy.pos;
+					if (enemy != null) {
+						target = enemy.pos;
+					}
 				}
 
 				spend( TICK );

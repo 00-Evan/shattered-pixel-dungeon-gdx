@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+package com.shatteredpixel.shatteredpixeldungeon.items.stones;
 
-public class FireTrap extends Trap {
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 
+public class StoneOfIntuition extends InventoryStone {
+	
+	
 	{
-		color = ORANGE;
-		shape = DOTS;
+		mode = WndBag.Mode.UNIDED_POTION_OR_SCROLL;
+		image = ItemSpriteSheet.STONE_ISAZ;
 	}
-
+	
 	@Override
-	public void activate() {
-
-		GameScene.add( Blob.seed( pos, 2, Fire.class ) );
-		CellEmitter.get( pos ).burst( FlameParticle.FACTORY, 5 );
-
+	protected void onItemSelected(Item item) {
+		
+		//TODO design and implement interface for this.
+		//GameScene.show( new Window());
+		
 	}
+	
+	
 }

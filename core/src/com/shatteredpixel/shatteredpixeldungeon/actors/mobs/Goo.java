@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -50,8 +49,6 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
-
-import java.util.HashSet;
 
 public class Goo extends Mob {
 
@@ -76,7 +73,7 @@ public class Goo extends Mob {
 		int max = (HP*2 <= HT) ? 15 : 10;
 		if (pumpedUp > 0) {
 			pumpedUp = 0;
-			PathFinder.buildDistanceMap( pos, BArray.not( Level.solid, null ), 2 );
+			PathFinder.buildDistanceMap( pos, BArray.not( Dungeon.level.solid, null ), 2 );
 			for (int i = 0; i < PathFinder.distance.length; i++) {
 				if (PathFinder.distance[i] < Integer.MAX_VALUE)
 					CellEmitter.get(i).burst(ElmoParticle.FACTORY, 10);
@@ -109,7 +106,7 @@ public class Goo extends Mob {
 	@Override
 	public boolean act() {
 
-		if (Level.water[pos] && HP < HT) {
+		if (Dungeon.level.water[pos] && HP < HT) {
 			sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
 			if (HP*2 == HT) {
 				BossHealthBar.bleed(false);
@@ -128,6 +125,7 @@ public class Goo extends Mob {
 
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		if (Random.Int( 3 ) == 0) {
 			Buff.affect( enemy, Ooze.class );
 			enemy.sprite.burst( 0x000000, 5 );
@@ -144,7 +142,7 @@ public class Goo extends Mob {
 	protected boolean doAttack( Char enemy ) {
 		if (pumpedUp == 1) {
 			((GooSprite)sprite).pumpUp();
-			PathFinder.buildDistanceMap( pos, BArray.not( Level.solid, null ), 2 );
+			PathFinder.buildDistanceMap( pos, BArray.not( Dungeon.level.solid, null ), 2 );
 			for (int i = 0; i < PathFinder.distance.length; i++) {
 				if (PathFinder.distance[i] < Integer.MAX_VALUE)
 					GameScene.add(Blob.seed(i, 2, GooWarn.class));
@@ -156,7 +154,7 @@ public class Goo extends Mob {
 			return true;
 		} else if (pumpedUp >= 2 || Random.Int( (HP*2 <= HT) ? 2 : 5 ) > 0) {
 
-			boolean visible = Dungeon.visible[pos];
+			boolean visible = Dungeon.level.heroFOV[pos];
 
 			if (visible) {
 				if (pumpedUp >= 2) {
@@ -180,12 +178,12 @@ public class Goo extends Mob {
 
 			for (int i=0; i < PathFinder.NEIGHBOURS9.length; i++) {
 				int j = pos + PathFinder.NEIGHBOURS9[i];
-				if (!Level.solid[j]) {
+				if (!Dungeon.level.solid[j]) {
 					GameScene.add(Blob.seed(j, 2, GooWarn.class));
 				}
 			}
 
-			if (Dungeon.visible[pos]) {
+			if (Dungeon.level.heroFOV[pos]) {
 				sprite.showStatus( CharSprite.NEGATIVE, Messages.get(this, "!!!") );
 				GLog.n( Messages.get(this, "pumpup") );
 			}
@@ -221,7 +219,6 @@ public class Goo extends Mob {
 		super.damage(dmg, src);
 		if ((HP*2 <= HT) && !bleeding){
 			BossHealthBar.bleed(true);
-			GLog.w( Messages.get(this, "enraged_text") );
 			sprite.showStatus(CharSprite.NEGATIVE, Messages.get(this, "enraged"));
 			((GooSprite)sprite).spray(true);
 			yell(Messages.get(this, "gluuurp"));
@@ -273,15 +270,9 @@ public class Goo extends Mob {
 
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( ToxicGas.class );
-		RESISTANCES.add( Grim.class );
-		RESISTANCES.add( ScrollOfPsionicBlast.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
+	{
+		resistances.add( ToxicGas.class );
+		resistances.add( Grim.class );
+		resistances.add( ScrollOfPsionicBlast.class );
 	}
 }

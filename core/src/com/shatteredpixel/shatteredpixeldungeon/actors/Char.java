@@ -28,18 +28,20 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EarthImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Speed;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -75,13 +77,26 @@ public abstract class Char extends Actor {
 	public boolean flying		= false;
 	public int invisible		= 0;
 	
+	//these are relative to the hero
+	public enum Alignment{
+		ENEMY,
+		NEUTRAL,
+		ALLY
+	}
+	public Alignment alignment;
+	
 	public int viewDistance	= 8;
+	
+	protected boolean[] fieldOfView = null;
 	
 	private HashSet<Buff> buffs = new HashSet<>();
 	
 	@Override
 	protected boolean act() {
-		Dungeon.level.updateFieldOfView( this, Level.fieldOfView );
+		if (fieldOfView == null || fieldOfView.length != Dungeon.level.length()){
+			fieldOfView = new boolean[Dungeon.level.length()];
+		}
+		Dungeon.level.updateFieldOfView( this, fieldOfView );
 		return false;
 	}
 	
@@ -124,7 +139,7 @@ public abstract class Char extends Actor {
 
 		if (enemy == null || !enemy.isAlive()) return false;
 		
-		boolean visibleFight = Dungeon.visible[pos] || Dungeon.visible[enemy.pos];
+		boolean visibleFight = Dungeon.level.heroFOV[pos] || Dungeon.level.heroFOV[enemy.pos];
 		
 		if (hit( this, enemy, false )) {
 			
@@ -132,7 +147,13 @@ public abstract class Char extends Actor {
 			int dr = this instanceof Hero && ((Hero)this).rangedWeapon != null && ((Hero)this).subClass ==
 				HeroSubClass.SNIPER ? 0 : enemy.drRoll();
 			
-			int dmg = damageRoll();
+			int dmg;
+			Preparation prep = buff(Preparation.class);
+			if (prep != null){
+				dmg = prep.damageRoll(this, enemy);
+			} else {
+				dmg = damageRoll();
+			}
 			int effectiveDamage = Math.max( dmg - dr, 0 );
 			
 			effectiveDamage = attackProc( enemy, effectiveDamage );
@@ -248,6 +269,9 @@ public abstract class Char extends Actor {
 		if (this.buff(MagicalSleep.class) != null){
 			Buff.detach(this, MagicalSleep.class);
 		}
+		if (this.buff(Doom.class) != null){
+			dmg *= 2;
+		}
 		
 		Class<?> srcClass = src.getClass();
 		if (immunities().contains( srcClass )) {
@@ -259,7 +283,7 @@ public abstract class Char extends Actor {
 		if (buff( Paralysis.class ) != null) {
 			if (Random.Int( dmg ) >= Random.Int( HP )) {
 				Buff.detach( this, Paralysis.class );
-				if (Dungeon.visible[pos]) {
+				if (Dungeon.level.heroFOV[pos]) {
 					GLog.i( Messages.get(Char.class, "out_of_paralysis", name) );
 				}
 			}
@@ -407,7 +431,7 @@ public abstract class Char extends Actor {
 		if (Dungeon.level.adjacent( step, pos ) && buff( Vertigo.class ) != null) {
 			sprite.interruptMotion();
 			int newPos = pos + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
-			if (!(Level.passable[newPos] || Level.avoid[newPos]) || Actor.findChar( newPos ) != null)
+			if (!(Dungeon.level.passable[newPos] || Dungeon.level.avoid[newPos]) || Actor.findChar( newPos ) != null)
 				return;
 			else {
 				sprite.move(pos, newPos);
@@ -426,7 +450,7 @@ public abstract class Char extends Actor {
 		}
 		
 		if (this != Dungeon.hero) {
-			sprite.visible = Dungeon.visible[pos];
+			sprite.visible = Dungeon.level.heroFOV[pos];
 		}
 	}
 	
@@ -448,25 +472,64 @@ public abstract class Char extends Actor {
 		next();
 	}
 	
-	private static final HashSet<Class<?>> EMPTY = new HashSet<>();
+	protected final HashSet<Class> resistances = new HashSet<>();
 	
-	public HashSet<Class<?>> resistances() {
-		return EMPTY;
+	public HashSet<Class> resistances() {
+		HashSet<Class> result = new HashSet<>(resistances);
+		for (Property p : properties()){
+			result.addAll(p.resistances());
+		}
+		for (Buff b : buffs()){
+			result.addAll(b.resistances());
+		}
+		result.addAll(RingOfElements.resistances( this ));
+		return result;
 	}
 	
-	public HashSet<Class<?>> immunities() {
-		return EMPTY;
+	protected final HashSet<Class> immunities = new HashSet<>();
+	
+	public HashSet<Class> immunities() {
+		HashSet<Class> result = new HashSet<>(immunities);
+		for (Property p : properties()){
+			result.addAll(p.immunities());
+		}
+		for (Buff b : buffs()){
+			result.addAll(b.immunities());
+		}
+		return result;
 	}
 
 	protected HashSet<Property> properties = new HashSet<>();
 
-	public HashSet<Property> properties() { return properties; }
+	public HashSet<Property> properties() {
+		return new HashSet<>(properties);
+	}
 
 	public enum Property{
 		BOSS,
 		MINIBOSS,
 		UNDEAD,
 		DEMONIC,
-		IMMOVABLE
+		IMMOVABLE;
+		
+		private HashSet<Class> resistances;
+		private HashSet<Class> immunities;
+		
+		Property(){
+			this(new HashSet<Class>(), new HashSet<Class>());
+		}
+		
+		Property( HashSet<Class> resistances, HashSet<Class> immunities){
+			this.resistances = resistances;
+			this.immunities = immunities;
+		}
+		
+		public HashSet<Class> resistances(){
+			return new HashSet<>(resistances);
+		}
+		
+		public HashSet<Class> immunities(){
+			return new HashSet<>(immunities);
+		}
 	}
 }

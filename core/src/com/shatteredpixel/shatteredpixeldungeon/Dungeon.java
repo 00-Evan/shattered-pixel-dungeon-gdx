@@ -54,6 +54,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -171,9 +172,6 @@ public class Dungeon {
 	public static int gold;
 	
 	public static HashSet<Integer> chapters;
-	
-	// Hero's field of view
-	public static boolean[] visible;
 
 	public static SparseArray<ArrayList<Item>> droppedItems;
 
@@ -198,6 +196,7 @@ public class Dungeon {
 			Ring.initGems();
 
 			SpecialRoom.initForRun();
+			SecretRoom.initForRun();
 
 		Random.seed();
 		
@@ -362,8 +361,6 @@ public class Dungeon {
 		DriedRose.restoreGhostHero( level, pos );
 		Actor.init();
 		
-		visible = new boolean[level.length()];
-		
 		Actor respawner = level.respawner();
 		if (respawner != null) {
 			Actor.add( level.respawner() );
@@ -519,6 +516,7 @@ public class Dungeon {
 			bundle.put( QUESTS, quests );
 			
 			SpecialRoom.storeRoomsInBundle( bundle );
+			SecretRoom.storeRoomsInBundle( bundle );
 			
 			Statistics.storeInBundle( bundle );
 			Notes.storeInBundle( bundle );
@@ -633,6 +631,7 @@ public class Dungeon {
 			}
 			
 			SpecialRoom.restoreRoomsFromBundle(bundle);
+			SecretRoom.restoreRoomsFromBundle(bundle);
 		}
 		
 		Bundle badges = bundle.getBundle(BADGES);
@@ -741,10 +740,10 @@ public class Dungeon {
 			return;
 		}
 		
-		level.updateFieldOfView(hero, visible);
+		level.updateFieldOfView(hero, level.heroFOV);
 
 		if (hero.buff(MindVision.class) != null || hero.buff(Awareness.class) != null) {
-			BArray.or( level.visited, visible, 0, visible.length, level.visited );
+			BArray.or( level.visited, level.heroFOV, 0, level.heroFOV.length, level.visited );
 
 			GameScene.updateFog();
 		} else {
@@ -761,7 +760,7 @@ public class Dungeon {
 			int pos = ax + ay * level.width();
 
 			for (int y = ay; y <= by; y++, pos+=level.width()) {
-				BArray.or( level.visited, visible, pos, len, level.visited );
+				BArray.or( level.visited, level.heroFOV, pos, len, level.visited );
 			}
 
 			GameScene.updateFog(ax, ay, len, by-ay);
@@ -785,7 +784,7 @@ public class Dungeon {
 
 		setupPassable();
 		if (ch.flying || ch.buff( Amok.class ) != null) {
-			BArray.or( pass, Level.avoid, passable );
+			BArray.or( pass, Dungeon.level.avoid, passable );
 		} else {
 			System.arraycopy( pass, 0, passable, 0, Dungeon.level.length() );
 		}
@@ -802,13 +801,13 @@ public class Dungeon {
 	
 	public static int findStep(Char ch, int from, int to, boolean pass[], boolean[] visible ) {
 
-		if (level.adjacent( from, to )) {
-			return Actor.findChar( to ) == null && (pass[to] || Level.avoid[to]) ? to : -1;
+		if (Dungeon.level.adjacent( from, to )) {
+			return Actor.findChar( to ) == null && (pass[to] || Dungeon.level.avoid[to]) ? to : -1;
 		}
 
 		setupPassable();
 		if (ch.flying || ch.buff( Amok.class ) != null) {
-			BArray.or( pass, Level.avoid, passable );
+			BArray.or( pass, Dungeon.level.avoid, passable );
 		} else {
 			System.arraycopy( pass, 0, passable, 0, Dungeon.level.length() );
 		}
@@ -827,7 +826,7 @@ public class Dungeon {
 
 		setupPassable();
 		if (ch.flying) {
-			BArray.or( pass, Level.avoid, passable );
+			BArray.or( pass, Dungeon.level.avoid, passable );
 		} else {
 			System.arraycopy( pass, 0, passable, 0, Dungeon.level.length() );
 		}

@@ -32,11 +32,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
@@ -46,7 +47,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -62,6 +62,8 @@ public abstract class Mob extends Char {
 	{
 		name = Messages.get(this, "name");
 		actPriority = 2; //hero gets priority over mobs.
+		
+		alignment = Alignment.ENEMY;
 	}
 	
 	private static final String	TXT_DIED	= "You hear something died in the distance";
@@ -83,17 +85,14 @@ public abstract class Mob extends Char {
 	
 	protected int defenseSkill = 0;
 	
-	protected int EXP = 1;
-	protected int maxLvl = Hero.MAX_LEVEL;
+	public int EXP = 1;
+	public int maxLvl = Hero.MAX_LEVEL;
 	
 	protected Char enemy;
 	protected boolean enemySeen;
 	protected boolean alerted = false;
 
 	protected static final float TIME_TO_WAKE_UP = 1f;
-	
-	public boolean hostile = true;
-	public boolean ally = false;
 	
 	private static final String STATE	= "state";
 	private static final String SEEN	= "seen";
@@ -160,7 +159,12 @@ public abstract class Mob extends Char {
 		boolean justAlerted = alerted;
 		alerted = false;
 		
-		sprite.hideAlert();
+		if (justAlerted){
+			sprite.showAlert();
+		} else {
+			sprite.hideAlert();
+			sprite.hideLost();
+		}
 		
 		if (paralysed > 0) {
 			enemySeen = false;
@@ -170,7 +174,7 @@ public abstract class Mob extends Char {
 		
 		enemy = chooseEnemy();
 		
-		boolean enemyInFOV = enemy != null && enemy.isAlive() && Level.fieldOfView[enemy.pos] && enemy.invisible <= 0;
+		boolean enemyInFOV = enemy != null && enemy.isAlive() && fieldOfView[enemy.pos] && enemy.invisible <= 0;
 
 		return state.act( enemyInFOV, justAlerted );
 	}
@@ -190,8 +194,8 @@ public abstract class Mob extends Char {
 		//we have no enemy, or the current one is dead
 		if ( enemy == null || !enemy.isAlive() || state == WANDERING)
 			newEnemy = true;
-		//We are corrupted, and current enemy is either the hero or another corrupted character.
-		else if (buff(Corruption.class) != null && (enemy == Dungeon.hero || enemy.buff(Corruption.class) != null))
+		//We are an ally, and current enemy is another ally.
+		else if (alignment == Alignment.ALLY && enemy.alignment == Alignment.ALLY)
 			newEnemy = true;
 		//We are amoked and current enemy is the hero
 		else if (buff( Amok.class ) != null && enemy == Dungeon.hero)
@@ -201,47 +205,55 @@ public abstract class Mob extends Char {
 
 			HashSet<Char> enemies = new HashSet<>();
 
-			//if the mob is corrupted...
-			if ( buff(Corruption.class) != null) {
-
-				//look for enemy mobs to attack, which are also not corrupted
-				for (Mob mob : Dungeon.level.mobs)
-					if (mob != this && Level.fieldOfView[mob.pos] && mob.hostile && mob.buff(Corruption.class) == null)
-						enemies.add(mob);
-				if (enemies.size() > 0) return Random.element(enemies);
-
-				//otherwise go for nothing
-				return null;
-
 			//if the mob is amoked...
-			} else if ( buff(Amok.class) != null) {
-
+			if ( buff(Amok.class) != null) {
 				//try to find an enemy mob to attack first.
 				for (Mob mob : Dungeon.level.mobs)
-					if (mob != this && Level.fieldOfView[mob.pos] && mob.hostile)
+					if (mob.alignment == Alignment.ENEMY && mob != this && fieldOfView[mob.pos])
 							enemies.add(mob);
-				if (enemies.size() > 0) return Random.element(enemies);
-
-				//try to find ally mobs to attack second.
-				for (Mob mob : Dungeon.level.mobs)
-					if (mob != this && Level.fieldOfView[mob.pos] && mob.ally)
-						enemies.add(mob);
-				if (enemies.size() > 0) return Random.element(enemies);
-
-				//if there is nothing, go for the hero
-				else return Dungeon.hero;
-
-			} else {
-
-				//try to find ally mobs to attack.
-				for (Mob mob : Dungeon.level.mobs)
-					if (mob != this && Level.fieldOfView[mob.pos] && mob.ally)
-						enemies.add(mob);
-
-				//and add the hero to the list of targets.
-				enemies.add(Dungeon.hero);
 				
-				//go after the closest enemy, preferring the hero if two are equidistant
+				if (enemies.isEmpty()) {
+					//try to find ally mobs to attack second.
+					for (Mob mob : Dungeon.level.mobs)
+						if (mob.alignment == Alignment.ALLY && mob != this && fieldOfView[mob.pos])
+							enemies.add(mob);
+					
+					if (enemies.isEmpty()) {
+						//try to find the hero third
+						if (fieldOfView[Dungeon.hero.pos]) {
+							enemies.add(Dungeon.hero);
+						}
+					}
+				}
+				
+			//if the mob is an ally...
+			} else if ( alignment == Alignment.ALLY ) {
+				//look for hostile mobs that are not passive to attack
+				for (Mob mob : Dungeon.level.mobs)
+					if (mob.alignment == Alignment.ENEMY
+							&& fieldOfView[mob.pos]
+							&& mob.state != mob.PASSIVE)
+						enemies.add(mob);
+				
+			//if the mob is an enemy...
+			} else if (alignment == Alignment.ENEMY) {
+				//look for ally mobs to attack
+				for (Mob mob : Dungeon.level.mobs)
+					if (mob.alignment == Alignment.ALLY && fieldOfView[mob.pos])
+						enemies.add(mob);
+
+				//and look for the hero
+				if (fieldOfView[Dungeon.hero.pos]) {
+					enemies.add(Dungeon.hero);
+				}
+				
+			}
+			
+			//neutral character in particular do not choose enemies.
+			if (enemies.isEmpty()){
+				return null;
+			} else {
+				//go after the closest potential enemy, preferring the hero if two are equidistant
 				Char closest = null;
 				for (Char curr : enemies){
 					if (closest == null
@@ -251,7 +263,6 @@ public abstract class Mob extends Char {
 					}
 				}
 				return closest;
-
 			}
 
 		} else
@@ -260,7 +271,7 @@ public abstract class Mob extends Char {
 
 	protected boolean moveSprite( int from, int to ) {
 
-		if (sprite.isVisible() && (Dungeon.visible[from] || Dungeon.visible[to])) {
+		if (sprite.isVisible() && (Dungeon.level.heroFOV[from] || Dungeon.level.heroFOV[to])) {
 			sprite.move( from, to );
 			return true;
 		} else {
@@ -272,10 +283,7 @@ public abstract class Mob extends Char {
 	@Override
 	public void add( Buff buff ) {
 		super.add( buff );
-		if (buff instanceof Amok) {
-			if (sprite != null) {
-				sprite.showStatus( CharSprite.NEGATIVE, Messages.get(this, "rage") );
-			}
+		if (buff instanceof Amok || buff instanceof Corruption) {
 			state = HUNTING;
 		} else if (buff instanceof Terror) {
 			state = FLEEING;
@@ -311,7 +319,7 @@ public abstract class Mob extends Char {
 
 			path = null;
 
-			if (Actor.findChar( target ) == null && Level.passable[target]) {
+			if (Actor.findChar( target ) == null && Dungeon.level.passable[target]) {
 				step = target;
 			}
 
@@ -368,7 +376,7 @@ public abstract class Mob extends Char {
 				int lookAhead = (int)GameMath.gate(1, path.size()-1, 4);
 				for (int i = 0; i < lookAhead; i++) {
 					int cell = path.get(i);
-					if (!Level.passable[cell] || ( Level.fieldOfView[cell] && Actor.findChar(cell) != null)) {
+					if (!Dungeon.level.passable[cell] || ( fieldOfView[cell] && Actor.findChar(cell) != null)) {
 						newPath = true;
 						break;
 					}
@@ -377,8 +385,8 @@ public abstract class Mob extends Char {
 
 			if (newPath) {
 				path = Dungeon.findPath(this, pos, target,
-						Level.passable,
-						Level.fieldOfView);
+						Dungeon.level.passable,
+						fieldOfView);
 			}
 
 			//if hunting something, don't follow a path that is extremely inefficient
@@ -402,8 +410,8 @@ public abstract class Mob extends Char {
 	
 	protected boolean getFurther( int target ) {
 		int step = Dungeon.flee( this, pos, target,
-			Level.passable,
-			Level.fieldOfView );
+			Dungeon.level.passable,
+			fieldOfView );
 		if (step != -1) {
 			move( step );
 			return true;
@@ -434,7 +442,7 @@ public abstract class Mob extends Char {
 	
 	protected boolean doAttack( Char enemy ) {
 		
-		boolean visible = Dungeon.visible[pos];
+		boolean visible = Dungeon.level.heroFOV[pos];
 		
 		if (visible) {
 			sprite.attack( enemy.pos );
@@ -454,6 +462,15 @@ public abstract class Mob extends Char {
 	}
 	
 	@Override
+	public int attackProc(Char enemy, int damage) {
+		damage = super.attackProc(enemy, damage);
+		if (buff(Weakness.class) != null){
+			damage *= 0.67f;
+		}
+		return damage;
+	}
+	
+	@Override
 	public int defenseSkill( Char enemy ) {
 		boolean seen = enemySeen || (enemy == Dungeon.hero && !Dungeon.hero.canSurpriseAttack());
 		if (seen && paralysed == 0) {
@@ -468,8 +485,7 @@ public abstract class Mob extends Char {
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
 		if (!enemySeen && enemy == Dungeon.hero && Dungeon.hero.canSurpriseAttack()) {
-			if (((Hero)enemy).subClass == HeroSubClass.ASSASSIN) {
-				damage *= 1.25f;
+			if (enemy.buff(Preparation.class) != null) {
 				Wound.hit(this);
 			} else {
 				Surprise.hit(this);
@@ -512,7 +528,9 @@ public abstract class Mob extends Char {
 		if (state == SLEEPING) {
 			state = WANDERING;
 		}
-		alerted = true;
+		if (state != HUNTING) {
+			alerted = true;
+		}
 		
 		super.damage( dmg, src );
 	}
@@ -527,22 +545,18 @@ public abstract class Mob extends Char {
 		
 		if (Dungeon.hero.isAlive()) {
 			
-			if (hostile) {
+			if (alignment == Alignment.ENEMY) {
 				Statistics.enemiesSlain++;
 				Badges.validateMonstersSlain();
 				Statistics.qualifiedForNoKilling = false;
-			}
-
-			int exp = exp();
-			if (exp > 0) {
-				Dungeon.hero.sprite.showStatus( CharSprite.POSITIVE, Messages.get(this, "exp", exp) );
-				Dungeon.hero.earnExp( exp );
+				
+				int exp = Dungeon.hero.lvl <= maxLvl ? EXP : 0;
+				if (exp > 0) {
+					Dungeon.hero.sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "exp", exp));
+					Dungeon.hero.earnExp(exp);
+				}
 			}
 		}
-	}
-
-	public int exp() {
-		return Dungeon.hero.lvl <= maxLvl ? EXP : 0;
 	}
 	
 	@Override
@@ -559,7 +573,7 @@ public abstract class Mob extends Char {
 				Dungeon.level.drop( loot , pos ).sprite.drop();
 		}
 		
-		if (hostile && Dungeon.hero.lvl <= maxLvl + 2){
+		if (alignment == Alignment.ENEMY && Dungeon.hero.lvl <= maxLvl + 2){
 			int rolls = 1;
 			if (properties.contains(Property.BOSS))             rolls = 15;
 			else if (properties.contains(Property.MINIBOSS))    rolls = 5;
@@ -570,7 +584,7 @@ public abstract class Mob extends Char {
 			}
 		}
 		
-		if (Dungeon.hero.isAlive() && !Dungeon.visible[pos]) {
+		if (Dungeon.hero.isAlive() && !Dungeon.level.heroFOV[pos]) {
 			GLog.i( Messages.get(this, "died") );
 		}
 	}
@@ -630,7 +644,6 @@ public abstract class Mob extends Char {
 
 	public interface AiState {
 		boolean act( boolean enemyInFOV, boolean justAlerted );
-		String status();
 	}
 
 	protected class Sleeping implements AiState {
@@ -666,11 +679,6 @@ public abstract class Mob extends Char {
 			}
 			return true;
 		}
-
-		@Override
-		public String status() {
-			return Messages.get(this, "status", name );
-		}
 	}
 
 	protected class Wandering implements AiState {
@@ -684,6 +692,7 @@ public abstract class Mob extends Char {
 				enemySeen = true;
 
 				notice();
+				alerted = true;
 				state = HUNTING;
 				target = enemy.pos;
 
@@ -703,11 +712,6 @@ public abstract class Mob extends Char {
 			}
 			return true;
 		}
-
-		@Override
-		public String status() {
-			return Messages.get(this, "status", name );
-		}
 	}
 
 	protected class Hunting implements AiState {
@@ -725,27 +729,28 @@ public abstract class Mob extends Char {
 
 				if (enemyInFOV) {
 					target = enemy.pos;
-				}
-
-				int oldPos = pos;
-				if (target != -1 && getCloser( target )) {
-
-					spend( 1 / speed() );
-					return moveSprite( oldPos,  pos );
-
-				} else {
-
-					spend( TICK );
+				} else if (enemy == null) {
 					state = WANDERING;
 					target = Dungeon.level.randomDestination();
 					return true;
 				}
-			}
-		}
+				
+				int oldPos = pos;
+				if (target != -1 && getCloser( target )) {
+					
+					spend( 1 / speed() );
+					return moveSprite( oldPos,  pos );
 
-		@Override
-		public String status() {
-			return Messages.get(this, "status", name );
+				} else {
+					spend( TICK );
+					if (!enemyInFOV) {
+						sprite.showLost();
+						state = WANDERING;
+						target = Dungeon.level.randomDestination();
+					}
+					return true;
+				}
+			}
 		}
 	}
 
@@ -759,7 +764,9 @@ public abstract class Mob extends Char {
 			//loses target when 0-dist rolls a 6 or greater.
 			if (enemy == null || !enemyInFOV && 1 + Random.Int(Dungeon.level.distance(pos, target)) >= 6){
 				target = -1;
-			} else {
+			
+			//if enemy isn't in FOV, keep running from their previous position.
+			} else if (enemyInFOV) {
 				target = enemy.pos;
 			}
 
@@ -780,11 +787,6 @@ public abstract class Mob extends Char {
 
 		protected void nowhereToRun() {
 		}
-
-		@Override
-		public String status() {
-			return Messages.get(this, "status", name );
-		}
 	}
 
 	protected class Passive implements AiState {
@@ -796,11 +798,6 @@ public abstract class Mob extends Char {
 			enemySeen = false;
 			spend( TICK );
 			return true;
-		}
-
-		@Override
-		public String status() {
-			return Messages.get(this, "status", name );
 		}
 	}
 }

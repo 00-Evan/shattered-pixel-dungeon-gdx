@@ -18,48 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.ui;
+package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.PathFinder;
 
-public class HealthIndicator extends HealthBar {
-	
-	public static HealthIndicator instance;
-	
-	private Char target;
-	
-	public HealthIndicator() {
-		super();
-		
-		instance = this;
+public class ShockingTrap extends Trap {
+
+	{
+		color = YELLOW;
+		shape = DOTS;
 	}
-	
+
 	@Override
-	public void update() {
-		super.update();
+	public void activate() {
 		
-		if (target != null && target.isAlive() && target.sprite.visible) {
-			CharSprite sprite = target.sprite;
-			width = sprite.width;
-			x = sprite.x;
-			y = sprite.y - 3;
-			level( target );
-			visible = true;
-		} else {
-			visible = false;
+		if (Dungeon.level.heroFOV[pos]){
+			Sample.INSTANCE.play( Assets.SND_LIGHTNING );
+		}
+		
+		for( int i : PathFinder.NEIGHBOURS9) {
+			if (!Dungeon.level.solid[pos + i]) {
+				GameScene.add(Blob.seed(pos + i, 10, Electricity.class));
+			}
 		}
 	}
 	
-	public void target( Char ch ) {
-		if (ch != null && ch.isAlive()) {
-			target = ch;
-		} else {
-			target = null;
-		}
-	}
-	
-	public Char target() {
-		return target;
-	}
 }

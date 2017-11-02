@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Alchemy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
@@ -48,12 +47,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Stylus;
 import com.shatteredpixel.shatteredpixeldungeon.items.Torch;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
@@ -109,25 +106,24 @@ public abstract class Level implements Bundlable {
 	protected static final float TIME_TO_RESPAWN	= 50;
 
 	public int version;
+	
 	public int[] map;
 	public boolean[] visited;
 	public boolean[] mapped;
+	public boolean[] discoverable;
 
 	public int viewDistance = Dungeon.isChallenged( Challenges.DARKNESS ) ? 4 : 8;
-
-	//FIXME should not be static!
-	public static boolean[] fieldOfView;
 	
-	public static boolean[] passable;
-	public static boolean[] losBlocking;
-	public static boolean[] flamable;
-	public static boolean[] secret;
-	public static boolean[] solid;
-	public static boolean[] avoid;
-	public static boolean[] water;
-	public static boolean[] pit;
+	public boolean[] heroFOV;
 	
-	public static boolean[] discoverable;
+	public boolean[] passable;
+	public boolean[] losBlocking;
+	public boolean[] flamable;
+	public boolean[] secret;
+	public boolean[] solid;
+	public boolean[] avoid;
+	public boolean[] water;
+	public boolean[] pit;
 	
 	public Feeling feeling = Feeling.NONE;
 	
@@ -255,22 +251,21 @@ public abstract class Level implements Bundlable {
 		length = w * h;
 		
 		map = new int[length];
-		Arrays.fill( map, Terrain.WALL );
 		Arrays.fill( map, feeling == Level.Feeling.CHASM ? Terrain.CHASM : Terrain.WALL );
 		
-		visited = new boolean[length];
-		mapped = new boolean[length];
+		visited     = new boolean[length];
+		mapped      = new boolean[length];
 		
-		fieldOfView = new boolean[length()];
+		heroFOV     = new boolean[length];
 		
-		passable	= new boolean[length()];
-		losBlocking	= new boolean[length()];
-		flamable	= new boolean[length()];
-		secret		= new boolean[length()];
-		solid		= new boolean[length()];
-		avoid		= new boolean[length()];
-		water		= new boolean[length()];
-		pit			= new boolean[length()];
+		passable	= new boolean[length];
+		losBlocking	= new boolean[length];
+		flamable	= new boolean[length];
+		secret		= new boolean[length];
+		solid		= new boolean[length];
+		avoid		= new boolean[length];
+		water		= new boolean[length];
+		pit			= new boolean[length];
 		
 		PathFinder.setMapSize(w, h);
 	}
@@ -503,7 +498,12 @@ public abstract class Level implements Bundlable {
 
 			@Override
 			protected boolean act() {
-				if (mobs.size() < nMobs()) {
+				int count = 0;
+				for (Mob mob : mobs.toArray(new Mob[0])){
+					if (mob.alignment == Char.Alignment.ENEMY) count++;
+				}
+				
+				if (count < nMobs()) {
 
 					Mob mob = createMob();
 					mob.state = mob.WANDERING;
@@ -515,7 +515,13 @@ public abstract class Level implements Bundlable {
 						}
 					}
 				}
-				spend( Dungeon.level.feeling == Feeling.DARK || Statistics.amuletObtained ? TIME_TO_RESPAWN / 2 : TIME_TO_RESPAWN );
+				if (Statistics.amuletObtained){
+					spend(TIME_TO_RESPAWN/2f);
+				} else if (Dungeon.level.feeling == Feeling.DARK){
+					spend(2*TIME_TO_RESPAWN/3f);
+				} else {
+					spend(TIME_TO_RESPAWN);
+				}
 				return true;
 			}
 		};
@@ -525,7 +531,7 @@ public abstract class Level implements Bundlable {
 		int cell;
 		do {
 			cell = Random.Int( length() );
-		} while ((Dungeon.level == this && Dungeon.visible[cell])
+		} while ((Dungeon.level == this && heroFOV[cell])
 				|| !passable[cell]
 				|| Actor.findChar( cell ) != null);
 		return cell;
@@ -615,22 +621,26 @@ public abstract class Level implements Bundlable {
 		}
 	}
 	
-	public static void set( int cell, int terrain ) {
-		Painter.set( Dungeon.level, cell, terrain );
+	public static void set( int cell, int terrain ){
+		set( cell, terrain, Dungeon.level );
+	}
+	
+	public static void set( int cell, int terrain, Level level ) {
+		Painter.set( level, cell, terrain );
 
 		if (terrain != Terrain.TRAP && terrain != Terrain.SECRET_TRAP && terrain != Terrain.INACTIVE_TRAP){
-			Dungeon.level.traps.remove( cell );
+			level.traps.remove( cell );
 		}
 
 		int flags = Terrain.flags[terrain];
-		passable[cell]		= (flags & Terrain.PASSABLE) != 0;
-		losBlocking[cell]	= (flags & Terrain.LOS_BLOCKING) != 0;
-		flamable[cell]		= (flags & Terrain.FLAMABLE) != 0;
-		secret[cell]		= (flags & Terrain.SECRET) != 0;
-		solid[cell]			= (flags & Terrain.SOLID) != 0;
-		avoid[cell]			= (flags & Terrain.AVOID) != 0;
-		pit[cell]			= (flags & Terrain.PIT) != 0;
-		water[cell]			= terrain == Terrain.WATER;
+		level.passable[cell]		= (flags & Terrain.PASSABLE) != 0;
+		level.losBlocking[cell]	    = (flags & Terrain.LOS_BLOCKING) != 0;
+		level.flamable[cell]		= (flags & Terrain.FLAMABLE) != 0;
+		level.secret[cell]		    = (flags & Terrain.SECRET) != 0;
+		level.solid[cell]			= (flags & Terrain.SOLID) != 0;
+		level.avoid[cell]			= (flags & Terrain.AVOID) != 0;
+		level.pit[cell]			    = (flags & Terrain.PIT) != 0;
+		level.water[cell]			= terrain == Terrain.WATER;
 	}
 	
 	public Heap drop( Item item, int cell ) {
@@ -651,25 +661,14 @@ public abstract class Level implements Bundlable {
 			return heap;
 
 		}
-
-		if ((map[cell] == Terrain.ALCHEMY) && (
-				!(item instanceof Plant.Seed || item instanceof Blandfruit) ||
-				item instanceof BlandfruitBush.Seed ||
-				(item instanceof Blandfruit && (((Blandfruit) item).potionAttrib != null || heaps.get(cell) != null))||
-				Dungeon.hero.buff(AlchemistsToolkit.alchemy.class) != null && Dungeon.hero.buff(AlchemistsToolkit.alchemy.class).isCursed())) {
-			int n;
-			do {
-				n = cell + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
-			} while (map[n] != Terrain.EMPTY_SP);
-			cell = n;
-		}
 		
 		Heap heap = heaps.get( cell );
 		if (heap == null) {
 			
 			heap = new Heap();
-			heap.seen = Dungeon.level == this && Dungeon.visible[cell];
+			heap.seen = Dungeon.level == this && heroFOV[cell];
 			heap.pos = cell;
+			heap.drop(item);
 			if (map[cell] == Terrain.CHASM || (Dungeon.level != null && pit[cell])) {
 				Dungeon.dropToChasm( item );
 				GameScene.discard( heap );
@@ -683,11 +682,12 @@ public abstract class Level implements Bundlable {
 			int n;
 			do {
 				n = cell + PathFinder.NEIGHBOURS8[Random.Int( 8 )];
-			} while (!Level.passable[n] && !Level.avoid[n]);
+			} while (!passable[n] && !avoid[n]);
 			return drop( item, n );
 			
+		} else {
+			heap.drop(item);
 		}
-		heap.drop(item);
 		
 		if (Dungeon.level != null) {
 			press( cell, null );
@@ -711,11 +711,11 @@ public abstract class Level implements Bundlable {
 				map[pos] == Terrain.EMPTY ||
 				map[pos] == Terrain.EMBERS ||
 				map[pos] == Terrain.EMPTY_DECO) {
-			map[pos] = Terrain.GRASS;
-			flamable[pos] = true;
+			set(pos, Terrain.GRASS, this);
+			GameScene.updateMap(pos);
 		}
 		
-		plant = seed.couch( pos );
+		plant = seed.couch( pos, this );
 		plants.put( pos, plant );
 		
 		GameScene.plantSeed( pos );
@@ -790,12 +790,6 @@ public abstract class Level implements Bundlable {
 			
 		case Terrain.WELL:
 			WellWater.affectCell( cell );
-			break;
-			
-		case Terrain.ALCHEMY:
-			if (ch == null) {
-				Alchemy.transmute( cell );
-			}
 			break;
 			
 		case Terrain.DOOR:
@@ -1066,7 +1060,7 @@ public abstract class Level implements Bundlable {
 			case Terrain.EMPTY_WELL:
 				return Messages.get(Level.class, "empty_well_desc");
 			default:
-				return Messages.get(Level.class, "default_desc");
+				return "";
 		}
 	}
 }

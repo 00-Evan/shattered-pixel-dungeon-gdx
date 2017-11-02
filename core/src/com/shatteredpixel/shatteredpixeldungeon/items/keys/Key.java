@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.StatusPane;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
@@ -48,12 +47,12 @@ public abstract class Key extends Item {
 
 	@Override
 	public boolean doPickUp(Hero hero) {
-		GameScene.pickUpJournal(this);
+		GameScene.pickUpJournal(this, hero.pos);
 		WndJournal.last_index = 1;
 		Notes.add(this);
 		Sample.INSTANCE.play( Assets.SND_ITEM );
 		hero.spendAndNext( TIME_TO_PICK_UP );
-		StatusPane.needsKeyUpdate = true;
+		GameScene.updateKeyDisplay();
 		return true;
 	}
 

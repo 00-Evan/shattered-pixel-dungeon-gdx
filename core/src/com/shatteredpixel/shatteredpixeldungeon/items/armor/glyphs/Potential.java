@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.LightningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.noosa.Camera;
@@ -44,7 +43,7 @@ public class Potential extends Glyph {
 
 			int shockDmg = Random.NormalIntRange( 2, 6 );
 
-			defender.damage( shockDmg, LightningTrap.LIGHTNING );
+			defender.damage( shockDmg, this );
 			
 			checkOwner( defender );
 			if (defender == Dungeon.hero) {

@@ -22,7 +22,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.BeeSprite;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -96,6 +95,7 @@ public class Bee extends Mob {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		if (enemy instanceof Mob) {
 			((Mob)enemy).aggro( this );
 		}
@@ -104,9 +104,9 @@ public class Bee extends Mob {
 
 	@Override
 	protected Char chooseEnemy() {
-		//if the pot is no longer present, target the hero
+		//if the pot is no longer present, default to regular AI behaviour
 		if (potHolder == -1 && potPos == -1)
-			return Dungeon.hero;
+			return super.chooseEnemy();
 
 		//if something is holding the pot, target that
 		else if (Actor.findById(potHolder) != null)
@@ -115,21 +115,37 @@ public class Bee extends Mob {
 		//if the pot is on the ground
 		else {
 
-			//if already targeting something, and that thing is still alive and near the pot, keeping targeting it.
-			if (enemy != null && enemy.isAlive() && Dungeon.level.mobs.contains(enemy)
-					&& Level.fieldOfView[enemy.pos] && enemy.invisible == 0
-					&& Dungeon.level.distance(enemy.pos, potPos) <= 3)
+			//try to find a new enemy in these circumstances
+			if (enemy == null || !enemy.isAlive() || state == WANDERING
+					|| Dungeon.level.distance(enemy.pos, potPos) > 3
+					|| (alignment == Alignment.ALLY && enemy.alignment == Alignment.ALLY)){
+				
+				//find all mobs near the pot
+				HashSet<Char> enemies = new HashSet<>();
+				for (Mob mob : Dungeon.level.mobs) {
+					if (!(mob instanceof Bee)
+							&& Dungeon.level.distance(mob.pos, potPos) <= 3
+							&& mob.alignment != Alignment.NEUTRAL
+							&& !(alignment == Alignment.ALLY && mob.alignment == Alignment.ALLY)) {
+						enemies.add(mob);
+					}
+				}
+				
+				if (!enemies.isEmpty()){
+					return Random.element(enemies);
+				} else {
+					if (alignment != Alignment.ALLY && Dungeon.level.distance(Dungeon.hero.pos, potPos) <= 3){
+						return Dungeon.hero;
+					} else {
+						return null;
+					}
+				}
+				
+			} else {
 				return enemy;
+			}
 
-			//find all mobs near the pot
-			HashSet<Char> enemies = new HashSet<>();
-			for (Mob mob : Dungeon.level.mobs)
-				if (!(mob instanceof Bee) && Dungeon.level.distance(mob.pos, potPos) <= 3 && (mob.hostile || mob.ally))
-					enemies.add(mob);
-
-			//pick one, if there are none, check if the hero is near the pot, go for them, otherwise go for nothing.
-			if (enemies.size() > 0) return Random.element(enemies);
-			else return (Dungeon.level.distance(Dungeon.hero.pos, potPos) <= 3) ? Dungeon.hero : null ;
+			
 		}
 	}
 
@@ -142,14 +158,8 @@ public class Bee extends Mob {
 		return super.getCloser( target );
 	}
 	
-	private static final HashSet<Class<?>> IMMUNITIES = new HashSet<>();
-	static {
-		IMMUNITIES.add( Poison.class );
-		IMMUNITIES.add( Amok.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> immunities() {
-		return IMMUNITIES;
+	{
+		immunities.add( Poison.class );
+		immunities.add( Amok.class );
 	}
 }

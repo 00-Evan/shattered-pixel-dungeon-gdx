@@ -34,8 +34,6 @@ import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ScorpioSprite;
 import com.watabou.utils.Random;
 
-import java.util.HashSet;
-
 public class Scorpio extends Mob {
 	
 	{
@@ -77,6 +75,7 @@ public class Scorpio extends Mob {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
+		damage = super.attackProc( enemy, damage );
 		if (Random.Int( 2 ) == 0) {
 			Buff.prolong( enemy, Cripple.class, Cripple.DURATION );
 		}
@@ -104,14 +103,8 @@ public class Scorpio extends Mob {
 		}
 	}
 	
-	private static final HashSet<Class<?>> RESISTANCES = new HashSet<>();
-	static {
-		RESISTANCES.add( Vampiric.class );
-		RESISTANCES.add( Poison.class );
-	}
-	
-	@Override
-	public HashSet<Class<?>> resistances() {
-		return RESISTANCES;
+	{
+		resistances.add( Vampiric.class );
+		resistances.add( Poison.class );
 	}
 }

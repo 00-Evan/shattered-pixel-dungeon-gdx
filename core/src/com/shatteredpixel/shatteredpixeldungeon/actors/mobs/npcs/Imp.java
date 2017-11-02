@@ -31,7 +31,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.quest.DwarfToken;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ImpSprite;
@@ -54,7 +53,7 @@ public class Imp extends NPC {
 	@Override
 	protected boolean act() {
 		
-		if (!Quest.given && Dungeon.visible[pos]) {
+		if (!Quest.given && Dungeon.level.heroFOV[pos]) {
 			if (!seenBefore) {
 				yell( Messages.get(this, "hey", Dungeon.hero.givenName() ) );
 			}
@@ -190,8 +189,8 @@ public class Imp extends NPC {
 						level.heaps.get( npc.pos ) != null ||
 						level.findMob( npc.pos ) != null ||
 						//The imp doesn't move, so he cannot obstruct a passageway
-						!(Level.passable[npc.pos + PathFinder.CIRCLE4[0]] && Level.passable[npc.pos + PathFinder.CIRCLE4[2]]) ||
-						!(Level.passable[npc.pos + PathFinder.CIRCLE4[1]] && Level.passable[npc.pos + PathFinder.CIRCLE4[3]]));
+						!(level.passable[npc.pos + PathFinder.CIRCLE4[0]] && level.passable[npc.pos + PathFinder.CIRCLE4[2]]) ||
+						!(level.passable[npc.pos + PathFinder.CIRCLE4[1]] && level.passable[npc.pos + PathFinder.CIRCLE4[3]]));
 				level.mobs.add( npc );
 				
 				spawned = true;

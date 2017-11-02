@@ -60,14 +60,15 @@ public class Fadeleaf extends Plant {
 			if (newPos != -1 && !Dungeon.bossLevel()) {
 			
 				ch.pos = newPos;
+				if (((Mob) ch).state == ((Mob) ch).HUNTING) ((Mob) ch).state = ((Mob) ch).WANDERING;
 				ch.sprite.place( ch.pos );
-				ch.sprite.visible = Dungeon.visible[ch.pos];
+				ch.sprite.visible = Dungeon.level.heroFOV[ch.pos];
 				
 			}
 
 		}
 		
-		if (Dungeon.visible[pos]) {
+		if (Dungeon.level.heroFOV[pos]) {
 			CellEmitter.get( pos ).start( Speck.factory( Speck.LIGHT ), 0.2f, 3 );
 		}
 	}

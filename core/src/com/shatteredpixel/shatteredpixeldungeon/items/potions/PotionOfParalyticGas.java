@@ -36,7 +36,7 @@ public class PotionOfParalyticGas extends Potion {
 	@Override
 	public void shatter( int cell ) {
 
-		if (Dungeon.visible[cell]) {
+		if (Dungeon.level.heroFOV[cell]) {
 			setKnown();
 
 			splash( cell );

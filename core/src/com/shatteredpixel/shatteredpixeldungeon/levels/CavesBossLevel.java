@@ -226,7 +226,7 @@ public class CavesBossLevel extends Level {
 			
 			for (Mob m : mobs){
 				//bring the first ally with you
-				if (m.ally){
+				if (m.alignment == Char.Alignment.ALLY){
 					m.pos = Dungeon.hero.pos + (Random.Int(2) == 0 ? +1 : -1);
 					m.sprite.place(m.pos);
 					break;
@@ -240,7 +240,7 @@ public class CavesBossLevel extends Level {
 			} while (
 				!passable[boss.pos] ||
 				!outsideEntraceRoom( boss.pos ) ||
-				Dungeon.visible[boss.pos]);
+				heroFOV[boss.pos]);
 			GameScene.add( boss );
 			
 			set( arenaDoor, Terrain.WALL );

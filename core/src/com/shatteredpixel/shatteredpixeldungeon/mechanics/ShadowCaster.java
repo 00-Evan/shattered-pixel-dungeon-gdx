@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.mechanics;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 
 public final class ShadowCaster {
@@ -47,7 +46,7 @@ public final class ShadowCaster {
 
 		fieldOfView[y * Dungeon.level.width() + x] = true;
 
-		boolean[] losBlocking = Level.losBlocking;
+		boolean[] losBlocking = Dungeon.level.losBlocking;
 		Obstacles obs = new Obstacles();
 
 		scanSector( distance, fieldOfView, losBlocking, obs, x, y, +1, +1, 0, 0 );

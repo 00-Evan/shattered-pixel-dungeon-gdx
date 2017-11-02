@@ -54,7 +54,7 @@ public class Foliage extends Blob {
 						GameScene.updateMap(cell);
 					}
 
-					visible = visible || Dungeon.visible[cell];
+					visible = visible || Dungeon.level.heroFOV[cell];
 
 				} else {
 					off[cell] = 0;

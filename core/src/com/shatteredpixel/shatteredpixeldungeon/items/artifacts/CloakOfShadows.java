@@ -23,8 +23,11 @@ package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -43,13 +46,11 @@ public class CloakOfShadows extends Artifact {
 		image = ItemSpriteSheet.ARTIFACT_CLOAK;
 
 		exp = 0;
-		levelCap = 14;
+		levelCap = 10;
 
-		charge = level()+6;
+		charge = Math.min(level()+3, 10);
 		partialCharge = 0;
-		chargeCap = level()+6;
-
-		cooldown = 0;
+		chargeCap = Math.min(level()+3, 10);
 
 		defaultAction = AC_STEALTH;
 
@@ -78,8 +79,7 @@ public class CloakOfShadows extends Artifact {
 
 			if (!stealthed){
 				if (!isEquipped(hero)) GLog.i( Messages.get(Artifact.class, "need_to_equip") );
-				else if (cooldown > 0) GLog.i( Messages.get(this, "cooldown", cooldown) );
-				else if (charge <= 1)  GLog.i( Messages.get(this, "no_charge") );
+				else if (charge <= 0)  GLog.i( Messages.get(this, "no_charge") );
 				else {
 					stealthed = true;
 					hero.spend( 1f );
@@ -135,25 +135,28 @@ public class CloakOfShadows extends Artifact {
 
 	@Override
 	public Item upgrade() {
-		chargeCap++;
+		chargeCap = Math.min(chargeCap + 1, 10);
 		return super.upgrade();
 	}
 
 	private static final String STEALTHED = "stealthed";
-	private static final String COOLDOWN = "cooldown";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle(bundle);
 		bundle.put( STEALTHED, stealthed );
-		bundle.put( COOLDOWN, cooldown );
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
 		stealthed = bundle.getBoolean( STEALTHED );
-		cooldown = bundle.getInt( COOLDOWN );
+		// pre-0.6.2 saves
+		if (bundle.contains("cooldown")){
+			exp = 0;
+			level((int)Math.ceil(level()*0.7f));
+			charge = chargeCap = Math.min(3 + level(), 10);
+		}
 	}
 
 	@Override
@@ -166,8 +169,11 @@ public class CloakOfShadows extends Artifact {
 		public boolean act() {
 			if (charge < chargeCap) {
 				LockedFloor lock = target.buff(LockedFloor.class);
-				if (!stealthed && (lock == null || lock.regenOn()))
-					partialCharge += (1f / (50 - (chargeCap-charge)));
+				if (!stealthed && (lock == null || lock.regenOn())) {
+					float turnsToCharge = (60 - 2*(chargeCap - charge));
+					if (level() > 7) turnsToCharge -= 10*(level() - 7)/3f;
+					partialCharge += (1f / turnsToCharge);
+				}
 
 				if (partialCharge >= 1) {
 					charge++;
@@ -204,6 +210,9 @@ public class CloakOfShadows extends Artifact {
 		public boolean attachTo( Char target ) {
 			if (super.attachTo( target )) {
 				target.invisible++;
+				if (target instanceof Hero && ((Hero) target).subClass == HeroSubClass.ASSASSIN){
+					Buff.affect(target, Preparation.class);
+				}
 				return true;
 			} else {
 				return false;
@@ -212,24 +221,38 @@ public class CloakOfShadows extends Artifact {
 
 		@Override
 		public boolean act(){
-			if (turnsToCost == 0) charge--;
-			if (charge <= 0) {
-				detach();
-				GLog.w( Messages.get(this, "no_charge") );
-				((Hero)target).interrupt();
+			turnsToCost--;
+			
+			if (turnsToCost <= 0){
+				charge--;
+				if (charge < 0) {
+					charge = 0;
+					detach();
+					GLog.w(Messages.get(this, "no_charge"));
+					((Hero) target).interrupt();
+				} else {
+					//target hero level is 1 + 2*cloak level
+					int lvlDiffFromTarget = ((Hero) target).lvl - (1+level()*2);
+					//plus an extra one for each level after 6
+					if (level() >= 7){
+						lvlDiffFromTarget -= level()-6;
+					}
+					if (lvlDiffFromTarget >= 0){
+						exp += Math.round(10f * Math.pow(1.1f, lvlDiffFromTarget));
+					} else {
+						exp += Math.round(10f * Math.pow(0.75f, -lvlDiffFromTarget));
+					}
+					
+					if (exp >= (level() + 1) * 50 && level() < levelCap) {
+						upgrade();
+						exp -= level() * 50;
+						GLog.p(Messages.get(this, "levelup"));
+						
+					}
+					turnsToCost = 5;
+				}
+				updateQuickslot();
 			}
-
-			if (turnsToCost == 0) exp += 10 + ((Hero)target).lvl;
-
-			if (exp >= (level()+1)*40 && level() < levelCap) {
-				upgrade();
-				exp -= level()*40;
-				GLog.p( Messages.get(this, "levelup") );
-			}
-
-			if (turnsToCost == 0) turnsToCost = 2;
-			else    turnsToCost--;
-			updateQuickslot();
 
 			spend( TICK );
 
@@ -237,16 +260,6 @@ public class CloakOfShadows extends Artifact {
 		}
 
 		public void dispel(){
-			charge --;
-
-			exp += 10 + ((Hero)target).lvl;
-
-			if (exp >= (level()+1)*40 && level() < levelCap) {
-				upgrade();
-				exp -= level()*40;
-				GLog.p( Messages.get(this, "levelup") );
-			}
-
 			updateQuickslot();
 			detach();
 		}
@@ -272,7 +285,6 @@ public class CloakOfShadows extends Artifact {
 			if (target.invisible > 0)
 				target.invisible--;
 			stealthed = false;
-			cooldown = 6 - (level() / 4);
 
 			updateQuickslot();
 			super.detach();
