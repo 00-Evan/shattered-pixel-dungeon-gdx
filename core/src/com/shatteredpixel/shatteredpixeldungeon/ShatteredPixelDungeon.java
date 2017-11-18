@@ -136,6 +136,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		fullscreen( prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false) );
 		
 		Music.INSTANCE.enable( music() );
+		Music.INSTANCE.volume( musicVol()/10f );
 		Sample.INSTANCE.enable( soundFx() );
 		Sample.INSTANCE.volume( SFXVol()/10f );
 
@@ -261,7 +262,6 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	
 	public static void music( boolean value ) {
 		Music.INSTANCE.enable( value );
-		Music.INSTANCE.volume( musicVol()/10f );
 		Preferences.INSTANCE.put( Preferences.KEY_MUSIC, value );
 	}
 	

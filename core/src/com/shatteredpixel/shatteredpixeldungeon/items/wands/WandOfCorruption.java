@@ -121,7 +121,11 @@ public class WandOfCorruption extends Wand {
 	protected void onZap(Ballistica bolt) {
 		Char ch = Actor.findChar(bolt.collisionPos);
 
-		if (ch != null && ch instanceof Mob && !(ch instanceof NPC)){
+		if (ch != null){
+			
+			if (!(ch instanceof Mob) || ch instanceof NPC){
+				return;
+			}
 
 			Mob enemy = (Mob) ch;
 
@@ -172,6 +176,9 @@ public class WandOfCorruption extends Wand {
 			}
 
 			processSoulMark(ch, chargesPerCast());
+			
+		} else {
+			Dungeon.level.press(bolt.collisionPos, null);
 		}
 	}
 	

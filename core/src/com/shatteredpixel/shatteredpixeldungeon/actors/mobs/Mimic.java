@@ -108,6 +108,7 @@ public class Mimic extends Mob {
 	}
 
 	public static Mimic spawnAt( int pos, List<Item> items ) {
+		if (Dungeon.level.pit[pos]) return null;
 		Char ch = Actor.findChar( pos );
 		if (ch != null) {
 			ArrayList<Integer> candidates = new ArrayList<>();

@@ -33,6 +33,7 @@ public enum Music {
 	private boolean lastLooping;
 	
 	private boolean enabled = true;
+	private float volume = 1f;
 	
 	public void play( String assetName, boolean looping ) {
 		
@@ -51,7 +52,7 @@ public enum Music {
 		
 		player = Gdx.audio.newMusic(Gdx.files.internal(assetName));
 		player.setLooping(looping);
-
+		player.setVolume(volume);
 		player.play();
 	}
 	
@@ -81,6 +82,7 @@ public enum Music {
 	}
 	
 	public void volume( float value ) {
+		volume = value;
 		if (player != null) {
 			player.setVolume( value );
 		}

@@ -51,7 +51,6 @@ public class TitleScene extends PixelScene {
 		super.create();
 
 		Music.INSTANCE.play( Assets.THEME, true );
-		Music.INSTANCE.volume( ShatteredPixelDungeon.musicVol() / 10f );
 
 		uiCamera.visible = false;
 		
@@ -157,7 +156,7 @@ public class TitleScene extends PixelScene {
 		add( btnPrefs );
 
 		LanguageButton btnLang = new LanguageButton();
-		btnLang.setPos(16, 1);
+		btnLang.setRect(16, 0, 16, 15);
 		add( btnLang );
 
 		ExitButton btnExit = new ExitButton();

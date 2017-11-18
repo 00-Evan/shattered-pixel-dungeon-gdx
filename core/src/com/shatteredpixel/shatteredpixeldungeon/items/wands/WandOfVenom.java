@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
@@ -55,6 +56,10 @@ public class WandOfVenom extends Wand {
 			if (ch != null) {
 				processSoulMark(ch, chargesPerCast());
 			}
+		}
+		
+		if (Actor.findChar(bolt.collisionPos) == null){
+			Dungeon.level.press(bolt.collisionPos, null);
 		}
 	}
 

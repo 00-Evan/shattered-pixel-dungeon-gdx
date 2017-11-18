@@ -64,8 +64,7 @@ public class DungeonTileSheet {
 	public static final int EXIT            = GROUND +17;
 	public static final int WELL            = GROUND +18;
 	public static final int EMPTY_WELL      = GROUND +19;
-	public static final int ALCHEMY_POT     = GROUND +20;
-	public static final int PEDESTAL        = GROUND +21;
+	public static final int PEDESTAL        = GROUND +20;
 
 
 
@@ -177,10 +176,11 @@ public class DungeonTileSheet {
 	public static final int FLAT_SIGN           = FLAT_OTHER+0;
 	public static final int FLAT_STATUE         = FLAT_OTHER+1;
 	public static final int FLAT_STATUE_SP      = FLAT_OTHER+2;
-	public static final int FLAT_BARRICADE      = FLAT_OTHER+3;
-	public static final int FLAT_HIGH_GRASS     = FLAT_OTHER+4;
+	public static final int FLAT_ALCHEMY_POT    = FLAT_OTHER+3;
+	public static final int FLAT_BARRICADE      = FLAT_OTHER+4;
+	public static final int FLAT_HIGH_GRASS     = FLAT_OTHER+5;
 
-	public static final int FLAT_HIGH_GRASS_ALT = FLAT_OTHER+6;
+	public static final int FLAT_HIGH_GRASS_ALT = FLAT_OTHER+7;
 
 
 	/**********************************************************************
@@ -261,10 +261,11 @@ public class DungeonTileSheet {
 	public static final int RAISED_SIGN             = RAISED_OTHER+0;
 	public static final int RAISED_STATUE           = RAISED_OTHER+1;
 	public static final int RAISED_STATUE_SP        = RAISED_OTHER+2;
-	public static final int RAISED_BARRICADE        = RAISED_OTHER+3;
-	public static final int RAISED_HIGH_GRASS       = RAISED_OTHER+4;
+	public static final int RAISED_ALCHEMY_POT      = RAISED_OTHER+3;
+	public static final int RAISED_BARRICADE        = RAISED_OTHER+4;
+	public static final int RAISED_HIGH_GRASS       = RAISED_OTHER+5;
 
-	public static final int RAISED_HIGH_GRASS_ALT   = RAISED_OTHER+6;
+	public static final int RAISED_HIGH_GRASS_ALT   = RAISED_OTHER+7;
 
 
 
@@ -319,10 +320,11 @@ public class DungeonTileSheet {
 	public static final int DOOR_SIDEWAYS_LOCKED        = WALL_OVERHANG+24;
 
 	public static final int STATUE_OVERHANG             = WALL_OVERHANG+26;
-	public static final int BARRICADE_OVERHANG          = WALL_OVERHANG+27;
-	public static final int HIGH_GRASS_OVERHANG         = WALL_OVERHANG+28;
+	public static final int ALCHEMY_POT_OVERHAND        = WALL_OVERHANG+27;
+	public static final int BARRICADE_OVERHANG          = WALL_OVERHANG+28;
+	public static final int HIGH_GRASS_OVERHANG         = WALL_OVERHANG+29;
 
-	public static final int HIGH_GRASS_OVERHANG_ALT     = WALL_OVERHANG+30;
+	public static final int HIGH_GRASS_OVERHANG_ALT     = WALL_OVERHANG+31;
 
 	/**********************************************************************
 	 * Logic for the selection of tile visuals
@@ -348,7 +350,6 @@ public class DungeonTileSheet {
 		directVisuals.put(Terrain.LOCKED_EXIT,      LOCKED_EXIT);
 		directVisuals.put(Terrain.UNLOCKED_EXIT,    UNLOCKED_EXIT);
 		directVisuals.put(Terrain.WELL,             WELL);
-		directVisuals.put(Terrain.ALCHEMY,          ALCHEMY_POT);
 
 	}
 
@@ -364,6 +365,7 @@ public class DungeonTileSheet {
 		directFlatVisuals.put(Terrain.SIGN,             FLAT_SIGN);
 		directFlatVisuals.put(Terrain.STATUE,           FLAT_STATUE);
 		directFlatVisuals.put(Terrain.STATUE_SP,        FLAT_STATUE_SP);
+		directFlatVisuals.put(Terrain.ALCHEMY,          FLAT_ALCHEMY_POT);
 		directFlatVisuals.put(Terrain.BARRICADE,        FLAT_BARRICADE);
 		directFlatVisuals.put(Terrain.HIGH_GRASS,       FLAT_HIGH_GRASS);
 

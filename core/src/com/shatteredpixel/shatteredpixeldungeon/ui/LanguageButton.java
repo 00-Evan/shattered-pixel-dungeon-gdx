@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.ui;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
@@ -31,13 +32,6 @@ import com.watabou.noosa.ui.Button;
 public class LanguageButton extends Button {
 
 	private Image image;
-
-	public LanguageButton() {
-		super();
-
-		width = image.width;
-		height = image.height;
-	}
 
 	@Override
 	protected void createChildren() {
@@ -82,8 +76,9 @@ public class LanguageButton extends Button {
 	protected void layout() {
 		super.layout();
 
-		image.x = x;
-		image.y = y;
+		image.x = x + (width - image.width)/2f;
+		image.y = y + (height - image.height)/2f;
+		PixelScene.align(image);
 	}
 
 	@Override
