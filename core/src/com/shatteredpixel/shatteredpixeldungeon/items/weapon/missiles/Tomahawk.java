@@ -20,50 +20,46 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.utils.Random;
 
-public class Dart extends MissileWeapon {
+public class Tomahawk extends MissileWeapon {
 
 	{
-		image = ItemSpriteSheet.DART;
+		image = ItemSpriteSheet.TOMAHAWK;
 
-		bones = false; //Finding them in bones would be semi-frequent and disappointing.
 	}
 
 	@Override
 	public int min(int lvl) {
-		return 1;
+		return 6;
 	}
 
 	@Override
 	public int max(int lvl) {
-		return 4;
+		return 15;
 	}
 
 	@Override
 	public int STRReq(int lvl) {
-		return 10;
-	}
-
-	public Dart() {
-		this( 1 );
-	}
-	
-	public Dart( int number ) {
-		super();
-		quantity = number;
+		return 15;
 	}
 	
 	@Override
-	public Item random() {
-		quantity = Random.Int( 5, 15 );
-		return this;
+	public int proc( Char attacker, Char defender, int damage ) {
+		Buff.affect( defender, Bleeding.class ).set( damage );
+		return super.proc( attacker, defender, damage );
+	}
+	
+	@Override
+	protected float durabilityPerUse() {
+		return super.durabilityPerUse()*2f;
 	}
 	
 	@Override
 	public int price() {
-		return quantity * 2;
+		return 24 * quantity;
 	}
 }

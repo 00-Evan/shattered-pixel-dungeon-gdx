@@ -18,21 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles;
+package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.utils.Random;
 
-public class CurareDart extends MissileWeapon {
+public class Dart extends MissileWeapon {
 
-	public static final float DURATION	= 3f;
-	
 	{
-		image = ItemSpriteSheet.CURARE_DART;
+		image = ItemSpriteSheet.DART;
+
+		bones = false; //Finding them in bones would be semi-frequent and disappointing.
 	}
 
 	@Override
@@ -42,37 +39,28 @@ public class CurareDart extends MissileWeapon {
 
 	@Override
 	public int max(int lvl) {
-		return 3;
+		return 2;
 	}
 
 	@Override
 	public int STRReq(int lvl) {
-		return 14;
-	}
-
-	public CurareDart() {
-		this( 1 );
-	}
-	
-	public CurareDart( int number ) {
-		super();
-		quantity = number;
+		return 9;
 	}
 	
 	@Override
-	public int proc( Char attacker, Char defender, int damage ) {
-		Buff.prolong( defender, Paralysis.class, DURATION );
-		return super.proc( attacker, defender, damage );
+	protected float durabilityPerUse() {
+		return 0;
 	}
 	
 	@Override
 	public Item random() {
-		quantity = Random.Int( 2, 5 );
+		super.random();
+		quantity += 3;
 		return this;
 	}
 	
 	@Override
 	public int price() {
-		return 8 * quantity;
+		return 4 * quantity;
 	}
 }

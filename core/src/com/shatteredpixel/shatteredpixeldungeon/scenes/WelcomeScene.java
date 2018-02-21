@@ -20,33 +20,34 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.Rankings;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
-
-import java.util.UUID;
+import com.watabou.utils.Bundle;
+import com.watabou.utils.FileUtils;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_2;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_3;
 
 	@Override
 	public void create() {
 		super.create();
 
-		final int previousVersion = ShatteredPixelDungeon.version();
+		final int previousVersion = SPDSettings.version();
 
 		if (ShatteredPixelDungeon.versionCode == previousVersion) {
 			ShatteredPixelDungeon.switchNoFade(TitleScene.class);
@@ -65,7 +66,7 @@ public class WelcomeScene extends PixelScene {
 		float topRegion = Math.max(95f, h*0.45f);
 
 		title.x = (w - title.width()) / 2f;
-		if (ShatteredPixelDungeon.landscape())
+		if (SPDSettings.landscape())
 			title.y = (topRegion - title.height()) / 2f;
 		else
 			title.y = 16 + (topRegion - title.height() - 16) / 2f;
@@ -82,9 +83,9 @@ public class WelcomeScene extends PixelScene {
 			}
 			@Override
 			public void draw() {
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+				Blending.setLightMode();
 				super.draw();
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+				Blending.setNormalMode();
 			}
 		};
 		signs.x = title.x + (title.width() - signs.width())/2f;
@@ -135,7 +136,7 @@ public class WelcomeScene extends PixelScene {
 				message = Messages.get(this, "patch_intro");
 				message += "\n\n" + Messages.get(this, "patch_bugfixes");
 				message += "\n" + Messages.get(this, "patch_translations");
-				//message += "\n" + Messages.get(this, "patch_balance");
+				message += "\n" + Messages.get(this, "patch_balance");
 
 			}
 		} else {
@@ -157,7 +158,35 @@ public class WelcomeScene extends PixelScene {
 				Rankings.INSTANCE.save();
 			} catch (Exception e) {
 				//if we encounter a fatal error, then just clear the rankings
-				Game.instance.deleteFile( Rankings.RANKINGS_FILE );
+				FileUtils.deleteFile( Rankings.RANKINGS_FILE );
+			}
+		}
+
+		//convert game saves from the old format
+		if (previousVersion <= ShatteredPixelDungeon.v0_6_2e){
+			//old save file names for warrior, mage, rogue, huntress
+			String[] classes = new String[]{"warrior", "mage", "game", "ranger"};
+			for (int i = 1; i <= classes.length; i++){
+				String name = classes[i-1];
+				if (FileUtils.fileExists(name + ".dat")){
+					try {
+						Bundle gamedata = FileUtils.bundleFromFile(name + ".dat");
+						FileUtils.bundleToFile(GamesInProgress.gameFile(i), gamedata);
+						FileUtils.deleteFile(name + ".dat");
+
+						//rogue's safe files have a different name
+						if (name.equals("game")) name = "depth";
+
+						int depth = 1;
+						while (FileUtils.fileExists(name + depth + ".dat")) {
+							gamedata = FileUtils.bundleFromFile(name + depth + ".dat");
+							FileUtils.bundleToFile(GamesInProgress.depthFile(i, depth), gamedata);
+							FileUtils.deleteFile(name + depth + ".dat");
+							depth++;
+						}
+					} catch (Exception e){
+					}
+				}
 			}
 		}
 		
@@ -171,7 +200,7 @@ public class WelcomeScene extends PixelScene {
 			Badges.saveGlobal();
 		}
 
-		ShatteredPixelDungeon.version(ShatteredPixelDungeon.versionCode);
+		SPDSettings.version(ShatteredPixelDungeon.versionCode);
 	}
 
 	private void placeTorch( float x, float y ) {

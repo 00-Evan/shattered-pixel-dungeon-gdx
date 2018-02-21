@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 
 public class Poison extends Buff implements Hero.Doom {
@@ -66,6 +67,11 @@ public class Poison extends Buff implements Hero.Doom {
 	@Override
 	public int icon() {
 		return BuffIndicator.POISON;
+	}
+	
+	@Override
+	public void tintIcon(Image icon) {
+		icon.hardlight(0.6f, 0.2f, 0.6f);
 	}
 	
 	@Override
@@ -110,10 +116,6 @@ public class Poison extends Buff implements Hero.Doom {
 		}
 		
 		return true;
-	}
-
-	public static float durationFactor( Char ch ) {
-		return RingOfElements.durationFactor( ch );
 	}
 
 	@Override

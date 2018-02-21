@@ -35,11 +35,6 @@ public class Obfuscation extends Armor.Glyph {
 	}
 
 	@Override
-	public int tierDRAdjust() {
-		return -1;
-	}
-
-	@Override
 	public ItemSprite.Glowing glowing() {
 		return GREY;
 	}

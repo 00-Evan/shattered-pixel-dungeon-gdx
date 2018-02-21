@@ -45,7 +45,7 @@ public class FlockTrap extends Trap {
 		//use an actor as we want to put this on a slight delay so all chars get a chance to act this turn first.
 		Actor.add(new Actor() {
 
-			{ actPriority = 3; }
+			{ actPriority = BUFF_PRIO; }
 
 			protected boolean act() {
 				PathFinder.buildDistanceMap( pos, BArray.not( Dungeon.level.solid, null ), 2 );
@@ -57,7 +57,7 @@ public class FlockTrap extends Trap {
 							Sheep sheep = new Sheep();
 							sheep.lifespan = Random.NormalIntRange(3 + Dungeon.depth/4, 6 + Dungeon.depth/2 );
 							sheep.pos = i;
-							Dungeon.level.mobPress(sheep);
+							Dungeon.level.press(sheep.pos, sheep);
 							GameScene.add(sheep);
 							CellEmitter.get(i).burst(Speck.factory(Speck.WOOL), 4);
 						}

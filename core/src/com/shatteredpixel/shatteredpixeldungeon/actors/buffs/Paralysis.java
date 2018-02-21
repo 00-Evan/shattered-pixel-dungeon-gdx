@@ -28,7 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 
 public class Paralysis extends FlavourBuff {
 
-	private static final float DURATION	= 10f;
+	public static final float DURATION	= 10f;
 
 	{
 		type = buffType.NEGATIVE;
@@ -78,6 +78,6 @@ public class Paralysis extends FlavourBuff {
 	}
 
 	public static float duration( Char ch ) {
-		return DURATION * RingOfElements.durationFactor( ch );
+		return DURATION;
 	}
 }

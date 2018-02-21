@@ -60,11 +60,15 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Mace;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Shortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WarHammer;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.CurareDart;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.IncendiaryDart;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Bolas;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.FishingSpear;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Javelin;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Tamahawk;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingHammer;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Tomahawk;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Trident;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.IncendiaryDart;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
@@ -164,38 +168,40 @@ public class ShopRoom extends SpecialRoom {
 		case 6:
 			itemsToSpawn.add( (Random.Int( 2 ) == 0 ? new Shortsword().identify() : new HandAxe()).identify() );
 			itemsToSpawn.add( Random.Int( 2 ) == 0 ?
-					new IncendiaryDart().quantity(Random.NormalIntRange(2, 4)) :
-					new CurareDart().quantity(Random.NormalIntRange(1, 3)));
+					new Shuriken().quantity(2) :
+					new IncendiaryDart().quantity(5));
 			itemsToSpawn.add( new LeatherArmor().identify() );
 			break;
 			
 		case 11:
 			itemsToSpawn.add( (Random.Int( 2 ) == 0 ? new Sword().identify() : new Mace()).identify() );
 			itemsToSpawn.add( Random.Int( 2 ) == 0 ?
-					new CurareDart().quantity(Random.NormalIntRange(2, 5)) :
-					new Shuriken().quantity(Random.NormalIntRange(3, 6)));
+					new FishingSpear().quantity(2) :
+					new Bolas().quantity(2));
 			itemsToSpawn.add( new MailArmor().identify() );
 			break;
 			
 		case 16:
 			itemsToSpawn.add( (Random.Int( 2 ) == 0 ? new Longsword().identify() : new BattleAxe()).identify() );
 			itemsToSpawn.add( Random.Int( 2 ) == 0 ?
-					new Shuriken().quantity(Random.NormalIntRange(4, 7)) :
-					new Javelin().quantity(Random.NormalIntRange(3, 6)));
+					new Javelin().quantity(2) :
+					new Tomahawk().quantity(2));
 			itemsToSpawn.add( new ScaleArmor().identify() );
 			break;
 			
 		case 21:
 			itemsToSpawn.add( Random.Int( 2 ) == 0 ? new Greatsword().identify() : new WarHammer().identify() );
 			itemsToSpawn.add( Random.Int(2) == 0 ?
-					new Javelin().quantity(Random.NormalIntRange(4, 7)) :
-					new Tamahawk().quantity(Random.NormalIntRange(4, 7)));
+					new Trident().quantity(2) :
+					new ThrowingHammer().quantity(2));
 			itemsToSpawn.add( new PlateArmor().identify() );
 			itemsToSpawn.add( new Torch() );
 			itemsToSpawn.add( new Torch() );
 			itemsToSpawn.add( new Torch() );
 			break;
 		}
+		
+		itemsToSpawn.add( TippedDart.randomTipped() );
 
 		itemsToSpawn.add( new MerchantsBeacon() );
 

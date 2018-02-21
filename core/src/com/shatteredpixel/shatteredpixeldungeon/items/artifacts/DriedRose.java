@@ -24,10 +24,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -382,8 +382,10 @@ public class DriedRose extends Artifact {
 			
 			state = HUNTING;
 			
-			//after hero, but before mobs
-			actPriority = 1;
+			//before other mobs
+			actPriority = MOB_PRIO + 1;
+			
+			properties.add(Property.UNDEAD);
 		}
 		
 		private DriedRose rose = null;
@@ -537,7 +539,7 @@ public class DriedRose extends Artifact {
 		public void damage(int dmg, Object src) {
 			//TODO improve this when I have proper damage source logic
 			if (rose != null && rose.armor != null && rose.armor.hasGlyph(AntiMagic.class)
-					&& RingOfElements.FULL.contains(src.getClass())){
+					&& RingOfElements.RESISTS.contains(src.getClass())){
 				dmg -= Random.NormalIntRange(rose.armor.DRMin(), rose.armor.DRMax())/3;
 			}
 			
@@ -562,8 +564,8 @@ public class DriedRose extends Artifact {
 		@Override
 		public int defenseSkill(Char enemy) {
 			int defense = super.defenseSkill(enemy);
-			
-			if (rose != null && rose.armor != null && rose.armor.hasGlyph(Swiftness.class)){
+
+			if (defense != 0 && rose != null && rose.armor != null && rose.armor.hasGlyph(Swiftness.class)){
 				defense += 5 + rose.armor.level()*1.5f;
 			}
 			
@@ -591,11 +593,6 @@ public class DriedRose extends Artifact {
 				block += Random.NormalIntRange( 0, rose.weapon.defenseFactor( this ));
 			}
 			return block;
-		}
-
-		@Override
-		public void add( Buff buff ) {
-			//in other words, can't be directly affected by buffs/debuffs.
 		}
 
 		@Override
@@ -640,9 +637,10 @@ public class DriedRose extends Artifact {
 		
 		{
 			immunities.add( ToxicGas.class );
-			immunities.add( VenomGas.class );
+			immunities.add( CorrosiveGas.class );
 			immunities.add( Burning.class );
 			immunities.add( ScrollOfPsionicBlast.class );
+			immunities.add( Corruption.class );
 		}
 		
 		private class Wandering extends Mob.Wandering {

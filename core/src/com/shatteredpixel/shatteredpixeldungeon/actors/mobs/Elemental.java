@@ -48,8 +48,8 @@ public class Elemental extends Mob {
 		
 		loot = new PotionOfLiquidFlame();
 		lootChance = 0.1f;
-
-		properties.add(Property.DEMONIC);
+		
+		properties.add(Property.FIERY);
 	}
 	
 	@Override
@@ -79,12 +79,7 @@ public class Elemental extends Mob {
 	
 	@Override
 	public void add( Buff buff ) {
-		if (buff instanceof Burning) {
-			if (HP < HT) {
-				HP++;
-				sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
-			}
-		} else if (buff instanceof Frost || buff instanceof Chill) {
+		if (buff instanceof Frost || buff instanceof Chill) {
 				if (Dungeon.level.water[this.pos])
 					damage( Random.NormalIntRange( HT / 2, HT ), buff );
 				else
@@ -94,9 +89,4 @@ public class Elemental extends Mob {
 		}
 	}
 	
-	{
-		immunities.add( Burning.class );
-		immunities.add( Blazing.class );
-		immunities.add( WandOfFireblast.class );
-	}
 }

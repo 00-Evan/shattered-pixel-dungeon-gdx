@@ -103,8 +103,4 @@ public class Scorpio extends Mob {
 		}
 	}
 	
-	{
-		resistances.add( Vampiric.class );
-		resistances.add( Poison.class );
-	}
 }

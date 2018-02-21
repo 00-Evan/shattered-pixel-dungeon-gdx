@@ -25,25 +25,23 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglPreferences;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.shatteredpixel.shatteredpixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.utils.PDPlatformSupport;
-
-import org.lwjgl.opengl.Display;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		String version = DesktopLauncher.class.getPackage().getSpecificationVersion();
 		if (version == null) {
-			version = "0.6.2d";
+			version = "0.6.3a";
 		}
 
 		int versionCode;
 		try {
 			versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
 		} catch (NumberFormatException e) {
-			versionCode = 228;
+			versionCode = 241;
 		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -61,13 +59,13 @@ public class DesktopLauncher {
 			}
 		}
 		// FIXME: This is a hack to get access to the preferences before we have an application setup
-		com.badlogic.gdx.Preferences prefs = new LwjglPreferences(Preferences.FILE_NAME, config.preferencesDirectory);
+		com.badlogic.gdx.Preferences prefs = new LwjglPreferences(SPDSettings.FILE_NAME, config.preferencesDirectory);
 
-		boolean isFullscreen = prefs.getBoolean(Preferences.KEY_WINDOW_FULLSCREEN, false);
+		boolean isFullscreen = prefs.getBoolean(SPDSettings.KEY_WINDOW_FULLSCREEN, false);
 		//config.fullscreen = isFullscreen;
 		if (!isFullscreen) {
-			config.width = prefs.getInteger(Preferences.KEY_WINDOW_WIDTH, Preferences.DEFAULT_WINDOW_WIDTH);
-			config.height = prefs.getInteger(Preferences.KEY_WINDOW_HEIGHT, Preferences.DEFAULT_WINDOW_HEIGHT);
+			config.width = prefs.getInteger(SPDSettings.KEY_WINDOW_WIDTH, SPDSettings.DEFAULT_WINDOW_WIDTH);
+			config.height = prefs.getInteger(SPDSettings.KEY_WINDOW_HEIGHT, SPDSettings.DEFAULT_WINDOW_HEIGHT);
 		}
 
 		config.addIcon( "ic_launcher_128.png", Files.FileType.Internal );

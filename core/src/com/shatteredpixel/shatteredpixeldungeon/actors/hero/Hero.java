@@ -129,7 +129,7 @@ import java.util.Collections;
 public class Hero extends Char {
 
 	{
-		actPriority = 0; //acts at priority 0, baseline for the rest of behaviour.
+		actPriority = HERO_PRIO;
 		
 		alignment = Alignment.ALLY;
 	}
@@ -157,7 +157,6 @@ public class Hero extends Char {
 	
 	public boolean resting = false;
 
-	public MissileWeapon rangedWeapon = null;
 	public Belongings belongings;
 	
 	public int STR;
@@ -260,6 +259,8 @@ public class Hero extends Char {
 	
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.level = bundle.getInt( LEVEL );
+		info.heroClass = HeroClass.restoreInBundle( bundle );
+		info.subClass = HeroSubClass.restoreInBundle( bundle );
 	}
 	
 	public String className() {
@@ -279,24 +280,33 @@ public class Hero extends Char {
 		return belongings.armor == null ? 0 : belongings.armor.tier;
 	}
 
+	//this variable is only needed because of the boomerang, remove if/when it is no longer equippable
+	boolean rangedAttack = false;
+
 	public boolean shoot( Char enemy, MissileWeapon wep ) {
 
-		rangedWeapon = wep;
+		//temporarily set the hero's weapon to the missile weapon being used
+		KindOfWeapon equipped = belongings.weapon;
+		belongings.weapon = wep;
+		rangedAttack = true;
 		boolean result = attack( enemy );
 		Invisibility.dispel();
-		rangedWeapon = null;
+		belongings.weapon = equipped;
+		rangedAttack = false;
 
 		return result;
 	}
 	
 	@Override
 	public int attackSkill( Char target ) {
+		KindOfWeapon wep = belongings.weapon;
+
 		float accuracy = 1;
-		if (rangedWeapon != null && Dungeon.level.distance( pos, target.pos ) == 1) {
+		if (wep instanceof MissileWeapon && rangedAttack
+				&& Dungeon.level.distance( pos, target.pos ) == 1) {
 			accuracy *= 0.5f;
 		}
 
-		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
 		if (wep != null) {
 			return (int)(attackSkill * accuracy * wep.accuracyFactor( this ));
 		} else {
@@ -307,16 +317,16 @@ public class Hero extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 		
-		float evasion = 1f * RingOfEvasion.evasionMultiplier( this );
+		float multiplier = 1f * RingOfEvasion.evasionMultiplier( this );
 		
 		if (paralysed > 0) {
-			evasion /= 2;
+			multiplier /= 2;
 		}
 		
 		int aEnc = belongings.armor != null ? belongings.armor.STRReq() - STR() : 10 - STR();
 		
 		if (aEnc > 0) {
-			evasion /= Math.pow( 1.5, aEnc );
+			multiplier /= Math.pow( 1.5, aEnc );
 		}
 		int bonus = 0;
 
@@ -328,7 +338,7 @@ public class Hero extends Char {
 			bonus += momentum.evasionBonus(Math.max(0, -aEnc));
 		}
 
-		return Math.round((defenseSkill + bonus) * evasion);
+		return Math.round((defenseSkill * multiplier) + bonus);
 	}
 	
 	@Override
@@ -351,7 +361,7 @@ public class Hero extends Char {
 	
 	@Override
 	public int damageRoll() {
-		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
+		KindOfWeapon wep = belongings.weapon;
 		int dmg;
 
 		if (wep != null) {
@@ -399,14 +409,9 @@ public class Hero extends Char {
 	}
 
 	public boolean canSurpriseAttack(){
-		if (belongings.weapon == null || !(belongings.weapon instanceof Weapon))
-			return true;
-
-		if (STR() < ((Weapon)belongings.weapon).STRReq())
-			return false;
-
-		if (belongings.weapon instanceof Flail && rangedWeapon == null)
-			return false;
+		if (belongings.weapon == null || !(belongings.weapon instanceof Weapon))    return true;
+		if (STR() < ((Weapon)belongings.weapon).STRReq())                           return false;
+		if (belongings.weapon instanceof Flail)                                     return false;
 
 		return true;
 	}
@@ -437,10 +442,9 @@ public class Hero extends Char {
 	}
 	
 	public float attackDelay() {
-		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
-		if (wep != null) {
+		if (belongings.weapon != null) {
 			
-			return wep.speedFactor( this );
+			return belongings.weapon.speedFactor( this );
 						
 		} else {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
@@ -452,6 +456,7 @@ public class Hero extends Char {
 
 	@Override
 	public void spend( float time ) {
+		justMoved = false;
 		TimekeepersHourglass.timeFreeze buff = buff(TimekeepersHourglass.timeFreeze.class);
 		if (buff != null){
 			buff.processTime(time);
@@ -472,13 +477,17 @@ public class Hero extends Char {
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
 		
-		//do a full observe (including fog update) if not resting.
-		if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
-			Dungeon.observe();
-		} else {
-			//otherwise just directly re-calculate FOV
-			Dungeon.level.updateFieldOfView( this, fieldOfView );
+
+		if (!ready) {
+			//do a full observe (including fog update) if not resting.
+			if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
+				Dungeon.observe();
+			} else {
+				//otherwise just directly re-calculate FOV
+				Dungeon.level.updateFieldOfView(this, fieldOfView);
+			}
 		}
+
 		checkVisibleMobs();
 		if (buff(FlavourBuff.class) != null) {
 			BuffIndicator.refreshHero();
@@ -595,9 +604,14 @@ public class Hero extends Char {
 		next();
 	}
 
+	//FIXME this is a fairly crude way to track this, really it would be nice to have a short
+	//history of hero actions
+	public boolean justMoved = false;
+
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
+			justMoved = true;
 			return true;
 
 		} else {
@@ -844,7 +858,7 @@ public class Hero extends Char {
 					ready();
 				} else {
 					Dungeon.win( Amulet.class );
-					Dungeon.deleteGame( Dungeon.hero.heroClass, true );
+					Dungeon.deleteGame( GamesInProgress.curSlot, true );
 					Game.switchScene( SurfaceScene.class );
 				}
 				
@@ -911,14 +925,14 @@ public class Hero extends Char {
 	
 	@Override
 	public int attackProc( Char enemy, int damage ) {
-		KindOfWeapon wep = rangedWeapon != null ? rangedWeapon : belongings.weapon;
+		KindOfWeapon wep = belongings.weapon;
 
 		if (wep != null) damage = wep.proc( this, enemy, damage );
 			
 		switch (subClass) {
 		case SNIPER:
-			if (rangedWeapon != null) {
-				Buff.prolong( this, SnipersMark.class, attackDelay() * 1.1f ).object = enemy.id();
+			if (wep instanceof MissileWeapon && rangedAttack) {
+				Buff.prolong( this, SnipersMark.class, attackDelay() ).object = enemy.id();
 			}
 			break;
 		default:
@@ -974,7 +988,7 @@ public class Hero extends Char {
 
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
-				&& RingOfElements.FULL.contains(src.getClass())){
+				&& RingOfElements.RESISTS.contains(src.getClass())){
 			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/3;
 		}
 
@@ -1288,8 +1302,6 @@ public class Hero extends Char {
 	public int stealth() {
 		int stealth = super.stealth();
 
-		stealth += RingOfEvasion.stealthBonus( this );
-
 		if (belongings.armor != null && belongings.armor.hasGlyph(Obfuscation.class)){
 			stealth += belongings.armor.level();
 		}
@@ -1340,7 +1352,7 @@ public class Hero extends Char {
 			
 		} else {
 			
-			Dungeon.deleteGame( Dungeon.hero.heroClass, false );
+			Dungeon.deleteGame( GamesInProgress.curSlot, false );
 			GameScene.show( new WndResurrect( ankh, cause ) );
 			
 		}
@@ -1401,7 +1413,7 @@ public class Hero extends Char {
 			((Hero.Doom)cause).onDeath();
 		}
 		
-		Dungeon.deleteGame( Dungeon.hero.heroClass, true );
+		Dungeon.deleteGame( GamesInProgress.curSlot, true );
 	}
 
 	//effectively cache this buff to prevent having to call buff(Berserk.class) a bunch.
@@ -1425,13 +1437,11 @@ public class Hero extends Char {
 		super.move( step );
 		
 		if (!flying) {
-			
 			if (Dungeon.level.water[pos]) {
 				Sample.INSTANCE.play( Assets.SND_WATER, 1, 1, Random.Float( 0.8f, 1.25f ) );
 			} else {
 				Sample.INSTANCE.play( Assets.SND_STEP );
 			}
-			Dungeon.level.press(pos, this);
 		}
 	}
 	
@@ -1503,6 +1513,8 @@ public class Hero extends Char {
 	
 	public boolean search( boolean intentional ) {
 		
+		if (!isAlive()) return false;
+
 		boolean smthFound = false;
 
 		int distance = heroClass == HeroClass.ROGUE ? 2 : 1;

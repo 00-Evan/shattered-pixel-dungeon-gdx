@@ -21,7 +21,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.potions;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Fire;
@@ -30,18 +34,23 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
+import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -219,7 +228,7 @@ public class Potion extends Item {
 			
 		} else  {
 
-			Dungeon.level.press( cell, null );
+			Dungeon.level.press( cell, null, true );
 			shatter( cell );
 			
 		}
@@ -325,5 +334,84 @@ public class Potion extends Item {
 	@Override
 	public int price() {
 		return 30 * quantity;
+	}
+	
+	
+	public static class RandomPotion extends Recipe {
+		
+		@Override
+		public boolean testIngredients(ArrayList<Item> ingredients) {
+			if (ingredients.size() != 3) {
+				return false;
+			}
+			
+			for (Item ingredient : ingredients){
+				if (!(ingredient instanceof Plant.Seed && ingredient.quantity() >= 1)){
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		@Override
+		public int cost(ArrayList<Item> ingredients) {
+			return 1;
+		}
+		
+		@Override
+		public Item brew(ArrayList<Item> ingredients) {
+			if (!testIngredients(ingredients)) return null;
+			
+			for (Item ingredient : ingredients){
+				ingredient.quantity(ingredient.quantity() - 1);
+			}
+			
+			Item result;
+			
+			if (Random.Int( 3 ) == 0) {
+				
+				result = Generator.random( Generator.Category.POTION );
+				
+			} else {
+				
+				Class<? extends Item> itemClass = ((Plant.Seed)Random.element(ingredients)).alchemyClass;
+				try {
+					result = itemClass.newInstance();
+				} catch (Exception e) {
+					ShatteredPixelDungeon.reportException(e);
+					result = Generator.random( Generator.Category.POTION );
+				}
+				
+			}
+			
+			while (result instanceof PotionOfHealing
+					&& (Dungeon.isChallenged(Challenges.NO_HEALING)
+					|| Random.Int(10) < Dungeon.LimitedDrops.COOKING_HP.count)) {
+				result = Generator.random(Generator.Category.POTION);
+			}
+			
+			if (result instanceof PotionOfHealing) {
+				Dungeon.LimitedDrops.COOKING_HP.count++;
+			}
+			
+			Statistics.potionsCooked++;
+			Badges.validatePotionsCooked();
+			
+			return result;
+		}
+		
+		@Override
+		public Item sampleOutput(ArrayList<Item> ingredients) {
+			return new WndBag.Placeholder(ItemSpriteSheet.POTION_HOLDER){
+				{
+					name = Messages.get(RandomPotion.class, "name");
+				}
+				
+				@Override
+				public String info() {
+					return "";
+				}
+			};
+		}
 	}
 }

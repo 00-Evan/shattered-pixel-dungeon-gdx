@@ -34,7 +34,7 @@ public class Buff extends Actor {
 	public Char target;
 
 	{
-		actPriority = 3; //low priority, at the end of a turn
+		actPriority = BUFF_PRIO; //low priority, towards the end of a turn
 	}
 
 	//determines how the buff is announced when it is shown.
@@ -56,7 +56,7 @@ public class Buff extends Actor {
 	
 	public boolean attachTo( Char target ) {
 
-		if (target.immunities().contains( getClass() )) {
+		if (target.isImmune( getClass() )) {
 			return false;
 		}
 		
@@ -120,7 +120,7 @@ public class Buff extends Actor {
 
 	public static<T extends FlavourBuff> T append( Char target, Class<T> buffClass, float duration ) {
 		T buff = append( target, buffClass );
-		buff.spend( duration );
+		buff.spend( duration * target.resist(buffClass) );
 		return buff;
 	}
 
@@ -136,14 +136,14 @@ public class Buff extends Actor {
 	
 	public static<T extends FlavourBuff> T affect( Char target, Class<T> buffClass, float duration ) {
 		T buff = affect( target, buffClass );
-		buff.spend( duration );
+		buff.spend( duration * target.resist(buffClass) );
 		return buff;
 	}
 
 	//postpones an already active buff, or creates & attaches a new buff and delays that.
 	public static<T extends FlavourBuff> T prolong( Char target, Class<T> buffClass, float duration ) {
 		T buff = affect( target, buffClass );
-		buff.postpone( duration );
+		buff.postpone( duration * target.resist(buffClass) );
 		return buff;
 	}
 	

@@ -45,6 +45,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -61,7 +62,7 @@ public abstract class Mob extends Char {
 
 	{
 		name = Messages.get(this, "name");
-		actPriority = 2; //hero gets priority over mobs.
+		actPriority = MOB_PRIO;
 		
 		alignment = Alignment.ENEMY;
 	}
@@ -275,6 +276,7 @@ public abstract class Mob extends Char {
 			sprite.move( from, to );
 			return true;
 		} else {
+			sprite.turnTo(from, to);
 			sprite.place( to );
 			return true;
 		}
@@ -426,15 +428,6 @@ public abstract class Mob extends Char {
 		if (Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class) != null)
 			sprite.add( CharSprite.State.PARALYSED );
 	}
-
-	@Override
-	public void move( int step ) {
-		super.move( step );
-		
-		if (!flying) {
-			Dungeon.level.mobPress( this );
-		}
-	}
 	
 	protected float attackDelay() {
 		return 1f;
@@ -473,7 +466,9 @@ public abstract class Mob extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 		boolean seen = enemySeen || (enemy == Dungeon.hero && !Dungeon.hero.canSurpriseAttack());
-		if (seen && paralysed == 0) {
+		if ( seen
+				&& paralysed == 0
+				&& !(alignment == Alignment.ALLY && enemy == Dungeon.hero)) {
 			int defenseSkill = this.defenseSkill;
 			defenseSkill *= RingOfAccuracy.enemyEvasionMultiplier( enemy );
 			return defenseSkill;
@@ -564,28 +559,38 @@ public abstract class Mob extends Char {
 		
 		super.die( cause );
 
-		float lootChance = this.lootChance;
-		lootChance *= RingOfWealth.dropChanceMultiplier( Dungeon.hero );
-		
-		if (Random.Float() < lootChance && Dungeon.hero.lvl <= maxLvl + 2) {
-			Item loot = createLoot();
-			if (loot != null)
-				Dungeon.level.drop( loot , pos ).sprite.drop();
-		}
-		
-		if (alignment == Alignment.ENEMY && Dungeon.hero.lvl <= maxLvl + 2){
-			int rolls = 1;
-			if (properties.contains(Property.BOSS))             rolls = 15;
-			else if (properties.contains(Property.MINIBOSS))    rolls = 5;
-			ArrayList<Item> bonus = RingOfWealth.tryRareDrop(Dungeon.hero, rolls);
-			if (bonus != null){
-				for (Item b : bonus) Dungeon.level.drop( b , pos ).sprite.drop();
-				new Flare(8, 32).color(0xFFFF00, true).show(sprite, 2f);
-			}
+		if (alignment == Alignment.ENEMY){
+			rollToDropLoot();
 		}
 		
 		if (Dungeon.hero.isAlive() && !Dungeon.level.heroFOV[pos]) {
 			GLog.i( Messages.get(this, "died") );
+		}
+	}
+	
+	public void rollToDropLoot(){
+		if (Dungeon.hero.lvl > maxLvl + 2) return;
+		
+		float lootChance = this.lootChance;
+		lootChance *= RingOfWealth.dropChanceMultiplier( Dungeon.hero );
+		
+		if (Random.Float() < lootChance) {
+			Item loot = createLoot();
+			if (loot != null) {
+				Dungeon.level.drop(loot, pos).sprite.drop();
+			}
+		}
+		
+		//ring of wealth logic
+		if (Ring.getBonus(Dungeon.hero, RingOfWealth.Wealth.class) > 0) {
+			int rolls = 1;
+			if (properties.contains(Property.BOSS)) rolls = 15;
+			else if (properties.contains(Property.MINIBOSS)) rolls = 5;
+			ArrayList<Item> bonus = RingOfWealth.tryRareDrop(Dungeon.hero, rolls);
+			if (bonus != null) {
+				for (Item b : bonus) Dungeon.level.drop(b, pos).sprite.drop();
+				new Flare(8, 32).color(0xFFFF00, true).show(sprite, 2f);
+			}
 		}
 	}
 	

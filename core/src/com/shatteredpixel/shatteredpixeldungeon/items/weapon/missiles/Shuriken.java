@@ -20,21 +20,19 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
-import com.watabou.utils.Random;
 
 public class Shuriken extends MissileWeapon {
 
 	{
 		image = ItemSpriteSheet.SHURIKEN;
-
-		DLY = 0.5f;
 	}
 
 	@Override
 	public int min(int lvl) {
-		return 2;
+		return 4;
 	}
 
 	@Override
@@ -44,26 +42,17 @@ public class Shuriken extends MissileWeapon {
 
 	@Override
 	public int STRReq(int lvl) {
-		return 13;
-	}
-
-	public Shuriken() {
-		this( 1 );
-	}
-	
-	public Shuriken( int number ) {
-		super();
-		quantity = number;
+		return 11;
 	}
 	
 	@Override
-	public Item random() {
-		quantity = Random.Int( 5, 15 );
-		return this;
+	public float speedFactor(Char owner) {
+		if (owner instanceof Hero && ((Hero) owner).justMoved)  return 0;
+		else                                                    return super.speedFactor(owner);
 	}
 	
 	@Override
 	public int price() {
-		return 6 * quantity;
+		return 12 * quantity;
 	}
 }

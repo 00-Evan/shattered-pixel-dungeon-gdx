@@ -493,7 +493,7 @@ public abstract class Level implements Bundlable {
 		return new Actor() {
 
 			{
-				actPriority = 1; //as if it were a buff.
+				actPriority = BUFF_PRIO; //as if it were a buff.
 			}
 
 			@Override
@@ -590,11 +590,15 @@ public abstract class Level implements Bundlable {
 		int lastRow = length() - width();
 		for (int i=0; i < width(); i++) {
 			passable[i] = avoid[i] = false;
+			losBlocking[i] = true;
 			passable[lastRow + i] = avoid[lastRow + i] = false;
+			losBlocking[lastRow + i] = true;
 		}
 		for (int i=width(); i < lastRow; i += width()) {
 			passable[i] = avoid[i] = false;
+			losBlocking[i] = true;
 			passable[i + width()-1] = avoid[i + width()-1] = false;
+			losBlocking[i + width()-1] = true;
 		}
 	}
 
@@ -690,7 +694,7 @@ public abstract class Level implements Bundlable {
 		}
 		
 		if (Dungeon.level != null) {
-			press( cell, null );
+			press( cell, null, true );
 		}
 		
 		return heap;
@@ -763,7 +767,15 @@ public abstract class Level implements Bundlable {
 		return result;
 	}
 	
-	public void press( int cell, Char ch ) {
+	//characters which are not the hero 'soft' press cells by default
+	public void press( int cell, Char ch){
+		press( cell, ch, ch == Dungeon.hero);
+	}
+	
+	//a 'soft' press ignores hidden traps
+	//a 'hard' press triggers all things
+	//generally a 'hard' press should be forced is something is moving forcefully (e.g. thrown)
+	public void press( int cell, Char ch, boolean hard ) {
 
 		if (ch != null && pit[cell] && !ch.flying) {
 			if (ch == Dungeon.hero) {
@@ -779,7 +791,12 @@ public abstract class Level implements Bundlable {
 		switch (map[cell]) {
 		
 		case Terrain.SECRET_TRAP:
-			GLog.i( Messages.get(Level.class, "hidden_plate") );
+			if (hard) {
+				trap = traps.get( cell );
+				GLog.i(Messages.get(Level.class, "hidden_trap", trap.name));
+			}
+			break;
+			
 		case Terrain.TRAP:
 			trap = traps.get( cell );
 			break;
@@ -797,13 +814,16 @@ public abstract class Level implements Bundlable {
 			break;
 		}
 
-		TimekeepersHourglass.timeFreeze timeFreeze = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
-
 		if (trap != null) {
+			
+			TimekeepersHourglass.timeFreeze timeFreeze =
+					ch != null ? ch.buff(TimekeepersHourglass.timeFreeze.class) : null;
+			
 			if (timeFreeze == null) {
 
-				if (ch == Dungeon.hero)
+				if (ch == Dungeon.hero) {
 					Dungeon.hero.interrupt();
+				}
 
 				trap.trigger();
 
@@ -821,41 +841,6 @@ public abstract class Level implements Bundlable {
 		Plant plant = plants.get( cell );
 		if (plant != null) {
 			plant.trigger();
-		}
-	}
-	
-	public void mobPress( Mob mob ) {
-
-		int cell = mob.pos;
-		
-		if (pit[cell] && !mob.flying) {
-			Chasm.mobFall( mob );
-			return;
-		}
-		
-		Trap trap = null;
-		switch (map[cell]) {
-		
-		case Terrain.TRAP:
-			trap = traps.get( cell );
-			break;
-			
-		case Terrain.DOOR:
-			Door.enter( cell );
-			break;
-		}
-		
-		if (trap != null) {
-			trap.trigger();
-		}
-		
-		Plant plant = plants.get( cell );
-		if (plant != null) {
-			plant.trigger();
-		}
-
-		if ( map[cell] == Terrain.HIGH_GRASS){
-			HighGrass.trample( this, cell, mob );
 		}
 	}
 	
@@ -904,8 +889,6 @@ public abstract class Level implements Bundlable {
 					if (!fieldOfView[p]){
 						Dungeon.hero.mindVisionEnemies.add(mob);
 					}
-					for (int i : PathFinder.NEIGHBOURS9)
-						fieldOfView[p+i] = true;
 
 				}
 			} else if (((Hero)c).heroClass == HeroClass.HUNTRESS) {
@@ -916,11 +899,16 @@ public abstract class Level implements Bundlable {
 						if (!fieldOfView[p]){
 							Dungeon.hero.mindVisionEnemies.add(mob);
 						}
-						for (int i : PathFinder.NEIGHBOURS9)
-							fieldOfView[p+i] = true;
 					}
 				}
 			}
+			
+			for (Mob m : Dungeon.hero.mindVisionEnemies) {
+				for (int i : PathFinder.NEIGHBOURS9) {
+					fieldOfView[m.pos + i] = true;
+				}
+			}
+			
 			if (c.buff( Awareness.class ) != null) {
 				for (Heap heap : heaps.values()) {
 					int p = heap.pos;
@@ -950,12 +938,13 @@ public abstract class Level implements Bundlable {
 		return distance( a, b ) == 1;
 	}
 	
-	public int distNoDiag( int a, int b){
+	//uses pythagorean theorum for true distance, as if there was no movement grid
+	public float trueDistance(int a, int b){
 		int ax = a % width();
 		int ay = a / width();
 		int bx = b % width();
 		int by = b / width();
-		return Math.abs( ax - bx ) + Math.abs( ay - by );
+		return (float)Math.sqrt(Math.pow(Math.abs( ax - bx ), 2) + Math.pow(Math.abs( ay - by ), 2));
 	}
 
 	//returns true if the input is a valid tile within the level

@@ -26,7 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Dart;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
 import com.watabou.noosa.audio.Sample;
@@ -55,7 +55,7 @@ public class WornDartTrap extends Trap {
 			for (Char ch : Actor.chars()){
 				Ballistica bolt = new Ballistica(pos, ch.pos, Ballistica.PROJECTILE);
 				if (bolt.collisionPos == ch.pos &&
-						(target == null || Dungeon.level.distNoDiag(pos, ch.pos) < Dungeon.level.distNoDiag(pos, target.pos))){
+						(target == null || Dungeon.level.trueDistance(pos, ch.pos) < Dungeon.level.trueDistance(pos, target.pos))){
 					target = ch;
 				}
 			}
@@ -68,7 +68,7 @@ public class WornDartTrap extends Trap {
 					
 					{
 						//it's a visual effect, gets priority no matter what
-						actPriority = Integer.MIN_VALUE;
+						actPriority = VFX_PRIO;
 					}
 					
 					@Override

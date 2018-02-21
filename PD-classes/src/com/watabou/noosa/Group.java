@@ -192,7 +192,7 @@ public class Group extends Gizmo {
 			try {
 				return add( ClassReflection.newInstance(c) );
 			} catch (Exception e) {
-				e.printStackTrace();
+				Game.reportException(e);
 			}
 		}
 

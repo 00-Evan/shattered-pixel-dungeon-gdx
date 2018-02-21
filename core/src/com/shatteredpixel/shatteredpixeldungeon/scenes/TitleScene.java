@@ -20,9 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
@@ -34,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LanguageButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.UpdateNotification;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -67,7 +67,7 @@ public class TitleScene extends PixelScene {
 		float topRegion = Math.max(95f, h*0.45f);
 
 		title.x = (w - title.width()) / 2f;
-		if (ShatteredPixelDungeon.landscape())
+		if (SPDSettings.landscape())
 			title.y = (topRegion - title.height()) / 2f;
 		else
 			title.y = 16 + (topRegion - title.height() - 16) / 2f;
@@ -87,9 +87,9 @@ public class TitleScene extends PixelScene {
 			}
 			@Override
 			public void draw() {
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+				Blending.setLightMode();
 				super.draw();
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+				Blending.setNormalMode();
 			}
 		};
 		signs.x = title.x + (title.width() - signs.width())/2f;
@@ -128,7 +128,7 @@ public class TitleScene extends PixelScene {
 		};
 		add( btnRankings );
 
-		if (ShatteredPixelDungeon.landscape()) {
+		if (SPDSettings.landscape()) {
 			btnRankings     .setPos( w / 2 - btnRankings.width(), topRegion );
 			btnBadges       .setPos( w / 2, topRegion );
 			btnPlay         .setPos( btnRankings.left() - btnPlay.width(), topRegion );
@@ -151,12 +151,16 @@ public class TitleScene extends PixelScene {
 		changes.setPos( w-changes.width(), h - version.height() - changes.height());
 		add( changes );
 		
+		int pos = 0;
+
 		PrefsButton btnPrefs = new PrefsButton();
-		btnPrefs.setPos( 0, 0 );
+		btnPrefs.setRect( pos, 0, 16, 16 );
 		add( btnPrefs );
 
+		pos += btnPrefs.width();
+
 		LanguageButton btnLang = new LanguageButton();
-		btnLang.setRect(16, 0, 16, 15);
+		btnLang.setRect(pos, 0, 14, 16);
 		add( btnLang );
 
 		ExitButton btnExit = new ExitButton();

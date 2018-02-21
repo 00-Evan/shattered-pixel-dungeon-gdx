@@ -50,6 +50,7 @@ public class Skeleton extends Mob {
 		lootChance = 0.2f;
 
 		properties.add(Property.UNDEAD);
+		properties.add(Property.INORGANIC);
 	}
 	
 	@Override
@@ -88,9 +89,9 @@ public class Skeleton extends Mob {
 	protected Item createLoot() {
 		Item loot;
 		do {
-			loot = Generator.random(Generator.Category.WEAPON);
-			//50% chance of re-rolling tier 4 or 5 items
-		} while (loot instanceof MeleeWeapon && ((MeleeWeapon) loot).tier >= 4 && Random.Int(2) == 0);
+			loot = Generator.randomWeapon();
+		//50% chance of re-rolling tier 4 or 5 melee weapons
+		} while (((MeleeWeapon) loot).tier >= 4 && Random.Int(2) == 0);
 		loot.level(0);
 		return loot;
 	}

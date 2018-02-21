@@ -40,6 +40,7 @@ public class Boomerang extends MissileWeapon {
 
 		unique = true;
 		bones = false;
+		
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class Boomerang extends MissileWeapon {
 
 	@Override
 	public int max(int lvl) {
-		return  5 +     //half the base damage of a tier-1 weapon
+		return  6 +     //half the base damage of a tier-1 weapon
 				2 * lvl;//scales the same as a tier 1 weapon
 	}
 
@@ -65,7 +66,7 @@ public class Boomerang extends MissileWeapon {
 	public int STRReq(int lvl) {
 		lvl = Math.max(0, lvl);
 		//strength req decreases at +1,+3,+6,+10,etc.
-		return 10 - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
+		return 9 - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 
 	@Override
@@ -88,27 +89,24 @@ public class Boomerang extends MissileWeapon {
 	}
 	
 	@Override
-	public Item degrade() {
-		return super.degrade();
+	protected float durabilityPerUse() {
+		return 0;
 	}
 
 	@Override
-	public int proc( Char attacker, Char defender, int damage ) {
-		if (attacker instanceof Hero && ((Hero)attacker).rangedWeapon == this) {
-			circleBack( defender.pos, (Hero)attacker );
-		}
-		return super.proc( attacker, defender, damage );
+	public void rangedHit( Char enemy, int cell ) {
+		circleBack(cell, curUser);
 	}
-
+	
 	@Override
-	protected void miss( int cell ) {
+	protected void rangedMiss( int cell ) {
 		circleBack( cell, curUser );
 	}
 
 	private void circleBack( int from, Hero owner ) {
 
 		((MissileSprite)curUser.sprite.parent.recycle( MissileSprite.class )).
-				reset( from, curUser.pos, curItem, null );
+				reset( from, owner.sprite, curItem, null );
 
 		if (throwEquiped) {
 			owner.belongings.weapon = this;

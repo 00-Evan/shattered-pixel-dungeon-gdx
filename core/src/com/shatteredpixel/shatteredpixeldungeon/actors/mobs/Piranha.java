@@ -24,12 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
@@ -46,7 +41,12 @@ public class Piranha extends Mob {
 		
 		EXP = 0;
 		
+		loot = MysteryMeat.class;
+		lootChance = 1f;
+		
 		HUNTING = new Hunting();
+		
+		properties.add(Property.BLOB_IMMUNE);
 	}
 	
 	public Piranha() {
@@ -85,7 +85,6 @@ public class Piranha extends Mob {
 	
 	@Override
 	public void die( Object cause ) {
-		Dungeon.level.drop( new MysteryMeat(), pos ).sprite.drop();
 		super.die( cause );
 		
 		Statistics.piranhasKilled++;
@@ -130,11 +129,6 @@ public class Piranha extends Mob {
 	
 	{
 		immunities.add( Burning.class );
-		immunities.add( Paralysis.class );
-		immunities.add( ToxicGas.class );
-		immunities.add( VenomGas.class );
-		immunities.add( Roots.class );
-		immunities.add( Frost.class );
 	}
 	
 	private class Hunting extends Mob.Hunting{

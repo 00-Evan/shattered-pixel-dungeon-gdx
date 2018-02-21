@@ -27,13 +27,14 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Blacksmith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
@@ -62,17 +63,17 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndAlchemy;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.FileUtils;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 import com.watabou.utils.SparseArray;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -182,7 +183,7 @@ public class Dungeon {
 	public static void init() {
 
 		version = Game.versionCode;
-		challenges = ShatteredPixelDungeon.challenges();
+		challenges = SPDSettings.challenges();
 
 		seed = DungeonSeed.randomSeed();
 
@@ -228,7 +229,7 @@ public class Dungeon {
 		
 		Badges.reset();
 		
-		StartScene.curClass.initHero( hero );
+		StartScene.selectedClass.initHero( hero );
 	}
 
 	public static boolean isChallenged( int mask ) {
@@ -427,19 +428,7 @@ public class Dungeon {
 		//chance is floors left / scrolls left
 		return Random.Int(5 - floorThisSet) < asLeftThisSet;
 	}
-	
-	private static final String RG_GAME_FILE	= "game.dat";
-	private static final String RG_DEPTH_FILE	= "depth%d.dat";
-	
-	private static final String WR_GAME_FILE	= "warrior.dat";
-	private static final String WR_DEPTH_FILE	= "warrior%d.dat";
-	
-	private static final String MG_GAME_FILE	= "mage.dat";
-	private static final String MG_DEPTH_FILE	= "mage%d.dat";
-	
-	private static final String RN_GAME_FILE	= "ranger.dat";
-	private static final String RN_DEPTH_FILE	= "ranger%d.dat";
-	
+
 	private static final String VERSION		= "version";
 	private static final String SEED		= "seed";
 	private static final String CHALLENGES	= "challenges";
@@ -453,33 +442,7 @@ public class Dungeon {
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
 	
-	public static String gameFile( HeroClass cl ) {
-		switch (cl) {
-		case WARRIOR:
-			return WR_GAME_FILE;
-		case MAGE:
-			return MG_GAME_FILE;
-		case HUNTRESS:
-			return RN_GAME_FILE;
-		default:
-			return RG_GAME_FILE;
-		}
-	}
-	
-	private static String depthFile( HeroClass cl ) {
-		switch (cl) {
-		case WARRIOR:
-			return WR_DEPTH_FILE;
-		case MAGE:
-			return MG_DEPTH_FILE;
-		case HUNTRESS:
-			return RN_DEPTH_FILE;
-		default:
-			return RG_DEPTH_FILE;
-		}
-	}
-	
-	public static void saveGame( String fileName ) throws IOException {
+	public static void saveGame( int save ) throws IOException {
 		try {
 			Bundle bundle = new Bundle();
 
@@ -517,7 +480,9 @@ public class Dungeon {
 			
 			SpecialRoom.storeRoomsInBundle( bundle );
 			SecretRoom.storeRoomsInBundle( bundle );
-			
+
+			WndAlchemy.storeInBundle( bundle );
+
 			Statistics.storeInBundle( bundle );
 			Notes.storeInBundle( bundle );
 			Generator.storeInBundle( bundle );
@@ -531,34 +496,31 @@ public class Dungeon {
 			Bundle badges = new Bundle();
 			Badges.saveLocal( badges );
 			bundle.put( BADGES, badges );
-			
-			OutputStream output = Game.instance.openFileOutput( fileName );
-			Bundle.write( bundle, output );
-			output.close();
+
+			FileUtils.bundleToFile( GamesInProgress.gameFile(save), bundle);
 			
 		} catch (IOException e) {
-			GamesInProgress.setUnknown( hero.heroClass );
+			GamesInProgress.setUnknown( save );
 			ShatteredPixelDungeon.reportException(e);
 		}
 	}
 	
-	public static void saveLevel() throws IOException {
+	public static void saveLevel( int save ) throws IOException {
 		Bundle bundle = new Bundle();
 		bundle.put( LEVEL, level );
-		
-		OutputStream output = Game.instance.openFileOutput( Messages.format( depthFile( hero.heroClass ), depth ) );
-		Bundle.write( bundle, output );
-		output.close();
+
+		FileUtils.bundleToFile(GamesInProgress.depthFile( save, depth), bundle);
 	}
 	
 	public static void saveAll() throws IOException {
 		if (hero != null && hero.isAlive()) {
 			
 			Actor.fixTime();
-			saveGame( gameFile( hero.heroClass ) );
-			saveLevel();
+			saveGame( GamesInProgress.curSlot );
+			saveLevel( GamesInProgress.curSlot );
 
-			GamesInProgress.set( hero.heroClass, depth, hero.lvl, challenges != 0 );
+			GamesInProgress.set( GamesInProgress.curSlot, depth, challenges,
+					hero.lvl, hero.heroClass, hero.subClass );
 
 		} else if (WndResurrect.instance != null) {
 			
@@ -568,17 +530,13 @@ public class Dungeon {
 		}
 	}
 	
-	public static void loadGame( HeroClass cl ) throws IOException {
-		loadGame( gameFile( cl ), true );
-	}
-
-	public static void loadGame( String fileName ) throws IOException {
-		loadGame( fileName, false );
+	public static void loadGame( int save ) throws IOException {
+		loadGame( save, true );
 	}
 	
-	public static void loadGame( String fileName, boolean fullLoad ) throws IOException {
+	public static void loadGame( int save, boolean fullLoad ) throws IOException {
 		
-		Bundle bundle = gameBundle( fileName );
+		Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.gameFile( save ) );
 
 		version = bundle.getInt( VERSION );
 
@@ -645,7 +603,9 @@ public class Dungeon {
 		
 		hero = null;
 		hero = (Hero)bundle.get( HERO );
-		
+
+		WndAlchemy.restoreFromBundle( bundle, hero );
+
 		gold = bundle.getInt( GOLD );
 		depth = bundle.getInt( DEPTH );
 		
@@ -665,14 +625,12 @@ public class Dungeon {
 		}
 	}
 	
-	public static Level loadLevel( HeroClass cl ) throws IOException {
+	public static Level loadLevel( int save ) throws IOException {
 		
 		Dungeon.level = null;
 		Actor.clear();
 		
-		InputStream input = Game.instance.openFileInput( Messages.format( depthFile( cl ), depth ) ) ;
-		Bundle bundle = Bundle.read( input );
-		input.close();
+		Bundle bundle = FileUtils.bundleFromFile( GamesInProgress.depthFile( save, depth)) ;
 		
 		Level level = (Level)bundle.get( LEVEL );
 		
@@ -683,33 +641,21 @@ public class Dungeon {
 		}
 	}
 	
-	public static void deleteGame( HeroClass cl, boolean deleteLevels ) {
+	public static void deleteGame( int save, boolean deleteLevels ) {
 		
-		Game.instance.deleteFile( gameFile( cl ) );
+		FileUtils.deleteFile(GamesInProgress.gameFile(save));
 		
 		if (deleteLevels) {
-			int depth = 1;
-			while (Game.instance.deleteFile( Messages.format( depthFile( cl ), depth ) )) {
-				depth++;
-			}
+			FileUtils.deleteDir(GamesInProgress.gameFolder(save));
 		}
 		
-		GamesInProgress.delete( cl );
-	}
-	
-	public static Bundle gameBundle( String fileName ) throws IOException {
-		
-		InputStream input = Game.instance.openFileInput( fileName );
-		Bundle bundle = Bundle.read( input );
-		input.close();
-		
-		return bundle;
+		GamesInProgress.delete( save );
 	}
 	
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.depth = bundle.getInt( DEPTH );
 		info.version = bundle.getInt( VERSION );
-		info.challenges = (bundle.getInt( CHALLENGES ) != 0);
+		info.challenges = bundle.getInt( CHALLENGES );
 		Hero.preview( info, bundle.getBundle( HERO ) );
 	}
 
@@ -742,30 +688,45 @@ public class Dungeon {
 		
 		level.updateFieldOfView(hero, level.heroFOV);
 
-		if (hero.buff(MindVision.class) != null || hero.buff(Awareness.class) != null) {
-			BArray.or( level.visited, level.heroFOV, 0, level.heroFOV.length, level.visited );
+		int x = hero.pos % level.width();
+		int y = hero.pos / level.width();
 
-			GameScene.updateFog();
-		} else {
+		//left, right, top, bottom
+		int l = Math.max( 0, x - dist );
+		int r = Math.min( x + dist, level.width() - 1 );
+		int t = Math.max( 0, y - dist );
+		int b = Math.min( y + dist, level.height() - 1 );
 
-			int cx = hero.pos % level.width();
-			int cy = hero.pos / level.width();
+		int width = r - l + 1;
+		int height = b - t + 1;
 
-			int ax = Math.max( 0, cx - dist );
-			int bx = Math.min( cx + dist, level.width() - 1 );
-			int ay = Math.max( 0, cy - dist );
-			int by = Math.min( cy + dist, level.height() - 1 );
+		int pos = l + t * level.width();
 
-			int len = bx - ax + 1;
-			int pos = ax + ay * level.width();
-
-			for (int y = ay; y <= by; y++, pos+=level.width()) {
-				BArray.or( level.visited, level.heroFOV, pos, len, level.visited );
-			}
-
-			GameScene.updateFog(ax, ay, len, by-ay);
+		for (int i = t; i <= b; i++) {
+			BArray.or( level.visited, level.heroFOV, pos, width, level.visited );
+			pos+=level.width();
 		}
 
+		GameScene.updateFog(l, t, width, height);
+
+		if (hero.buff(MindVision.class) != null){
+			for (Mob m : level.mobs.toArray(new Mob[0])){
+				BArray.or( level.visited, level.heroFOV, m.pos - 1 - level.width(), 3, level.visited );
+				BArray.or( level.visited, level.heroFOV, m.pos, 3, level.visited );
+				BArray.or( level.visited, level.heroFOV, m.pos - 1 + level.width(), 3, level.visited );
+				//updates adjacent cells too
+				GameScene.updateFog(m.pos, 2);
+			}
+		}
+
+		if (hero.buff(Awareness.class) != null){
+			for (Heap h : level.heaps.values()){
+				BArray.or( level.visited, level.heroFOV, h.pos - 1 - level.width(), 3, level.visited );
+				BArray.or( level.visited, level.heroFOV, h.pos - 1, 3, level.visited );
+				BArray.or( level.visited, level.heroFOV, h.pos - 1 + level.width(), 3, level.visited );
+				GameScene.updateFog(h.pos, 2);
+			}
+		}
 
 		GameScene.afterObserve();
 	}

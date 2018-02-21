@@ -297,7 +297,7 @@ public class TimekeepersHourglass extends Artifact {
 
 		private void triggerPresses(){
 			for (int cell : presses)
-				Dungeon.level.press(cell, null);
+				Dungeon.level.press(cell, null, true);
 
 			presses = new ArrayList<>();
 		}

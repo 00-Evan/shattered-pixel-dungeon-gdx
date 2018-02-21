@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -34,8 +35,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.RenderedText;
-import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.DeviceCompat;
 
 public class WndSettings extends WndTabbed {
 
@@ -117,8 +118,8 @@ public class WndSettings extends WndTabbed {
 					PixelScene.maxDefaultZoom ) {
 				@Override
 				protected void onChange() {
-					if (getSelectedValue() != ShatteredPixelDungeon.scale()) {
-						ShatteredPixelDungeon.scale(getSelectedValue());
+					if (getSelectedValue() != SPDSettings.scale()) {
+						SPDSettings.scale(getSelectedValue());
 						ShatteredPixelDungeon.switchNoFade((Class<? extends PixelScene>) ShatteredPixelDungeon.scene().getClass(), new Game.SceneChangeCallback() {
 							@Override
 							public void beforeCreate() {
@@ -142,10 +143,10 @@ public class WndSettings extends WndTabbed {
 			RedButton btnResolution = new RedButton(Gdx.graphics.isFullscreen() ? TXT_SWITCH_WIN : TXT_SWITCH_FULL ) {
 				@Override
 				protected void onClick() {
-					ShatteredPixelDungeon.fullscreen(!ShatteredPixelDungeon.fullscreen());
+					SPDSettings.fullscreen(!SPDSettings.fullscreen());
 				}
 			};
-			btnResolution.enable(ShatteredPixelDungeon.instance.getPlatformSupport().isFullscreenEnabled() );
+			btnResolution.enable( DeviceCompat.supportsFullScreen() );
 			btnResolution.setRect(0, scale.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
 			add(btnResolution);
 
@@ -153,10 +154,10 @@ public class WndSettings extends WndTabbed {
 					Messages.get(this, "dark"), Messages.get(this, "bright"), -2, 2) {
 				@Override
 				protected void onChange() {
-					ShatteredPixelDungeon.brightness(getSelectedValue());
+					SPDSettings.brightness(getSelectedValue());
 				}
 			};
-			brightness.setSelectedValue(ShatteredPixelDungeon.brightness());
+			brightness.setSelectedValue(SPDSettings.brightness());
 			brightness.setRect(0, btnResolution.bottom() + GAP_LRG, WIDTH, SLIDER_HEIGHT);
 			add(brightness);
 
@@ -164,10 +165,10 @@ public class WndSettings extends WndTabbed {
 					Messages.get(this, "off"), Messages.get(this, "high"), -1, 3) {
 				@Override
 				protected void onChange() {
-					ShatteredPixelDungeon.visualGrid(getSelectedValue());
+					SPDSettings.visualGrid(getSelectedValue());
 				}
 			};
-			tileGrid.setSelectedValue(ShatteredPixelDungeon.visualGrid());
+			tileGrid.setSelectedValue(SPDSettings.visualGrid());
 			tileGrid.setRect(0, brightness.bottom() + GAP_TINY, WIDTH, SLIDER_HEIGHT);
 			add(tileGrid);
 		}
@@ -186,7 +187,7 @@ public class WndSettings extends WndTabbed {
 			RedButton btnSplit = new RedButton(Messages.get(this, "split")){
 				@Override
 				protected void onClick() {
-					ShatteredPixelDungeon.toolbarMode(Toolbar.Mode.SPLIT.name());
+					SPDSettings.toolbarMode(Toolbar.Mode.SPLIT.name());
 					Toolbar.updateLayout();
 				}
 			};
@@ -196,7 +197,7 @@ public class WndSettings extends WndTabbed {
 			RedButton btnGrouped = new RedButton(Messages.get(this, "group")){
 				@Override
 				protected void onClick() {
-					ShatteredPixelDungeon.toolbarMode(Toolbar.Mode.GROUP.name());
+					SPDSettings.toolbarMode(Toolbar.Mode.GROUP.name());
 					Toolbar.updateLayout();
 				}
 			};
@@ -206,7 +207,7 @@ public class WndSettings extends WndTabbed {
 			RedButton btnCentered = new RedButton(Messages.get(this, "center")){
 				@Override
 				protected void onClick() {
-					ShatteredPixelDungeon.toolbarMode(Toolbar.Mode.CENTER.name());
+					SPDSettings.toolbarMode(Toolbar.Mode.CENTER.name());
 					Toolbar.updateLayout();
 				}
 			};
@@ -217,35 +218,35 @@ public class WndSettings extends WndTabbed {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					ShatteredPixelDungeon.flipToolbar(checked());
+					SPDSettings.flipToolbar(checked());
 					Toolbar.updateLayout();
 				}
 			};
 			chkFlipToolbar.setRect(0, btnGrouped.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
-			chkFlipToolbar.checked(ShatteredPixelDungeon.flipToolbar());
+			chkFlipToolbar.checked(SPDSettings.flipToolbar());
 			add(chkFlipToolbar);
 
 			final CheckBox chkFlipTags = new CheckBox(Messages.get(this, "flip_indicators")){
 				@Override
 				protected void onClick() {
 					super.onClick();
-					ShatteredPixelDungeon.flipTags(checked());
+					SPDSettings.flipTags(checked());
 					GameScene.layoutTags();
 				}
 			};
 			chkFlipTags.setRect(0, chkFlipToolbar.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
-			chkFlipTags.checked(ShatteredPixelDungeon.flipTags());
+			chkFlipTags.checked(SPDSettings.flipTags());
 			add(chkFlipTags);
 
 			/*	if (Gdx.app.getType() == Application.ApplicationType.Android || Gdx.app.getType() == Application.ApplicationType.iOS) {
 				OptionSlider slots = new OptionSlider("Quickslots", "0", "4", 0, 4) {
 					@Override
 					protected void onChange() {
-						ShatteredPixelDungeon.quickSlots(getSelectedValue());
+						SPDSettings.quickSlots(getSelectedValue());
 						Toolbar.updateLayout();
 					}
 				};
-				slots.setSelectedValue(ShatteredPixelDungeon.quickSlots());
+				slots.setSelectedValue(SPDSettings.quickSlots());
 				slots.setRect(0, chkFlipTags.bottom() + GAP_LRG, WIDTH, SLIDER_HEIGHT);
 				add(slots);
 			} else*/ if (Gdx.app.getType() == Application.ApplicationType.Desktop) {
@@ -268,11 +269,10 @@ public class WndSettings extends WndTabbed {
 			OptionSlider musicVol = new OptionSlider(Messages.get(this, "music_vol"), "0", "10", 0, 10) {
 				@Override
 				protected void onChange() {
-					Music.INSTANCE.volume(getSelectedValue()/10f);
-					ShatteredPixelDungeon.musicVol(getSelectedValue());
+					SPDSettings.musicVol(getSelectedValue());
 				}
 			};
-			musicVol.setSelectedValue(ShatteredPixelDungeon.musicVol());
+			musicVol.setSelectedValue(SPDSettings.musicVol());
 			musicVol.setRect(0, 0, WIDTH, SLIDER_HEIGHT);
 			add(musicVol);
 
@@ -280,22 +280,21 @@ public class WndSettings extends WndTabbed {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					ShatteredPixelDungeon.music(!checked());
+					SPDSettings.music(!checked());
 				}
 			};
 			musicMute.setRect(0, musicVol.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
-			musicMute.checked(!ShatteredPixelDungeon.music());
+			musicMute.checked(!SPDSettings.music());
 			add(musicMute);
 
 
 			OptionSlider SFXVol = new OptionSlider(Messages.get(this, "sfx_vol"), "0", "10", 0, 10) {
 				@Override
 				protected void onChange() {
-					Sample.INSTANCE.volume(getSelectedValue()/10f);
-					ShatteredPixelDungeon.SFXVol(getSelectedValue());
+					SPDSettings.SFXVol(getSelectedValue());
 				}
 			};
-			SFXVol.setSelectedValue(ShatteredPixelDungeon.SFXVol());
+			SFXVol.setSelectedValue(SPDSettings.SFXVol());
 			SFXVol.setRect(0, musicMute.bottom() + GAP_LRG, WIDTH, SLIDER_HEIGHT);
 			add(SFXVol);
 
@@ -303,12 +302,12 @@ public class WndSettings extends WndTabbed {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					ShatteredPixelDungeon.soundFx(!checked());
+					SPDSettings.soundFx(!checked());
 					Sample.INSTANCE.play( Assets.SND_CLICK );
 				}
 			};
 			btnSound.setRect(0, SFXVol.bottom() + GAP_TINY, WIDTH, BTN_HEIGHT);
-			btnSound.checked(!ShatteredPixelDungeon.soundFx());
+			btnSound.checked(!SPDSettings.soundFx());
 			add( btnSound );
 
 			resize( WIDTH, (int)btnSound.bottom());

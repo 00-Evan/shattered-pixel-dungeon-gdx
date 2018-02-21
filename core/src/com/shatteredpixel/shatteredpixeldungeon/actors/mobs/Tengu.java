@@ -236,8 +236,6 @@ public class Tengu extends Mob {
 	{
 		resistances.add( ToxicGas.class );
 		resistances.add( Poison.class );
-		resistances.add( Grim.class );
-		resistances.add( ScrollOfPsionicBlast.class );
 	}
 
 	@Override

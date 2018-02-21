@@ -20,9 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.watabou.glwrap.Blending;
 import com.watabou.glwrap.Texture;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
@@ -116,9 +115,9 @@ public class Fireball extends Component {
 	
 	@Override
 	public void draw() {
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+		Blending.setLightMode();
 		super.draw();
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+		Blending.setNormalMode();
 	}
 	
 	public static class Flame extends Image {

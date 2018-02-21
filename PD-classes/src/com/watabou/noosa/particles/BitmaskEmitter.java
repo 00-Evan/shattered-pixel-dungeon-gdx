@@ -19,10 +19,10 @@ package com.watabou.noosa.particles;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.TextureData;
-import com.watabou.utils.RectF;
 
 import com.watabou.noosa.Image;
 import com.watabou.utils.Random;
+import com.watabou.utils.RectF;
 
 public class BitmaskEmitter extends Emitter {
 

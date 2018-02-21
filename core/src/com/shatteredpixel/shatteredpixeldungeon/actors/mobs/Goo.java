@@ -63,6 +63,7 @@ public class Goo extends Mob {
 
 		properties.add(Property.BOSS);
 		properties.add(Property.DEMONIC);
+		properties.add(Property.ACIDIC);
 	}
 
 	private int pumpedUp = 0;
@@ -270,9 +271,4 @@ public class Goo extends Mob {
 
 	}
 	
-	{
-		resistances.add( ToxicGas.class );
-		resistances.add( Grim.class );
-		resistances.add( ScrollOfPsionicBlast.class );
-	}
 }

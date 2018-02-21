@@ -43,8 +43,5 @@ public class Vertigo extends FlavourBuff {
 	public String desc() {
 		return Messages.get(this, "desc", dispTurns());
 	}
-
-	public static float duration( Char ch ) {
-		return DURATION * RingOfElements.durationFactor( ch );
-	}
+	
 }

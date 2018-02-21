@@ -86,7 +86,7 @@ public class WandOfFrost extends DamageWand {
 					Buff.prolong(ch, Chill.class, 2+level());
 			}
 		} else {
-			Dungeon.level.press(bolt.collisionPos, null);
+			Dungeon.level.press(bolt.collisionPos, null, true);
 		}
 	}
 
@@ -103,10 +103,10 @@ public class WandOfFrost extends DamageWand {
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
 		Chill chill = defender.buff(Chill.class);
-		if (chill != null && Random.IntRange(2, 10) > chill.cooldown()){
+		if (chill != null && Random.IntRange(2, 10) <= chill.cooldown()){
 			//need to delay this through an actor so that the freezing isn't broken by taking damage from the staff hit.
 			new FlavourBuff(){
-				{actPriority = Integer.MIN_VALUE;}
+				{actPriority = VFX_PRIO;}
 				public boolean act() {
 					Buff.affect(target, Frost.class, Frost.duration(target) * Random.Float(1f, 2f));
 					return super.act();

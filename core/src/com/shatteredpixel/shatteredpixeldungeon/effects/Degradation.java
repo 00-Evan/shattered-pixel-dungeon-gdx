@@ -17,8 +17,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.particles.PixelParticle;
 import com.watabou.utils.PointF;
@@ -109,9 +108,9 @@ public class Degradation extends Group {
 	
 	@Override
 	public void draw() {
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+		Blending.setLightMode();
 		super.draw();
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+		Blending.setNormalMode();
 	}
 	
 	public static class Speck extends PixelParticle {

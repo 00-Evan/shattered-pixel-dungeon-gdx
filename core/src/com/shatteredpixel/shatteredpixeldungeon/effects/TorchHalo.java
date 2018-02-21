@@ -20,9 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Game;
 
 public class TorchHalo extends Halo {
@@ -61,9 +60,9 @@ public class TorchHalo extends Halo {
 	
 	@Override
 	public void draw() {
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+		Blending.setLightMode();
 		super.draw();
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+		Blending.setNormalMode();
 	}
 	
 	public void putOut() {

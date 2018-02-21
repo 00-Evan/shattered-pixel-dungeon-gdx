@@ -56,7 +56,7 @@ public class Speck extends Image {
 	public static final int RATTLE		= 105;
 	public static final int JET			= 106;
 	public static final int TOXIC		= 107;
-	public static final int VENOM		= 108;
+	public static final int CORROSION   = 108;
 	public static final int PARALYSIS	= 109;
 	public static final int DUST		= 110;
 	public static final int STENCH      = 111;
@@ -105,7 +105,7 @@ public class Speck extends Image {
 			break;
 		case JET:
 		case TOXIC:
-		case VENOM:
+		case CORROSION:
 		case PARALYSIS:
 		case STENCH:
 		case CONFUSION:
@@ -278,8 +278,8 @@ public class Speck extends Image {
 			lifespan = Random.Float( 1f, 3f );
 			break;
 
-		case VENOM:
-			hardlight( 0x8844FF );
+		case CORROSION:
+			hardlight( 0xAAAAAA );
 			angularSpeed = 30;
 			angle = Random.Float( 360 );
 			lifespan = Random.Float( 1f, 3f );
@@ -419,8 +419,8 @@ public class Speck extends Image {
 				scale.set( 1 + p );
 				break;
 
-			case VENOM:
-				hardlight( ColorMath.interpolate( 0x8844FF, 0x00FF00 , p ));
+			case CORROSION:
+				hardlight( ColorMath.interpolate( 0xAAAAAA, 0xFF8800 , p ));
 			case STENCH:
 				am = (float)Math.sqrt( (p < 0.5f ? p : 1 - p) );
 				scale.set( 1 + p );

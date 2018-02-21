@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corrosion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
@@ -42,12 +43,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Venom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
@@ -59,7 +60,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Swarm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -112,7 +112,7 @@ public class WandOfCorruption extends Wand {
 		MAJOR_DEBUFFS.put(Charm.class,          0f);
 		MAJOR_DEBUFFS.put(MagicalSleep.class,   0f);
 		MAJOR_DEBUFFS.put(SoulMark.class,       0f);
-		MAJOR_DEBUFFS.put(Venom.class,          0f);
+		MAJOR_DEBUFFS.put(Corrosion.class,      0f);
 		MAJOR_DEBUFFS.put(Frost.class,          0f);
 		MAJOR_DEBUFFS.put(Doom.class,           0f);
 	}
@@ -123,7 +123,7 @@ public class WandOfCorruption extends Wand {
 
 		if (ch != null){
 			
-			if (!(ch instanceof Mob) || ch instanceof NPC){
+			if (!(ch instanceof Mob)){
 				return;
 			}
 
@@ -139,7 +139,7 @@ public class WandOfCorruption extends Wand {
 				enemyResist = 1 + Dungeon.depth/2f;
 			} else if (ch instanceof Wraith) {
 				//this is so low because wraiths are always at max hp
-				enemyResist = 1 + Dungeon.depth/5f;
+				enemyResist = 0.5f + Dungeon.depth/8f;
 			} else if (ch instanceof Yog.BurningFist || ch instanceof Yog.RottingFist) {
 				enemyResist = 1 + 30;
 			} else if (ch instanceof Yog.Larva || ch instanceof King.Undead){
@@ -178,16 +178,23 @@ public class WandOfCorruption extends Wand {
 			processSoulMark(ch, chargesPerCast());
 			
 		} else {
-			Dungeon.level.press(bolt.collisionPos, null);
+			Dungeon.level.press(bolt.collisionPos, null, true);
 		}
 	}
 	
 	private void debuffEnemy( Mob enemy, HashMap<Class<? extends Buff>, Float> category ){
+		
+		//do not consider buffs which are already assigned, or that the enemy is immune to.
 		HashMap<Class<? extends Buff>, Float> debuffs = new HashMap<>(category);
 		for (Buff existing : enemy.buffs()){
 			if (debuffs.containsKey(existing.getClass())) {
 				debuffs.put(existing.getClass(), 0f);
 			}
+		}
+		for (Class<?extends Buff> toAssign : debuffs.keySet()){
+			 if (debuffs.get(toAssign) > 0 && enemy.isImmune(toAssign)){
+			 	debuffs.put(toAssign, 0f);
+			 }
 		}
 		
 		//all buffs with a > 0 chance are flavor buffs
@@ -209,13 +216,13 @@ public class WandOfCorruption extends Wand {
 			return;
 		}
 		
-		if (!enemy.properties().contains(Char.Property.BOSS) &&
-				!enemy.properties().contains(Char.Property.MINIBOSS) &&
-				!enemy.immunities().contains(Corruption.class)){
+		if (!enemy.isImmune(Corruption.class)){
 			enemy.HP = enemy.HT;
 			for (Buff buff : enemy.buffs()) {
 				if (buff.type == Buff.buffType.NEGATIVE
 						&& !(buff instanceof SoulMark)) {
+					buff.detach();
+				} else if (buff instanceof PinCushion){
 					buff.detach();
 				}
 			}
@@ -228,7 +235,7 @@ public class WandOfCorruption extends Wand {
 				curUser.sprite.showStatus(CharSprite.POSITIVE, Messages.get(enemy, "exp", enemy.EXP));
 				curUser.earnExp(enemy.EXP);
 			}
-			//TODO perhaps enemies should also drop loot here
+			enemy.rollToDropLoot();
 		} else {
 			Buff.affect(enemy, Doom.class);
 		}

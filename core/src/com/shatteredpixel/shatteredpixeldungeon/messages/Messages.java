@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.messages;
+
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.watabou.utils.DeviceCompat;
 
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -79,11 +83,19 @@ public class Messages {
 		Locale locale = new Locale(lang.code());
 
 		for (String file : prop_files) {
-			ResourceBundle bundle = ResourceBundle.getBundle( file, locale );
+			ResourceBundle bundle = ResourceBundle.getBundle( file, locale);
 			Enumeration<String> keys = bundle.getKeys();
 			while (keys.hasMoreElements()) {
 				String key = keys.nextElement();
 				String value = bundle.getString(key);
+
+				if (DeviceCompat.usesISO_8859_1()) {
+					try {
+						value = new String(value.getBytes("ISO-8859-1"), "UTF-8");
+					} catch (Exception e) {
+						ShatteredPixelDungeon.reportException(e);
+					}
+				}
 
 				strings.put(key, value);
 			}

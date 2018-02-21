@@ -176,6 +176,9 @@ public class Artifact extends KindofMisc {
 
 	@Override
 	public Item random() {
+		//always +0
+		
+		//30% chance to be cursed
 		if (Random.Float() < 0.3f) {
 			cursed = true;
 		}

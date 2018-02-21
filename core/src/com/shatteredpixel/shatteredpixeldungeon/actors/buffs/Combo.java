@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -151,7 +150,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 	public Image getIcon() {
 		Image icon;
 		if (((Hero)target).belongings.weapon != null){
-			icon = new ItemSprite(Dungeon.hero.belongings.weapon.image, null);
+			icon = new ItemSprite(((Hero)target).belongings.weapon.image, null);
 		} else {
 			icon = new ItemSprite(new Item(){ {image = ItemSpriteSheet.WEAPON_HOLDER; }});
 		}
@@ -255,12 +254,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 										Actor.addDelayed( new Pushing( enemy, enemy.pos, newPos ), -1 );
 
 										enemy.pos = newPos;
-										// FIXME
-										if (enemy instanceof Mob) {
-											Dungeon.level.mobPress( (Mob)enemy );
-										} else {
-											Dungeon.level.press( newPos, enemy );
-										}
+										Dungeon.level.press( newPos, enemy );
 
 									}
 									break;

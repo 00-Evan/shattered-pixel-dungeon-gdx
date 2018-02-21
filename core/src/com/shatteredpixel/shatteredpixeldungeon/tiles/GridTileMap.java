@@ -1,7 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tiles;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 
 public class GridTileMap extends DungeonTilemap {
@@ -16,7 +16,7 @@ public class GridTileMap extends DungeonTilemap {
 
 	@Override
 	public synchronized void updateMap() {
-		gridSetting = ShatteredPixelDungeon.visualGrid();
+		gridSetting = SPDSettings.visualGrid();
 		super.updateMap();
 	}
 

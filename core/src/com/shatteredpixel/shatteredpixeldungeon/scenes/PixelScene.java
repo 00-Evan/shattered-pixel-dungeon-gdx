@@ -20,13 +20,12 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.watabou.glwrap.Blending;
 import com.watabou.glwrap.Texture;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapText.Font;
@@ -71,7 +70,7 @@ public class PixelScene extends Scene {
 		GameScene.scene = null;
 
 		float minWidth, minHeight;
-		if (ShatteredPixelDungeon.landscape()) {
+		if (SPDSettings.landscape()) {
 			minWidth = MIN_WIDTH_L;
 			minHeight = MIN_HEIGHT_L;
 		} else {
@@ -80,7 +79,7 @@ public class PixelScene extends Scene {
 		}
 
 		maxDefaultZoom = (int)Math.min(Game.width/minWidth, Game.height/minHeight);
-		defaultZoom = ShatteredPixelDungeon.scale();
+		defaultZoom = SPDSettings.scale();
 
 		if (defaultZoom < Math.ceil( Game.density * 2 ) || defaultZoom > maxDefaultZoom){
 			defaultZoom = (int)Math.round((Math.ceil( Game.density * 2 ) + maxDefaultZoom)/2);
@@ -288,9 +287,9 @@ public class PixelScene extends Scene {
 		@Override
 		public void draw() {
 			if (light) {
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+				Blending.setLightMode();
 				super.draw();
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+				Blending.setNormalMode();
 			} else {
 				super.draw();
 			}

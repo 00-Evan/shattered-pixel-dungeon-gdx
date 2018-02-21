@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.watabou.glscripts.Script;
 import com.watabou.gltextures.TextureCache;
+import com.watabou.glwrap.Blending;
 import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.audio.Music;
@@ -36,6 +37,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PDPlatformSupport;
 import com.watabou.utils.SystemTime;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -110,7 +112,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	@Override
 	public void pause() {
 		if (scene != null) {
-			scene.pause();
+			scene.onPause();
 		}
 		
 		Script.reset();
@@ -134,18 +136,20 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 			return;
 		}
 
+		NoosaScript.get().resetCamera();
+		NoosaScriptNoLighting.get().resetCamera();
+		Gdx.gl.glDisable( GL20.GL_SCISSOR_TEST );
+		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
+		draw();
+
+		Gdx.gl.glFlush();
+
 		SystemTime.tick();
 		long rightNow = SystemTime.now;
 		step = (now == 0 ? 0 : rightNow - now);
 		now = rightNow;
 
 		step();
-
-		NoosaScript.get().resetCamera();
-		NoosaScriptNoLighting.get().resetCamera();
-		Gdx.gl.glDisable( GL20.GL_SCISSOR_TEST );
-		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
-		draw();
 	}
 
 	@Override
@@ -166,8 +170,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	}
 
 	public void onSurfaceCreated() {
-		Gdx.gl.glEnable( GL20.GL_BLEND );
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+		Blending.useDefault();
 		
 		//refreshes texture and vertex data stored on the gpu
 		TextureCache.reload();
@@ -218,7 +221,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	}
 	
 	protected void draw() {
-		scene.draw();
+		if (scene != null) scene.draw();
 	}
 	
 	protected void switchScene() {
@@ -250,6 +253,10 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		Gdx.input.vibrate(milliseconds);
 	}
 
+	public File getFilesDir() {
+		return Gdx.files.external(basePath).file();
+	}
+
 	public boolean deleteFile(String fileName) {
 		final FileHandle fh = Gdx.files.external(basePath != null ? basePath + fileName : fileName);
 		return fh.exists() && fh.delete();
@@ -277,6 +284,14 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 
 	public PDPlatformSupport getPlatformSupport() {
 		return platformSupport;
+	}
+
+	public static void reportException( Throwable tr ) {
+		if (instance != null) instance.logException(tr);
+	}
+
+	protected void logException( Throwable tr ){
+		Gdx.app.error("PD", tr.getMessage(), tr);
 	}
 
 	public interface SceneChangeCallback {

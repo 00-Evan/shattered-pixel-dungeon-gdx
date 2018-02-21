@@ -32,6 +32,8 @@ public class Acidic extends Scorpio {
 
 	{
 		spriteClass = AcidicSprite.class;
+		
+		properties.add(Property.ACIDIC);
 	}
 	
 	@Override

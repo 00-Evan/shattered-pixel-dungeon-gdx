@@ -180,8 +180,7 @@ public class Heap implements Bundlable {
 			
 			for (Item i : items) {
 				if (i.isSimilar( item )) {
-					i.quantity += item.quantity;
-					item = i;
+					item = i.merge( item );
 					break;
 				}
 			}

@@ -55,12 +55,12 @@ public class Scene extends Group {
 		super.destroy();
 	}
 	
-	public void pause() {
+	public void onPause() {
 		
 	}
-	
-	public void resume() {
-		
+
+	public void onResume(){
+
 	}
 	
 	@Override

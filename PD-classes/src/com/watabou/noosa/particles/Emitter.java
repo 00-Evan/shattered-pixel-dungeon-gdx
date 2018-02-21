@@ -21,8 +21,7 @@
 
 package com.watabou.noosa.particles;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
 import com.watabou.noosa.Visual;
@@ -148,9 +147,9 @@ public class Emitter extends Group {
 	@Override
 	public void draw() {
 		if (lightMode) {
-			Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+			Blending.setLightMode();
 			super.draw();
-			Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+			Blending.setNormalMode();
 		} else {
 			super.draw();
 		}

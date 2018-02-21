@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
@@ -215,6 +216,7 @@ public class Yog extends Mob {
 
 			properties.add(Property.BOSS);
 			properties.add(Property.DEMONIC);
+			properties.add(Property.FIERY);
 		}
 		
 		@Override
@@ -263,12 +265,7 @@ public class Yog extends Mob {
 		}
 		
 		{
-			resistances.add( ToxicGas.class );
-			resistances.add( Grim.class );
-			resistances.add( ScrollOfPsionicBlast.class );
-		}
-		
-		{
+			immunities.add( Paralysis.class );
 			immunities.add( Amok.class );
 			immunities.add( Sleep.class );
 			immunities.add( Terror.class );
@@ -291,6 +288,7 @@ public class Yog extends Mob {
 
 			properties.add(Property.BOSS);
 			properties.add(Property.DEMONIC);
+			properties.add(Property.ACIDIC);
 		}
 		
 		@Override
@@ -362,16 +360,12 @@ public class Yog extends Mob {
 		
 		{
 			resistances.add( ToxicGas.class );
-			resistances.add( Grim.class );
-
 		}
 		
 		{
 			immunities.add( Amok.class );
 			immunities.add( Sleep.class );
 			immunities.add( Terror.class );
-			immunities.add( Burning.class );
-			immunities.add( ScrollOfPsionicBlast.class );
 			immunities.add( Vertigo.class );
 		}
 	}

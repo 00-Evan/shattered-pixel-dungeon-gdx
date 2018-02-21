@@ -64,6 +64,7 @@ public class DM300 extends Mob {
 		lootChance = 0.333f;
 
 		properties.add(Property.BOSS);
+		properties.add(Property.INORGANIC);
 	}
 	
 	@Override
@@ -135,7 +136,7 @@ public class DM300 extends Mob {
 	public void damage(int dmg, Object src) {
 		super.damage(dmg, src);
 		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
-		if (lock != null && !immunities().contains(src.getClass())) lock.addTime(dmg*1.5f);
+		if (lock != null && !isImmune(src.getClass())) lock.addTime(dmg*1.5f);
 	}
 
 	@Override
@@ -161,11 +162,6 @@ public class DM300 extends Mob {
 		super.notice();
 		BossHealthBar.assignBoss(this);
 		yell( Messages.get(this, "notice") );
-	}
-	
-	{
-		resistances.add( Grim.class );
-		resistances.add( ScrollOfPsionicBlast.class );
 	}
 	
 	{

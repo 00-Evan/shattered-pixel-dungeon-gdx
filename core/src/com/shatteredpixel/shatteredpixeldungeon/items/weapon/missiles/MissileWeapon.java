@@ -25,13 +25,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -45,6 +48,14 @@ abstract public class MissileWeapon extends Weapon {
 		defaultAction = AC_THROW;
 		usesTargeting = true;
 	}
+	
+	protected boolean sticky = true;
+	
+	protected static final float MAX_DURABILITY = 100;
+	protected float durability = MAX_DURABILITY;
+	
+	//used to reduce durability from the source weapon stack, rather than the one being thrown.
+	protected MissileWeapon parent;
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -67,58 +78,144 @@ abstract public class MissileWeapon extends Weapon {
 	protected void onThrow( int cell ) {
 		Char enemy = Actor.findChar( cell );
 		if (enemy == null || enemy == curUser) {
-			if (this instanceof Boomerang)
+				parent = null;
 				super.onThrow( cell );
-			else
-				miss( cell );
 		} else {
 			if (!curUser.shoot( enemy, this )) {
-				miss( cell );
-			} else if (!(this instanceof Boomerang)){
-
-				int bonus = RingOfSharpshooting.getBonus(curUser, RingOfSharpshooting.Aim.class);
-
-				if (curUser.heroClass == HeroClass.HUNTRESS && enemy.buff(PinCushion.class) == null)
-					bonus += 3;
-
-				if (Random.Float() > Math.pow(0.7, bonus)){
-					if (enemy.isAlive())
-						Buff.affect(enemy, PinCushion.class).stick(this);
-					else
-						Dungeon.level.drop( this, enemy.pos).sprite.drop();
-				}
-
-			}
-		}
-	}
-	
-	protected void miss( int cell ) {
-		int bonus = RingOfSharpshooting.getBonus(curUser, RingOfSharpshooting.Aim.class);
-
-		//degraded ring of sharpshooting will even make missed shots break.
-		if (Random.Float() < Math.pow(0.6, -bonus))
-			super.onThrow( cell );
-	}
-	
-	@Override
-	public int proc( Char attacker, Char defender, int damage ) {
-		
-		Hero hero = (Hero)attacker;
-		if (hero.rangedWeapon == null && stackable) {
-			if (quantity == 1) {
-				doUnequip( hero, false, false );
+				rangedMiss( cell );
 			} else {
-				detach( null );
+				
+				rangedHit( enemy, cell );
+
 			}
 		}
-
-		return super.proc( attacker, defender, damage );
-
 	}
 	
 	@Override
 	public Item random() {
+		if (!stackable) return this;
+		
+		//2: 66.67% (2/3)
+		//3: 26.67% (4/15)
+		//4: 6.67%  (1/15)
+		quantity = 2;
+		if (Random.Int(3) == 0) {
+			quantity++;
+			if (Random.Int(5) == 0) {
+				quantity++;
+			}
+		}
 		return this;
+	}
+	
+	@Override
+	public float castDelay(Char user, int dst) {
+		float delay = speedFactor( user );
+		
+		Char enemy = Actor.findChar(dst);
+		
+		if (enemy != null) {
+			SnipersMark mark = user.buff( SnipersMark.class );
+			if (mark != null) {
+				if (mark.object == enemy.id()) {
+					delay *= 0.5f;
+				}
+			}
+		}
+		
+		return delay;
+	}
+	
+	protected void rangedHit( Char enemy, int cell ){
+		//if this weapon was thrown from a source stack, degrade that stack.
+		//unless a weapon is about to break, then break the one being thrown
+		if (parent != null){
+			if (parent.durability <= parent.durabilityPerUse()){
+				durability = 0;
+				parent.durability = MAX_DURABILITY;
+			} else {
+				parent.durability -= parent.durabilityPerUse();
+			}
+			parent = null;
+		} else {
+			durability -= durabilityPerUse();
+		}
+		if (durability > 0){
+			if (enemy.isAlive() && sticky)  Buff.affect(enemy, PinCushion.class).stick(this);
+			else                            Dungeon.level.drop( this, enemy.pos).sprite.drop();
+		}
+	}
+	
+	protected void rangedMiss( int cell ) {
+		parent = null;
+		super.onThrow(cell);
+	}
+	
+	protected float durabilityPerUse(){
+		float usage = Dungeon.hero.heroClass == HeroClass.HUNTRESS ?
+				MAX_DURABILITY/15f:
+				MAX_DURABILITY/10f;
+		
+		usage /= RingOfSharpshooting.durabilityMultiplier( Dungeon.hero );
+		
+		return usage;
+	}
+	
+	@Override
+	public int damageRoll(Char owner) {
+		int damage = imbue.damageFactor(super.damageRoll( owner ));
+		damage = Math.round( damage * RingOfSharpshooting.damageMultiplier( owner ));
+		
+		if (owner instanceof Hero &&
+				((Hero)owner).heroClass == HeroClass.HUNTRESS) {
+			int exStr = ((Hero)owner).STR() - STRReq();
+			if (exStr > 0) {
+				damage += Random.IntRange( 0, exStr );
+			}
+		}
+		
+		return damage;
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		durability = MAX_DURABILITY;
+	}
+	
+	@Override
+	public Item merge(Item other) {
+		super.merge(other);
+		if (isSimilar(other)) {
+			durability += ((MissileWeapon)other).durability;
+			durability -= MAX_DURABILITY;
+			while (durability <= 0){
+				quantity -= 1;
+				durability += MAX_DURABILITY;
+			}
+		}
+		return this;
+	}
+	
+	@Override
+	public Item split(int amount) {
+		Item split = super.split(amount);
+		
+		//unless the thrown weapon will break, split off a max durability item and
+		//have it reduce the durability of the main stack. Cleaner to the player this way
+		if (split != null){
+			MissileWeapon m = (MissileWeapon)split;
+			m.durability = MAX_DURABILITY;
+			m.parent = this;
+		}
+		
+		return split;
+	}
+	
+	@Override
+	public boolean doPickUp(Hero hero) {
+		parent = null;
+		return super.doPickUp(hero);
 	}
 	
 	@Override
@@ -136,7 +233,10 @@ abstract public class MissileWeapon extends Weapon {
 
 		String info = desc();
 		
-		info += "\n\n" + Messages.get( MissileWeapon.class, "stats", imbue.damageFactor(min()), imbue.damageFactor(max()), STRReq());
+		info += "\n\n" + Messages.get( MissileWeapon.class, "stats",
+				Math.round(imbue.damageFactor(min()) * RingOfSharpshooting.damageMultiplier( Dungeon.hero )),
+				Math.round(imbue.damageFactor(max()) * RingOfSharpshooting.damageMultiplier( Dungeon.hero )),
+				STRReq());
 
 		if (STRReq() > Dungeon.hero.STR()) {
 			info += " " + Messages.get(Weapon.class, "too_heavy");
@@ -157,6 +257,38 @@ abstract public class MissileWeapon extends Weapon {
 
 		info += "\n\n" + Messages.get(MissileWeapon.class, "distance");
 		
+		info += "\n\n" + Messages.get(this, "durability");
+		
+		if (durabilityPerUse() > 0){
+			info += " " + Messages.get(this, "uses_left",
+					(int)Math.ceil(durability/durabilityPerUse()),
+					(int)Math.ceil(MAX_DURABILITY/durabilityPerUse()));
+		}
+		
+		
 		return info;
+	}
+	
+	private static final String DURABILITY = "durability";
+	
+	@Override
+	public void storeInBundle(Bundle bundle) {
+		super.storeInBundle(bundle);
+		bundle.put(DURABILITY, durability);
+	}
+	
+	@Override
+	public void restoreFromBundle(Bundle bundle) {
+		super.restoreFromBundle(bundle);
+		//compatibility with pre-0.6.3 saves
+		if (bundle.contains(DURABILITY)) {
+			durability = bundle.getInt(DURABILITY);
+		} else {
+			durability = 100;
+			//reduces quantity roughly in line with new durability system
+			if (!(this instanceof TippedDart)){
+				quantity = (int)Math.ceil(quantity/5f);
+			}
+		}
 	}
 }

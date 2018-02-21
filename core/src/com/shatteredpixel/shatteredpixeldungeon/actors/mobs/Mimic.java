@@ -123,12 +123,8 @@ public class Mimic extends Mob {
 				Actor.addDelayed( new Pushing( ch, ch.pos, newPos ), -1 );
 				
 				ch.pos = newPos;
-				// FIXME
-				if (ch instanceof Mob) {
-					Dungeon.level.mobPress( (Mob)ch );
-				} else {
-					Dungeon.level.press( newPos, ch );
-				}
+				Dungeon.level.press( newPos, ch );
+				
 			} else {
 				return null;
 			}
@@ -150,8 +146,10 @@ public class Mimic extends Mob {
 
 		//generate an extra reward for killing the mimic
 		switch(Random.Int(5)){
-			case 0: case 1:
+			case 0:
 				m.items.add(new Gold().random()); break;
+			case 1:
+				m.items.add(Generator.randomMissile()); break;
 			case 2:
 				m.items.add(Generator.randomArmor().identify()); break;
 			case 3:

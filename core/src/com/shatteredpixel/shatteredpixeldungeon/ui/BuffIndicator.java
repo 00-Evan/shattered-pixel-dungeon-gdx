@@ -220,9 +220,7 @@ public class BuffIndicator extends Component {
 	
 	public static void refreshHero() {
 		if (heroInstance != null) {
-			synchronized (heroInstance) {
-				heroInstance.needsRefresh = true;
-			}
+			heroInstance.needsRefresh = true;
 		}
 	}
 }

@@ -57,10 +57,6 @@ public class Charm extends FlavourBuff {
 	public String toString() {
 		return Messages.get(this, "name");
 	}
-	
-	public static float durationFactor( Char ch ) {
-		return RingOfElements.durationFactor( ch );
-	}
 
 	@Override
 	public String heroMessage() {

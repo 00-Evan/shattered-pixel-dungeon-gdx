@@ -28,7 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Dart;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.PoisonDart;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
 import com.watabou.noosa.audio.Sample;
@@ -57,7 +57,7 @@ public class PoisonDartTrap extends Trap {
 			for (Char ch : Actor.chars()){
 				Ballistica bolt = new Ballistica(pos, ch.pos, Ballistica.PROJECTILE);
 				if (bolt.collisionPos == ch.pos &&
-						(target == null || Dungeon.level.distNoDiag(pos, ch.pos) < Dungeon.level.distNoDiag(pos, target.pos))){
+						(target == null || Dungeon.level.trueDistance(pos, ch.pos) < Dungeon.level.trueDistance(pos, target.pos))){
 					target = ch;
 				}
 			}
@@ -70,14 +70,14 @@ public class PoisonDartTrap extends Trap {
 					
 					{
 						//it's a visual effect, gets priority no matter what
-						actPriority = Integer.MIN_VALUE;
+						actPriority = VFX_PRIO;
 					}
 					
 					@Override
 					protected boolean act() {
 						final Actor toRemove = this;
 						((MissileSprite) ShatteredPixelDungeon.scene().recycle(MissileSprite.class)).
-							reset(pos, finalTarget.sprite, new Dart(), new Callback() {
+							reset(pos, finalTarget.sprite, new PoisonDart(), new Callback() {
 								@Override
 								public void call() {
 									int dmg = Random.NormalIntRange(1, 4) - finalTarget.drRoll();
@@ -86,7 +86,7 @@ public class PoisonDartTrap extends Trap {
 										Dungeon.fail( trap.getClass() );
 									}
 									Buff.affect( finalTarget, Poison.class )
-											.set( Poison.durationFactor( finalTarget ) * (4 + Dungeon.depth) );
+											.set( 4 + Dungeon.depth );
 									Sample.INSTANCE.play(Assets.SND_HIT, 1, 1, Random.Float(0.8f, 1.25f));
 									finalTarget.sprite.bloodBurstA(finalTarget.sprite.center(), dmg);
 									finalTarget.sprite.flash();
@@ -100,7 +100,7 @@ public class PoisonDartTrap extends Trap {
 			} else {
 				finalTarget.damage(Random.NormalIntRange(1, 4) - finalTarget.drRoll(), trap);
 				Buff.affect( finalTarget, Poison.class )
-						.set( Poison.durationFactor( finalTarget ) * (4 + Dungeon.depth) );
+						.set( 4 + Dungeon.depth );
 			}
 		}
 	}

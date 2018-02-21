@@ -25,9 +25,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CorrosiveGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.CorrosionParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -36,20 +39,22 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.ColorMath;
 import com.watabou.utils.PathFinder;
+import com.watabou.utils.Random;
 
-public class WandOfVenom extends Wand {
+public class WandOfCorrosion extends Wand {
 
 	{
-		image = ItemSpriteSheet.WAND_VENOM;
+		image = ItemSpriteSheet.WAND_CORROSION;
 
 		collisionProperties = Ballistica.STOP_TARGET | Ballistica.STOP_TERRAIN;
 	}
 
 	@Override
 	protected void onZap(Ballistica bolt) {
-		Blob venomGas = Blob.seed(bolt.collisionPos, 50 + 10 * level(), VenomGas.class);
-		((VenomGas)venomGas).setStrength(level()+1);
-		GameScene.add(venomGas);
+		Blob corrosiveGas = Blob.seed(bolt.collisionPos, 50 + 10 * level(), CorrosiveGas.class);
+		CellEmitter.center(bolt.collisionPos).burst( CorrosionParticle.SPLASH, 10 );
+		((CorrosiveGas)corrosiveGas).setStrength(level()+1);
+		GameScene.add(corrosiveGas);
 
 		for (int i : PathFinder.NEIGHBOURS9) {
 			Char ch = Actor.findChar(bolt.collisionPos + i);
@@ -59,7 +64,7 @@ public class WandOfVenom extends Wand {
 		}
 		
 		if (Actor.findChar(bolt.collisionPos) == null){
-			Dungeon.level.press(bolt.collisionPos, null);
+			Dungeon.level.press(bolt.collisionPos, null, true);
 		}
 	}
 
@@ -67,7 +72,7 @@ public class WandOfVenom extends Wand {
 	protected void fx(Ballistica bolt, Callback callback) {
 		MagicMissile.boltFromChar(
 				curUser.sprite.parent,
-				MagicMissile.POISON,
+				MagicMissile.CORROSION,
 				curUser.sprite,
 				bolt.collisionPos,
 				callback);
@@ -76,17 +81,24 @@ public class WandOfVenom extends Wand {
 
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		//acts like venomous enchantment
-		new Venomous().proc(staff, attacker, defender, damage);
+		// lvl 0 - 33%
+		// lvl 1 - 50%
+		// lvl 2 - 60%
+		if (Random.Int( level() + 3 ) >= 2) {
+			
+			Buff.affect( defender, Ooze.class );
+			CellEmitter.center(defender.pos).burst( CorrosionParticle.SPLASH, 5 );
+			
+		}
 	}
 
 	@Override
 	public void staffFx(MagesStaff.StaffParticle particle) {
-		particle.color( ColorMath.random( 0x8844FF, 0x00FF00) );
+		particle.color( ColorMath.random( 0xAAAAAA, 0xFF8800) );
 		particle.am = 0.6f;
 		particle.setLifespan( 1f );
 		particle.acc.set(0, 20);
-		particle.setSize( 0.5f, 2f);
+		particle.setSize( 0.5f, 3f );
 		particle.shuffleXY( 1f );
 	}
 

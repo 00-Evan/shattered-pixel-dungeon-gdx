@@ -20,9 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.ui;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.NoosaScript;
 import com.watabou.noosa.NoosaScriptNoLighting;
@@ -52,9 +51,9 @@ public class Archs extends Component {
 			@Override
 			public void draw() {
 				//arch bg has no alpha component, this improves performance
-				Gdx.gl.glBlendFunc( GL20.GL_ONE, GL20.GL_ZERO);
+				Blending.disable();
 				super.draw();
-				Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+				Blending.enable();
 			}
 		};
 		arcsBg.autoAdjust = true;

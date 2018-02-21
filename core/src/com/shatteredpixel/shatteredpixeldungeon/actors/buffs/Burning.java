@@ -81,10 +81,8 @@ public class Burning extends Buff implements Hero.Doom {
 	public boolean act() {
 		
 		if (target.isAlive()) {
-
-			//maximum damage scales from 6 to 2 depending on remaining hp.
-			int maxDmg = 3 + Math.round( 4 * target.HP / (float)target.HT );
-			int damage = Random.Int( 1, maxDmg );
+			
+			int damage = Random.NormalIntRange( 1, 3 + target.HT/40 );
 			Buff.detach( target, Chill.class);
 
 			if (target instanceof Hero) {
@@ -171,7 +169,7 @@ public class Burning extends Buff implements Hero.Doom {
 	}
 	
 	public void reignite( Char ch ) {
-		left = duration( ch );
+		left = DURATION;
 	}
 	
 	@Override
@@ -193,10 +191,6 @@ public class Burning extends Buff implements Hero.Doom {
 	@Override
 	public String toString() {
 		return Messages.get(this, "name");
-	}
-
-	public static float duration( Char ch ) {
-		return DURATION * RingOfElements.durationFactor( ch );
 	}
 
 	@Override

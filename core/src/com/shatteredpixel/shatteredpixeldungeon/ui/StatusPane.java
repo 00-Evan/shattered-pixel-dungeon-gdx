@@ -343,6 +343,7 @@ public class StatusPane extends Component {
 		protected void onClick() {
 			flashing = false;
 			time = 0;
+			keyIcon.am = journalIcon.am = 1;
 			GameScene.show( new WndJournal() );
 		}
 

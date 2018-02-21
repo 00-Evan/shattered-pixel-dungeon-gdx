@@ -38,7 +38,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Knuckles;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Dart;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.utils.Bundle;
 
@@ -105,20 +106,20 @@ public enum HeroClass {
 
 	private static void initWarrior( Hero hero ) {
 		(hero.belongings.weapon = new WornShortsword()).identify();
-		Dart darts = new Dart( 8 );
-		darts.identify().collect();
+		ThrowingStone stones = new ThrowingStone();
+		stones.identify().quantity(3).collect();
 
 		if ( Badges.isUnlocked(Badges.Badge.TUTORIAL_WARRIOR) ){
 			if (!Dungeon.isChallenged(Challenges.NO_ARMOR))
 				hero.belongings.armor.affixSeal(new BrokenSeal());
-			Dungeon.quickslot.setSlot(0, darts);
+			Dungeon.quickslot.setSlot(0, stones);
 		} else {
 			if (!Dungeon.isChallenged(Challenges.NO_ARMOR)) {
 				BrokenSeal seal = new BrokenSeal();
 				seal.collect();
 				Dungeon.quickslot.setSlot(0, seal);
 			}
-			Dungeon.quickslot.setSlot(1, darts);
+			Dungeon.quickslot.setSlot(1, stones);
 		}
 
 		new PotionOfHealing().identify();
@@ -149,11 +150,11 @@ public enum HeroClass {
 		(hero.belongings.misc1 = cloak).identify();
 		hero.belongings.misc1.activate( hero );
 
-		Dart darts = new Dart( 8 );
-		darts.identify().collect();
+		ThrowingKnife knives = new ThrowingKnife();
+		knives.quantity(3).collect();
 
 		Dungeon.quickslot.setSlot(0, cloak);
-		Dungeon.quickslot.setSlot(1, darts);
+		Dungeon.quickslot.setSlot(1, knives);
 
 		new ScrollOfMagicMapping().identify();
 	}

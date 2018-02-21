@@ -32,6 +32,8 @@ public class Dagger extends MeleeWeapon {
 		image = ItemSpriteSheet.DAGGER;
 
 		tier = 1;
+		
+		bones = false;
 	}
 
 	@Override

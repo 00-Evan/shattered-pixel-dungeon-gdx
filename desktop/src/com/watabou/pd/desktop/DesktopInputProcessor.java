@@ -22,7 +22,7 @@ package com.watabou.pd.desktop;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.IntMap;
-import com.shatteredpixel.shatteredpixeldungeon.Preferences;
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 
@@ -41,7 +41,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 		// Load the default mappings...
 		// ...ONLY IF IT'S THE FIRST RUN!
-		if (Preferences.INSTANCE.getInt( getPrefKey( GameAction.BACK, true ), 0 ) == 0) {
+		if (SPDSettings.getInt( getPrefKey( GameAction.BACK, true ), 0 ) == 0) {
 			resetKeyMappings();
 		}
 
@@ -55,12 +55,12 @@ public class DesktopInputProcessor extends PDInputProcessor {
 		 * Right now we store key mapping preferences on the default game preferences file/registry/whatever. It will probably
 		 * be a good idea to have a separate one for this
 		 */
-		int mapping1 = Preferences.INSTANCE.getInt( getPrefKey( action, true ), -1 );
+		int mapping1 = SPDSettings.getInt( getPrefKey( action, true ), -1 );
 		if (mapping1 > 0) {
 			keyMappings.put( mapping1, new GameActionWrapper( action, true ) );
 		}
 
-		int mapping2 = Preferences.INSTANCE.getInt( getPrefKey( action, false ), -1 );
+		int mapping2 = SPDSettings.getInt( getPrefKey( action, false ), -1 );
 		if (mapping2 > 0) {
 			keyMappings.put( mapping2, new GameActionWrapper( action, false ) );
 		}
@@ -83,8 +83,8 @@ public class DesktopInputProcessor extends PDInputProcessor {
 			} else {
 				pair = new KeyPair();
 			}
-			Preferences.INSTANCE.put( getPrefKey( action, true ), pair.code1 );
-			Preferences.INSTANCE.put( getPrefKey( action, false ), pair.code2 );
+			SPDSettings.put( getPrefKey( action, true ), pair.code1 );
+			SPDSettings.put( getPrefKey( action, false ), pair.code2 );
 		}
 	}
 
@@ -92,12 +92,12 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	public GameActionWrapper setKeyMapping( GameAction action, boolean defaultKey, int code ) {
 		final GameActionWrapper existingMapping = keyMappings.get(code);
 		keyMappings.put(code, new GameActionWrapper(action, defaultKey));
-		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), code);
+		SPDSettings.put( getPrefKey( action, defaultKey ), code);
 
 		if (existingMapping != null && (existingMapping.gameAction != action || existingMapping.defaultKey != defaultKey)) {
 			// If some other action was mapped to this key, then we have
 			// to remove a record about it from the preferences
-			Preferences.INSTANCE.put( getPrefKey( existingMapping.gameAction, existingMapping.defaultKey ), -1);
+			SPDSettings.put( getPrefKey( existingMapping.gameAction, existingMapping.defaultKey ), -1);
 			return existingMapping;
 		} else {
 			return null;
@@ -124,7 +124,7 @@ public class DesktopInputProcessor extends PDInputProcessor {
 	@Override
 	public GameActionWrapper removeKeyMapping(GameAction action, boolean defaultKey, int code) {
 		final GameActionWrapper result = keyMappings.remove(code);
-		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), -1);
+		SPDSettings.put( getPrefKey( action, defaultKey ), -1);
 		return result;
 	}
 
@@ -169,10 +169,6 @@ public class DesktopInputProcessor extends PDInputProcessor {
 
 	private static String getPrefKey( GameAction action, boolean defaultKey ) {
 		return (defaultKey ? GAMEACTION_PREFIX1 : GAMEACTION_PREFIX2) + action;
-	}
-
-	private static void putToPrefs( GameAction action, boolean defaultKey, boolean code ) {
-		Preferences.INSTANCE.put( getPrefKey( action, defaultKey ), code );
 	}
 
 	private static final HashMap<GameAction, KeyPair> DEFAULTS = new HashMap<>();

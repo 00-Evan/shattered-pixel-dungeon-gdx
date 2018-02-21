@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon.Enchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite;
@@ -43,6 +42,8 @@ public class Statue extends Mob {
 
 		EXP = 0;
 		state = PASSIVE;
+		
+		properties.add(Property.INORGANIC);
 	}
 	
 	protected Weapon weapon;
@@ -51,8 +52,8 @@ public class Statue extends Mob {
 		super();
 		
 		do {
-			weapon = (Weapon)Generator.random( Generator.Category.WEAPON );
-		} while (!(weapon instanceof MeleeWeapon) || weapon.cursed);
+			weapon = Generator.randomWeapon();
+		} while (weapon.cursed);
 		
 		weapon.enchant( Enchantment.random() );
 		
@@ -153,12 +154,7 @@ public class Statue extends Mob {
 	}
 	
 	{
-		resistances.add(ToxicGas.class);
-		resistances.add(Poison.class);
 		resistances.add(Grim.class);
 	}
 	
-	{
-		immunities.add( Vampiric.class );
-	}
 }

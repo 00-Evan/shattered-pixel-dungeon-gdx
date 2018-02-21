@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.VenomGas;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+package com.watabou.utils;
 
-public class VenomTrap extends Trap {
+import com.watabou.noosa.Game;
 
-	{
-		color = VIOLET;
-		shape = GRILL;
+public class DeviceCompat {
+	
+	public static boolean supportsFullScreen(){
+		return Game.instance.getPlatformSupport().isFullscreenEnabled();
+	}
+	
+	public static boolean legacyDevice(){
+		return false;
+	}
+	
+	public static boolean supportsPlayServices(){
+		return false;
+	}
+	
+	public static boolean usesISO_8859_1(){
+		return false;
 	}
 
-	@Override
-	public void activate() {
-
-		VenomGas venomGas = Blob.seed(pos, 80 + 5 * Dungeon.depth, VenomGas.class);
-
-		venomGas.setStrength(1+Dungeon.depth/4);
-
-		GameScene.add(venomGas);
-
-	}
 }

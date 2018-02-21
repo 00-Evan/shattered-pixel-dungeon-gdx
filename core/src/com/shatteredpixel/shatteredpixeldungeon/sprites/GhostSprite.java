@@ -20,11 +20,10 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.TextureFilm;
 
 public class GhostSprite extends MobSprite {
@@ -53,9 +52,9 @@ public class GhostSprite extends MobSprite {
 	
 	@Override
 	public void draw() {
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE );
+		Blending.setLightMode();
 		super.draw();
-		Gdx.gl.glBlendFunc( GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA );
+		Blending.setNormalMode();
 	}
 	
 	@Override

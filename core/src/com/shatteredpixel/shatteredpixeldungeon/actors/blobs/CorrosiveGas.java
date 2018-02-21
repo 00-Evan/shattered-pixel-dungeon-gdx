@@ -24,13 +24,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Venom;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corrosion;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.utils.Bundle;
 
-public class VenomGas extends Blob {
+public class CorrosiveGas extends Blob {
 
 	private int strength = 0;
 
@@ -48,8 +48,8 @@ public class VenomGas extends Blob {
 				for (int j = area.top; j < area.bottom; j++){
 					cell = i + j*Dungeon.level.width();
 					if (cur[cell] > 0 && (ch = Actor.findChar( cell )) != null) {
-						if (!ch.immunities().contains(this.getClass()))
-							Buff.affect(ch, Venom.class).set(2f, strength);
+						if (!ch.isImmune(this.getClass()))
+							Buff.affect(ch, Corrosion.class).set(2f, strength);
 					}
 				}
 			}
@@ -79,7 +79,7 @@ public class VenomGas extends Blob {
 	public void use( BlobEmitter emitter ) {
 		super.use( emitter );
 
-		emitter.pour( Speck.factory(Speck.VENOM), 0.4f );
+		emitter.pour( Speck.factory(Speck.CORROSION), 0.4f );
 	}
 
 	@Override
