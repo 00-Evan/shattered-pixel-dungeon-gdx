@@ -1303,7 +1303,7 @@ public class Hero extends Char {
 		int stealth = super.stealth();
 
 		if (belongings.armor != null && belongings.armor.hasGlyph(Obfuscation.class)){
-			stealth += belongings.armor.level();
+			stealth += 1 + belongings.armor.level()/3;
 		}
 		return stealth;
 	}
