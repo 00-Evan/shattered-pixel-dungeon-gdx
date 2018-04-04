@@ -20,38 +20,32 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
-import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.utils.GameSettings;
 import com.watabou.utils.PDPlatformSupport;
-
-import java.util.Locale;
 
 public class ShatteredPixelDungeon extends Game<GameAction> {
 	
 	//variable constants for specific older versions of shattered, used for data conversion
-	//versions older than v0.4.3c are no longer supported, and data from them is ignored
-	public static final int v0_4_3c = 148;
-
-	public static final int v0_5_0b = 157;
-
+	//versions older than v0.5.0b are no longer supported, and data from them is ignored
+	public static final int v0_5_0b = 159;
+	
 	public static final int v0_6_0b = 185;
-
+	
 	public static final int v0_6_1b = 209;
-
+	
 	public static final int v0_6_2e = 229;
-
-	public static final int v0_6_3  = 241;
+	
+	public static final int v0_6_3c = 245;
+	
+	public static final int v0_6_4  = 251;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -142,6 +136,15 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.levels.traps.CorrosionTrap.class,
 				"com.shatteredpixel.shatteredpixeldungeon.levels.traps.VenomTrap" );
+		
+		//v0.6.4
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.bags.SeedPouch" );
+		
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.bags.WandHolster" );
 		
 	}
 

@@ -25,9 +25,14 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -45,15 +50,17 @@ import com.watabou.utils.Bundle;
 
 public enum HeroClass {
 
-	WARRIOR( "warrior" ),
-	MAGE( "mage" ),
-	ROGUE( "rogue" ),
-	HUNTRESS( "huntress" );
+	WARRIOR( "warrior", HeroSubClass.BERSERKER, HeroSubClass.GLADIATOR ),
+	MAGE( "mage", HeroSubClass.BATTLEMAGE, HeroSubClass.WARLOCK ),
+	ROGUE( "rogue", HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER ),
+	HUNTRESS( "huntress", HeroSubClass.WARDEN, HeroSubClass.SNIPER );
 
 	private String title;
+	private HeroSubClass[] subClasses;
 
-	HeroClass( String title ) {
+	HeroClass( String title, HeroSubClass...subClasses ) {
 		this.title = title;
+		this.subClasses = subClasses;
 	}
 
 	public void initHero( Hero hero ) {
@@ -83,11 +90,16 @@ public enum HeroClass {
 	}
 
 	private static void initCommon( Hero hero ) {
-		if (!Dungeon.isChallenged(Challenges.NO_ARMOR))
-			(hero.belongings.armor = new ClothArmor()).identify();
+		Item i = new ClothArmor().identify();
+		if (!Challenges.isItemBlocked(i)) hero.belongings.armor = (ClothArmor)i;
 
-		if (!Dungeon.isChallenged(Challenges.NO_FOOD))
-			new Food().identify().collect();
+		i = new Food();
+		if (!Challenges.isItemBlocked(i)) i.collect();
+
+		if (Dungeon.isChallenged(Challenges.NO_FOOD)){
+			new SmallRation().collect();
+		}
+
 	}
 
 	public Badges.Badge masteryBadge() {
@@ -108,38 +120,29 @@ public enum HeroClass {
 		(hero.belongings.weapon = new WornShortsword()).identify();
 		ThrowingStone stones = new ThrowingStone();
 		stones.identify().quantity(3).collect();
+		Dungeon.quickslot.setSlot(0, stones);
 
-		if ( Badges.isUnlocked(Badges.Badge.TUTORIAL_WARRIOR) ){
-			if (!Dungeon.isChallenged(Challenges.NO_ARMOR))
-				hero.belongings.armor.affixSeal(new BrokenSeal());
-			Dungeon.quickslot.setSlot(0, stones);
-		} else {
-			if (!Dungeon.isChallenged(Challenges.NO_ARMOR)) {
-				BrokenSeal seal = new BrokenSeal();
-				seal.collect();
-				Dungeon.quickslot.setSlot(0, seal);
-			}
-			Dungeon.quickslot.setSlot(1, stones);
+		if (hero.belongings.armor != null){
+			hero.belongings.armor.affixSeal(new BrokenSeal());
 		}
-
+		
+		new PotionBandolier().collect();
+		Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
 		new PotionOfHealing().identify();
 	}
 
 	private static void initMage( Hero hero ) {
 		MagesStaff staff;
-
-		if ( Badges.isUnlocked(Badges.Badge.TUTORIAL_MAGE) ){
-			staff = new MagesStaff(new WandOfMagicMissile());
-		} else {
-			staff = new MagesStaff();
-			new WandOfMagicMissile().identify().collect();
-		}
+		
+		staff = new MagesStaff(new WandOfMagicMissile());
 
 		(hero.belongings.weapon = staff).identify();
 		hero.belongings.weapon.activate(hero);
 
 		Dungeon.quickslot.setSlot(0, staff);
 
+		new ScrollHolder().collect();
+		Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
 		new ScrollOfUpgrade().identify();
 	}
 
@@ -156,6 +159,8 @@ public enum HeroClass {
 		Dungeon.quickslot.setSlot(0, cloak);
 		Dungeon.quickslot.setSlot(1, knives);
 
+		new VelvetPouch().collect();
+		Dungeon.LimitedDrops.VELVET_POUCH.drop();
 		new ScrollOfMagicMapping().identify();
 	}
 
@@ -167,11 +172,17 @@ public enum HeroClass {
 
 		Dungeon.quickslot.setSlot(0, boomerang);
 
+		new VelvetPouch().collect();
+		Dungeon.LimitedDrops.VELVET_POUCH.drop();
 		new PotionOfMindVision().identify();
 	}
 	
 	public String title() {
 		return Messages.get(HeroClass.class, title);
+	}
+	
+	public HeroSubClass[] subClasses() {
+		return subClasses;
 	}
 	
 	public String spritesheet() {

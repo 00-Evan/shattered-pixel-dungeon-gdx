@@ -38,8 +38,6 @@ public class LastLevel extends Level {
 	{
 		color1 = 0x801500;
 		color2 = 0xa68521;
-
-		viewDistance = 8;
 	}
 
 	private int pedestal;
@@ -108,7 +106,6 @@ public class LastLevel extends Level {
 		}
 
 		feeling = Feeling.NONE;
-		viewDistance = 8;
 
 		return true;
 	}

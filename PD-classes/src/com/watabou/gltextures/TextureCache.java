@@ -32,7 +32,7 @@ public class TextureCache {
 
 	private static HashMap<Object,SmartTexture> all = new HashMap<>();
 	
-	public static SmartTexture createSolid( int color ) {
+	public synchronized static SmartTexture createSolid( int color ) {
 		final String key = "1x1:" + color;
 		
 		if (all.containsKey( key )) {
@@ -53,7 +53,7 @@ public class TextureCache {
 		}
 	}
 
-	public static SmartTexture createGradient( int... colors ) {
+	public synchronized static SmartTexture createGradient( int... colors ) {
 
 		final String key = "" + colors;
 
@@ -79,11 +79,11 @@ public class TextureCache {
 
 	}
 
-	public static void add( Object key, SmartTexture tx ) {
+	public synchronized static void add( Object key, SmartTexture tx ) {
 		all.put( key, tx );
 	}
 	
-	public static void remove( Object key ){
+	public synchronized static void remove( Object key ){
 		SmartTexture tx = all.get( key );
 		if (tx != null){
 			all.remove(key);
@@ -91,7 +91,7 @@ public class TextureCache {
 		}
 	}
 
-	public static SmartTexture get( Object src ) {
+	public synchronized static SmartTexture get( Object src ) {
 		
 		if (all.containsKey( src )) {
 			
@@ -110,17 +110,17 @@ public class TextureCache {
 
 	}
 	
-	public static void clear() {
+	public synchronized static void clear() {
 		
-		for (Texture txt:all.values()) {
+		for (Texture txt : all.values()) {
 			txt.delete();
 		}
 		all.clear();
 		
 	}
 	
-	public static void reload() {
-		for (SmartTexture tx:all.values()) {
+	public synchronized static void reload() {
+		for (SmartTexture tx : all.values()) {
 			tx.reload();
 		}
 	}
@@ -154,7 +154,7 @@ public class TextureCache {
 		}
 	}
 	
-	public static boolean contains( Object key ) {
+	public synchronized static boolean contains( Object key ) {
 		return all.containsKey( key );
 	}
 	

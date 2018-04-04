@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
@@ -104,7 +105,7 @@ public class WaterOfTransmutation extends WellWater {
 			Wand n;
 			do {
 				n = (Wand)Generator.random(Category.WAND);
-			} while (n.getClass() == wandClass);
+			} while (Challenges.isItemBlocked(n) || n.getClass() == wandClass);
 			n.level(0);
 			staff.imbueWand(n, null);
 		}
@@ -119,12 +120,12 @@ public class WaterOfTransmutation extends WellWater {
 
 		do {
 			try {
-				n = (Weapon)c.classes[Random.chances(c.probs)].newInstance();
+				n = (MeleeWeapon)c.classes[Random.chances(c.probs)].newInstance();
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;
 			}
-		} while (!(n instanceof MeleeWeapon) || n.getClass() == w.getClass());
+		} while (Challenges.isItemBlocked(n) || n.getClass() == w.getClass());
 
 		int level = w.level();
 		if (level > 0) {
@@ -147,7 +148,7 @@ public class WaterOfTransmutation extends WellWater {
 		Ring n;
 		do {
 			n = (Ring)Generator.random( Category.RING );
-		} while (n.getClass() == r.getClass());
+		} while (Challenges.isItemBlocked(n) || n.getClass() == r.getClass());
 		
 		n.level(0);
 		
@@ -168,7 +169,7 @@ public class WaterOfTransmutation extends WellWater {
 	private Artifact changeArtifact( Artifact a ) {
 		Artifact n = Generator.randomArtifact();
 
-		if (n != null){
+		if (n != null && !Challenges.isItemBlocked(n)){
 			n.cursedKnown = a.cursedKnown;
 			n.cursed = a.cursed;
 			n.levelKnown = a.levelKnown;
@@ -183,7 +184,7 @@ public class WaterOfTransmutation extends WellWater {
 		Wand n;
 		do {
 			n = (Wand)Generator.random( Category.WAND );
-		} while (n.getClass() == w.getClass());
+		} while ( Challenges.isItemBlocked(n) || n.getClass() == w.getClass());
 		
 		n.level( 0 );
 		n.upgrade( w.level() );

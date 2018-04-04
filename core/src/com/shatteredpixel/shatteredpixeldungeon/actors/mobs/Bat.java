@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.BatSprite;
 import com.watabou.utils.Random;
 
@@ -44,7 +43,7 @@ public class Bat extends Mob {
 		flying = true;
 		
 		loot = new PotionOfHealing();
-		lootChance = 0.1667f; //by default, see die()
+		lootChance = 0.1667f; //by default, see rollToDropLoot()
 	}
 	
 	@Override
@@ -74,14 +73,13 @@ public class Bat extends Mob {
 		
 		return damage;
 	}
-
+	
 	@Override
-	public void die( Object cause ){
-		//sets drop chance
-		lootChance = 1f/((6 + Dungeon.LimitedDrops.BAT_HP.count ));
-		super.die( cause );
+	public void rollToDropLoot() {
+		lootChance *= ((7f - Dungeon.LimitedDrops.BAT_HP.count) / 7f);
+		super.rollToDropLoot();
 	}
-
+	
 	@Override
 	protected Item createLoot(){
 		Dungeon.LimitedDrops.BAT_HP.count++;

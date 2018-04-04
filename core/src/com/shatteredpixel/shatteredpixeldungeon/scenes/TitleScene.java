@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
@@ -33,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.LanguageButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.PrefsButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.UpdateNotification;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndStartGame;
 import com.watabou.glwrap.Blending;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.Camera;
@@ -115,7 +117,11 @@ public class TitleScene extends PixelScene {
 		DashboardItem btnPlay = new DashboardItem( Messages.get(this, "play"), 0 ) {
 			@Override
 			protected void onClick() {
-				ShatteredPixelDungeon.switchNoFade( StartScene.class );
+				if (GamesInProgress.checkAll().size() == 0){
+					TitleScene.this.add( new WndStartGame(1) );
+				} else {
+					ShatteredPixelDungeon.switchNoFade( StartScene.class );
+				}
 			}
 		};
 		add( btnPlay );

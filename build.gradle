@@ -7,7 +7,6 @@ buildscript {
 	}
 	dependencies {
 		classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.4'
-		classpath 'com.android.tools.build:gradle:2.3.2'
 		classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.2.0'
 	}
 }
@@ -16,9 +15,9 @@ allprojects {
 	apply plugin: "eclipse"
 	apply plugin: "idea"
 
-	version = '0.6.3b'
+	version = '0.6.4'
 	ext {
-		versionCode = 245
+		versionCode = 251
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'

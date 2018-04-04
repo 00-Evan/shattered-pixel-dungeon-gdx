@@ -29,6 +29,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
@@ -54,6 +56,8 @@ abstract public class MissileWeapon extends Weapon {
 	protected static final float MAX_DURABILITY = 100;
 	protected float durability = MAX_DURABILITY;
 	
+	public boolean holster;
+	
 	//used to reduce durability from the source weapon stack, rather than the one being thrown.
 	protected MissileWeapon parent;
 	
@@ -63,7 +67,13 @@ abstract public class MissileWeapon extends Weapon {
 		actions.remove( AC_EQUIP );
 		return actions;
 	}
-
+	
+	@Override
+	public boolean collect(Bag container) {
+		if (container instanceof MagicalHolster) holster = true;
+		return super.collect(container);
+	}
+	
 	@Override
 	public int throwPos(Hero user, int dst) {
 		if (hasEnchant(Projecting.class)
@@ -141,8 +151,15 @@ abstract public class MissileWeapon extends Weapon {
 			durability -= durabilityPerUse();
 		}
 		if (durability > 0){
-			if (enemy.isAlive() && sticky)  Buff.affect(enemy, PinCushion.class).stick(this);
-			else                            Dungeon.level.drop( this, enemy.pos).sprite.drop();
+			//attempt to stick the missile weapon to the enemy, just drop it if we can't.
+			if (enemy.isAlive() && sticky) {
+				PinCushion p = Buff.affect(enemy, PinCushion.class);
+				if (p.target == enemy){
+					p.stick(this);
+					return;
+				}
+			}
+			Dungeon.level.drop( this, enemy.pos ).sprite.drop();
 		}
 	}
 	
@@ -152,9 +169,10 @@ abstract public class MissileWeapon extends Weapon {
 	}
 	
 	protected float durabilityPerUse(){
-		float usage = Dungeon.hero.heroClass == HeroClass.HUNTRESS ?
-				MAX_DURABILITY/15f:
-				MAX_DURABILITY/10f;
+		float usage = MAX_DURABILITY/10f;
+		
+		if (Dungeon.hero.heroClass == HeroClass.HUNTRESS)   usage /= 1.5f;
+		else if (holster)                                   usage /= MagicalHolster.HOLSTER_DURABILITY_FACTOR;
 		
 		usage /= RingOfSharpshooting.durabilityMultiplier( Dungeon.hero );
 		

@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Torch;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.HallsPainter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.BlazingTrap;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CorrosionTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisarmingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisintegrationTrap;
@@ -39,7 +40,6 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.PitfallTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.RockfallTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.StormTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.SummoningTrap;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CorrosionTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WarpingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WeakeningTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -55,7 +55,7 @@ public class HallsLevel extends RegularLevel {
 
 	{
 		
-		viewDistance = Math.max( 26 - Dungeon.depth, 1 );
+		viewDistance = Math.min( 26 - Dungeon.depth, viewDistance );
 		
 		color1 = 0x801500;
 		color2 = 0xa68521;

@@ -48,6 +48,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -556,6 +557,12 @@ public abstract class Mob extends Char {
 	@Override
 	public void die( Object cause ) {
 		
+		if (cause == Chasm.class){
+			//50% chance to round up, 50% to round down
+			if (EXP % 2 == 1) EXP += Random.Int(2);
+			EXP /= 2;
+		}
+		
 		super.die( cause );
 
 		if (alignment == Alignment.ENEMY){
@@ -666,7 +673,7 @@ public abstract class Mob extends Char {
 
 				if (Dungeon.isChallenged( Challenges.SWARM_INTELLIGENCE )) {
 					for (Mob mob : Dungeon.level.mobs) {
-						if (mob != Mob.this) {
+						if (Dungeon.level.distance(pos, mob.pos) <= 8 && mob.state != mob.HUNTING) {
 							mob.beckon( target );
 						}
 					}
@@ -699,6 +706,14 @@ public abstract class Mob extends Char {
 				alerted = true;
 				state = HUNTING;
 				target = enemy.pos;
+
+				if (Dungeon.isChallenged( Challenges.SWARM_INTELLIGENCE )) {
+					for (Mob mob : Dungeon.level.mobs) {
+						if (Dungeon.level.distance(pos, mob.pos) <= 8 && mob.state != mob.HUNTING) {
+							mob.beckon( target );
+						}
+					}
+				}
 
 			} else {
 

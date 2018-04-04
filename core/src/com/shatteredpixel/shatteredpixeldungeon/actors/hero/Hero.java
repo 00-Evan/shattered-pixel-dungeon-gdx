@@ -100,7 +100,6 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
-import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SurfaceScene;
@@ -259,8 +258,14 @@ public class Hero extends Char {
 	
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.level = bundle.getInt( LEVEL );
+		info.str = bundle.getInt( STRENGTH );
+		info.exp = bundle.getInt( EXPERIENCE );
+		info.hp = bundle.getInt( Char.TAG_HP );
+		info.ht = bundle.getInt( Char.TAG_HT );
+		info.shld = bundle.getInt( Char.TAG_SHLD );
 		info.heroClass = HeroClass.restoreInBundle( bundle );
 		info.subClass = HeroSubClass.restoreInBundle( bundle );
+		Belongings.preview( info, bundle );
 	}
 	
 	public String className() {
@@ -951,11 +956,6 @@ public class Hero extends Char {
 		if (armor != null) {
 			damage = armor.absorb( damage );
 		}
-
-		Sungrass.Health health = buff( Sungrass.Health.class );
-		if (health != null) {
-			health.absorb( damage );
-		}
 		
 		if (belongings.armor != null) {
 			damage = belongings.armor.proc( enemy, this, damage );
@@ -1261,6 +1261,10 @@ public class Hero extends Char {
 	}
 	
 	public int maxExp() {
+		return maxExp( lvl );
+	}
+	
+	public static int maxExp( int lvl ){
 		return 5 + lvl * 5;
 	}
 	

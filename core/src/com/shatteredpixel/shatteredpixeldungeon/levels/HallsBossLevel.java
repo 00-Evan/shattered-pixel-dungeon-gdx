@@ -46,7 +46,7 @@ public class HallsBossLevel extends Level {
 		color1 = 0x801500;
 		color2 = 0xa68521;
 		
-		viewDistance = 4;
+		viewDistance = Math.min(4, viewDistance);
 	}
 
 	private static final int WIDTH = 32;

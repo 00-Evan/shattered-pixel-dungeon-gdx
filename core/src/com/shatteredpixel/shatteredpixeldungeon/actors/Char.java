@@ -61,6 +61,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocki
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.ShockingDart;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -119,11 +120,11 @@ public abstract class Char extends Actor {
 		return false;
 	}
 	
-	private static final String POS			= "pos";
-	private static final String TAG_HP		= "HP";
-	private static final String TAG_HT		= "HT";
-	private static final String TAG_SHLD    = "SHLD";
-	private static final String BUFFS		= "buffs";
+	protected static final String POS       = "pos";
+	protected static final String TAG_HP    = "HP";
+	protected static final String TAG_HT    = "HT";
+	protected static final String TAG_SHLD  = "SHLD";
+	protected static final String BUFFS	    = "buffs";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -306,12 +307,7 @@ public abstract class Char extends Actor {
 		}
 		
 		if (buff( Paralysis.class ) != null) {
-			if (Random.Int( dmg ) >= Random.Int( HP )) {
-				Buff.detach( this, Paralysis.class );
-				if (Dungeon.level.heroFOV[pos]) {
-					GLog.i( Messages.get(Char.class, "out_of_paralysis", name) );
-				}
-			}
+			buff( Paralysis.class ).processDamage(dmg);
 		}
 
 		//FIXME: when I add proper damage properties, should add an IGNORES_SHIELDS property to use here.
@@ -343,7 +339,7 @@ public abstract class Char extends Actor {
 	
 	public void die( Object src ) {
 		destroy();
-		sprite.die();
+		if (src != Chasm.class) sprite.die();
 	}
 	
 	public boolean isAlive() {

@@ -20,8 +20,10 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
+import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
@@ -69,9 +71,13 @@ public class CryptRoom extends SpecialRoom {
 	}
 	
 	private static Item prize( Level level ) {
-
+		
 		//1 floor set higher than normal
 		Armor prize = Generator.randomArmor( (Dungeon.depth / 5) + 1);
+		
+		if (Challenges.isItemBlocked(prize)){
+			return new Gold().random();
+		}
 
 		//if it isn't already cursed, give it a free upgrade
 		if (!prize.cursed){

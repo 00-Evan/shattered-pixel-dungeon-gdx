@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
@@ -125,8 +124,7 @@ public class Hunger extends Buff implements Hero.Doom {
 			GLog.n( Messages.get(this, "cursedhorn") );
 		}
 
-		if (!Dungeon.isChallenged(Challenges.NO_FOOD))
-			reduceHunger( energy );
+		reduceHunger( energy );
 	}
 
 	//directly interacts with hunger, no checks.

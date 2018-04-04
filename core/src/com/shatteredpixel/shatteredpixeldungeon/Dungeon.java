@@ -59,7 +59,6 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -103,10 +102,10 @@ public class Dungeon {
 
 		//containers
 		DEW_VIAL,
-		SEED_POUCH,
+		VELVET_POUCH,
 		SCROLL_HOLDER,
 		POTION_BANDOLIER,
-		WAND_HOLSTER;
+		MAGICAL_HOLSTER;
 
 		public int count = 0;
 
@@ -137,6 +136,14 @@ public class Dungeon {
 				} else {
 					lim.count = 0;
 				}
+				
+			}
+			//saves prior to 0.6.4
+			if (bundle.contains("SEED_POUCH")) {
+				LimitedDrops.VELVET_POUCH.count = bundle.getInt("SEED_POUCH");
+			}
+			if (bundle.contains("WAND_HOLSTER")) {
+				LimitedDrops.MAGICAL_HOLSTER.count = bundle.getInt("WAND_HOLSTER");
 			}
 		}
 
@@ -153,10 +160,10 @@ public class Dungeon {
 			BLANDFRUIT_SEED.count =     counts[8];
 			THIEVES_ARMBAND.count =     counts[9];
 			DEW_VIAL.count =            counts[10];
-			SEED_POUCH.count =          counts[11];
+			VELVET_POUCH.count =        counts[11];
 			SCROLL_HOLDER.count =       counts[12];
 			POTION_BANDOLIER.count =    counts[13];
-			WAND_HOLSTER.count =        counts[14];
+			MAGICAL_HOLSTER.count =     counts[14];
 			GUARD_HP.count =            counts[15];
 		}
 
@@ -229,7 +236,7 @@ public class Dungeon {
 		
 		Badges.reset();
 		
-		StartScene.selectedClass.initHero( hero );
+		GamesInProgress.selectedClass.initHero( hero );
 	}
 
 	public static boolean isChallenged( int mask ) {
@@ -410,8 +417,13 @@ public class Dungeon {
 	}
 	
 	public static boolean souNeeded() {
-		//3 SOU each floor set
-		int souLeftThisSet = 3 - (LimitedDrops.UPGRADE_SCROLLS.count - (depth / 5) * 3);
+		int souLeftThisSet;
+		//3 SOU each floor set, 1.5 (rounded) on forbidden runes challenge
+		if (isChallenged(Challenges.NO_SCROLLS)){
+			souLeftThisSet = Math.round(1.5f - (LimitedDrops.UPGRADE_SCROLLS.count - (depth / 5) * 1.5f));
+		} else {
+			souLeftThisSet = 3 - (LimitedDrops.UPGRADE_SCROLLS.count - (depth / 5) * 3);
+		}
 		if (souLeftThisSet <= 0) return false;
 
 		int floorThisSet = (depth % 5);
@@ -519,8 +531,7 @@ public class Dungeon {
 			saveGame( GamesInProgress.curSlot );
 			saveLevel( GamesInProgress.curSlot );
 
-			GamesInProgress.set( GamesInProgress.curSlot, depth, challenges,
-					hero.lvl, hero.heroClass, hero.subClass );
+			GamesInProgress.set( GamesInProgress.curSlot, depth, challenges, hero );
 
 		} else if (WndResurrect.instance != null) {
 			
@@ -657,6 +668,7 @@ public class Dungeon {
 		info.version = bundle.getInt( VERSION );
 		info.challenges = bundle.getInt( CHALLENGES );
 		Hero.preview( info, bundle.getBundle( HERO ) );
+		Statistics.preview( info, bundle );
 	}
 
 	public static void fail( Class cause ) {

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2017 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles;
+
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class SeedPouch extends Bag {
-
+public class ThrowingSpear extends MissileWeapon {
+	
 	{
-		image = ItemSpriteSheet.POUCH;
-		
-		size = 12;
+		image = ItemSpriteSheet.THROWING_SPEAR;
 	}
 	
 	@Override
-	public boolean grab( Item item ) {
-		return item instanceof Plant.Seed;
+	public int min(int lvl) {
+		return 6;
+	}
+	
+	@Override
+	public int max(int lvl) {
+		return 15;
+	}
+	
+	@Override
+	public int STRReq(int lvl) {
+		return 13;
 	}
 	
 	@Override
 	public int price() {
-		return 30;
+		return 18 * quantity;
 	}
-
+	
 }

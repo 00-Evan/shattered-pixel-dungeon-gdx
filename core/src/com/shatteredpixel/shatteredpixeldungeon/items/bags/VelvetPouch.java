@@ -21,49 +21,26 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.bags;
 
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.Runestone;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class WandHolster extends Bag {
+public class VelvetPouch extends Bag {
 
 	{
-		image = ItemSpriteSheet.HOLSTER;
+		image = ItemSpriteSheet.POUCH;
 		
 		size = 12;
 	}
-
-	public static float HOLSTER_SCALE_FACTOR = 0.85f;
 	
 	@Override
 	public boolean grab( Item item ) {
-		return item instanceof Wand;
-	}
-	
-	@Override
-	public boolean collect( Bag container ) {
-		if (super.collect( container )) {
-			if (owner != null) {
-				for (Item item : items) {
-					((Wand)item).charge( owner, HOLSTER_SCALE_FACTOR );
-				}
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	@Override
-	public void onDetach( ) {
-		super.onDetach();
-		for (Item item : items) {
-			((Wand)item).stopCharging();
-		}
+		return item instanceof Plant.Seed || item instanceof Runestone;
 	}
 	
 	@Override
 	public int price() {
-		return 50;
+		return 30;
 	}
 
 }

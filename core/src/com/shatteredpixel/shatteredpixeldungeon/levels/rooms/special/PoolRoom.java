@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -35,7 +36,17 @@ public class PoolRoom extends SpecialRoom {
 
 	private static final int NPIRANHAS	= 3;
 	
-	public void paint( Level level ) {
+	@Override
+	public int minWidth() {
+		return 6;
+	}
+	
+	@Override
+	public int minHeight() {
+		return 6;
+	}
+	
+	public void paint(Level level ) {
 		
 		Painter.fill( level, this, Terrain.WALL );
 		Painter.fill( level, this, 1, Terrain.WATER );
@@ -49,21 +60,25 @@ public class PoolRoom extends SpecialRoom {
 			
 			x = right - 1;
 			y = top + height() / 2;
+			Painter.fill(level, left+1, top+1, 1, height()-2, Terrain.EMPTY_SP);
 			
 		} else if (door.x == right) {
 			
 			x = left + 1;
 			y = top + height() / 2;
+			Painter.fill(level, right-1, top+1, 1, height()-2, Terrain.EMPTY_SP);
 			
 		} else if (door.y == top) {
 			
 			x = left + width() / 2;
 			y = bottom - 1;
+			Painter.fill(level, left+1, top+1, width()-2, 1, Terrain.EMPTY_SP);
 			
 		} else if (door.y == bottom) {
 			
 			x = left + width() / 2;
 			y = top + 1;
+			Painter.fill(level, left+1, bottom-1, width()-2, 1, Terrain.EMPTY_SP);
 			
 		}
 		
@@ -100,7 +115,7 @@ public class PoolRoom extends SpecialRoom {
 			} else {
 				prize = Generator.randomArmor((Dungeon.depth / 5) + 1);
 			}
-		} while (prize.cursed);
+		} while (prize.cursed || Challenges.isItemBlocked(prize));
 
 		//33% chance for an extra update.
 		if (Random.Int(3) == 0){

@@ -40,6 +40,10 @@ public class HealingDart extends TippedDart {
 		Buff.affect( defender, Healing.class ).setHeal((int)(0.5f*defender.HT + 30), 0.333f, 0);
 		PotionOfHealing.cure( defender );
 		
+		if (attacker.alignment == defender.alignment){
+			return 0;
+		}
+		
 		return super.proc(attacker, defender, damage);
 	}
 	
