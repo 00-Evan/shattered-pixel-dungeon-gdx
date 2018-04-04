@@ -223,8 +223,11 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
 		boolean maximized = width >= mode.width || height >= mode.height;
-
-		//TODO save dimensions
+		
+		if (!maximized && !SPDSettings.fullscreen()){
+			SPDSettings.put(SPDSettings.KEY_WINDOW_WIDTH, width);
+			SPDSettings.put(SPDSettings.KEY_WINDOW_HEIGHT, height);
+		}
 	}
 
 	public static void switchNoFade( Class<? extends PixelScene> c ) {
