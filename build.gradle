@@ -21,7 +21,7 @@ allprojects {
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'
-		gdxVersion = '1.9.7'
+		gdxVersion = '1.9.8'
 		roboVMVersion = '2.3.3'
 	}
 
