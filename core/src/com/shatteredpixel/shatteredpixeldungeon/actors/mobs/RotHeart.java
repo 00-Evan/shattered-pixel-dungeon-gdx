@@ -24,8 +24,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.RotHeartSprite;
@@ -112,8 +116,12 @@ public class RotHeart extends Mob {
 	}
 	
 	{
+		immunities.add( Paralysis.class );
+		immunities.add( Amok.class );
+		immunities.add( Sleep.class );
 		immunities.add( ToxicGas.class );
 		immunities.add( Terror.class );
+		immunities.add( Vertigo.class );
 	}
 
 }

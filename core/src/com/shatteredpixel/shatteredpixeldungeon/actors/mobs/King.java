@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
@@ -36,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.ArmorKit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
@@ -233,6 +233,7 @@ public class King extends Mob {
 	{
 		immunities.add( Paralysis.class );
 		immunities.add( Vertigo.class );
+		immunities.add( Blindness.class );
 		immunities.add( Terror.class );
 	}
 	

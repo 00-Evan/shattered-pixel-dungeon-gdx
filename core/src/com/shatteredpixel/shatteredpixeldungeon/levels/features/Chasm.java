@@ -75,6 +75,7 @@ public class Chasm {
 		
 		if (Dungeon.hero.isAlive()) {
 			Dungeon.hero.interrupt();
+			Buff.affect(Dungeon.hero, Falling.class);
 			InterlevelScene.mode = InterlevelScene.Mode.FALL;
 			if (Dungeon.level instanceof RegularLevel) {
 				Room room = ((RegularLevel)Dungeon.level).room( pos );
@@ -116,5 +117,19 @@ public class Chasm {
 		mob.die( Chasm.class );
 		
 		((MobSprite)mob.sprite).fall();
+	}
+	
+	public static class Falling extends Buff{
+		
+		{
+			actPriority = VFX_PRIO;
+		}
+		
+		@Override
+		public boolean act() {
+			heroLand();
+			detach();
+			return true;
+		}
 	}
 }
