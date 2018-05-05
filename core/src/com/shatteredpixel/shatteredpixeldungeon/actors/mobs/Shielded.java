@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ShieldedSprite;
 import com.watabou.utils.Random;
 
@@ -37,9 +36,4 @@ public class Shielded extends Brute {
 		return Random.NormalIntRange(0, 10);
 	}
 	
-	@Override
-	public void die( Object cause ) {
-		super.die( cause );
-		Badges.validateRare( this );
-	}
 }

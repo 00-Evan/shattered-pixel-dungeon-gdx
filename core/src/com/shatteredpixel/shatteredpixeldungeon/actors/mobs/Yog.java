@@ -212,7 +212,7 @@ public class Yog extends Mob {
 
 			properties.add(Property.BOSS);
 			properties.add(Property.DEMONIC);
-			properties.add(Property.FIERY);
+			properties.add(Property.ACIDIC);
 		}
 		
 		@Override
@@ -284,7 +284,7 @@ public class Yog extends Mob {
 
 			properties.add(Property.BOSS);
 			properties.add(Property.DEMONIC);
-			properties.add(Property.ACIDIC);
+			properties.add(Property.FIERY);
 		}
 		
 		@Override

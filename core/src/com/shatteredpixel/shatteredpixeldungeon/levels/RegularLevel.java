@@ -1,9 +1,9 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.levels;
 
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
@@ -138,25 +138,6 @@ public abstract class RegularLevel extends Level {
 	
 	protected abstract Painter painter();
 	
-	protected void placeSign(){
-		while (true) {
-			int pos = pointToCell(roomEntrance.random());
-			if (pos != entrance && traps.get(pos) == null && findMob(pos) == null) {
-				map[pos] = Terrain.SIGN;
-				break;
-			}
-		}
-		
-		//teaches new players about secret doors
-		if (Dungeon.depth == 2 && !Badges.isUnlocked(Badges.Badge.BOSS_SLAIN_1)) {
-			for (Room r : roomEntrance.connected.keySet()) {
-				Room.Door d = roomEntrance.connected.get(r);
-				if (d.type == Room.Door.Type.REGULAR)
-					map[d.x + d.y * width()] = Terrain.SECRET_DOOR;
-			}
-		}
-	}
-	
 	protected float waterFill(){
 		return 0;
 	}
@@ -215,38 +196,35 @@ public abstract class RegularLevel extends Level {
 	protected void createMobs() {
 		//on floor 1, 10 rats are created so the player can get level 2.
 		int mobsToSpawn = Dungeon.depth == 1 ? 10 : nMobs();
-		
+
 		ArrayList<Room> stdRooms = new ArrayList<>();
 		for (Room room : rooms) {
 			if (room instanceof StandardRoom && room != roomEntrance) {
 				for (int i = 0; i < ((StandardRoom) room).sizeCat.roomValue; i++) {
 					stdRooms.add(room);
 				}
-				//pre-0.6.0 save compatibility
-			} else if (room.legacyType.equals("STANDARD")){
-				stdRooms.add(room);
 			}
 		}
 		Random.shuffle(stdRooms);
 		Iterator<Room> stdRoomIter = stdRooms.iterator();
-		
+
 		while (mobsToSpawn > 0) {
 			if (!stdRoomIter.hasNext())
 				stdRoomIter = stdRooms.iterator();
 			Room roomToSpawn = stdRoomIter.next();
-			
+
 			Mob mob = createMob();
 			mob.pos = pointToCell(roomToSpawn.random());
-			
+
 			if (findMob(mob.pos) == null && passable[mob.pos] && mob.pos != exit) {
 				mobsToSpawn--;
 				mobs.add(mob);
-				
+
 				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
 				if (mobsToSpawn > 0 && Random.Int(4) == 0){
 					mob = createMob();
 					mob.pos = pointToCell(roomToSpawn.random());
-					
+
 					if (findMob(mob.pos)  == null && passable[mob.pos] && mob.pos != exit) {
 						mobsToSpawn--;
 						mobs.add(mob);
@@ -254,15 +232,15 @@ public abstract class RegularLevel extends Level {
 				}
 			}
 		}
-		
+
 		for (Mob m : mobs){
 			if (map[m.pos] == Terrain.HIGH_GRASS) {
 				map[m.pos] = Terrain.GRASS;
 				losBlocking[m.pos] = false;
 			}
-			
+
 		}
-		
+
 	}
 	
 	@Override
@@ -410,9 +388,7 @@ public abstract class RegularLevel extends Level {
 	protected Room randomRoom( Class<?extends Room> type ) {
 		Random.shuffle( rooms );
 		for (Room r : rooms) {
-			if (type.isInstance(r)
-					//compatibility with pre-0.6.0 saves
-					|| (type == StandardRoom.class && r.legacyType.equals("STANDARD"))) {
+			if (type.isInstance(r)) {
 				return r;
 			}
 		}

@@ -1,9 +1,9 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
@@ -59,12 +60,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Obfuscation;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stone;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
@@ -80,7 +76,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
-import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
@@ -155,7 +150,7 @@ public class Hero extends Char {
 	private Char enemy;
 	
 	public boolean resting = false;
-
+	
 	public Belongings belongings;
 	
 	public int STR;
@@ -241,8 +236,6 @@ public class Hero extends Char {
 		heroClass = HeroClass.restoreInBundle( bundle );
 		subClass = HeroSubClass.restoreInBundle( bundle );
 		
-		berserk = subClass == HeroSubClass.BERSERKER ? buff(Berserk.class) : null;
-		
 		attackSkill = bundle.getInt( ATTACK );
 		defenseSkill = bundle.getInt( DEFENSE );
 		
@@ -287,7 +280,7 @@ public class Hero extends Char {
 
 	//this variable is only needed because of the boomerang, remove if/when it is no longer equippable
 	boolean rangedAttack = false;
-
+	
 	public boolean shoot( Char enemy, MissileWeapon wep ) {
 
 		//temporarily set the hero's weapon to the missile weapon being used
@@ -305,13 +298,13 @@ public class Hero extends Char {
 	@Override
 	public int attackSkill( Char target ) {
 		KindOfWeapon wep = belongings.weapon;
-
+		
 		float accuracy = 1;
 		if (wep instanceof MissileWeapon && rangedAttack
 				&& Dungeon.level.distance( pos, target.pos ) == 1) {
 			accuracy *= 0.5f;
 		}
-
+		
 		if (wep != null) {
 			return (int)(attackSkill * accuracy * wep.accuracyFactor( this ));
 		} else {
@@ -322,28 +315,19 @@ public class Hero extends Char {
 	@Override
 	public int defenseSkill( Char enemy ) {
 		
-		float multiplier = 1f * RingOfEvasion.evasionMultiplier( this );
+		float evasion = defenseSkill;
+		
+		evasion *= RingOfEvasion.evasionMultiplier( this );
 		
 		if (paralysed > 0) {
-			multiplier /= 2;
-		}
-		
-		int aEnc = belongings.armor != null ? belongings.armor.STRReq() - STR() : 10 - STR();
-		
-		if (aEnc > 0) {
-			multiplier /= Math.pow( 1.5, aEnc );
-		}
-		int bonus = 0;
-
-		if (belongings.armor != null && belongings.armor.hasGlyph(Swiftness.class))
-			bonus += 5 + belongings.armor.level()*1.5f;
-		
-		Momentum momentum = buff(Momentum.class);
-		if (momentum != null){
-			bonus += momentum.evasionBonus(Math.max(0, -aEnc));
+			evasion /= 2;
 		}
 
-		return Math.round((defenseSkill * multiplier) + bonus);
+		if (belongings.armor != null) {
+			evasion = belongings.armor.evasionFactor(this, evasion);
+		}
+
+		return Math.round(evasion);
 	}
 	
 	@Override
@@ -352,13 +336,19 @@ public class Hero extends Char {
 		Barkskin bark = buff(Barkskin.class);
 
 		if (belongings.armor != null) {
-			dr += Random.NormalIntRange( belongings.armor.DRMin(), belongings.armor.DRMax());
+			int armDr = Random.NormalIntRange( belongings.armor.DRMin(), belongings.armor.DRMax());
 			if (STR() < belongings.armor.STRReq()){
-				dr -= 2*(belongings.armor.STRReq() - STR());
-				dr = Math.max(dr, 0);
+				armDr -= 2*(belongings.armor.STRReq() - STR());
 			}
+			if (armDr > 0) dr += armDr;
 		}
-		if (belongings.weapon != null)  dr += Random.NormalIntRange( 0 , belongings.weapon.defenseFactor( this ) );
+		if (belongings.weapon != null)  {
+			int wepDr = Random.NormalIntRange( 0 , belongings.weapon.defenseFactor( this ) );
+			if (STR() < ((Weapon)belongings.weapon).STRReq()){
+				wepDr -= 2*(((Weapon)belongings.weapon).STRReq() - STR());
+			}
+			if (wepDr > 0) dr += wepDr;
+		}
 		if (bark != null)               dr += Random.NormalIntRange( 0 , bark.level() );
 
 		return dr;
@@ -375,10 +365,10 @@ public class Hero extends Char {
 			dmg = RingOfForce.damageRoll(this);
 		}
 		if (dmg < 0) dmg = 0;
-		if (subClass == HeroSubClass.BERSERKER){
-			berserk = Buff.affect(this, Berserk.class);
-			dmg = berserk.damageFactor(dmg);
-		}
+		
+		Berserk berserk = buff(Berserk.class);
+		if (berserk != null) dmg = berserk.damageFactor(dmg);
+		
 		return buff( Fury.class ) != null ? (int)(dmg * 1.5f) : dmg;
 	}
 	
@@ -388,20 +378,10 @@ public class Hero extends Char {
 		float speed = super.speed();
 
 		speed *= RingOfHaste.speedMultiplier(this);
-
-		Armor armor = belongings.armor;
-
-		if (armor != null){
-
-			if (armor.hasGlyph(Swiftness.class)) {
-				speed *= (1.1f + 0.01f * belongings.armor.level());
-			} else if (armor.hasGlyph(Flow.class) && Dungeon.level.water[pos]){
-				speed *= (1.5f + 0.05f * belongings.armor.level());
-			}
-		}
 		
-		int aEnc = armor != null ? armor.STRReq() - STR() : 0;
-		if (aEnc > 0) speed /= Math.pow( 1.2, aEnc );
+		if (belongings.armor != null) {
+			speed = belongings.armor.speedFactor(this, speed);
+		}
 		
 		Momentum momentum = buff(Momentum.class);
 		if (momentum != null){
@@ -482,7 +462,7 @@ public class Hero extends Char {
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
 		
-
+		
 		if (!ready) {
 			//do a full observe (including fog update) if not resting.
 			if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
@@ -492,7 +472,7 @@ public class Hero extends Char {
 				Dungeon.level.updateFieldOfView(this, fieldOfView);
 			}
 		}
-
+		
 		checkVisibleMobs();
 		if (buff(FlavourBuff.class) != null) {
 			BuffIndicator.refreshHero();
@@ -506,15 +486,13 @@ public class Hero extends Char {
 			return false;
 		}
 		
-		checkVisibleMobs();
-		
 		if (curAction == null) {
 			
 			if (resting) {
 				spend( TIME_TO_REST ); next();
 				return false;
 			}
-
+			
 			ready();
 			return false;
 			
@@ -578,7 +556,7 @@ public class Hero extends Char {
 		
 		return false;
 	}
-
+	
 	public void busy() {
 		ready = false;
 	}
@@ -590,6 +568,7 @@ public class Hero extends Char {
 		ready = true;
 
 		AttackIndicator.updateState();
+		
 		GameScene.ready();
 	}
 	
@@ -608,11 +587,11 @@ public class Hero extends Char {
 		damageInterrupt = false;
 		next();
 	}
-
+	
 	//FIXME this is a fairly crude way to track this, really it would be nice to have a short
 	//history of hero actions
 	public boolean justMoved = false;
-
+	
 	private boolean actMove( HeroAction.Move action ) {
 
 		if (getCloser( action.dst )) {
@@ -766,7 +745,6 @@ public class Hero extends Char {
 					Sample.INSTANCE.play( Assets.SND_UNLOCK );
 				}
 				
-				spend( Key.TIME_TO_UNLOCK );
 				sprite.operate( dst );
 				
 			} else {
@@ -806,7 +784,6 @@ public class Hero extends Char {
 			
 			if (hasKey) {
 				
-				spend( Key.TIME_TO_UNLOCK );
 				sprite.operate( doorCell );
 				
 				Sample.INSTANCE.play( Assets.SND_UNLOCK );
@@ -862,6 +839,7 @@ public class Hero extends Char {
 					GameScene.show( new WndMessage( Messages.get(this, "leave") ) );
 					ready();
 				} else {
+					Badges.silentValidateHappyEnd();
 					Dungeon.win( Amulet.class );
 					Dungeon.deleteGame( GamesInProgress.curSlot, true );
 					Game.switchScene( SurfaceScene.class );
@@ -895,8 +873,7 @@ public class Hero extends Char {
 		enemy = action.target;
 
 		if (enemy.isAlive() && canAttack( enemy ) && !isCharmedBy( enemy )) {
-
-			Invisibility.dispel();
+			
 			spend( attackDelay() );
 			sprite.attack( enemy.pos );
 
@@ -942,9 +919,7 @@ public class Hero extends Char {
 			break;
 		default:
 		}
-		if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
-			Dungeon.observe();
-		}
+
 		
 		return damage;
 	}
@@ -952,13 +927,18 @@ public class Hero extends Char {
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
 		
-		Earthroot.Armor armor = buff( Earthroot.Armor.class );
-		if (armor != null) {
-			damage = armor.absorb( damage );
+		if (damage > 0 && subClass == HeroSubClass.BERSERKER){
+			Berserk berserk = Buff.affect(this, Berserk.class);
+			berserk.damage(damage);
 		}
 		
 		if (belongings.armor != null) {
 			damage = belongings.armor.proc( enemy, this, damage );
+		}
+		
+		Earthroot.Armor armor = buff( Earthroot.Armor.class );
+		if (armor != null) {
+			damage = armor.absorb( damage );
 		}
 		
 		return damage;
@@ -988,12 +968,8 @@ public class Hero extends Char {
 
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
-				&& RingOfElements.RESISTS.contains(src.getClass())){
+				&& AntiMagic.RESISTS.contains(src.getClass())){
 			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/3;
-		}
-
-		if (subClass == HeroSubClass.BERSERKER && berserk == null){
-			berserk = Buff.affect(this, Berserk.class);
 		}
 
 		super.damage( dmg, src );
@@ -1115,19 +1091,13 @@ public class Hero extends Char {
 		}
 
 		if (step != -1) {
-
-			int moveTime = 1;
-			if (belongings.armor != null && belongings.armor.hasGlyph(Stone.class) &&
-							(Dungeon.level.map[pos] == Terrain.DOOR
-							|| Dungeon.level.map[pos] == Terrain.OPEN_DOOR
-							|| Dungeon.level.map[step] == Terrain.DOOR
-							|| Dungeon.level.map[step] == Terrain.OPEN_DOOR )){
-				moveTime *= 2;
-			}
+			
+			float speed = speed();
+			
 			sprite.move(pos, step);
 			move(step);
 
-			spend( moveTime / speed() );
+			spend( 1 / speed );
 			
 			search(false);
 			
@@ -1149,7 +1119,7 @@ public class Hero extends Char {
 	}
 	
 	public boolean handle( int cell ) {
-
+		
 		if (cell == -1) {
 			return false;
 		}
@@ -1207,10 +1177,7 @@ public class Hero extends Char {
 			
 		}
 
-		if (ready)
-			return act();
-		else
-			return false;
+		return true;
 	}
 	
 	public void earnExp( int exp ) {
@@ -1223,11 +1190,9 @@ public class Hero extends Char {
 
 		HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class);
 		if (horn != null) horn.gainCharge(percent);
-
-		if (subClass == HeroSubClass.BERSERKER){
-			berserk = Buff.affect(this, Berserk.class);
-			berserk.recover(percent);
-		}
+		
+		Berserk berserk = buff(Berserk.class);
+		if (berserk != null) berserk.recover(percent);
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
@@ -1305,10 +1270,11 @@ public class Hero extends Char {
 	@Override
 	public int stealth() {
 		int stealth = super.stealth();
-
-		if (belongings.armor != null && belongings.armor.hasGlyph(Obfuscation.class)){
-			stealth += 1 + belongings.armor.level()/3;
+		
+		if (belongings.armor != null){
+			stealth = Math.round(belongings.armor.stealthFactor(this, stealth));
 		}
+		
 		return stealth;
 	}
 	
@@ -1427,13 +1393,14 @@ public class Hero extends Char {
 
 	@Override
 	public boolean isAlive() {
-		if (subClass == HeroSubClass.BERSERKER
-				&& berserk != null
-				&& berserk.berserking()
-				&& SHLD > 0){
-			return true;
+		
+		if (HP <= 0){
+			if (berserk == null) berserk = buff(Berserk.class);
+			return berserk != null && berserk.berserking();
+		} else {
+			berserk = null;
+			return super.isAlive();
 		}
-		return super.isAlive();
 	}
 
 	@Override
@@ -1447,13 +1414,6 @@ public class Hero extends Char {
 				Sample.INSTANCE.play( Assets.SND_STEP );
 			}
 		}
-	}
-	
-	@Override
-	public void onMotionComplete() {
-		Dungeon.observe();
-		search( false );
-		GameScene.checkKeyHold();
 	}
 	
 	@Override
@@ -1471,6 +1431,8 @@ public class Hero extends Char {
 				if (combo != null) combo.miss();
 			}
 		}
+		
+		Invisibility.dispel();
 
 		curAction = null;
 
@@ -1496,6 +1458,7 @@ public class Hero extends Char {
 			
 			Level.set( doorCell, door == Terrain.LOCKED_DOOR ? Terrain.DOOR : Terrain.UNLOCKED_EXIT );
 			GameScene.updateMap( doorCell );
+			spend( Key.TIME_TO_UNLOCK );
 			
 		} else if (curAction instanceof HeroAction.OpenChest) {
 
@@ -1509,6 +1472,7 @@ public class Hero extends Char {
 			}
 			GameScene.updateKeyDisplay();
 			heap.open( this );
+			spend( Key.TIME_TO_UNLOCK );
 		}
 		curAction = null;
 
@@ -1518,7 +1482,7 @@ public class Hero extends Char {
 	public boolean search( boolean intentional ) {
 		
 		if (!isAlive()) return false;
-
+		
 		boolean smthFound = false;
 
 		int distance = heroClass == HeroClass.ROGUE ? 2 : 1;

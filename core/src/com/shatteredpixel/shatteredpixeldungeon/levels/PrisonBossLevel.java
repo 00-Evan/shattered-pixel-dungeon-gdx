@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.MazeRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.EmptyRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrippingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -179,13 +180,13 @@ public class PrisonBossLevel extends Level {
 		if (ch == Dungeon.hero){
 			//hero enters tengu's chamber
 			if (state == State.START
-					&& ((Room)new Room().set(2, 25, 8, 32)).inside(cellToPoint(cell))){
+					&& (new EmptyRoom().set(2, 25, 8, 32)).inside(cellToPoint(cell))){
 				progress();
 			}
 
 			//hero finishes the maze
 			else if (state == State.MAZE
-					&& ((Room)new Room().set(4, 0, 7, 4)).inside(cellToPoint(cell))){
+					&& (new EmptyRoom().set(4, 0, 7, 4)).inside(cellToPoint(cell))){
 				progress();
 			}
 		}
@@ -308,7 +309,7 @@ public class PrisonBossLevel extends Level {
 			case FIGHT_START:
 
 				changeMap(MAP_MAZE);
-				clearEntities((Room) new Room().set(0, 5, 8, 32)); //clear the entrance
+				clearEntities((Room) new EmptyRoom().set(0, 5, 8, 32)); //clear the entrance
 
 				Actor.remove(tengu);
 				mobs.remove(tengu);
@@ -338,7 +339,7 @@ public class PrisonBossLevel extends Level {
 				Dungeon.hero.sprite.place(Dungeon.hero.pos);
 
 				changeMap(MAP_ARENA);
-				clearEntities( (Room) new Room().set(0, 0, 10, 4)); //clear all but the area right around the teleport spot
+				clearEntities( (Room) new EmptyRoom().set(0, 0, 10, 4)); //clear all but the area right around the teleport spot
 				
 				//if any allies are left over, move them along the same way as the hero
 				for (Mob m : mobs){

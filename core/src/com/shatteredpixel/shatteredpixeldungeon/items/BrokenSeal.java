@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -94,7 +93,6 @@ public class BrokenSeal extends Item {
 					Sample.INSTANCE.play(Assets.SND_UNLOCK);
 					armor.affixSeal((BrokenSeal)curItem);
 					curItem.detach(Dungeon.hero.belongings.backpack);
-					Badges.validateTutorial();
 				}
 			}
 		}

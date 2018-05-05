@@ -23,18 +23,22 @@ package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.AntiEntropy;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Bulk;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Corrosion;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Displacement;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Metabolism;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Multiplicity;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Overgrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.curses.Stench;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Affection;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
@@ -49,6 +53,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Thorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -67,12 +72,36 @@ public class Armor extends EquipableItem {
 
 	protected static final String AC_DETACH       = "DETACH";
 	
+	public enum Augment {
+		EVASION (1.5f , -1f),
+		DEFENSE (-1.5f, 1f),
+		NONE	(0f   ,  0f);
+		
+		private float evasionFactor;
+		private float defenceFactor;
+		
+		Augment(float eva, float df){
+			evasionFactor = eva;
+			defenceFactor = df;
+		}
+
+		//TODO balance on this seems good, but needs testing.
+		public int evasionFactor(int level){
+			return Math.round((2 + level) * evasionFactor);
+		}
+		
+		public int defenseFactor(int level){
+			return Math.round((2 + level) * defenceFactor);
+		}
+	}
+	
+	public Augment augment = Augment.NONE;
+	public Glyph glyph;
+	private BrokenSeal seal;
+	
 	public int tier;
 	
 	private int hitsToKnow = HITS_TO_KNOW;
-	
-	public Glyph glyph;
-	private BrokenSeal seal;
 	
 	public Armor( int tier ) {
 		this.tier = tier;
@@ -81,6 +110,7 @@ public class Armor extends EquipableItem {
 	private static final String UNFAMILIRIARITY	= "unfamiliarity";
 	private static final String GLYPH			= "glyph";
 	private static final String SEAL            = "seal";
+	private static final String AUGMENT			= "augment";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -88,16 +118,17 @@ public class Armor extends EquipableItem {
 		bundle.put( UNFAMILIRIARITY, hitsToKnow );
 		bundle.put( GLYPH, glyph );
 		bundle.put( SEAL, seal);
+		bundle.put( AUGMENT, augment);
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle(bundle);
-		if ((hitsToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
-			hitsToKnow = HITS_TO_KNOW;
-		}
+		hitsToKnow = bundle.getInt( UNFAMILIRIARITY );
 		inscribe((Glyph) bundle.get(GLYPH));
 		seal = (BrokenSeal)bundle.get(SEAL);
+		//pre-0.6.5 saves
+		if (bundle.contains(AUGMENT)) augment = bundle.getEnum(AUGMENT, Augment.class);
 	}
 
 	@Override
@@ -219,11 +250,12 @@ public class Armor extends EquipableItem {
 	}
 
 	public int DRMax(int lvl){
-		int effectiveTier = tier;
-		if (glyph != null) effectiveTier += glyph.tierDRAdjust();
-		effectiveTier = Math.max(0, effectiveTier);
-
-		return Math.max(DRMin(lvl), effectiveTier * (2 + lvl));
+		int max = tier * (2 + lvl) + augment.defenseFactor(lvl);
+		if (lvl > max){
+			return ((lvl - max)+1)/2;
+		} else {
+			return max;
+		}
 	}
 
 	public final int DRMin(){
@@ -231,10 +263,70 @@ public class Armor extends EquipableItem {
 	}
 
 	public int DRMin(int lvl){
-		if (glyph != null && glyph instanceof Stone)
-			return 2*lvl;
-		else
+		int max = DRMax(lvl);
+		if (lvl >= max){
+			return (lvl - max);
+		} else {
 			return lvl;
+		}
+	}
+	
+	public float evasionFactor( Char owner, float evasion ){
+		
+		if (hasGlyph(Stone.class) && !((Stone)glyph).testingEvasion()){
+			return 0;
+		}
+		
+		if (owner instanceof Hero){
+			int aEnc = STRReq() - ((Hero) owner).STR();
+			if (aEnc > 0) evasion /= Math.pow(1.5, aEnc);
+			
+			Momentum momentum = owner.buff(Momentum.class);
+			if (momentum != null){
+				evasion += momentum.evasionBonus(Math.max(0, -aEnc));
+			}
+		}
+		
+		return evasion + augment.evasionFactor(level());
+	}
+	
+	public float speedFactor( Char owner, float speed ){
+		
+		if (owner instanceof Hero) {
+			int aEnc = STRReq() - ((Hero) owner).STR();
+			if (aEnc > 0) speed /= Math.pow(1.2, aEnc);
+		}
+		
+		if (hasGlyph(Swiftness.class)) {
+			boolean enemyNear = false;
+			for (Char ch : Actor.chars()){
+				if (Dungeon.level.adjacent(ch.pos, owner.pos) && owner.alignment != ch.alignment){
+					enemyNear = true;
+					break;
+				}
+			}
+			if (!enemyNear) speed *= (1.2f + 0.04f * level());
+		} else if (hasGlyph(Flow.class) && Dungeon.level.water[owner.pos]){
+			speed *= (1.5f + 0.1f * level());
+		}
+		
+		if (hasGlyph(Bulk.class) &&
+				(Dungeon.level.map[owner.pos] == Terrain.DOOR
+						|| Dungeon.level.map[owner.pos] == Terrain.OPEN_DOOR )) {
+			speed /= 3f;
+		}
+		
+		return speed;
+		
+	}
+	
+	public float stealthFactor( Char owner, float stealth ){
+		
+		if (hasGlyph(Obfuscation.class)){
+			stealth += 1 + level()/3f;
+		}
+		
+		return stealth;
 	}
 
 	@Override
@@ -298,6 +390,16 @@ public class Armor extends EquipableItem {
 				info += " " + Messages.get(Armor.class, "probably_too_heavy");
 			}
 		}
+
+		switch (augment) {
+			case EVASION:
+				info += "\n\n" + Messages.get(Armor.class, "evasion");
+				break;
+			case DEFENSE:
+				info += "\n\n" + Messages.get(Armor.class, "defense");
+				break;
+			case NONE:
+		}
 		
 		if (glyph != null  && (cursedKnown || !glyph.curse())) {
 			info += "\n\n" +  Messages.get(Armor.class, "inscribed", glyph.name());
@@ -358,12 +460,9 @@ public class Armor extends EquipableItem {
 
 	public int STRReq(int lvl){
 		lvl = Math.max(0, lvl);
-		float effectiveTier = tier;
-		if (glyph != null) effectiveTier += glyph.tierSTRAdjust();
-		effectiveTier = Math.max(0, effectiveTier);
 
 		//strength req decreases at +1,+3,+6,+10,etc.
-		return (8 + Math.round(effectiveTier * 2)) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
+		return (8 + Math.round(tier * 2)) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 	
 	@Override
@@ -420,11 +519,12 @@ public class Armor extends EquipableItem {
 		return glyph != null && (cursedKnown || !glyph.curse()) ? glyph.glowing() : null;
 	}
 	
+	//FIXME need to adjust glyphs given armor augmentation changes
 	public static abstract class Glyph implements Bundlable {
 		
 		private static final Class<?>[] glyphs = new Class<?>[]{
-				Obfuscation.class, Swiftness.class, Stone.class, Potential.class,
-				Brimstone.class, Viscosity.class, Entanglement.class, Repulsion.class, Camouflage.class, Flow.class,
+				Obfuscation.class, Swiftness.class, Viscosity.class, Potential.class,
+				Brimstone.class, Stone.class, Entanglement.class, Repulsion.class, Camouflage.class, Flow.class,
 				Affection.class, AntiMagic.class, Thorns.class };
 		private static final float[] chances= new float[]{
 				10, 10, 10, 10,
@@ -432,7 +532,8 @@ public class Armor extends EquipableItem {
 				2, 2, 2 };
 
 		private static final Class<?>[] curses = new Class<?>[]{
-				AntiEntropy.class, Corrosion.class, Displacement.class, Metabolism.class, Multiplicity.class, Stench.class
+				AntiEntropy.class, Corrosion.class, Displacement.class, Metabolism.class,
+				Multiplicity.class, Stench.class, Overgrowth.class, Bulk.class
 		};
 			
 		public abstract int proc( Armor armor, Char attacker, Char defender, int damage );
@@ -465,28 +566,6 @@ public class Armor extends EquipableItem {
 		}
 		
 		public abstract ItemSprite.Glowing glowing();
-
-		public int tierDRAdjust(){
-			return 0;
-		}
-
-		public float tierSTRAdjust(){
-			return 0;
-		}
-
-		public boolean checkOwner( Char owner ) {
-			if (!owner.isAlive() && owner instanceof Hero) {
-
-				Dungeon.fail( getClass() );
-				GLog.n( Messages.get(this, "killed", name()) );
-
-				Badges.validateDeathFromGlyph();
-				return true;
-				
-			} else {
-				return false;
-			}
-		}
 
 		@SuppressWarnings("unchecked")
 		public static Glyph random() {

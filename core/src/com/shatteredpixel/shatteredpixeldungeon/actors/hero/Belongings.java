@@ -239,6 +239,7 @@ public class Belongings implements Iterable<Item> {
 		
 		for (Wand.Charger charger : owner.buffs(Wand.Charger.class)){
 			charger.gainCharge(charge);
+			count++;
 		}
 		
 		return count;

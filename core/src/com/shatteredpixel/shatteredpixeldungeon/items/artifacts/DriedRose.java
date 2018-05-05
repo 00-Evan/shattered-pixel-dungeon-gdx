@@ -40,9 +40,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Obfuscation;
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
@@ -551,11 +548,7 @@ public class DriedRose extends Artifact {
 			float speed = super.speed();
 			
 			if (rose != null && rose.armor != null){
-				if (rose.armor.hasGlyph(Swiftness.class)) {
-					speed *= (1.1f + 0.01f * rose.armor.level());
-				} else if (rose.armor.hasGlyph(Flow.class) && Dungeon.level.water[pos]){
-					speed *= (1.5f + 0.05f * rose.armor.level());
-				}
+				speed = rose.armor.speedFactor(this, speed);
 			}
 			
 			return speed;
@@ -565,8 +558,8 @@ public class DriedRose extends Artifact {
 		public int defenseSkill(Char enemy) {
 			int defense = super.defenseSkill(enemy);
 
-			if (defense != 0 && rose != null && rose.armor != null && rose.armor.hasGlyph(Swiftness.class)){
-				defense += 5 + rose.armor.level()*1.5f;
+			if (defense != 0 && rose != null && rose.armor != null ){
+				defense = Math.round(rose.armor.evasionFactor( this, defense ));
 			}
 			
 			return defense;
@@ -576,8 +569,8 @@ public class DriedRose extends Artifact {
 		public int stealth() {
 			int stealth = super.stealth();
 			
-			if (rose != null && rose.armor != null && rose.armor.hasGlyph(Obfuscation.class)){
-				stealth +=  1 + rose.armor.level()/3;
+			if (rose != null && rose.armor != null){
+				stealth = Math.round(rose.armor.stealthFactor(this, stealth));
 			}
 			
 			return stealth;

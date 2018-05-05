@@ -159,6 +159,10 @@ public class Heap implements Bundlable {
 	
 	public Item pickUp() {
 		
+		if (items.isEmpty()){
+			destroy();
+			return null;
+		}
 		Item item = items.removeFirst();
 		if (items.isEmpty()) {
 			destroy();
