@@ -1415,6 +1415,13 @@ public class Hero extends Char {
 			}
 		}
 	}
+
+	@Override
+	public void onMotionComplete() {
+		Dungeon.observe();
+		search( false );
+		GameScene.checkKeyHold();
+	}
 	
 	@Override
 	public void onAttackComplete() {

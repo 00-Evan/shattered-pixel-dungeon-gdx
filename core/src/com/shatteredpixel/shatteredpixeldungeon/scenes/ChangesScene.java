@@ -137,7 +137,15 @@ public class ChangesScene extends PixelScene {
 		//       v0.6.5
 		//**********************
 
-		ChangeInfo changes = new ChangeInfo("v0.6.5a", true, "");
+		ChangeInfo changes = new ChangeInfo("v0.6.5b", false, "");
+		changes.hardlight( Window.TITLE_COLOR );
+		infos.add(changes);
+
+		changes.addButton( new ChangeButton(new Image(Assets.SPINNER, 144, 0, 16, 16), Messages.get(this, "bugfixes"),
+				"Fixed(Caused by 0.6.5):\n" +
+				"_-_ broken keyboard movement on desktop"));
+
+		changes = new ChangeInfo("v0.6.5a", false, "");
 		changes.hardlight( Window.TITLE_COLOR );
 		infos.add(changes);
 
