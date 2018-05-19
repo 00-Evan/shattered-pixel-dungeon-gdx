@@ -160,6 +160,11 @@ public class GameScene extends PixelScene {
 	@Override
 	public void create() {
 		
+		if (Dungeon.hero == null){
+			ShatteredPixelDungeon.switchNoFade(TitleScene.class);
+			return;
+		}
+		
 		Music.INSTANCE.play( Assets.TUNE, true );
 
 		SPDSettings.lastClass(Dungeon.hero.heroClass.ordinal());
