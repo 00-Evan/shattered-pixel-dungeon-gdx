@@ -28,8 +28,10 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
@@ -48,6 +50,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
@@ -190,6 +193,14 @@ public abstract class Mob extends Char {
 				return source;
 			}
 		}
+		
+		StoneOfAggression.Aggression aggro = buff( StoneOfAggression.Aggression.class );
+		if (aggro != null){
+			Char source = (Char)Actor.findById( aggro.object );
+			if (source != null){
+				return source;
+			}
+		}
 
 		//find a new enemy if..
 		boolean newEnemy = false;
@@ -201,6 +212,9 @@ public abstract class Mob extends Char {
 			newEnemy = true;
 		//We are amoked and current enemy is the hero
 		else if (buff( Amok.class ) != null && enemy == Dungeon.hero)
+			newEnemy = true;
+		//We are charmed and current enemy is what charmed us
+		else if (buff(Charm.class) != null && buff(Charm.class).object == enemy.id())
 			newEnemy = true;
 
 		if ( newEnemy ) {
@@ -251,7 +265,15 @@ public abstract class Mob extends Char {
 				
 			}
 			
-			//neutral character in particular do not choose enemies.
+			Charm charm = buff( Charm.class );
+			if (charm != null){
+				Char source = (Char)Actor.findById( charm.object );
+				if (source != null && enemies.contains(source) && enemies.size() > 1){
+					enemies.remove(source);
+				}
+			}
+			
+			//neutral characters in particular do not choose enemies.
 			if (enemies.isEmpty()){
 				return null;
 			} else {
@@ -411,6 +433,10 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean getFurther( int target ) {
+		if (rooted || target == pos) {
+			return false;
+		}
+		
 		int step = Dungeon.flee( this, pos, target,
 			Dungeon.level.passable,
 			fieldOfView );
@@ -430,7 +456,9 @@ public abstract class Mob extends Char {
 	}
 	
 	protected float attackDelay() {
-		return 1f;
+		float delay = 1f;
+		if ( buff(Adrenaline.class) != null) delay /= 1.5f;
+		return delay;
 	}
 	
 	protected boolean doAttack( Char enemy ) {
@@ -520,8 +548,6 @@ public abstract class Mob extends Char {
 	@Override
 	public void damage( int dmg, Object src ) {
 
-		Terror.recover( this );
-
 		if (state == SLEEPING) {
 			state = WANDERING;
 		}
@@ -550,8 +576,8 @@ public abstract class Mob extends Char {
 				int exp = Dungeon.hero.lvl <= maxLvl ? EXP : 0;
 				if (exp > 0) {
 					Dungeon.hero.sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "exp", exp));
-					Dungeon.hero.earnExp(exp);
 				}
+				Dungeon.hero.earnExp(exp);
 			}
 		}
 	}
@@ -647,7 +673,7 @@ public abstract class Mob extends Char {
 	}
 	
 	public void yell( String str ) {
-		GLog.n( "%s: \"%s\" ", name, str );
+		GLog.n( "%s: \"%s\" ", Messages.titleCase(name), str );
 	}
 
 	//returns true when a mob sees the hero, and is currently targeting them.

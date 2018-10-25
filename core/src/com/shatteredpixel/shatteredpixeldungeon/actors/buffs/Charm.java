@@ -34,6 +34,7 @@ public class Charm extends FlavourBuff {
 
 	{
 		type = buffType.NEGATIVE;
+		announced = true;
 	}
 
 	@Override
@@ -66,5 +67,12 @@ public class Charm extends FlavourBuff {
 	@Override
 	public String desc() {
 		return Messages.get(this, "desc", dispTurns());
+	}
+	
+	public void recover() {
+		spend(-5f);
+		if (cooldown() <= 0){
+			detach();
+		}
 	}
 }

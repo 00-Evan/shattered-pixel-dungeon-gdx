@@ -170,7 +170,7 @@ public class CityBossLevel extends Level {
 			do {
 				pos =
 					Random.IntRange( LEFT + 1, LEFT + HALL_WIDTH - 2 ) +
-					Random.IntRange( TOP + HALL_HEIGHT + 1, TOP + HALL_HEIGHT  + CHAMBER_HEIGHT ) * width();
+					Random.IntRange( TOP + HALL_HEIGHT + 2, TOP + HALL_HEIGHT  + CHAMBER_HEIGHT ) * width();
 			} while (pos == entrance);
 			drop( item, pos ).type = Heap.Type.REMAINS;
 		}

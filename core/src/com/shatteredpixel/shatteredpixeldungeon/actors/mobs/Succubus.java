@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
@@ -31,7 +32,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.SuccubusSprite;
 import com.watabou.noosa.audio.Sample;
@@ -71,8 +71,19 @@ public class Succubus extends Mob {
 	public int attackProc( Char enemy, int damage ) {
 		damage = super.attackProc( enemy, damage );
 		
-		if (Random.Int( 3 ) == 0) {
-			Buff.affect( enemy, Charm.class, Random.IntRange( 3, 7 ) ).object = id();
+		if (enemy.buff(Charm.class) != null ){
+			int shield = (HP - HT) + (5 + damage);
+			if (shield > 0){
+				HP = HT;
+				Buff.affect(this, Barrier.class).setShield(shield);
+			} else {
+				HP += 5 + damage;
+			}
+			sprite.emitter().burst( Speck.factory( Speck.HEALING ), 2 );
+			Sample.INSTANCE.play( Assets.SND_CHARMS );
+		} else if (Random.Int( 3 ) == 0) {
+			//attack will reduce by 5 turns, so effectively 3-4 turns
+			Buff.affect( enemy, Charm.class, Random.IntRange( 3, 4 ) + 5 ).object = id();
 			enemy.sprite.centerEmitter().start( Speck.factory( Speck.HEART ), 0.2f, 5 );
 			Sample.INSTANCE.play( Assets.SND_CHARMS );
 		}
@@ -138,5 +149,6 @@ public class Succubus extends Mob {
 	
 	{
 		immunities.add( Sleep.class );
+		immunities.add( Charm.class );
 	}
 }

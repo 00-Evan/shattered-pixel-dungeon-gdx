@@ -28,11 +28,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.SmokeScreen;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Shadows;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -50,6 +52,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.HighGrass;
@@ -183,6 +187,16 @@ public abstract class Level implements Bundlable {
 			if (Dungeon.asNeeded()) {
 				addItemToSpawn( new Stylus() );
 				Dungeon.LimitedDrops.ARCANE_STYLI.count++;
+			}
+			//one scroll of transmutation is guaranteed to spawn somewhere on chapter 2-4
+			int enchChapter = (int)((Dungeon.seed / 10) % 3) + 1;
+			if ( Dungeon.depth / 5 == enchChapter &&
+					Dungeon.seed % 4 + 1 == Dungeon.depth % 5){
+				addItemToSpawn( new StoneOfEnchantment() );
+			}
+			
+			if ( Dungeon.depth == ((Dungeon.seed % 3) + 1)){
+				addItemToSpawn( new StoneOfIntuition() );
 			}
 
 			DriedRose rose = Dungeon.hero.belongings.getItem( DriedRose.class );
@@ -551,7 +565,7 @@ public abstract class Level implements Bundlable {
 		return null;
 	}
 
-	protected void buildFlagMaps() {
+	public void buildFlagMaps() {
 		
 		for (int i=0; i < length(); i++) {
 			int flags = Terrain.flags[map[i]];
@@ -563,6 +577,13 @@ public abstract class Level implements Bundlable {
 			avoid[i]		= (flags & Terrain.AVOID) != 0;
 			water[i]		= (flags & Terrain.LIQUID) != 0;
 			pit[i]			= (flags & Terrain.PIT) != 0;
+		}
+		
+		SmokeScreen s = (SmokeScreen)blobs.get(SmokeScreen.class);
+		if (s != null && s.volume > 0){
+			for (int i=0; i < length(); i++) {
+				losBlocking[i]	= losBlocking[i] || s.cur[i] > 0;
+			}
 		}
 		
 		int lastRow = length() - width();
@@ -623,6 +644,11 @@ public abstract class Level implements Bundlable {
 		level.avoid[cell]			= (flags & Terrain.AVOID) != 0;
 		level.pit[cell]			    = (flags & Terrain.PIT) != 0;
 		level.water[cell]			= terrain == Terrain.WATER;
+		
+		SmokeScreen s = (SmokeScreen)level.blobs.get(SmokeScreen.class);
+		if (s != null && s.volume > 0){
+			level.losBlocking[cell] = level.losBlocking[cell] || s.cur[cell] > 0;
+		}
 	}
 	
 	public Heap drop( Item item, int cell ) {
@@ -789,7 +815,7 @@ public abstract class Level implements Bundlable {
 		if (trap != null) {
 			
 			TimekeepersHourglass.timeFreeze timeFreeze =
-					ch != null ? ch.buff(TimekeepersHourglass.timeFreeze.class) : null;
+					Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 			
 			if (timeFreeze == null) {
 
@@ -835,19 +861,32 @@ public abstract class Level implements Bundlable {
 			for (Buff b : c.buffs( MindVision.class )) {
 				sense = Math.max( ((MindVision)b).distance, sense );
 			}
+			if (c.buff(MagicalSight.class) != null){
+				sense = 8;
+			}
 		}
 		
-		if ((sighted && sense > 1) || !sighted) {
+		//uses rounding
+		if (!sighted || sense > 1) {
 			
-			int ax = Math.max( 0, cx - sense );
-			int bx = Math.min( cx + sense, width() - 1 );
-			int ay = Math.max( 0, cy - sense );
-			int by = Math.min( cy + sense, height() - 1 );
-
-			int len = bx - ax + 1;
-			int pos = ax + ay * width();
-			for (int y = ay; y <= by; y++, pos+=width()) {
-				System.arraycopy(discoverable, pos, fieldOfView, pos, len);
+			int[][] rounding = ShadowCaster.rounding;
+			
+			int left, right;
+			int pos;
+			for (int y = Math.max(0, cy - sense); y <= Math.min(height()-1, cy + sense); y++) {
+				if (rounding[sense][Math.abs(cy - y)] < Math.abs(cy - y)) {
+					left = cx - rounding[sense][Math.abs(cy - y)];
+				} else {
+					left = sense;
+					while (rounding[sense][left] < rounding[sense][Math.abs(cy - y)]){
+						left--;
+					}
+					left = cx - left;
+				}
+				right = Math.min(width()-1, cx + cx - left);
+				left = Math.max(0, left);
+				pos = left + y * width();
+				System.arraycopy(discoverable, pos, fieldOfView, pos, right - left + 1);
 			}
 		}
 

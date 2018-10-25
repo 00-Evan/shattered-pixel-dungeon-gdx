@@ -30,6 +30,7 @@ public class Bless extends FlavourBuff {
 	
 	{
 		type = buffType.POSITIVE;
+		announced = true;
 	}
 
 	@Override

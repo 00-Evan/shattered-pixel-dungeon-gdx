@@ -30,11 +30,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Generator.Category;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
@@ -49,7 +47,7 @@ import com.watabou.utils.Random;
 public class WaterOfTransmutation extends WellWater {
 	
 	@Override
-	protected Item affectItem( Item item ) {
+	protected Item affectItem( Item item, int pos ) {
 		
 		if (item instanceof MagesStaff) {
 			item = changeStaff( (MagesStaff)item );
@@ -211,11 +209,7 @@ public class WaterOfTransmutation extends WellWater {
 	private Scroll changeScroll( Scroll s ) {
 		if (s instanceof ScrollOfUpgrade) {
 			
-			return new ScrollOfMagicalInfusion();
-			
-		} else if (s instanceof ScrollOfMagicalInfusion) {
-			
-			return new ScrollOfUpgrade();
+			return null;
 			
 		} else {
 			
@@ -230,11 +224,7 @@ public class WaterOfTransmutation extends WellWater {
 	private Potion changePotion( Potion p ) {
 		if (p instanceof PotionOfStrength) {
 			
-			return new PotionOfMight();
-			
-		} else if (p instanceof PotionOfMight) {
-			
-			return new PotionOfStrength();
+			return null;
 			
 		} else {
 			

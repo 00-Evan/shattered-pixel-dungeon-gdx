@@ -80,6 +80,10 @@ public class ItemSprite extends MovieClip {
 		view (item);
 	}
 	
+	public ItemSprite( int image ){
+		this( image, null );
+	}
+	
 	public ItemSprite( int image, Glowing glowing ) {
 		super( Assets.ITEMS );
 		

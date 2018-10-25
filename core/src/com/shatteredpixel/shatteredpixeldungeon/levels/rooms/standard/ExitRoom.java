@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.watabou.utils.Point;
 
 public class ExitRoom extends StandardRoom {
 	
@@ -50,4 +51,8 @@ public class ExitRoom extends StandardRoom {
 		Painter.set( level, level.exit, Terrain.EXIT );
 	}
 	
+	@Override
+	public boolean canPlaceCharacter(Point p, Level l) {
+		return super.canPlaceCharacter(p, l) && l.pointToCell(p) != l.exit;
+	}
 }

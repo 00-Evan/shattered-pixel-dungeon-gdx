@@ -35,7 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -61,6 +60,7 @@ public class Burning extends Buff implements Hero.Doom {
 
 	{
 		type = buffType.NEGATIVE;
+		announced = true;
 	}
 	
 	@Override
@@ -85,11 +85,12 @@ public class Burning extends Buff implements Hero.Doom {
 			int damage = Random.NormalIntRange( 1, 3 + target.HT/40 );
 			Buff.detach( target, Chill.class);
 
+			//FIXME doesn't work with the sad ghost
 			if (target instanceof Hero) {
 				
 				Hero hero = (Hero)target;
 				
-				if (hero.belongings.armor != null && hero.belongings.armor.hasGlyph(Brimstone.class)){
+				if (hero.belongings.armor != null && hero.belongings.armor.hasGlyph(Brimstone.class, hero)){
 					Buff.affect(target, Brimstone.BrimstoneShield.class);
 					
 				} else {
@@ -104,7 +105,7 @@ public class Burning extends Buff implements Hero.Doom {
 						ArrayList<Item> burnable = new ArrayList<>();
 						//does not reach inside of containers
 						for (Item i : hero.belongings.backpack.items){
-							if ((i instanceof Scroll && !(i instanceof ScrollOfUpgrade || i instanceof ScrollOfMagicalInfusion))
+							if ((i instanceof Scroll && !(i instanceof ScrollOfUpgrade))
 									|| i instanceof MysteryMeat){
 								burnable.add(i);
 							}
@@ -112,6 +113,7 @@ public class Burning extends Buff implements Hero.Doom {
 						
 						if (!burnable.isEmpty()){
 							Item toBurn = Random.element(burnable).detach(hero.belongings.backpack);
+							GLog.w( Messages.get(this, "burnsup", Messages.capitalize(toBurn.toString())) );
 							if (toBurn instanceof MysteryMeat){
 								ChargrilledMeat steak = new ChargrilledMeat();
 								if (!steak.collect( hero.belongings.backpack )) {
@@ -119,7 +121,6 @@ public class Burning extends Buff implements Hero.Doom {
 								}
 							}
 							Heap.burnFX( hero.pos );
-							GLog.w( Messages.get(this, "burnsup", Messages.capitalize(toBurn.toString())) );
 						}
 					}
 				}
@@ -133,7 +134,7 @@ public class Burning extends Buff implements Hero.Doom {
 				Item item = ((Thief) target).item;
 
 				if (item instanceof Scroll &&
-						!(item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion)) {
+						!(item instanceof ScrollOfUpgrade)) {
 					target.sprite.emitter().burst( ElmoParticle.FACTORY, 6 );
 					((Thief)target).item = null;
 				} else if (item instanceof MysteryMeat) {

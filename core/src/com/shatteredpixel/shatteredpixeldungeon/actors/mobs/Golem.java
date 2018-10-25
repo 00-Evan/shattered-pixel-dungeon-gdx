@@ -54,7 +54,7 @@ public class Golem extends Mob {
 	
 	@Override
 	protected float attackDelay() {
-		return 1.5f;
+		return super.attackDelay() * 1.5f;
 	}
 	
 	@Override

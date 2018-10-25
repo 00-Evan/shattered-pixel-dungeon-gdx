@@ -85,7 +85,7 @@ public class Image extends Visual {
 	}
 	
 	public RectF frame() {
-		return frame;
+		return new RectF( frame );
 	}
 
 	public void copy( Image other ) {

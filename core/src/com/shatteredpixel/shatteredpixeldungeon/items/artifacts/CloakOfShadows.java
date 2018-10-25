@@ -65,7 +65,7 @@ public class CloakOfShadows extends Artifact {
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
 		ArrayList<String> actions = super.actions( hero );
-		if (isEquipped( hero ) && charge > 1)
+		if (isEquipped( hero ) && !cursed && charge > 1)
 			actions.add(AC_STEALTH);
 		return actions;
 	}
@@ -79,6 +79,7 @@ public class CloakOfShadows extends Artifact {
 
 			if (!stealthed){
 				if (!isEquipped(hero)) GLog.i( Messages.get(Artifact.class, "need_to_equip") );
+				else if (cursed)       GLog.i( Messages.get(this, "cursed") );
 				else if (charge <= 0)  GLog.i( Messages.get(this, "no_charge") );
 				else {
 					stealthed = true;
@@ -132,7 +133,14 @@ public class CloakOfShadows extends Artifact {
 	protected ArtifactBuff activeBuff( ) {
 		return new cloakStealth();
 	}
-
+	
+	@Override
+	public void charge(Hero target) {
+		if (charge < chargeCap) {
+			partialCharge += 0.25f;
+		}
+	}
+	
 	@Override
 	public Item upgrade() {
 		chargeCap = Math.min(chargeCap + 1, 10);
@@ -199,6 +207,11 @@ public class CloakOfShadows extends Artifact {
 	}
 
 	public class cloakStealth extends ArtifactBuff{
+		
+		{
+			type = buffType.POSITIVE;
+		}
+		
 		int turnsToCost = 0;
 
 		@Override

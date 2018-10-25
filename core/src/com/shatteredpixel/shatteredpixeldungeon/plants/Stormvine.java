@@ -24,13 +24,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Stormvine extends Plant {
 
 	{
-		image = 9;
+		image = 5;
 	}
 
 	@Override
@@ -47,7 +46,6 @@ public class Stormvine extends Plant {
 			image = ItemSpriteSheet.SEED_STORMVINE;
 
 			plantClass = Stormvine.class;
-			alchemyClass = PotionOfLevitation.class;
 		}
 	}
 }

@@ -18,23 +18,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
+package com.shatteredpixel.shatteredpixeldungeon.items.spells;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 
-public class ScrollOfMagicalInfusion extends InventoryScroll {
+public class MagicalInfusion extends InventorySpell {
 	
 	{
-		initials = 2;
 		mode = WndBag.Mode.ENCHANTABLE;
+		image = ItemSpriteSheet.MAGIC_INFUSE;
 	}
 	
 	@Override
@@ -54,12 +57,22 @@ public class ScrollOfMagicalInfusion extends InventoryScroll {
 	}
 	
 	@Override
-	public void empoweredRead() {
-		//does nothing for now, this should never happen.
-	}
-
-	@Override
 	public int price() {
-		return isKnown() ? 100 * quantity : super.price();
+		//prices of ingredients, divided by output quantity
+		return Math.round(quantity * ((50 + 30) / 1f));
+	}
+	
+	public static class Recipe extends com.shatteredpixel.shatteredpixeldungeon.items.Recipe.SimpleRecipe {
+		
+		{
+			inputs =  new Class[]{ScrollOfUpgrade.class, StoneOfEnchantment.class};
+			inQuantity = new int[]{1, 1};
+			
+			cost = 3;
+			
+			output = MagicalInfusion.class;
+			outQuantity = 1;
+		}
+		
 	}
 }

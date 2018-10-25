@@ -308,6 +308,21 @@ public abstract class Room extends Rect implements Graph.Node, Bundlable {
 		return points;
 	}
 	
+	//whether or not a character (usually spawned) can be placed here
+	public boolean canPlaceCharacter(Point p, Level l){
+		return inside(p);
+	}
+	
+	public final ArrayList<Point> charPlaceablePoints(Level l){
+		ArrayList<Point> points = new ArrayList<>();
+		for (int i = left; i <= right; i++) {
+			for (int j = top; j <= bottom; j++) {
+				Point p = new Point(i, j);
+				if (canPlaceCharacter(p, l)) points.add(p);
+			}
+		}
+		return points;
+	}
 	
 	// **** Graph.Node interface ****
 	
@@ -345,16 +360,12 @@ public abstract class Room extends Rect implements Graph.Node, Bundlable {
 		return edges;
 	}
 	
-	public String legacyType = "NULL";
-	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		bundle.put( "left", left );
 		bundle.put( "top", top );
 		bundle.put( "right", right );
 		bundle.put( "bottom", bottom );
-		if (!legacyType.equals("NULL"))
-			bundle.put( "type", legacyType );
 	}
 	
 	@Override
@@ -363,11 +374,9 @@ public abstract class Room extends Rect implements Graph.Node, Bundlable {
 		top = bundle.getInt( "top" );
 		right = bundle.getInt( "right" );
 		bottom = bundle.getInt( "bottom" );
-		if (bundle.contains( "type" ))
-			legacyType = bundle.getString( "type" );
 	}
 	
-	//Note that currently connections and neighbours are not preserved on load
+	//FIXME currently connections and neighbours are not preserved on load
 	public void onLevelLoad( Level level ){
 		//does nothing by default
 	}

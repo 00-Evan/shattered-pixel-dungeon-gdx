@@ -33,8 +33,6 @@ import com.watabou.utils.Random;
 
 public abstract class WellWater extends Blob {
 
-	protected int pos;
-	
 	@Override
 	protected void evolve() {
 		int cell;
@@ -70,7 +68,7 @@ public abstract class WellWater extends Blob {
 		} else if ((heap = Dungeon.level.heaps.get( pos )) != null) {
 			
 			Item oldItem = heap.peek();
-			Item newItem = affectItem( oldItem );
+			Item newItem = affectItem( oldItem, pos );
 			
 			if (newItem != null) {
 				
@@ -111,7 +109,7 @@ public abstract class WellWater extends Blob {
 	
 	protected abstract boolean affectHero( Hero hero );
 	
-	protected abstract Item affectItem( Item item );
+	protected abstract Item affectItem( Item item, int pos );
 	
 	protected abstract Notes.Landmark record();
 	

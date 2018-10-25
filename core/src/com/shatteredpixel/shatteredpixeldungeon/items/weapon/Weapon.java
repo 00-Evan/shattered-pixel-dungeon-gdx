@@ -21,8 +21,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
@@ -55,6 +57,9 @@ import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 abstract public class Weapon extends KindOfWeapon {
 
 	private static final int HITS_TO_KNOW    = 20;
@@ -64,9 +69,9 @@ abstract public class Weapon extends KindOfWeapon {
 	public int      RCH = 1;    // Reach modifier (only applies to melee hits)
 
 	public enum Augment {
-		SPEED   (0.7f, 0.67f),
-		DAMAGE  (1.5f, 1.67f),
-		NONE	(1.0f, 1.00f);
+		SPEED   (0.7f, 0.6667f),
+		DAMAGE  (1.5f, 1.6667f),
+		NONE	(1.0f, 1.0000f);
 
 		private float damageFactor;
 		private float delayFactor;
@@ -94,11 +99,11 @@ abstract public class Weapon extends KindOfWeapon {
 	@Override
 	public int proc( Char attacker, Char defender, int damage ) {
 		
-		if (enchantment != null) {
+		if (enchantment != null && attacker.buff(MagicImmune.class) == null) {
 			damage = enchantment.proc( this, attacker, defender, damage );
 		}
 		
-		if (!levelKnown) {
+		if (!levelKnown && attacker == Dungeon.hero) {
 			if (--hitsToKnow <= 0) {
 				identify();
 				GLog.i( Messages.get(Weapon.class, "identify") );
@@ -147,7 +152,7 @@ abstract public class Weapon extends KindOfWeapon {
 			encumbrance = STRReq() - ((Hero)owner).STR();
 		}
 
-		if (hasEnchant(Wayward.class))
+		if (hasEnchant(Wayward.class, owner))
 			encumbrance = Math.max(2, encumbrance+2);
 
 		float ACC = this.ACC;
@@ -172,7 +177,7 @@ abstract public class Weapon extends KindOfWeapon {
 
 	@Override
 	public int reachFactor(Char owner) {
-		return hasEnchant(Projecting.class) ? RCH+1 : RCH;
+		return hasEnchant(Projecting.class, owner) ? RCH+1 : RCH;
 	}
 
 	public int STRReq(){
@@ -239,23 +244,22 @@ abstract public class Weapon extends KindOfWeapon {
 	public Weapon enchant() {
 
 		Class<? extends Enchantment> oldEnchantment = enchantment != null ? enchantment.getClass() : null;
-		Enchantment ench = Enchantment.random();
-		while (ench.getClass() == oldEnchantment) {
-			ench = Enchantment.random();
-		}
+		Enchantment ench = Enchantment.random( oldEnchantment );
 
 		return enchant( ench );
 	}
 
-	public boolean hasEnchant(Class<?extends Enchantment> type) {
-		return enchantment != null && enchantment.getClass() == type;
+	public boolean hasEnchant(Class<?extends Enchantment> type, Char owner) {
+		return enchantment != null && enchantment.getClass() == type && owner.buff(MagicImmune.class) == null;
 	}
-
+	
+	//these are not used to process specific enchant effects, so magic immune doesn't affect them
 	public boolean hasGoodEnchant(){
 		return enchantment != null && !enchantment.curse();
 	}
 
-	public boolean hasCurseEnchant(){		return enchantment != null && enchantment.curse();
+	public boolean hasCurseEnchant(){
+		return enchantment != null && enchantment.curse();
 	}
 
 	@Override
@@ -264,21 +268,29 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 
 	public static abstract class Enchantment implements Bundlable {
-
-		private static final Class<?>[] enchants = new Class<?>[]{
-			Blazing.class, Venomous.class, Vorpal.class, Shocking.class,
-			Chilling.class, Eldritch.class, Lucky.class, Projecting.class, Unstable.class, Dazzling.class,
-			Grim.class, Stunning.class, Vampiric.class,};
-		private static final float[] chances= new float[]{
-			10, 10, 10, 10,
-			5, 5, 5, 5, 5, 5,
-			2, 2, 2 };
-
+		
+		private static final Class<?>[] common = new Class<?>[]{
+				Blazing.class, Venomous.class, Vorpal.class, Shocking.class};
+		
+		private static final Class<?>[] uncommon = new Class<?>[]{
+				Chilling.class, Eldritch.class, Lucky.class,
+				Projecting.class, Unstable.class, Dazzling.class};
+		
+		private static final Class<?>[] rare = new Class<?>[]{
+				Grim.class, Stunning.class, Vampiric.class};
+		
+		private static final float[] typeChances = new float[]{
+				50, //12.5% each
+				40, //6.67% each
+				10  //3.33% each
+		};
+		
 		private static final Class<?>[] curses = new Class<?>[]{
 				Annoying.class, Displacing.class, Exhausting.class, Fragile.class,
 				Sacrificial.class, Wayward.class, Elastic.class, Friendly.class
 		};
-			
+		
+		
 		public abstract int proc( Weapon weapon, Char attacker, Char defender, int damage );
 
 		public String name() {
@@ -311,23 +323,80 @@ abstract public class Weapon extends KindOfWeapon {
 		public abstract ItemSprite.Glowing glowing();
 		
 		@SuppressWarnings("unchecked")
-		public static Enchantment random() {
-			try {
-				return ((Class<Enchantment>)enchants[ Random.chances( chances ) ]).newInstance();
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
+		public static Enchantment random( Class<? extends Enchantment> ... toIgnore ) {
+			switch(Random.chances(typeChances)){
+				case 0: default:
+					return randomCommon( toIgnore );
+				case 1:
+					return randomUncommon( toIgnore );
+				case 2:
+					return randomRare( toIgnore );
 			}
 		}
-
+		
 		@SuppressWarnings("unchecked")
-		public static Enchantment randomCurse() {
+		public static Enchantment randomCommon( Class<? extends Enchantment> ... toIgnore ) {
 			try {
-				return ((Class<Enchantment>) Random.oneOf(curses)).newInstance();
+				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(common));
+				enchants.removeAll(Arrays.asList(toIgnore));
+				if (enchants.isEmpty()) {
+					return random();
+				} else {
+					return (Enchantment) Random.element(enchants).newInstance();
+				}
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;
 			}
 		}
+		
+		@SuppressWarnings("unchecked")
+		public static Enchantment randomUncommon( Class<? extends Enchantment> ... toIgnore ) {
+			try {
+				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(uncommon));
+				enchants.removeAll(Arrays.asList(toIgnore));
+				if (enchants.isEmpty()) {
+					return random();
+				} else {
+					return (Enchantment) Random.element(enchants).newInstance();
+				}
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public static Enchantment randomRare( Class<? extends Enchantment> ... toIgnore ) {
+			try {
+				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(rare));
+				enchants.removeAll(Arrays.asList(toIgnore));
+				if (enchants.isEmpty()) {
+					return random();
+				} else {
+					return (Enchantment) Random.element(enchants).newInstance();
+				}
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public static Enchantment randomCurse( Class<? extends Enchantment> ... toIgnore ){
+			try {
+				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(curses));
+				enchants.removeAll(Arrays.asList(toIgnore));
+				if (enchants.isEmpty()) {
+					return random();
+				} else {
+					return (Enchantment) Random.element(enchants).newInstance();
+				}
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
 	}
 }

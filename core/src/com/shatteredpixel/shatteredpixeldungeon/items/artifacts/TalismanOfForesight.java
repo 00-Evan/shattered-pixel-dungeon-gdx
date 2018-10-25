@@ -101,6 +101,13 @@ public class TalismanOfForesight extends Artifact {
 	protected ArtifactBuff passiveBuff() {
 		return new Foresight();
 	}
+	
+	@Override
+	public void charge(Hero target) {
+		if (charge < chargeCap){
+			partialCharge += 4f;
+		}
+	}
 
 	@Override
 	public String desc() {
@@ -181,6 +188,7 @@ public class TalismanOfForesight extends Artifact {
 				if (partialCharge > 1 && charge < chargeCap) {
 					partialCharge--;
 					charge++;
+					updateQuickslot();
 				} else if (charge >= chargeCap) {
 					partialCharge = 0;
 					GLog.p( Messages.get(this, "full_charge") );
@@ -198,6 +206,7 @@ public class TalismanOfForesight extends Artifact {
 				GLog.p( Messages.get(this, "levelup") );
 				exp -= 4;
 			}
+			updateQuickslot();
 		}
 
 		@Override

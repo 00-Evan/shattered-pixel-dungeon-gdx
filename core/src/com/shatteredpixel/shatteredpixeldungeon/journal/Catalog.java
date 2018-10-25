@@ -32,13 +32,12 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.RogueArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ScaleArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.WarriorArmor;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.LloydsBeacon;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.SandalsOfNature;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TalismanOfForesight;
@@ -46,11 +45,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLevitation;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticGas;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
@@ -70,14 +69,14 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMirrorImage;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTerror;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
@@ -217,14 +216,14 @@ public enum Catalog {
 		RINGS.seen.put( RingOfTenacity.class,               false);
 		RINGS.seen.put( RingOfWealth.class,                 false);
 	
-		//ARTIFACTS.seen.put( AlchemistsToolkit.class,      false);
-		ARTIFACTS.seen.put( CapeOfThorns.class,             false);
+		ARTIFACTS.seen.put( AlchemistsToolkit.class,        false);
+		//ARTIFACTS.seen.put( CapeOfThorns.class,             false);
 		ARTIFACTS.seen.put( ChaliceOfBlood.class,           false);
 		ARTIFACTS.seen.put( CloakOfShadows.class,           false);
 		ARTIFACTS.seen.put( DriedRose.class,                false);
 		ARTIFACTS.seen.put( EtherealChains.class,           false);
 		ARTIFACTS.seen.put( HornOfPlenty.class,             false);
-		ARTIFACTS.seen.put( LloydsBeacon.class,             false);
+		//ARTIFACTS.seen.put( LloydsBeacon.class,             false);
 		ARTIFACTS.seen.put( MasterThievesArmband.class,     false);
 		ARTIFACTS.seen.put( SandalsOfNature.class,          false);
 		ARTIFACTS.seen.put( TalismanOfForesight.class,      false);
@@ -242,7 +241,7 @@ public enum Catalog {
 		POTIONS.seen.put( PotionOfMindVision.class,         false);
 		POTIONS.seen.put( PotionOfInvisibility.class,       false);
 		POTIONS.seen.put( PotionOfExperience.class,         false);
-		POTIONS.seen.put( PotionOfMight.class,              false);
+		POTIONS.seen.put( PotionOfHaste.class,              false);
 	
 		SCROLLS.seen.put( ScrollOfIdentify.class,           false);
 		SCROLLS.seen.put( ScrollOfUpgrade.class,            false);
@@ -254,8 +253,8 @@ public enum Catalog {
 		SCROLLS.seen.put( ScrollOfTerror.class,             false);
 		SCROLLS.seen.put( ScrollOfLullaby.class,            false);
 		SCROLLS.seen.put( ScrollOfRage.class,               false);
-		SCROLLS.seen.put( ScrollOfPsionicBlast.class,       false);
-		SCROLLS.seen.put( ScrollOfMagicalInfusion.class,    false);
+		SCROLLS.seen.put( ScrollOfRetribution.class,       false);
+		SCROLLS.seen.put( ScrollOfTransmutation.class,      false);
 	}
 	
 	public static LinkedHashMap<Catalog, Badges.Badge> catalogBadges = new LinkedHashMap<>();

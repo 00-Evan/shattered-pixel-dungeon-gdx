@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.journal;
 
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.watabou.utils.Bundle;
 
 import java.util.ArrayList;
@@ -31,8 +32,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public enum Document {
-
-	ADVENTURERS_GUIDE;
+	
+	ADVENTURERS_GUIDE(ItemSpriteSheet.GUIDE_PAGE),
+	ALCHEMY_GUIDE(ItemSpriteSheet.ALCH_PAGE);
+	
+	Document( int sprite ){
+		pageSprite = sprite;
+	}
 	
 	private LinkedHashMap<String, Boolean> pages = new LinkedHashMap<>();
 	
@@ -53,6 +59,24 @@ public enum Document {
 		return pages.containsKey(page) && pages.get(page);
 	}
 	
+	public boolean hasPage( int pageIdx ){
+		return hasPage( pages.keySet().toArray(new String[0])[pageIdx] );
+	}
+	
+	public boolean hasAnyPages(){
+		for (String p : pages.keySet()){
+			if (pages.get(p)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private int pageSprite;
+	public int pageSprite(){
+		return pageSprite;
+	}
+	
 	public String title(){
 		return Messages.get( this, name() + ".title");
 	}
@@ -61,8 +85,16 @@ public enum Document {
 		return Messages.get( this, name() + "." + page + ".title");
 	}
 	
+	public String pageTitle( int pageIdx ){
+		return pageTitle( pages.keySet().toArray(new String[0])[pageIdx] );
+	}
+	
 	public String pageBody( String page ){
 		return Messages.get( this, name() + "." + page + ".body");
+	}
+	
+	public String pageBody( int pageIdx ){
+		return pageBody( pages.keySet().toArray(new String[0])[pageIdx] );
 	}
 
 	public static final String GUIDE_INTRO_PAGE = "Intro";
@@ -79,6 +111,17 @@ public enum Document {
 		ADVENTURERS_GUIDE.pages.put("Dieing", 			false);
 		ADVENTURERS_GUIDE.pages.put("Looting", 		    false);
 		ADVENTURERS_GUIDE.pages.put("Magic", 			false);
+		
+		ALCHEMY_GUIDE.pages.put("Potions",              false);
+		ALCHEMY_GUIDE.pages.put("Stones",               false);
+		ALCHEMY_GUIDE.pages.put("Darts",                false);
+		ALCHEMY_GUIDE.pages.put("Exotic_Potions",       false);
+		ALCHEMY_GUIDE.pages.put("Exotic_Scrolls",       false);
+		ALCHEMY_GUIDE.pages.put("Energy_Food",          false);
+		ALCHEMY_GUIDE.pages.put("Bombs",                false);
+		ALCHEMY_GUIDE.pages.put("Brews",                false);
+		ALCHEMY_GUIDE.pages.put("Elixirs",              false);
+		ALCHEMY_GUIDE.pages.put("Spells",               false);
 	}
 	
 	private static final String DOCUMENTS = "documents";

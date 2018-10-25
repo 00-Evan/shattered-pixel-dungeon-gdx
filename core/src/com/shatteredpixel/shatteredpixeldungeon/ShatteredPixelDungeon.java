@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
+import com.shatteredpixel.shatteredpixeldungeon.items.food.MeatPie;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
 import com.watabou.noosa.Game;
@@ -36,16 +37,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	//variable constants for specific older versions of shattered, used for data conversion
 	//versions older than v0.6.0b are no longer supported, and data from them is ignored
 	public static final int v0_6_0b = 185;
-	
 	public static final int v0_6_1b = 209;
-	
 	public static final int v0_6_2e = 229;
-	
 	public static final int v0_6_3b = 245;
-	
 	public static final int v0_6_4a = 252;
-
-	public static final int v0_6_5  = 260;
+	public static final int v0_6_5c = 264;
+	
+	public static final int v0_7_0  = 303;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -129,6 +127,24 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.Weightstone" );
 		
+		//v0.7.0
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.Bomb" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfMight.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.spells.MagicalInfusion.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion" );
+		
+		//v0.7.0 beta, remove before full release
+		com.watabou.utils.Bundle.addAlias(
+				MeatPie.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.food.Feast" );
 	}
 
 	@SuppressWarnings("deprecation")

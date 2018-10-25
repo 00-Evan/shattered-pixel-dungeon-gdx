@@ -41,6 +41,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Sorrowmoss;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Starflower;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Stormvine;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,10 +59,16 @@ public abstract class TippedDart extends Dart {
 	
 	@Override
 	protected void rangedHit(Char enemy, int cell) {
-		if (enemy.isAlive())
-			Buff.affect(enemy, PinCushion.class).stick(new Dart());
-		else
-			Dungeon.level.drop( new Dart(), enemy.pos ).sprite.drop();
+		//attempt to stick the dart to the enemy, just drop it if we can't.
+		Dart d = new Dart();
+		if (enemy.isAlive() && sticky) {
+			PinCushion p = Buff.affect(enemy, PinCushion.class);
+			if (p.target == enemy){
+				p.stick(d);
+				return;
+			}
+		}
+		Dungeon.level.drop( d, enemy.pos ).sprite.drop();
 	}
 	
 	@Override
@@ -82,6 +89,7 @@ public abstract class TippedDart extends Dart {
 		types.put(Starflower.Seed.class,    HolyDart.class);
 		types.put(Stormvine.Seed.class,     ShockingDart.class);
 		types.put(Sungrass.Seed.class,      HealingDart.class);
+		types.put(Swiftthistle.Seed.class,  AdrenalineDart.class);
 	}
 	
 	public static TippedDart randomTipped(){
@@ -124,7 +132,7 @@ public abstract class TippedDart extends Dart {
 			
 			Plant.Seed seed = (Plant.Seed) ingredients.get(1);
 			
-			if (ingredients.get(0).quantity() >= 2
+			if (ingredients.get(0).quantity() >= 1
 					&& seed.quantity() >= 1
 					&& types.containsKey(seed.getClass())){
 				return true;
@@ -135,18 +143,20 @@ public abstract class TippedDart extends Dart {
 		
 		@Override
 		public int cost(ArrayList<Item> ingredients) {
-			return 2;
+			return 0;
 		}
 		
 		@Override
 		public Item brew(ArrayList<Item> ingredients) {
 			if (!testIngredients(ingredients)) return null;
 			
-			ingredients.get(0).quantity(ingredients.get(0).quantity() - 2);
+			int produced = Math.min(2, ingredients.get(0).quantity());
+			
+			ingredients.get(0).quantity(ingredients.get(0).quantity() - produced);
 			ingredients.get(1).quantity(ingredients.get(1).quantity() - 1);
 			
 			try{
-				return types.get(ingredients.get(1).getClass()).newInstance().quantity(2);
+				return types.get(ingredients.get(1).getClass()).newInstance().quantity(produced);
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;
@@ -159,7 +169,8 @@ public abstract class TippedDart extends Dart {
 			if (!testIngredients(ingredients)) return null;
 			
 			try{
-				return types.get(ingredients.get(1).getClass()).newInstance().quantity(2);
+				int produced = Math.min(2, ingredients.get(0).quantity());
+				return types.get(ingredients.get(1).getClass()).newInstance().quantity( produced );
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;

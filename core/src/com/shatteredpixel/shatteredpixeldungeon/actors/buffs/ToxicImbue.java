@@ -29,8 +29,13 @@ import com.watabou.noosa.Image;
 import com.watabou.utils.Bundle;
 
 public class ToxicImbue extends Buff {
+	
+	{
+		type = buffType.POSITIVE;
+		announced = true;
+	}
 
-	public static final float DURATION	= 30f;
+	public static final float DURATION	= 50f;
 
 	protected float left;
 

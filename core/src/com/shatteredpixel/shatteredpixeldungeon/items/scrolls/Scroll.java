@@ -21,11 +21,28 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
+import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.UnstableSpellbook;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfAntiMagic;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.Runestone;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAffection;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAugmentation;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfBlast;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfBlink;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfClairvoyance;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDeepenedSleep;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDetectCurse;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfFlock;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfShock;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
@@ -43,7 +60,7 @@ public abstract class Scroll extends Item {
 	
 	protected static final float TIME_TO_READ	= 1f;
 
-	protected int initials;
+	protected Integer initials;
 
 	private static final Class<?>[] scrolls = {
 		ScrollOfIdentify.class,
@@ -55,8 +72,8 @@ public abstract class Scroll extends Item {
 		ScrollOfRage.class,
 		ScrollOfTerror.class,
 		ScrollOfLullaby.class,
-		ScrollOfMagicalInfusion.class,
-		ScrollOfPsionicBlast.class,
+		ScrollOfTransmutation.class,
+		ScrollOfRetribution.class,
 		ScrollOfMirrorImage.class
 	};
 
@@ -77,11 +94,9 @@ public abstract class Scroll extends Item {
 		}
 	};
 	
-	private static ItemStatusHandler<Scroll> handler;
+	protected static ItemStatusHandler<Scroll> handler;
 	
-	private String rune;
-
-	public boolean ownedByBook = false;
+	protected String rune;
 	
 	{
 		stackable = true;
@@ -110,11 +125,21 @@ public abstract class Scroll extends Item {
 		super();
 		reset();
 	}
-
+	
+	//anonymous scrolls are always IDed, do not affect ID status,
+	//and their sprite is replaced by a placeholder if they are not known,
+	//useful for items that appear in UIs, or which are only spawned for their effects
+	protected boolean anonymous = false;
+	public void anonymize(){
+		if (!isKnown()) image = ItemSpriteSheet.SCROLL_HOLDER;
+		anonymous = true;
+	}
+	
+	
 	@Override
 	public void reset(){
 		super.reset();
-		if (handler != null) {
+		if (handler != null && handler.contains(this)) {
 			image = handler.image(this);
 			rune = handler.label(this);
 		}
@@ -134,11 +159,13 @@ public abstract class Scroll extends Item {
 
 		if (action.equals( AC_READ )) {
 			
-			if (hero.buff( Blindness.class ) != null) {
+			if (hero.buff(MagicImmune.class) != null){
+				GLog.w( Messages.get(this, "no_magic") );
+			} else if (hero.buff( Blindness.class ) != null) {
 				GLog.w( Messages.get(this, "blinded") );
 			} else if (hero.buff(UnstableSpellbook.bookRecharge.class) != null
 					&& hero.buff(UnstableSpellbook.bookRecharge.class).isCursed()
-					&& !(this instanceof ScrollOfRemoveCurse)) {
+					&& !(this instanceof ScrollOfRemoveCurse || this instanceof ScrollOfAntiMagic)){
 				GLog.n( Messages.get(this, "cursed") );
 			} else {
 				curUser = hero;
@@ -161,11 +188,11 @@ public abstract class Scroll extends Item {
 	}
 	
 	public boolean isKnown() {
-		return handler.isKnown( this );
+		return anonymous || (handler != null && handler.isKnown( this ));
 	}
 	
 	public void setKnown() {
-		if (!ownedByBook) {
+		if (!anonymous) {
 			if (!isKnown()) {
 				handler.know(this);
 				updateQuickslot();
@@ -185,7 +212,7 @@ public abstract class Scroll extends Item {
 	
 	@Override
 	public String name() {
-		return isKnown() ? name : Messages.get(Scroll.class, rune);
+		return isKnown() ? name : Messages.get(this, rune);
 	}
 	
 	@Override
@@ -224,5 +251,93 @@ public abstract class Scroll extends Item {
 	@Override
 	public int price() {
 		return 30 * quantity;
+	}
+	
+	public static class ScrollToStone extends Recipe {
+		
+		private static HashMap<Class<?extends Scroll>, Class<?extends Runestone>> stones = new HashMap<>();
+		private static HashMap<Class<?extends Scroll>, Integer> amnts = new HashMap<>();
+		static {
+			stones.put(ScrollOfIdentify.class,      StoneOfIntuition.class);
+			amnts.put(ScrollOfIdentify.class,       3);
+			
+			stones.put(ScrollOfLullaby.class,       StoneOfDeepenedSleep.class);
+			amnts.put(ScrollOfLullaby.class,        3);
+			
+			stones.put(ScrollOfMagicMapping.class,  StoneOfClairvoyance.class);
+			amnts.put(ScrollOfMagicMapping.class,   3);
+			
+			stones.put(ScrollOfMirrorImage.class,   StoneOfFlock.class);
+			amnts.put(ScrollOfMirrorImage.class,    3);
+			
+			stones.put(ScrollOfRetribution.class,   StoneOfBlast.class);
+			amnts.put(ScrollOfRetribution.class,    2);
+			
+			stones.put(ScrollOfRage.class,          StoneOfAggression.class);
+			amnts.put(ScrollOfRage.class,           3);
+			
+			stones.put(ScrollOfRecharging.class,    StoneOfShock.class);
+			amnts.put(ScrollOfRecharging.class,     2);
+			
+			stones.put(ScrollOfRemoveCurse.class,   StoneOfDetectCurse.class);
+			amnts.put(ScrollOfRemoveCurse.class,    2);
+			
+			stones.put(ScrollOfTeleportation.class, StoneOfBlink.class);
+			amnts.put(ScrollOfTeleportation.class,  2);
+			
+			stones.put(ScrollOfTerror.class,        StoneOfAffection.class);
+			amnts.put(ScrollOfTerror.class,         3);
+			
+			stones.put(ScrollOfTransmutation.class, StoneOfAugmentation.class);
+			amnts.put(ScrollOfTransmutation.class,  2);
+			
+			stones.put(ScrollOfUpgrade.class,       StoneOfEnchantment.class);
+			amnts.put(ScrollOfUpgrade.class,        2);
+		}
+		
+		@Override
+		public boolean testIngredients(ArrayList<Item> ingredients) {
+			if (ingredients.size() != 1
+					|| !(ingredients.get(0) instanceof Scroll)
+					|| !stones.containsKey(ingredients.get(0).getClass())){
+				return false;
+			}
+			
+			return true;
+		}
+		
+		@Override
+		public int cost(ArrayList<Item> ingredients) {
+			return 0;
+		}
+		
+		@Override
+		public Item brew(ArrayList<Item> ingredients) {
+			if (!testIngredients(ingredients)) return null;
+			
+			Scroll s = (Scroll) ingredients.get(0);
+			
+			s.quantity(s.quantity() - 1);
+			
+			try{
+				return stones.get(s.getClass()).newInstance().quantity(amnts.get(s.getClass()));
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
+		@Override
+		public Item sampleOutput(ArrayList<Item> ingredients) {
+			if (!testIngredients(ingredients)) return null;
+			
+			try{
+				Scroll s = (Scroll) ingredients.get(0);
+				return stones.get(s.getClass()).newInstance().quantity(amnts.get(s.getClass()));
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
 	}
 }

@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -65,6 +66,7 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Armor extends EquipableItem {
 
@@ -84,8 +86,7 @@ public class Armor extends EquipableItem {
 			evasionFactor = eva;
 			defenceFactor = df;
 		}
-
-		//TODO balance on this seems good, but needs testing.
+		
 		public int evasionFactor(int level){
 			return Math.round((2 + level) * evasionFactor);
 		}
@@ -273,7 +274,7 @@ public class Armor extends EquipableItem {
 	
 	public float evasionFactor( Char owner, float evasion ){
 		
-		if (hasGlyph(Stone.class) && !((Stone)glyph).testingEvasion()){
+		if (hasGlyph(Stone.class, owner) && !((Stone)glyph).testingEvasion()){
 			return 0;
 		}
 		
@@ -297,7 +298,7 @@ public class Armor extends EquipableItem {
 			if (aEnc > 0) speed /= Math.pow(1.2, aEnc);
 		}
 		
-		if (hasGlyph(Swiftness.class)) {
+		if (hasGlyph(Swiftness.class, owner)) {
 			boolean enemyNear = false;
 			for (Char ch : Actor.chars()){
 				if (Dungeon.level.adjacent(ch.pos, owner.pos) && owner.alignment != ch.alignment){
@@ -306,11 +307,11 @@ public class Armor extends EquipableItem {
 				}
 			}
 			if (!enemyNear) speed *= (1.2f + 0.04f * level());
-		} else if (hasGlyph(Flow.class) && Dungeon.level.water[owner.pos]){
+		} else if (hasGlyph(Flow.class, owner) && Dungeon.level.water[owner.pos]){
 			speed *= (1.5f + 0.1f * level());
 		}
 		
-		if (hasGlyph(Bulk.class) &&
+		if (hasGlyph(Bulk.class, owner) &&
 				(Dungeon.level.map[owner.pos] == Terrain.DOOR
 						|| Dungeon.level.map[owner.pos] == Terrain.OPEN_DOOR )) {
 			speed /= 3f;
@@ -322,7 +323,7 @@ public class Armor extends EquipableItem {
 	
 	public float stealthFactor( Char owner, float stealth ){
 		
-		if (hasGlyph(Obfuscation.class)){
+		if (hasGlyph(Obfuscation.class, owner)){
 			stealth += 1 + level()/3f;
 		}
 		
@@ -352,11 +353,11 @@ public class Armor extends EquipableItem {
 	
 	public int proc( Char attacker, Char defender, int damage ) {
 		
-		if (glyph != null) {
+		if (glyph != null && defender.buff(MagicImmune.class) == null) {
 			damage = glyph.proc( this, attacker, defender, damage );
 		}
 		
-		if (!levelKnown) {
+		if (!levelKnown && defender instanceof Hero) {
 			if (--hitsToKnow <= 0) {
 				identify();
 				GLog.w( Messages.get(Armor.class, "identify") );
@@ -412,6 +413,8 @@ public class Armor extends EquipableItem {
 			info += "\n\n" + Messages.get(Armor.class, "cursed");
 		} else if (seal != null) {
 			info += "\n\n" + Messages.get(Armor.class, "seal_attached");
+		} else if (!isIdentified() && cursedKnown){
+			info += "\n\n" + Messages.get(Armor.class, "not_cursed");
 		}
 		
 		return info;
@@ -494,18 +497,16 @@ public class Armor extends EquipableItem {
 	public Armor inscribe() {
 
 		Class<? extends Glyph> oldGlyphClass = glyph != null ? glyph.getClass() : null;
-		Glyph gl = Glyph.random();
-		while (gl.getClass() == oldGlyphClass) {
-			gl = Armor.Glyph.random();
-		}
+		Glyph gl = Glyph.random( oldGlyphClass );
 
 		return inscribe( gl );
 	}
 
-	public boolean hasGlyph(Class<?extends Glyph> type) {
-		return glyph != null && glyph.getClass() == type;
+	public boolean hasGlyph(Class<?extends Glyph> type, Char owner) {
+		return glyph != null && glyph.getClass() == type && owner.buff(MagicImmune.class) == null;
 	}
 
+	//these are not used to process specific glyph effects, so magic immune doesn't affect them
 	public boolean hasGoodGlyph(){
 		return glyph != null && !glyph.curse();
 	}
@@ -519,23 +520,29 @@ public class Armor extends EquipableItem {
 		return glyph != null && (cursedKnown || !glyph.curse()) ? glyph.glowing() : null;
 	}
 	
-	//FIXME need to adjust glyphs given armor augmentation changes
 	public static abstract class Glyph implements Bundlable {
 		
-		private static final Class<?>[] glyphs = new Class<?>[]{
-				Obfuscation.class, Swiftness.class, Viscosity.class, Potential.class,
-				Brimstone.class, Stone.class, Entanglement.class, Repulsion.class, Camouflage.class, Flow.class,
+		private static final Class<?>[] common = new Class<?>[]{
+				Obfuscation.class, Swiftness.class, Viscosity.class, Potential.class };
+		
+		private static final Class<?>[] uncommon = new Class<?>[]{
+				Brimstone.class, Stone.class, Entanglement.class,
+				Repulsion.class, Camouflage.class, Flow.class };
+		
+		private static final Class<?>[] rare = new Class<?>[]{
 				Affection.class, AntiMagic.class, Thorns.class };
-		private static final float[] chances= new float[]{
-				10, 10, 10, 10,
-				5, 5, 5, 5, 5, 5,
-				2, 2, 2 };
+		
+		private static final float[] typeChances = new float[]{
+				50, //12.5% each
+				40, //6.67% each
+				10  //3.33% each
+		};
 
 		private static final Class<?>[] curses = new Class<?>[]{
 				AntiEntropy.class, Corrosion.class, Displacement.class, Metabolism.class,
 				Multiplicity.class, Stench.class, Overgrowth.class, Bulk.class
 		};
-			
+		
 		public abstract int proc( Armor armor, Char attacker, Char defender, int damage );
 		
 		public String name() {
@@ -568,19 +575,75 @@ public class Armor extends EquipableItem {
 		public abstract ItemSprite.Glowing glowing();
 
 		@SuppressWarnings("unchecked")
-		public static Glyph random() {
+		public static Glyph random( Class<? extends Glyph> ... toIgnore ) {
+			switch(Random.chances(typeChances)){
+				case 0: default:
+					return randomCommon( toIgnore );
+				case 1:
+					return randomUncommon( toIgnore );
+				case 2:
+					return randomRare( toIgnore );
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public static Glyph randomCommon( Class<? extends Glyph> ... toIgnore ){
 			try {
-				return ((Class<Glyph>)glyphs[ Random.chances( chances ) ]).newInstance();
+				ArrayList<Class<?>> glyphs = new ArrayList<>(Arrays.asList(common));
+				glyphs.removeAll(Arrays.asList(toIgnore));
+				if (glyphs.isEmpty()) {
+					return random();
+				} else {
+					return (Glyph) Random.element(glyphs).newInstance();
+				}
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;
 			}
 		}
-
+		
 		@SuppressWarnings("unchecked")
-		public static Glyph randomCurse(){
+		public static Glyph randomUncommon( Class<? extends Glyph> ... toIgnore ){
 			try {
-				return ((Class<Glyph>)Random.oneOf(curses)).newInstance();
+				ArrayList<Class<?>> glyphs = new ArrayList<>(Arrays.asList(uncommon));
+				glyphs.removeAll(Arrays.asList(toIgnore));
+				if (glyphs.isEmpty()) {
+					return random();
+				} else {
+					return (Glyph) Random.element(glyphs).newInstance();
+				}
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public static Glyph randomRare( Class<? extends Glyph> ... toIgnore ){
+			try {
+				ArrayList<Class<?>> glyphs = new ArrayList<>(Arrays.asList(rare));
+				glyphs.removeAll(Arrays.asList(toIgnore));
+				if (glyphs.isEmpty()) {
+					return random();
+				} else {
+					return (Glyph) Random.element(glyphs).newInstance();
+				}
+			} catch (Exception e) {
+				ShatteredPixelDungeon.reportException(e);
+				return null;
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		public static Glyph randomCurse( Class<? extends Glyph> ... toIgnore ){
+			try {
+				ArrayList<Class<?>> glyphs = new ArrayList<>(Arrays.asList(curses));
+				glyphs.removeAll(Arrays.asList(toIgnore));
+				if (glyphs.isEmpty()) {
+					return random();
+				} else {
+					return (Glyph) Random.element(glyphs).newInstance();
+				}
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;

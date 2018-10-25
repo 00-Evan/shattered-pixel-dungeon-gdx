@@ -41,7 +41,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfPsionicBlast;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -191,7 +192,14 @@ public class DriedRose extends Artifact {
 	protected ArtifactBuff passiveBuff() {
 		return new roseRecharge();
 	}
-
+	
+	@Override
+	public void charge(Hero target) {
+		if (ghost == null && charge < chargeCap){
+			partialCharge += 0.25f;
+		}
+	}
+	
 	@Override
 	public Item upgrade() {
 		if (level() >= 9)
@@ -465,7 +473,8 @@ public class DriedRose extends Artifact {
 			Char enemy = super.chooseEnemy();
 			
 			//will never attack something far from the player
-			if (enemy != null &&  Dungeon.level.distance(enemy.pos, Dungeon.hero.pos) <= 8){
+			if (enemy != null && Dungeon.level.mobs.contains(enemy)
+					&& Dungeon.level.distance(enemy.pos, Dungeon.hero.pos) <= 8){
 				return enemy;
 			} else {
 				return null;
@@ -486,11 +495,11 @@ public class DriedRose extends Artifact {
 		
 		@Override
 		protected float attackDelay() {
+			float delay = super.attackDelay();
 			if (rose != null && rose.weapon != null){
-				return rose.weapon.speedFactor(this);
-			} else {
-				return super.attackDelay();
+				delay *= rose.weapon.speedFactor(this);
 			}
+			return delay;
 		}
 		
 		@Override
@@ -535,7 +544,7 @@ public class DriedRose extends Artifact {
 		@Override
 		public void damage(int dmg, Object src) {
 			//TODO improve this when I have proper damage source logic
-			if (rose != null && rose.armor != null && rose.armor.hasGlyph(AntiMagic.class)
+			if (rose != null && rose.armor != null && rose.armor.hasGlyph(AntiMagic.class, this)
 					&& RingOfElements.RESISTS.contains(src.getClass())){
 				dmg -= Random.NormalIntRange(rose.armor.DRMin(), rose.armor.DRMax())/3;
 			}
@@ -632,6 +641,7 @@ public class DriedRose extends Artifact {
 			immunities.add( ToxicGas.class );
 			immunities.add( CorrosiveGas.class );
 			immunities.add( Burning.class );
+			immunities.add( ScrollOfRetribution.class );
 			immunities.add( ScrollOfPsionicBlast.class );
 			immunities.add( Corruption.class );
 		}

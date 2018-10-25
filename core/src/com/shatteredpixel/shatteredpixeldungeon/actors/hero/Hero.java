@@ -26,9 +26,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Alchemy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdrenalineSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
@@ -37,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -62,6 +66,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.EtherealChains;
@@ -74,7 +79,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
@@ -84,7 +88,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
@@ -95,6 +98,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SurfaceScene;
@@ -105,7 +110,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndAlchemy;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndResurrect;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTradeItem;
@@ -197,6 +201,11 @@ public class Hero extends Char {
 		int STR = this.STR;
 
 		STR += RingOfMight.strengthBonus( this );
+		
+		AdrenalineSurge buff = buff(AdrenalineSurge.class);
+		if (buff != null){
+			STR += buff.boost();
+		}
 
 		return (buff(Weakness.class) != null) ? STR - 2 : STR;
 	}
@@ -442,12 +451,19 @@ public class Hero extends Char {
 	@Override
 	public void spend( float time ) {
 		justMoved = false;
-		TimekeepersHourglass.timeFreeze buff = buff(TimekeepersHourglass.timeFreeze.class);
-		if (buff != null){
-			buff.processTime(time);
-		} else {
-			super.spend(time);
+		TimekeepersHourglass.timeFreeze freeze = buff(TimekeepersHourglass.timeFreeze.class);
+		if (freeze != null) {
+			freeze.processTime(time);
+			return;
 		}
+		
+		Swiftthistle.TimeBubble bubble = buff(Swiftthistle.TimeBubble.class);
+		if (bubble != null){
+			bubble.processTime(time);
+			return;
+		}
+		
+		super.spend(time);
 	}
 	
 	public void spendAndNext( float time ) {
@@ -656,7 +672,20 @@ public class Hero extends Char {
 		if (Dungeon.level.distance(dst, pos) <= 1) {
 
 			ready();
-			GameScene.show(new WndAlchemy());
+			
+			AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class);
+			if (kit != null && kit.isCursed()){
+				GLog.w( Messages.get(AlchemistsToolkit.class, "cursed"));
+				return false;
+			}
+			
+			Alchemy alch = (Alchemy) Dungeon.level.blobs.get(Alchemy.class);
+			//TODO logic for a well having dried up?
+			if (alch != null) {
+				alch.alchPos = dst;
+				AlchemyScene.setProvider( alch );
+			}
+			ShatteredPixelDungeon.switchScene(AlchemyScene.class);
 			return false;
 
 		} else if (getCloser( dst )) {
@@ -687,8 +716,8 @@ public class Hero extends Char {
 					} else {
 
 						boolean important =
-								((item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion) && ((Scroll)item).isKnown()) ||
-								((item instanceof PotionOfStrength || item instanceof PotionOfMight) && ((Potion)item).isKnown());
+								(item instanceof ScrollOfUpgrade && ((Scroll)item).isKnown()) ||
+								(item instanceof PotionOfStrength && ((Potion)item).isKnown());
 						if (important) {
 							GLog.p( Messages.get(this, "you_now_have", item.name()) );
 						} else {
@@ -966,7 +995,7 @@ public class Hero extends Char {
 		dmg = (int)Math.ceil(dmg * RingOfTenacity.damageMultiplier( this ));
 
 		//TODO improve this when I have proper damage source logic
-		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class)
+		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class, this)
 				&& AntiMagic.RESISTS.contains(src.getClass())){
 			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/3;
 		}
@@ -1189,6 +1218,9 @@ public class Hero extends Char {
 
 		HornOfPlenty.hornRecharge horn = buff(HornOfPlenty.hornRecharge.class);
 		if (horn != null) horn.gainCharge(percent);
+		
+		AlchemistsToolkit.kitEnergy kit = buff(AlchemistsToolkit.kitEnergy.class);
+		if (kit != null) kit.gainCharge(percent);
 		
 		Berserk berserk = buff(Berserk.class);
 		if (berserk != null) berserk.recover(percent);
@@ -1494,6 +1526,10 @@ public class Hero extends Char {
 
 		int distance = heroClass == HeroClass.ROGUE ? 2 : 1;
 		
+		boolean foresight = buff(Foresight.class) != null;
+		
+		if (foresight) distance++;
+		
 		int cx = pos % Dungeon.level.width();
 		int cy = pos / Dungeon.level.width();
 		int ax = cx - distance;
@@ -1513,8 +1549,8 @@ public class Hero extends Char {
 			by = Dungeon.level.height() - 1;
 		}
 
-		TalismanOfForesight.Foresight foresight = buff( TalismanOfForesight.Foresight.class );
-		boolean cursed = foresight != null && foresight.isCursed();
+		TalismanOfForesight.Foresight talisman = buff( TalismanOfForesight.Foresight.class );
+		boolean cursed = talisman != null && talisman.isCursed();
 		
 		for (int y = ay; y <= by; y++) {
 			for (int x = ax, p = ax + y * Dungeon.level.width(); x <= bx; x++, p++) {
@@ -1535,6 +1571,10 @@ public class Hero extends Char {
 						//unintentional searches always fail with a cursed talisman
 						} else if (cursed) {
 							chance = 0f;
+							
+						//..and always succeed when affected by foresight buff
+						} else if (foresight){
+							chance = 1f;
 							
 						//unintentional trap detection scales from 40% at floor 0 to 30% at floor 25
 						} else if (Dungeon.level.map[p] == Terrain.SECRET_TRAP) {
@@ -1557,8 +1597,8 @@ public class Hero extends Char {
 							
 							smthFound = true;
 	
-							if (foresight != null && !foresight.isCursed())
-								foresight.charge();
+							if (talisman != null && !talisman.isCursed())
+								talisman.charge();
 						}
 					}
 				}
@@ -1569,11 +1609,13 @@ public class Hero extends Char {
 		if (intentional) {
 			sprite.showStatus( CharSprite.DEFAULT, Messages.get(this, "search") );
 			sprite.operate( pos );
-			if (cursed){
-				GLog.n(Messages.get(this, "search_distracted"));
-				buff(Hunger.class).reduceHunger(TIME_TO_SEARCH - (2*HUNGER_FOR_SEARCH));
-			} else {
-				buff(Hunger.class).reduceHunger(TIME_TO_SEARCH - HUNGER_FOR_SEARCH);
+			if (!Dungeon.level.locked) {
+				if (cursed) {
+					GLog.n(Messages.get(this, "search_distracted"));
+					buff(Hunger.class).reduceHunger(TIME_TO_SEARCH - (2 * HUNGER_FOR_SEARCH));
+				} else {
+					buff(Hunger.class).reduceHunger(TIME_TO_SEARCH - HUNGER_FOR_SEARCH);
+				}
 			}
 			spendAndNext(TIME_TO_SEARCH);
 			

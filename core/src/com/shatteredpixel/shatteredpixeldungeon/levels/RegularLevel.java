@@ -111,8 +111,11 @@ public abstract class RegularLevel extends Level {
 		
 		int specials = specialRooms();
 		SpecialRoom.initForFloor();
-		for (int i = 0; i < specials; i++)
-			initRooms.add(SpecialRoom.createRoom());
+		for (int i = 0; i < specials; i++) {
+			SpecialRoom s = SpecialRoom.createRoom();
+			if (s instanceof PitRoom) specials++;
+			initRooms.add(s);
+		}
 		
 		int secrets = SecretRoom.secretsForFloor(Dungeon.depth);
 		for (int i = 0; i < secrets; i++)
@@ -263,6 +266,7 @@ public abstract class RegularLevel extends Level {
 			if (!heroFOV[cell]
 					&& Actor.findChar( cell ) == null
 					&& passable[cell]
+					&& room.canPlaceCharacter(cellToPoint(cell), this)
 					&& cell != exit) {
 				return cell;
 			}
@@ -390,6 +394,20 @@ public abstract class RegularLevel extends Level {
 
 	}
 	
+	public ArrayList<Room> rooms() {
+		return new ArrayList<>(rooms);
+	}
+	
+	//FIXME pit rooms shouldn't be problematic enough to warrant this
+	public boolean hasPitRoom(){
+		for (Room r : rooms) {
+			if (r instanceof PitRoom) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	protected Room randomRoom( Class<?extends Room> type ) {
 		Random.shuffle( rooms );
 		for (Room r : rooms) {
@@ -438,7 +456,7 @@ public abstract class RegularLevel extends Level {
 	public int fallCell( boolean fallIntoPit ) {
 		if (fallIntoPit) {
 			for (Room room : rooms) {
-				if (room instanceof PitRoom || room.legacyType.equals("PIT")) {
+				if (room instanceof PitRoom) {
 					int result;
 					do {
 						result = pointToCell(room.random());
@@ -468,9 +486,9 @@ public abstract class RegularLevel extends Level {
 		rooms = new ArrayList<>( (Collection<Room>) ((Collection<?>) bundle.getCollection( "rooms" )) );
 		for (Room r : rooms) {
 			r.onLevelLoad( this );
-			if (r instanceof EntranceRoom || r.legacyType.equals("ENTRANCE")){
+			if (r instanceof EntranceRoom ){
 				roomEntrance = r;
-			} else if (r instanceof ExitRoom  || r.legacyType.equals("EXIT")){
+			} else if (r instanceof ExitRoom ){
 				roomExit = r;
 			}
 		}

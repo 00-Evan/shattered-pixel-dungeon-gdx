@@ -35,7 +35,7 @@ public class StoneOfEnchantment extends InventoryStone {
 	
 	{
 		mode = WndBag.Mode.ENCHANTABLE;
-		image = ItemSpriteSheet.STONE_TIWAZ;
+		image = ItemSpriteSheet.STONE_ENCHANT;
 	}
 	
 	@Override
@@ -62,5 +62,10 @@ public class StoneOfEnchantment extends InventoryStone {
 		
 		useAnimation();
 		
+	}
+	
+	@Override
+	public int price() {
+		return 30 * quantity;
 	}
 }

@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
@@ -35,6 +34,7 @@ public class Paralysis extends FlavourBuff {
 
 	{
 		type = buffType.NEGATIVE;
+		announced = true;
 	}
 	
 	@Override
@@ -55,10 +55,10 @@ public class Paralysis extends FlavourBuff {
 		}
 		resist.damage += damage;
 		if (Random.NormalIntRange(0, resist.damage) >= Random.NormalIntRange(0, target.HP)){
-			detach();
 			if (Dungeon.level.heroFOV[target.pos]) {
-				GLog.i( Messages.get(this, "out", target.name) );
+				target.sprite.showStatus(CharSprite.NEUTRAL, Messages.get(this, "out"));
 			}
+			detach();
 		}
 	}
 	
@@ -100,6 +100,10 @@ public class Paralysis extends FlavourBuff {
 	}
 	
 	public static class ParalysisResist extends Buff {
+		
+		{
+			type = buffType.POSITIVE;
+		}
 		
 		private int damage;
 		

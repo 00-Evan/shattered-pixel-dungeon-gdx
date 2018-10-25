@@ -27,6 +27,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -36,11 +40,15 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.utils.PathFinder;
+import com.watabou.utils.Point;
+import com.watabou.utils.Random;
+
+import java.util.ArrayList;
 
 public class ScrollOfTeleportation extends Scroll {
 
 	{
-		initials = 9;
+		initials = 8;
 	}
 
 	@Override
@@ -49,7 +57,7 @@ public class ScrollOfTeleportation extends Scroll {
 		Sample.INSTANCE.play( Assets.SND_READ );
 		Invisibility.dispel();
 		
-		teleportHero( curUser );
+		teleportPreferringUnseen( curUser );
 		setKnown();
 
 		readAnimation();
@@ -70,6 +78,7 @@ public class ScrollOfTeleportation extends Scroll {
 					//time isn't spent
 					((HeroSprite)curUser.sprite).read();
 					teleportToLocation(curUser, target);
+					
 				}
 			}
 			
@@ -94,10 +103,9 @@ public class ScrollOfTeleportation extends Scroll {
 		Dungeon.observe();
 		GameScene.updateFog();
 		
-		GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
 	}
 	
-	public static void teleportHero(Hero  hero ) {
+	public static void teleportHero( Hero  hero ) {
 
 		int count = 10;
 		int pos;
@@ -113,15 +121,63 @@ public class ScrollOfTeleportation extends Scroll {
 			GLog.w( Messages.get(ScrollOfTeleportation.class, "no_tele") );
 			
 		} else {
-
+			
+			GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
+			
 			appear( hero, pos );
 			Dungeon.level.press( pos, hero );
 			Dungeon.observe();
 			GameScene.updateFog();
 			
-			GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
-			
 		}
+	}
+	
+	public static void teleportPreferringUnseen( Hero hero ){
+		
+		if (Dungeon.bossLevel() || !(Dungeon.level instanceof RegularLevel)){
+			teleportHero( hero );
+			return;
+		}
+		
+		RegularLevel level = (RegularLevel) Dungeon.level;
+		ArrayList<Integer> candidates = new ArrayList<>();
+		
+		for (Room r : level.rooms()){
+			if (r instanceof SpecialRoom){
+				int terr;
+				boolean locked = false;
+				for (Point p : r.getPoints()){
+					terr = level.map[level.pointToCell(p)];
+					if (terr == Terrain.LOCKED_DOOR || terr == Terrain.BARRICADE){
+						locked = true;
+						break;
+					}
+				}
+				if (locked){
+					continue;
+				}
+			}
+			
+			int cell;
+			for (Point p : r.charPlaceablePoints(level)){
+				cell = level.pointToCell(p);
+				if (level.passable[cell] && !level.visited[cell] && Actor.findChar(cell) == null){
+					candidates.add(cell);
+				}
+			}
+		}
+		
+		if (candidates.isEmpty()){
+			teleportHero( hero );
+		} else {
+			int pos = Random.element(candidates);
+			GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
+			appear( hero, pos );
+			Dungeon.level.press( pos, hero );
+			Dungeon.observe();
+			GameScene.updateFog();
+		}
+		
 	}
 
 	public static void appear( Char ch, int pos ) {

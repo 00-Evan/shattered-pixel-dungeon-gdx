@@ -1,9 +1,9 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2016 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,27 +18,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
+
+package com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
-import com.watabou.utils.Random;
 
-public class ScrollOfPsionicBlast extends Scroll {
-
+public class ScrollOfPsionicBlast extends ExoticScroll {
+	
 	{
-		initials = 5;
-
-		bones = true;
+		initials = 4;
 	}
 	
 	@Override
@@ -49,49 +47,30 @@ public class ScrollOfPsionicBlast extends Scroll {
 		Sample.INSTANCE.play( Assets.SND_BLAST );
 		Invisibility.dispel();
 		
+		int targets = 0;
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
 			if (Dungeon.level.heroFOV[mob.pos]) {
-				mob.damage(mob.HP, this);
+				targets ++;
+				mob.damage(Math.round(mob.HT/2f + mob.HP/2f), this);
+				if (mob.isAlive()) {
+					Buff.prolong(mob, Blindness.class, 10);
+				}
 			}
 		}
-
-		curUser.damage(Math.max(curUser.HT/5, curUser.HP/2), this);
+		
+		curUser.damage(Math.max(0, Math.round(curUser.HT*(0.5f * (float)Math.pow(0.9, targets)))), this);
 		if (curUser.isAlive()) {
-			Buff.prolong(curUser, Paralysis.class, Random.Int(4, 6));
-			Buff.prolong(curUser, Blindness.class, Random.Int(6, 9));
+			Buff.prolong(curUser, Blindness.class, 10);
+			Buff.prolong(curUser, Weakness.class, 100);
 			Dungeon.observe();
-		}
-		
-		setKnown();
-		
-		readAnimation();
-
-		if (!curUser.isAlive()) {
+			readAnimation();
+		} else {
 			Dungeon.fail( getClass() );
 			GLog.n( Messages.get(this, "ondeath") );
 		}
-	}
-	
-	@Override
-	public void empoweredRead() {
-		GameScene.flash( 0xFFFFFF );
-		
-		Sample.INSTANCE.play( Assets.SND_BLAST );
-		Invisibility.dispel();
-		
-		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-			if (Dungeon.level.heroFOV[mob.pos]) {
-				mob.damage(mob.HT, this );
-			}
-		}
 		
 		setKnown();
 		
-		readAnimation();
-	}
 	
-	@Override
-	public int price() {
-		return isKnown() ? 50 * quantity : super.price();
 	}
 }

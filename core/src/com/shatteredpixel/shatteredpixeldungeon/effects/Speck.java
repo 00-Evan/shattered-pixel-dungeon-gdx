@@ -33,36 +33,41 @@ import com.watabou.utils.SparseArray;
 
 public class Speck extends Image {
 
-	public static final int HEALING		= 0;
-	public static final int STAR		= 1;
-	public static final int LIGHT		= 2;
-	public static final int QUESTION	= 3;
-	public static final int UP			= 4;
-	public static final int SCREAM		= 5;
-	public static final int BONE		= 6;
-	public static final int WOOL		= 7;
-	public static final int ROCK		= 8;
-	public static final int NOTE		= 9;
-	public static final int CHANGE		= 10;
-	public static final int HEART		= 11;
-	public static final int BUBBLE		= 12;
-	public static final int STEAM		= 13;
-	public static final int COIN		= 14;
+	public static final int HEALING     = 0;
+	public static final int STAR        = 1;
+	public static final int LIGHT       = 2;
+	public static final int QUESTION    = 3;
+	public static final int UP          = 4;
+	public static final int SCREAM      = 5;
+	public static final int BONE        = 6;
+	public static final int WOOL        = 7;
+	public static final int ROCK        = 8;
+	public static final int NOTE        = 9;
+	public static final int CHANGE      = 10;
+	public static final int HEART       = 11;
+	public static final int BUBBLE      = 12;
+	public static final int STEAM       = 13;
+	public static final int COIN        = 14;
 	
-	public static final int DISCOVER	= 101;
-	public static final int EVOKE		= 102;
-	public static final int MASTERY		= 103;
-	public static final int KIT			= 104;
-	public static final int RATTLE		= 105;
-	public static final int JET			= 106;
-	public static final int TOXIC		= 107;
+	public static final int DISCOVER    = 101;
+	public static final int EVOKE       = 102;
+	public static final int MASTERY     = 103;
+	public static final int KIT         = 104;
+	public static final int RATTLE      = 105;
+	public static final int JET         = 106;
+	public static final int TOXIC       = 107;
 	public static final int CORROSION   = 108;
-	public static final int PARALYSIS	= 109;
-	public static final int DUST		= 110;
+	public static final int PARALYSIS   = 109;
+	public static final int DUST        = 110;
 	public static final int STENCH      = 111;
-	public static final int FORGE		= 112;
-	public static final int CONFUSION	= 113;
+	public static final int FORGE       = 112;
+	public static final int CONFUSION   = 113;
 	public static final int RED_LIGHT   = 114;
+	public static final int CALM        = 115;
+	public static final int SMOKE       = 116;
+	public static final int STORM       = 117;
+	public static final int INFERNO     = 118;
+	public static final int BLIZZARD    = 119;
 	
 	private static final int SIZE = 7;
 	
@@ -109,8 +114,15 @@ public class Speck extends Image {
 		case PARALYSIS:
 		case STENCH:
 		case CONFUSION:
+		case STORM:
 		case DUST:
+		case SMOKE:
+		case BLIZZARD:
+		case INFERNO:
 			frame( film.get( STEAM ) );
+			break;
+		case CALM:
+			frame( film.get( SCREAM ) );
 			break;
 		default:
 			frame( film.get( type ) );
@@ -196,6 +208,8 @@ public class Speck extends Image {
 			lifespan = 1f;
 			break;
 			
+		case CALM:
+			color(0, 1, 1);
 		case SCREAM:
 			lifespan = 0.9f;
 			break;
@@ -305,6 +319,34 @@ public class Speck extends Image {
 			angle = Random.Float( 360 );
 			lifespan = Random.Float( 1f, 3f );
 			break;
+			
+		case STORM:
+			hardlight( 0x8AD8D8 );
+			angularSpeed = Random.Float( -20, +20 );
+			angle = Random.Float( 360 );
+			lifespan = Random.Float( 1f, 3f );
+			break;
+			
+		case INFERNO:
+			hardlight( 0xEE7722 );
+			angularSpeed = Random.Float( 200, 300 ) * (Random.Int(2) == 0 ? -1 : 1);
+			angle = Random.Float( 360 );
+			lifespan = Random.Float( 1f, 3f );
+			break;
+			
+		case BLIZZARD:
+			hardlight( 0xFFFFFF );
+			angularSpeed = Random.Float( 200, 300 ) * (Random.Int(2) == 0 ? -1 : 1);
+			angle = Random.Float( 360 );
+			lifespan = Random.Float( 1f, 3f );
+			break;
+			
+		case SMOKE:
+			hardlight( 0x000000 );
+			angularSpeed = 30;
+			angle = Random.Float( 360 );
+			lifespan = Random.Float( 1f, 1.5f );
+			break;
 
 		case DUST:
 			hardlight( 0xFFFF66 );
@@ -373,6 +415,7 @@ public class Speck extends Image {
 				scale.set( (float)(Math.sqrt( p < 0.5f ? p : 1 - p ) * 2) );
 				break;
 				
+			case CALM:
 			case SCREAM:
 				am = (float)Math.sqrt( (p < 0.5f ? p : 1 - p) * 2f );
 				scale.set( p * 7 );
@@ -414,6 +457,9 @@ public class Speck extends Image {
 			case TOXIC:
 			case PARALYSIS:
 			case CONFUSION:
+			case STORM:
+			case BLIZZARD:
+			case INFERNO:
 			case DUST:
 				am = (float)Math.sqrt( (p < 0.5f ? p : 1 - p) * 0.5f );
 				scale.set( 1 + p );
@@ -422,6 +468,7 @@ public class Speck extends Image {
 			case CORROSION:
 				hardlight( ColorMath.interpolate( 0xAAAAAA, 0xFF8800 , p ));
 			case STENCH:
+			case SMOKE:
 				am = (float)Math.sqrt( (p < 0.5f ? p : 1 - p) );
 				scale.set( 1 + p );
 				break;

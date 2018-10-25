@@ -76,7 +76,7 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public int throwPos(Hero user, int dst) {
-		if (hasEnchant(Projecting.class)
+		if (hasEnchant(Projecting.class, user)
 				&& !Dungeon.level.solid[dst] && Dungeon.level.distance(user.pos, dst) <= 4){
 			return dst;
 		} else {
@@ -271,6 +271,8 @@ abstract public class MissileWeapon extends Weapon {
 			info += "\n\n" + Messages.get(Weapon.class, "cursed_worn");
 		} else if (cursedKnown && cursed) {
 			info += "\n\n" + Messages.get(Weapon.class, "cursed");
+		} else if (!isIdentified() && cursedKnown){
+			info += "\n\n" + Messages.get(Weapon.class, "not_cursed");
 		}
 
 		info += "\n\n" + Messages.get(MissileWeapon.class, "distance");

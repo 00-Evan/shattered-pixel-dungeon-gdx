@@ -42,13 +42,13 @@ public abstract class Key extends Item {
 	
 	@Override
 	public boolean isSimilar( Item item ) {
-		return item.getClass() == getClass() && ((Key)item).depth == depth;
+		return super.isSimilar(item) && ((Key)item).depth == depth;
 	}
 
 	@Override
 	public boolean doPickUp(Hero hero) {
 		GameScene.pickUpJournal(this, hero.pos);
-		WndJournal.last_index = 1;
+		WndJournal.last_index = 2;
 		Notes.add(this);
 		Sample.INSTANCE.play( Assets.SND_ITEM );
 		hero.spendAndNext( TIME_TO_PICK_UP );

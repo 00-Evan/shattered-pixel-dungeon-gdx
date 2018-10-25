@@ -22,6 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
@@ -38,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Belongings implements Iterable<Item> {
@@ -150,12 +152,24 @@ public class Belongings implements Iterable<Item> {
 	public Item getSimilar( Item similar ){
 		
 		for (Item item : this) {
-			if (item.isSimilar(similar)) {
+			if (similar.isSimilar(item)) {
 				return item;
 			}
 		}
 		
 		return null;
+	}
+	
+	public ArrayList<Item> getAllSimilar( Item similar ){
+		ArrayList<Item> result = new ArrayList<>();
+		
+		for (Item item : this) {
+			if (similar.isSimilar(item)) {
+				result.add(item);
+			}
+		}
+		
+		return result;
 	}
 	
 	public void identify() {
@@ -182,7 +196,9 @@ public class Belongings implements Iterable<Item> {
 			Badges.validateItemLevelAquired(misc2);
 		}
 		for (Item item : backpack) {
-			item.cursedKnown = true;
+			if (item instanceof EquipableItem || item instanceof Wand) {
+				item.cursedKnown = true;
+			}
 		}
 	}
 	

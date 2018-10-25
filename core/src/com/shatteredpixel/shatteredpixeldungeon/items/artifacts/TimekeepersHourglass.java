@@ -135,6 +135,13 @@ public class TimekeepersHourglass extends Artifact {
 	protected ArtifactBuff passiveBuff() {
 		return new hourglassRecharge();
 	}
+	
+	@Override
+	public void charge(Hero target) {
+		if (charge < chargeCap){
+			partialCharge += 0.25f;
+		}
+	}
 
 	@Override
 	public Item upgrade() {
@@ -221,6 +228,10 @@ public class TimekeepersHourglass extends Artifact {
 	}
 
 	public class timeStasis extends ArtifactBuff {
+		
+		{
+			type = buffType.POSITIVE;
+		}
 
 		@Override
 		public boolean attachTo(Char target) {
@@ -268,6 +279,10 @@ public class TimekeepersHourglass extends Artifact {
 	}
 
 	public class timeFreeze extends ArtifactBuff {
+		
+		{
+			type = buffType.POSITIVE;
+		}
 
 		float partialTime = 1f;
 
@@ -321,6 +336,7 @@ public class TimekeepersHourglass extends Artifact {
 			super.detach();
 			activeBuff = null;
 			triggerPresses();
+			target.next();
 		}
 
 		private static final String PRESSES = "presses";

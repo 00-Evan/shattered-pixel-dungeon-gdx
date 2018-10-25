@@ -22,15 +22,22 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Alchemy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.journal.AlchemyPage;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class LaboratoryRoom extends SpecialRoom {
 
@@ -53,11 +60,10 @@ public class LaboratoryRoom extends SpecialRoom {
 		}
 		Painter.set( level, pot, Terrain.ALCHEMY );
 		
-		Alchemy alchemy = new Alchemy();
-		alchemy.seed( level, pot.x + level.width() * pot.y, Random.IntRange(25, 50) );
-		level.blobs.put( Alchemy.class, alchemy );
+		int chapter = 1 + Dungeon.depth/5;
+		Blob.seed( pot.x + level.width() * pot.y, 1 + chapter*10 + Random.NormalIntRange(0, 10), Alchemy.class, level );
 		
-		int n = Random.IntRange( 2, 3 );
+		int n = Random.NormalIntRange( 2, 3 );
 		for (int i=0; i < n; i++) {
 			int pos;
 			do {
@@ -68,15 +74,42 @@ public class LaboratoryRoom extends SpecialRoom {
 			level.drop( prize( level ), pos );
 		}
 		
-		entrance.set( Door.Type.LOCKED );
-		level.addItemToSpawn( new IronKey( Dungeon.depth ) );
+		//guide pages
+		Collection<String> allPages = Document.ALCHEMY_GUIDE.pages();
+		ArrayList<String> missingPages = new ArrayList<>();
+		for ( String page : allPages){
+			if (!Document.ALCHEMY_GUIDE.hasPage(page)){
+				missingPages.add(page);
+			}
+		}
+		
+		//pages after 5 are always deeper than the sewers
+		if(!missingPages.isEmpty() && (missingPages.size() > 5 || Dungeon.depth > 5)){
+			AlchemyPage p = new AlchemyPage();
+			p.page(missingPages.get(0));
+			int pos;
+			do {
+				pos = level.pointToCell(random());
+			} while (
+					level.map[pos] != Terrain.EMPTY_SP ||
+							level.heaps.get( pos ) != null);
+			level.drop( p, pos );
+		}
+		
+		if (level instanceof RegularLevel && ((RegularLevel)level).hasPitRoom()){
+			entrance.set( Door.Type.REGULAR );
+		} else {
+			entrance.set( Door.Type.LOCKED );
+			level.addItemToSpawn( new IronKey( Dungeon.depth ) );
+		}
+		
 	}
 	
 	private static Item prize( Level level ) {
 
 		Item prize = level.findPrizeItem( Potion.class );
 		if (prize == null)
-			prize = Generator.random( Generator.Category.POTION );
+			prize = Generator.random( Random.oneOf( Generator.Category.POTION, Generator.Category.STONE ));
 
 		return prize;
 	}

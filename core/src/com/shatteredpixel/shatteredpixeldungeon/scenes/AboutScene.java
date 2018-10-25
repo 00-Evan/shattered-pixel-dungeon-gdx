@@ -43,8 +43,7 @@ public class AboutScene extends PixelScene {
 			"Design, Code, & Graphics: Evan";
 
 	private static final String LNK_SHPX = "ShatteredPixel.com";
-
-
+	
 	private static final String TTL_WATA = "Pixel Dungeon";
 
 	private static final String TXT_WATA =

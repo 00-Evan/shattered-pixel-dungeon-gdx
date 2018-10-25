@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 
@@ -37,20 +38,16 @@ public class Healing extends Buff {
 		//unlike other buffs, this one acts after the hero and takes priority against other effects
 		//healing is much more useful if you get some of it off before taking damage
 		actPriority = HERO_PRIO - 1;
+		
+		type = buffType.POSITIVE;
 	}
 	
 	@Override
 	public boolean act(){
 		
-		int healingThisTick = Math.round(healingLeft * percentHealPerTick) + flatHealPerTick;
+		target.HP = Math.min(target.HT, target.HP + healingThisTick());
 		
-		healingThisTick = (int)GameMath.gate(1, healingThisTick, healingLeft);
-		
-		target.HP = Math.min(target.HT, target.HP + healingThisTick);
-		
-		target.sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "value", healingThisTick));
-		
-		healingLeft -= healingThisTick;
+		healingLeft -= healingThisTick();
 		
 		if (healingLeft <= 0){
 			detach();
@@ -59,6 +56,12 @@ public class Healing extends Buff {
 		spend( TICK );
 		
 		return true;
+	}
+	
+	private int healingThisTick(){
+		return (int)GameMath.gate(1,
+				Math.round(healingLeft * percentHealPerTick) + flatHealPerTick,
+				healingLeft);
 	}
 	
 	public void setHeal(int amount, float percentPerTick, int flatPerTick){
@@ -95,5 +98,20 @@ public class Healing extends Buff {
 		healingLeft = bundle.getInt(LEFT);
 		percentHealPerTick = bundle.getFloat(PERCENT);
 		flatHealPerTick = bundle.getInt(FLAT);
+	}
+	
+	@Override
+	public int icon() {
+		return BuffIndicator.HEALING;
+	}
+	
+	@Override
+	public String toString() {
+		return Messages.get(this, "name");
+	}
+	
+	@Override
+	public String desc() {
+		return Messages.get(this, "desc", healingThisTick(), healingLeft);
 	}
 }

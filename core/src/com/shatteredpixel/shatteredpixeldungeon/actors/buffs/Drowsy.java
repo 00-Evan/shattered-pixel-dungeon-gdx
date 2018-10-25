@@ -29,6 +29,7 @@ public class Drowsy extends Buff {
 
 	{
 		type = buffType.NEUTRAL;
+		announced = true;
 	}
 
 	@Override

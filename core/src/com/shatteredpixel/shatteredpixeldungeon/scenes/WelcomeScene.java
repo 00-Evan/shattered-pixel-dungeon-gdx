@@ -28,6 +28,8 @@ import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BannerSprites;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
+import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
@@ -42,7 +44,7 @@ import com.watabou.utils.FileUtils;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_6_5;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_7_0;
 
 	@Override
 	public void create() {
@@ -140,9 +142,9 @@ public class WelcomeScene extends PixelScene {
 			} else {
 				//TODO: change the messages here in accordance with the type of patch.
 				message = Messages.get(this, "patch_intro");
-				message += "\n\n" + Messages.get(this, "patch_bugfixes");
-				//message += "\n" + Messages.get(this, "patch_translations");
-				//message += "\n" + Messages.get(this, "patch_balance");
+				message += "\n\n" + Messages.get(this, "patch_balance");
+				message += "\n" + Messages.get(this, "patch_bugfixes");
+				message += "\n" + Messages.get(this, "patch_translations");
 
 			}
 		} else {
@@ -167,7 +169,15 @@ public class WelcomeScene extends PixelScene {
 				FileUtils.deleteFile( Rankings.RANKINGS_FILE );
 			}
 		}
-
+		
+		if (previousVersion < ShatteredPixelDungeon.v0_7_0){
+			Journal.loadGlobal();
+			Document.ALCHEMY_GUIDE.addPage("Potions");
+			Document.ALCHEMY_GUIDE.addPage("Stones");
+			Document.ALCHEMY_GUIDE.addPage("Darts");
+			Journal.saveGlobal();
+		}
+		
 		//convert game saves from the old format
 		if (previousVersion <= ShatteredPixelDungeon.v0_6_2e){
 			//old save file names for warrior, mage, rogue, huntress
@@ -179,10 +189,10 @@ public class WelcomeScene extends PixelScene {
 						Bundle gamedata = FileUtils.bundleFromFile(name + ".dat");
 						FileUtils.bundleToFile(GamesInProgress.gameFile(i), gamedata);
 						FileUtils.deleteFile(name + ".dat");
-
+						
 						//rogue's safe files have a different name
 						if (name.equals("game")) name = "depth";
-
+						
 						int depth = 1;
 						while (FileUtils.fileExists(name + depth + ".dat")) {
 							gamedata = FileUtils.bundleFromFile(name + depth + ".dat");
@@ -205,7 +215,7 @@ public class WelcomeScene extends PixelScene {
 			Badges.disown(Badges.Badge.ALL_ITEMS_IDENTIFIED);
 			Badges.saveGlobal();
 		}
-
+		
 		SPDSettings.version(ShatteredPixelDungeon.versionCode);
 	}
 

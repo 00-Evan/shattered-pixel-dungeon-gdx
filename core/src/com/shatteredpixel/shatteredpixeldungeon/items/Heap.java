@@ -37,16 +37,15 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
+import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.MysteryMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.journal.DocumentPage;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -235,7 +234,7 @@ public class Heap implements Bundlable {
 		
 		for (Item item : items.toArray( new Item[0] )) {
 			if (item instanceof Scroll
-					&& !(item instanceof ScrollOfUpgrade || item instanceof ScrollOfMagicalInfusion)) {
+					&& !(item instanceof ScrollOfUpgrade)) {
 				items.remove( item );
 				burnt = true;
 			} else if (item instanceof Dewdrop) {
@@ -247,8 +246,12 @@ public class Heap implements Bundlable {
 			} else if (item instanceof Bomb) {
 				items.remove( item );
 				((Bomb) item).explode( pos );
-				//stop processing the burning, it will be replaced by the explosion.
-				return;
+				if (((Bomb) item).explodesDestructively()) {
+					//stop processing the burning, it will be replaced by the explosion.
+					return;
+				} else {
+					burnt = true;
+				}
 			}
 		}
 		
@@ -297,8 +300,10 @@ public class Heap implements Bundlable {
 				} else if (item instanceof Bomb) {
 					items.remove( item );
 					((Bomb) item).explode(pos);
-					//stop processing current explosion, it will be replaced by the new one.
-					return;
+					if (((Bomb) item).explodesDestructively()) {
+						//stop processing current explosion, it will be replaced by the new one.
+						return;
+					}
 
 				//unique and upgraded items can endure the blast
 				} else if (!(item.level() > 0 || item.unique))
@@ -333,8 +338,7 @@ public class Heap implements Bundlable {
 			if (item instanceof MysteryMeat) {
 				replace( item, FrozenCarpaccio.cook( (MysteryMeat)item ) );
 				frozen = true;
-			} else if (item instanceof Potion
-					&& !(item instanceof PotionOfStrength || item instanceof PotionOfMight)) {
+			} else if (item instanceof Potion && !(item instanceof PotionOfStrength)) {
 				items.remove(item);
 				((Potion) item).shatter(pos);
 				frozen = true;

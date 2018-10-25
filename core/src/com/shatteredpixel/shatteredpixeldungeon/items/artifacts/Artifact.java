@@ -124,13 +124,14 @@ public class Artifact extends KindofMisc {
 	@Override
 	public String info() {
 		if (cursed && cursedKnown && !isEquipped( Dungeon.hero )) {
-
 			return desc() + "\n\n" + Messages.get(Artifact.class, "curse_known");
-
+			
+		} else if (!isIdentified() && cursedKnown && !isEquipped( Dungeon.hero)) {
+			return desc()+ "\n\n" + Messages.get(Artifact.class, "not_cursed");
+			
 		} else {
-
 			return desc();
-
+			
 		}
 	}
 
@@ -205,6 +206,10 @@ public class Artifact extends KindofMisc {
 	}
 
 	protected ArtifactBuff activeBuff() {return null; }
+	
+	public void charge(Hero target){
+		//do nothing by default;
+	}
 
 	public class ArtifactBuff extends Buff {
 
