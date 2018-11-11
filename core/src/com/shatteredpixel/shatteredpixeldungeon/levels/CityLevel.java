@@ -102,10 +102,10 @@ public class CityLevel extends RegularLevel {
 	}
 	
 	@Override
-	protected void createItems() {
-		super.createItems();
-		
+	protected void createMobs() {
 		Imp.Quest.spawn( this );
+		
+		super.createMobs();
 	}
 	
 	@Override

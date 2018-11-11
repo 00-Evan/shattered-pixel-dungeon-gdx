@@ -88,6 +88,7 @@ public class MassGraveRoom extends SpecialRoom {
 				pos = level.pointToCell(random());
 			} while (level.map[pos] != Terrain.EMPTY_SP || level.heaps.get(pos) != null);
 			Heap h = level.drop(item, pos);
+			h.setHauntedIfCursed(1f);
 			h.type = Heap.Type.SKELETON;
 		}
 	}

@@ -1,5 +1,5 @@
-305
+311
 303
-v0.7.0a
+v0.7.0c
 v0.7.0!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.7.0a/ShatteredPD.Desktop.v0.7.0a.jar
+github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.7.0c/ShatteredPD.Desktop.v0.7.0c.jar

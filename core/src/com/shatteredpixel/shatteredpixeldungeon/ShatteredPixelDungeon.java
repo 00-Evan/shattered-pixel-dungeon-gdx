@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
-import com.shatteredpixel.shatteredpixeldungeon.items.food.MeatPie;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.WelcomeScene;
 import com.watabou.noosa.Game;
@@ -141,10 +140,6 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				com.shatteredpixel.shatteredpixeldungeon.items.spells.MagicalInfusion.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion" );
 		
-		//v0.7.0 beta, remove before full release
-		com.watabou.utils.Bundle.addAlias(
-				MeatPie.class,
-				"com.shatteredpixel.shatteredpixeldungeon.items.food.Feast" );
 	}
 
 	@SuppressWarnings("deprecation")

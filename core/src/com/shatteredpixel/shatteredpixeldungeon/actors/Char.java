@@ -495,7 +495,7 @@ public abstract class Char extends Actor {
 		}
 	}
 	
-	public int stealth() {
+	public float stealth() {
 		return 0;
 	}
 	
