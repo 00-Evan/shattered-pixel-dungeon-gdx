@@ -39,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Shadows;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.WindParticle;
@@ -710,6 +711,7 @@ public abstract class Level implements Bundlable {
 		}
 
 		if (map[pos] == Terrain.HIGH_GRASS ||
+				map[pos] == Terrain.FURROWED_GRASS ||
 				map[pos] == Terrain.EMPTY ||
 				map[pos] == Terrain.EMBERS ||
 				map[pos] == Terrain.EMPTY_DECO) {
@@ -800,6 +802,7 @@ public abstract class Level implements Bundlable {
 			break;
 			
 		case Terrain.HIGH_GRASS:
+		case Terrain.FURROWED_GRASS:
 			HighGrass.trample( this, cell, ch );
 			break;
 			
@@ -850,7 +853,23 @@ public abstract class Level implements Bundlable {
 		boolean sighted = c.buff( Blindness.class ) == null && c.buff( Shadows.class ) == null
 						&& c.buff( TimekeepersHourglass.timeStasis.class ) == null && c.isAlive();
 		if (sighted) {
-			ShadowCaster.castShadow( cx, cy, fieldOfView, c.viewDistance );
+			boolean[] blocking;
+			
+			if (c instanceof Hero && ((Hero) c).subClass == HeroSubClass.WARDEN) {
+				blocking = Dungeon.level.losBlocking.clone();
+				for (int i = 0; i < blocking.length; i++){
+					if (blocking[i] && (Dungeon.level.map[i] == Terrain.HIGH_GRASS || Dungeon.level.map[i] == Terrain.FURROWED_GRASS)){
+						blocking[i] = false;
+					}
+				}
+			} else {
+				blocking = Dungeon.level.losBlocking;
+			}
+			
+			int viewDist = c.viewDistance;
+			if (c instanceof Hero && ((Hero) c).subClass == HeroSubClass.SNIPER) viewDist *= 1.5f;
+			
+			ShadowCaster.castShadow( cx, cy, fieldOfView, blocking, viewDist );
 		} else {
 			BArray.setFalse(fieldOfView);
 		}
@@ -863,6 +882,9 @@ public abstract class Level implements Bundlable {
 			}
 			if (c.buff(MagicalSight.class) != null){
 				sense = 8;
+			}
+			if (((Hero)c).subClass == HeroSubClass.SNIPER){
+				sense *= 1.5f;
 			}
 		}
 		
@@ -1002,6 +1024,8 @@ public abstract class Level implements Bundlable {
 				return Messages.get(Level.class, "exit_name");
 			case Terrain.EMBERS:
 				return Messages.get(Level.class, "embers_name");
+			case Terrain.FURROWED_GRASS:
+				return Messages.get(Level.class, "furrowed_grass_name");
 			case Terrain.LOCKED_DOOR:
 				return Messages.get(Level.class, "locked_door_name");
 			case Terrain.PEDESTAL:
@@ -1049,6 +1073,7 @@ public abstract class Level implements Bundlable {
 			case Terrain.EMBERS:
 				return Messages.get(Level.class, "embers_desc");
 			case Terrain.HIGH_GRASS:
+			case Terrain.FURROWED_GRASS:
 				return Messages.get(Level.class, "high_grass_desc");
 			case Terrain.LOCKED_DOOR:
 				return Messages.get(Level.class, "locked_door_desc");

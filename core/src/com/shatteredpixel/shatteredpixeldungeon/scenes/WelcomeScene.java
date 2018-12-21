@@ -44,7 +44,7 @@ import com.watabou.utils.FileUtils;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_7_0;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_7_1;
 
 	@Override
 	public void create() {
@@ -142,7 +142,8 @@ public class WelcomeScene extends PixelScene {
 			} else {
 				//TODO: change the messages here in accordance with the type of patch.
 				message = Messages.get(this, "patch_intro");
-				message += "\n\n" + Messages.get(this, "patch_balance");
+				message += "\n";
+				//message += "\n" + Messages.get(this, "patch_balance");
 				message += "\n" + Messages.get(this, "patch_bugfixes");
 				message += "\n" + Messages.get(this, "patch_translations");
 
@@ -170,7 +171,18 @@ public class WelcomeScene extends PixelScene {
 			}
 		}
 		
-		if (previousVersion < ShatteredPixelDungeon.v0_7_0){
+		//give classes to people with saves that have previously unlocked them
+		if (previousVersion <= ShatteredPixelDungeon.v0_7_0c){
+			Badges.loadGlobal();
+			Badges.addGlobal(Badges.Badge.UNLOCK_MAGE);
+			Badges.addGlobal(Badges.Badge.UNLOCK_ROGUE);
+			if (Badges.isUnlocked(Badges.Badge.BOSS_SLAIN_3)){
+				Badges.addGlobal(Badges.Badge.UNLOCK_HUNTRESS);
+			}
+			Badges.saveGlobal();
+		}
+		
+		if (previousVersion <= ShatteredPixelDungeon.v0_6_5c){
 			Journal.loadGlobal();
 			Document.ALCHEMY_GUIDE.addPage("Potions");
 			Document.ALCHEMY_GUIDE.addPage("Stones");

@@ -42,7 +42,8 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public static final int v0_6_4a = 252;
 	public static final int v0_6_5c = 264;
 	
-	public static final int v0_7_0  = 303;
+	public static final int v0_7_0c = 311;
+	public static final int v0_7_1  = 318;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -139,6 +140,15 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.spells.MagicalInfusion.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicalInfusion" );
+		
+		//v0.7.1
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang" );
+		
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Knuckles" );
 		
 	}
 

@@ -41,6 +41,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class WandOfFireblast extends DamageWand {
@@ -69,7 +70,8 @@ public class WandOfFireblast extends DamageWand {
 	
 	@Override
 	protected void onZap( Ballistica bolt ) {
-
+		
+		ArrayList<Char> affectedChars = new ArrayList<>();
 		for( int cell : affectedCells){
 			
 			//ignore caster cell
@@ -85,18 +87,21 @@ public class WandOfFireblast extends DamageWand {
 			
 			Char ch = Actor.findChar( cell );
 			if (ch != null) {
-
-				processSoulMark(ch, chargesPerCast());
-				ch.damage(damageRoll(), this);
-				Buff.affect( ch, Burning.class ).reignite( ch );
-				switch(chargesPerCast()){
-					case 1:
-						break; //no effects
-					case 2:
-						Buff.affect(ch, Cripple.class, 4f); break;
-					case 3:
-						Buff.affect(ch, Paralysis.class, 4f); break;
-				}
+				affectedChars.add(ch);
+			}
+		}
+		
+		for ( Char ch : affectedChars ){
+			processSoulMark(ch, chargesPerCast());
+			ch.damage(damageRoll(), this);
+			Buff.affect( ch, Burning.class ).reignite( ch );
+			switch(chargesPerCast()){
+				case 1:
+					break; //no effects
+				case 2:
+					Buff.affect(ch, Cripple.class, 4f); break;
+				case 3:
+					Buff.affect(ch, Paralysis.class, 4f); break;
 			}
 		}
 	}

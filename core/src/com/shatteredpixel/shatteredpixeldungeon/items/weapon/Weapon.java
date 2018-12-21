@@ -170,7 +170,7 @@ abstract public class Weapon extends KindOfWeapon {
 
 		float DLY = augment.delayFactor(this.DLY);
 
-		DLY = RingOfFuror.modifyAttackDelay(DLY, owner);
+		DLY *= RingOfFuror.attackDelayMultiplier(owner);
 
 		return (encumbrance > 0 ? (float)(DLY * Math.pow( 1.2, encumbrance )) : DLY);
 	}
@@ -238,6 +238,7 @@ abstract public class Weapon extends KindOfWeapon {
 	
 	public Weapon enchant( Enchantment ench ) {
 		enchantment = ench;
+		updateQuickslot();
 		return this;
 	}
 

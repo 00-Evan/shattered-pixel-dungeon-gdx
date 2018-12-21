@@ -62,31 +62,28 @@ public class RingOfForce extends Ring {
 
 	//same as equivalent tier weapon
 	private static int min(int lvl, float tier){
-		return Math.round(
+		return Math.max( 0, Math.round(
 				tier +  //base
 				lvl     //level scaling
-		);
+		));
 	}
 
 	//same as equivalent tier weapon
 	private static int max(int lvl, float tier){
-		return Math.round(
+		return Math.max( 0, Math.round(
 				5*(tier+1) +    //base
 				lvl*(tier+1)    //level scaling
-		);
+		));
 	}
 
 	@Override
-	public String desc() {
-		String desc = super.desc();
+	public String statsInfo() {
 		float tier = tier(Dungeon.hero.STR());
-		if (levelKnown) {
-			desc += "\n\n" + Messages.get(this, "avg_dmg", min(level(), tier), max(level(), tier));
+		if (isIdentified()) {
+			return Messages.get(this, "stats", min(soloBonus(), tier), max(soloBonus(), tier), soloBonus());
 		} else {
-			desc += "\n\n" + Messages.get(this, "typical_avg_dmg", min(1, tier), max(1, tier));
+			return Messages.get(this, "typical_stats", min(1, tier), max(1, tier), 1);
 		}
-
-		return desc;
 	}
 
 	public class Force extends RingBuff {

@@ -21,17 +21,27 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.rings;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+
+import java.text.DecimalFormat;
 
 public class RingOfSharpshooting extends Ring {
-
+	
+	public String statsInfo() {
+		if (isIdentified()){
+			return Messages.get(this, "stats", soloBonus(), new DecimalFormat("#.##").format(100f * (Math.pow(1.2, soloBonus()) - 1f)));
+		} else {
+			return Messages.get(this, "typical_stats", 1, new DecimalFormat("#.##").format(20f));
+		}
+	}
+	
 	@Override
 	protected RingBuff buff( ) {
 		return new Aim();
 	}
 	
-	//roughly in line with the boost a weapon gets from an upgrade
-	public static float damageMultiplier( Char target ){
-		return 1f + 0.2f * getBonus(target, Aim.class);
+	public static int levelDamageBonus( Char target ){
+		return getBonus(target, RingOfSharpshooting.Aim.class);
 	}
 	
 	public static float durabilityMultiplier( Char target ){

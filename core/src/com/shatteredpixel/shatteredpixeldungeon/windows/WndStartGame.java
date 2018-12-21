@@ -192,8 +192,8 @@ public class WndStartGame extends Window {
 		public void update() {
 			super.update();
 			if (cl != GamesInProgress.selectedClass){
-				if (cl == HeroClass.HUNTRESS && !Badges.isUnlocked(Badges.Badge.BOSS_SLAIN_3)){
-					hero.brightness( 0f );
+				if (!cl.isUnlocked()){
+					hero.brightness(0.3f);
 				} else {
 					hero.brightness(0.6f);
 				}
@@ -206,9 +206,9 @@ public class WndStartGame extends Window {
 		protected void onClick() {
 			super.onClick();
 			
-			if( cl == HeroClass.HUNTRESS && !Badges.isUnlocked(Badges.Badge.BOSS_SLAIN_3)){
+			if( !cl.isUnlocked() ){
 				ShatteredPixelDungeon.scene().add(
-						new WndMessage(Messages.get(WndStartGame.class, "huntress_unlock")));
+						new WndMessage(cl.unlockMsg()));
 			} else {
 				GamesInProgress.selectedClass = cl;
 			}
@@ -333,9 +333,9 @@ public class WndStartGame extends Window {
 							heroMisc.icon(Icons.get(Icons.DEPTH));
 							break;
 						case HUNTRESS:
-							heroItem.icon(new ItemSprite(ItemSpriteSheet.BOOMERANG, null));
-							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.KNUCKLEDUSTER, null));
-							heroMisc.icon(new ItemSprite(ItemSpriteSheet.DART, null));
+							heroItem.icon(new ItemSprite(ItemSpriteSheet.SPIRIT_BOW, null));
+							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.GLOVES, null));
+							heroMisc.icon(new Image(Assets.TILES_SEWERS, 112, 96, 16, 16 ));
 							break;
 					}
 					

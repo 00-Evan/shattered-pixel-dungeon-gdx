@@ -38,10 +38,20 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Warlock;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.DisintegrationTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrimTrap;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 
+import java.text.DecimalFormat;
 import java.util.HashSet;
 
 public class RingOfElements extends Ring {
+	
+	public String statsInfo() {
+		if (isIdentified()){
+			return Messages.get(this, "stats", new DecimalFormat("#.##").format(100f * (1f - Math.pow(0.875f, soloBonus()))));
+		} else {
+			return Messages.get(this, "typical_stats", new DecimalFormat("#.##").format(12.5f));
+		}
+	}
 	
 	@Override
 	protected RingBuff buff( ) {

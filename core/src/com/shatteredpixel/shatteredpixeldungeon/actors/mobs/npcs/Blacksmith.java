@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.DarkGold;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Pickaxe;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.BlacksmithRoom;
@@ -148,7 +149,7 @@ public class Blacksmith extends NPC {
 	
 	public static String verify( Item item1, Item item2 ) {
 		
-		if (item1 == item2) {
+		if (item1 == item2 && (item1.quantity() == 1 && item2.quantity() == 1)) {
 			return Messages.get(Blacksmith.class, "same_item");
 		}
 
@@ -193,14 +194,22 @@ public class Blacksmith extends NPC {
 		if (first.isEquipped( Dungeon.hero )) {
 			((EquipableItem)first).doUnequip( Dungeon.hero, true );
 		}
+		if (first instanceof MissileWeapon && first.quantity() > 1){
+			first = first.split(1);
+		}
 		first.level(first.level()+1); //prevents on-upgrade effects like enchant/glyph removal
+		if (first instanceof MissileWeapon && !Dungeon.hero.belongings.contains(first)) {
+			if (!first.collect()){
+				Dungeon.level.drop( first, Dungeon.hero.pos );
+			}
+		}
 		Dungeon.hero.spendAndNext( 2f );
 		Badges.validateItemLevelAquired( first );
 		
 		if (second.isEquipped( Dungeon.hero )) {
 			((EquipableItem)second).doUnequip( Dungeon.hero, false );
 		}
-		second.detachAll( Dungeon.hero.belongings.backpack );
+		second.detach( Dungeon.hero.belongings.backpack );
 		
 		if (second instanceof Armor){
 			BrokenSeal seal = ((Armor) second).checkSeal();

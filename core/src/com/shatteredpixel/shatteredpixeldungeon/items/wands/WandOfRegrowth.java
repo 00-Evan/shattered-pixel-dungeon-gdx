@@ -34,7 +34,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
-import com.shatteredpixel.shatteredpixeldungeon.plants.BlandfruitBush;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Starflower;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
@@ -77,7 +76,8 @@ public class WandOfRegrowth extends Wand {
 					c == Terrain.EMBERS ||
 					c == Terrain.EMPTY_DECO ||
 					c == Terrain.GRASS ||
-					c == Terrain.HIGH_GRASS)) {
+					c == Terrain.HIGH_GRASS ||
+					c == Terrain.FURROWED_GRASS)) {
 				i.remove();
 			}
 		}
@@ -115,10 +115,14 @@ public class WandOfRegrowth extends Wand {
 				processSoulMark(ch, chargesPerCast());
 			}
 			
-			if (Random.Int(50) < overLimit){
-				GameScene.add( Blob.seed( i, 9, Regrowth.class ) );
+			if (Random.Int(50) < overLimit) {
+				if (Dungeon.level.map[i] == Terrain.GRASS) {
+					Level.set( i, Terrain.FURROWED_GRASS );
+					GameScene.updateMap( i );
+				}
+				GameScene.add(Blob.seed(i, 9, Regrowth.class));
 			} else {
-				GameScene.add( Blob.seed( i, 10, Regrowth.class ) );
+				GameScene.add(Blob.seed(i, 10, Regrowth.class));
 			}
 			
 		}
@@ -137,7 +141,7 @@ public class WandOfRegrowth extends Wand {
 	}
 
 	private void spreadRegrowth(int cell, float strength){
-		if (strength >= 0 && Dungeon.level.passable[cell] && !Dungeon.level.losBlocking[cell]){
+		if (strength >= 0 && Dungeon.level.passable[cell]){
 			affectedCells.add(cell);
 			if (strength >= 1.5f) {
 				spreadRegrowth(cell + PathFinder.CIRCLE8[left(direction)], strength - 1.5f);
@@ -146,7 +150,7 @@ public class WandOfRegrowth extends Wand {
 			} else {
 				visualCells.add(cell);
 			}
-		} else if (!Dungeon.level.passable[cell] || Dungeon.level.losBlocking[cell])
+		} else if (!Dungeon.level.passable[cell])
 			visualCells.add(cell);
 	}
 
@@ -156,14 +160,7 @@ public class WandOfRegrowth extends Wand {
 
 		while(cells.hasNext() && Random.Float() <= numPlants){
 			Plant.Seed seed = (Plant.Seed) Generator.random(Generator.Category.SEED);
-
-			if (seed instanceof BlandfruitBush.Seed) {
-				if (Random.Int(3) - Dungeon.LimitedDrops.BLANDFRUIT_SEED.count >= 0) {
-					floor.plant(seed, cells.next());
-					Dungeon.LimitedDrops.BLANDFRUIT_SEED.count++;
-				}
-			} else
-				floor.plant(seed, cells.next());
+			floor.plant(seed, cells.next());
 
 			numPlants --;
 		}
@@ -227,7 +224,7 @@ public class WandOfRegrowth extends Wand {
 		float strength = maxDist;
 		for (int c : bolt.subPath(1, dist)) {
 			strength--; //as we start at dist 1, not 0.
-			if (!Dungeon.level.losBlocking[c]) {
+			if (Dungeon.level.passable[c]) {
 				affectedCells.add(c);
 				spreadRegrowth(c + PathFinder.CIRCLE8[left(direction)], strength - 1);
 				spreadRegrowth(c + PathFinder.CIRCLE8[direction], strength - 1);
@@ -302,13 +299,15 @@ public class WandOfRegrowth extends Wand {
 		}
 
 		@Override
-		public void activate() {
+		public void activate( Char ch ) {
 
 			int nDrops = Random.NormalIntRange(3, 6);
 
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			for (int i : PathFinder.NEIGHBOURS8){
-				if (Dungeon.level.passable[pos+i]){
+				if (Dungeon.level.passable[pos+i]
+						&& pos+i != Dungeon.level.entrance
+						&& pos+i != Dungeon.level.exit){
 					candidates.add(pos+i);
 				}
 			}
@@ -336,13 +335,15 @@ public class WandOfRegrowth extends Wand {
 		}
 
 		@Override
-		public void activate() {
+		public void activate( Char ch ) {
 
 			int nSeeds = Random.NormalIntRange(2, 4);
 
 			ArrayList<Integer> candidates = new ArrayList<Integer>();
 			for (int i : PathFinder.NEIGHBOURS8){
-				if (Dungeon.level.passable[pos+i]){
+				if (Dungeon.level.passable[pos+i]
+						&& pos+i != Dungeon.level.entrance
+						&& pos+i != Dungeon.level.exit){
 					candidates.add(pos+i);
 				}
 			}

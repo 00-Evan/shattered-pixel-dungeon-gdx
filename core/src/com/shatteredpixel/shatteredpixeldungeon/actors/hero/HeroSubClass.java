@@ -35,7 +35,7 @@ public enum HeroSubClass {
 	
 	ASSASSIN( "assassin" ),
 	FREERUNNER( "freerunner" ),
-		
+	
 	SNIPER( "sniper" ),
 	WARDEN( "warden" );
 	

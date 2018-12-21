@@ -20,9 +20,9 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.plants;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BlobImmunity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -44,13 +45,12 @@ public class Dreamfoil extends Plant {
 	}
 
 	@Override
-	public void activate() {
-		Char ch = Actor.findChar(pos);
+	public void activate( Char ch ) {
 
 		if (ch != null) {
-			if (ch instanceof Mob)
+			if (ch instanceof Mob) {
 				Buff.affect(ch, MagicalSleep.class);
-			else if (ch instanceof Hero){
+			} else if (ch instanceof Hero){
 				GLog.i( Messages.get(this, "refreshed") );
 				Buff.detach( ch, Poison.class );
 				Buff.detach( ch, Cripple.class );
@@ -59,6 +59,11 @@ public class Dreamfoil extends Plant {
 				Buff.detach( ch, Drowsy.class );
 				Buff.detach( ch, Slow.class );
 				Buff.detach( ch, Vertigo.class);
+				
+				if (((Hero) ch).subClass == HeroSubClass.WARDEN){
+					Buff.affect(ch, BlobImmunity.class, 10f);
+				}
+				
 			}
 		}
 	}

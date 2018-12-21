@@ -104,6 +104,15 @@ public class Ring extends KindofMisc {
 		super();
 		reset();
 	}
+
+	//anonymous rings are always IDed, do not affect ID status,
+	//and their sprite is replaced by a placeholder if they are not known,
+	//useful for items that appear in UIs, or which are only spawned for their effects
+	protected boolean anonymous = false;
+	public void anonymize(){
+		if (!isKnown()) image = ItemSpriteSheet.RING_HOLDER;
+		anonymous = true;
+	}
 	
 	public void reset() {
 		super.reset();
@@ -135,16 +144,18 @@ public class Ring extends KindofMisc {
 	}
 	
 	public boolean isKnown() {
-		return handler != null && handler.isKnown( this );
+		return anonymous || (handler != null && handler.isKnown( this ));
 	}
 	
 	public void setKnown() {
-		if (!isKnown()) {
-			handler.know( this );
-		}
-		
-		if (Dungeon.hero.isAlive()) {
-			Catalog.setSeen(getClass());
+		if (!anonymous) {
+			if (!isKnown()) {
+				handler.know(this);
+			}
+
+			if (Dungeon.hero.isAlive()) {
+				Catalog.setSeen(getClass());
+			}
 		}
 	}
 	
@@ -154,10 +165,10 @@ public class Ring extends KindofMisc {
 	}
 	
 	@Override
-	public String info() {
-
-		String desc = isKnown()? desc() : Messages.get(this, "unknown_desc");
-
+	public String info(){
+		
+		String desc = isKnown() ? super.desc() : Messages.get(this, "unknown_desc");
+		
 		if (cursed && isEquipped( Dungeon.hero )) {
 			desc += "\n\n" + Messages.get(Ring.class, "cursed_worn");
 			
@@ -168,8 +179,16 @@ public class Ring extends KindofMisc {
 			desc += "\n\n" + Messages.get(Ring.class, "not_cursed");
 			
 		}
-
+		
+		if (isKnown()) {
+			desc += "\n\n" + statsInfo();
+		}
+		
 		return desc;
+	}
+	
+	protected String statsInfo(){
+		return "";
 	}
 	
 	@Override
@@ -279,6 +298,14 @@ public class Ring extends KindofMisc {
 		}
 		return bonus;
 	}
+	
+	public int soloBonus(){
+		if (cursed){
+			return Math.min( 0, Ring.this.level()-2 );
+		} else {
+			return Ring.this.level()+1;
+		}
+	}
 
 	public class RingBuff extends Buff {
 		
@@ -297,11 +324,7 @@ public class Ring extends KindofMisc {
 		}
 
 		public int level(){
-			if (Ring.this.cursed){
-				return Math.min( 0, Ring.this.level()-2 );
-			} else {
-				return Ring.this.level()+1;
-			}
+			return Ring.this.soloBonus();
 		}
 
 	}

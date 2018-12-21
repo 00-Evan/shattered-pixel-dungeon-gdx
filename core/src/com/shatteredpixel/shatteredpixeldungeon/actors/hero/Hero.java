@@ -80,6 +80,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
@@ -89,6 +90,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
@@ -294,11 +296,9 @@ public class Hero extends Char {
 		//temporarily set the hero's weapon to the missile weapon being used
 		KindOfWeapon equipped = belongings.weapon;
 		belongings.weapon = wep;
-		rangedAttack = true;
 		boolean result = attack( enemy );
 		Invisibility.dispel();
 		belongings.weapon = equipped;
-		rangedAttack = false;
 
 		return result;
 	}
@@ -308,9 +308,14 @@ public class Hero extends Char {
 		KindOfWeapon wep = belongings.weapon;
 		
 		float accuracy = 1;
-		if (wep instanceof MissileWeapon && rangedAttack
-				&& Dungeon.level.distance( pos, target.pos ) == 1) {
-			accuracy *= 0.5f;
+		accuracy *= RingOfAccuracy.accuracyMultiplier( this );
+		
+		if (wep instanceof MissileWeapon){
+			if (Dungeon.level.adjacent( pos, target.pos )) {
+				accuracy *= 0.5f;
+			} else {
+				accuracy *= 1.5f;
+			}
 		}
 		
 		if (wep != null) {
@@ -368,7 +373,8 @@ public class Hero extends Char {
 		int dmg;
 
 		if (wep != null) {
-			dmg = wep.damageRoll( this ) + RingOfForce.armedDamageBonus(this);
+			dmg = wep.damageRoll( this );
+			if (!(wep instanceof MissileWeapon)) dmg += RingOfForce.armedDamageBonus(this);
 		} else {
 			dmg = RingOfForce.damageRoll(this);
 		}
@@ -437,7 +443,7 @@ public class Hero extends Char {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
 			//But there's going to be that one guy who gets a furor+force ring combo
 			//This is for that one guy, you shall get your fists of fury!
-			return RingOfFuror.modifyAttackDelay(1f, this);
+			return RingOfFuror.attackDelayMultiplier(this);
 		}
 	}
 
@@ -471,7 +477,6 @@ public class Hero extends Char {
 		//calls to dungeon.observe will also update hero's local FOV.
 		fieldOfView = Dungeon.level.heroFOV;
 		
-		
 		if (!ready) {
 			//do a full observe (including fog update) if not resting.
 			if (!resting || buff(MindVision.class) != null || buff(Awareness.class) != null) {
@@ -495,15 +500,17 @@ public class Hero extends Char {
 			return false;
 		}
 		
+		boolean actResult;
 		if (curAction == null) {
 			
 			if (resting) {
-				spend( TIME_TO_REST ); next();
-				return false;
+				spend( TIME_TO_REST );
+				next();
+			} else {
+				ready();
 			}
 			
-			ready();
-			return false;
+			actResult = false;
 			
 		} else {
 			
@@ -512,58 +519,45 @@ public class Hero extends Char {
 			ready = false;
 			
 			if (curAction instanceof HeroAction.Move) {
+				actResult = actMove( (HeroAction.Move)curAction );
 				
-				return actMove( (HeroAction.Move)curAction );
+			} else if (curAction instanceof HeroAction.Interact) {
+				actResult = actInteract( (HeroAction.Interact)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Interact) {
-
-				return actInteract( (HeroAction.Interact)curAction );
+			} else if (curAction instanceof HeroAction.Buy) {
+				actResult = actBuy( (HeroAction.Buy)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Buy) {
-
-				return actBuy( (HeroAction.Buy)curAction );
+			}else if (curAction instanceof HeroAction.PickUp) {
+				actResult = actPickUp( (HeroAction.PickUp)curAction );
 				
-			}else
-			if (curAction instanceof HeroAction.PickUp) {
-
-				return actPickUp( (HeroAction.PickUp)curAction );
+			} else if (curAction instanceof HeroAction.OpenChest) {
+				actResult = actOpenChest( (HeroAction.OpenChest)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.OpenChest) {
-
-				return actOpenChest( (HeroAction.OpenChest)curAction );
+			} else if (curAction instanceof HeroAction.Unlock) {
+				actResult = actUnlock((HeroAction.Unlock) curAction);
 				
-			} else
-			if (curAction instanceof HeroAction.Unlock) {
-
-				return actUnlock((HeroAction.Unlock) curAction);
+			} else if (curAction instanceof HeroAction.Descend) {
+				actResult = actDescend( (HeroAction.Descend)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Descend) {
-
-				return actDescend( (HeroAction.Descend)curAction );
+			} else if (curAction instanceof HeroAction.Ascend) {
+				actResult = actAscend( (HeroAction.Ascend)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Ascend) {
-
-				return actAscend( (HeroAction.Ascend)curAction );
+			} else if (curAction instanceof HeroAction.Attack) {
+				actResult = actAttack( (HeroAction.Attack)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Attack) {
-
-				return actAttack( (HeroAction.Attack)curAction );
+			} else if (curAction instanceof HeroAction.Alchemy) {
+				actResult = actAlchemy( (HeroAction.Alchemy)curAction );
 				
-			} else
-			if (curAction instanceof HeroAction.Alchemy) {
-
-				return actAlchemy( (HeroAction.Alchemy)curAction );
-				
+			} else {
+				actResult = false;
 			}
 		}
 		
-		return false;
+		if( subClass == HeroSubClass.WARDEN && Dungeon.level.map[pos] == Terrain.FURROWED_GRASS){
+			Buff.affect(this, Barkskin.class).set( lvl, 1 );
+		}
+		
+		return actResult;
 	}
 	
 	public void busy() {
@@ -927,15 +921,30 @@ public class Hero extends Char {
 	}
 	
 	@Override
-	public int attackProc( Char enemy, int damage ) {
+	public int attackProc( final Char enemy, int damage ) {
 		KindOfWeapon wep = belongings.weapon;
 
 		if (wep != null) damage = wep.proc( this, enemy, damage );
 			
 		switch (subClass) {
 		case SNIPER:
-			if (wep instanceof MissileWeapon && rangedAttack) {
-				Buff.prolong( this, SnipersMark.class, attackDelay() ).object = enemy.id();
+			if (wep instanceof MissileWeapon && !(wep instanceof SpiritBow.SpiritArrow)) {
+				final float delay = attackDelay();
+				Actor.add(new Actor() {
+					
+					{
+						actPriority = VFX_PRIO;
+					}
+					
+					@Override
+					protected boolean act() {
+						if (enemy.isAlive()) {
+							Buff.prolong(Hero.this, SnipersMark.class, delay).object = enemy.id();
+						}
+						Actor.remove(this);
+						return true;
+					}
+				});
 			}
 			break;
 		default:
@@ -1244,6 +1253,8 @@ public class Hero extends Char {
 			GLog.p( Messages.get(this, "new_level"), lvl );
 			sprite.showStatus( CharSprite.POSITIVE, Messages.get(Hero.class, "level_up") );
 			Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			
+			Item.updateQuickslot();
 			
 			Badges.validateLevelReached();
 		}

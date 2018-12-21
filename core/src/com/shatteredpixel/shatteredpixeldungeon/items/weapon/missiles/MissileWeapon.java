@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -36,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
@@ -46,6 +46,8 @@ abstract public class MissileWeapon extends Weapon {
 	{
 		stackable = true;
 		levelKnown = true;
+		
+		bones = true;
 
 		defaultAction = AC_THROW;
 		usesTargeting = true;
@@ -55,11 +57,76 @@ abstract public class MissileWeapon extends Weapon {
 	
 	protected static final float MAX_DURABILITY = 100;
 	protected float durability = MAX_DURABILITY;
+	protected float baseUses = 10;
 	
 	public boolean holster;
 	
 	//used to reduce durability from the source weapon stack, rather than the one being thrown.
 	protected MissileWeapon parent;
+	
+	public int tier;
+	
+	@Override
+	public int min() {
+		return Math.max(0, min( level() + RingOfSharpshooting.levelDamageBonus(Dungeon.hero) ));
+	}
+	
+	@Override
+	public int min(int lvl) {
+		return  2 * tier +                      //base
+				(tier == 1 ? lvl : 2*lvl);      //level scaling
+	}
+	
+	@Override
+	public int max() {
+		return Math.max(0, max( level() + RingOfSharpshooting.levelDamageBonus(Dungeon.hero) ));
+	}
+	
+	@Override
+	public int max(int lvl) {
+		return  5 * tier +                      //base
+				(tier == 1 ? 2*lvl : tier*lvl); //level scaling
+	}
+	
+	public int STRReq(int lvl){
+		lvl = Math.max(0, lvl);
+		//strength req decreases at +1,+3,+6,+10,etc.
+		return (7 + tier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
+	}
+	
+	@Override
+	//FIXME some logic here assumes the items are in the player's inventory. Might need to adjust
+	public Item upgrade() {
+		if (!bundleRestoring) {
+			if (quantity > 1) {
+				MissileWeapon upgraded = (MissileWeapon) split(1);
+				upgraded.parent = null;
+				
+				upgraded = (MissileWeapon) upgraded.upgrade();
+				
+				//try to put the upgraded into inventory, if it didn't already merge
+				if (upgraded.quantity() == 1 && !upgraded.collect()) {
+					Dungeon.level.drop(upgraded, Dungeon.hero.pos);
+				}
+				updateQuickslot();
+				return upgraded;
+			} else {
+				durability = MAX_DURABILITY;
+				super.upgrade();
+				
+				Item similar = Dungeon.hero.belongings.getSimilar(this);
+				if (similar != null){
+					detach(Dungeon.hero.belongings.backpack);
+					return similar.merge(this);
+				}
+				updateQuickslot();
+				return this;
+			}
+			
+		} else {
+			return super.upgrade();
+		}
+	}
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -120,20 +187,7 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public float castDelay(Char user, int dst) {
-		float delay = speedFactor( user );
-		
-		Char enemy = Actor.findChar(dst);
-		
-		if (enemy != null) {
-			SnipersMark mark = user.buff( SnipersMark.class );
-			if (mark != null) {
-				if (mark.object == enemy.id()) {
-					delay *= 0.5f;
-				}
-			}
-		}
-		
-		return delay;
+		return speedFactor( user );
 	}
 	
 	protected void rangedHit( Char enemy, int cell ){
@@ -145,10 +199,18 @@ abstract public class MissileWeapon extends Weapon {
 				parent.durability = MAX_DURABILITY;
 			} else {
 				parent.durability -= parent.durabilityPerUse();
+				if (parent.durability > 0 && parent.durability <= parent.durabilityPerUse()){
+					if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
+					else             GLog.n(Messages.get(this, "about_to_break"));
+				}
 			}
 			parent = null;
 		} else {
 			durability -= durabilityPerUse();
+			if (durability > 0 && durability <= durabilityPerUse()){
+				if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
+				else             GLog.n(Messages.get(this, "about_to_break"));
+			}
 		}
 		if (durability > 0){
 			//attempt to stick the missile weapon to the enemy, just drop it if we can't.
@@ -169,23 +231,25 @@ abstract public class MissileWeapon extends Weapon {
 	}
 	
 	protected float durabilityPerUse(){
-		float usage = MAX_DURABILITY/10f;
+		float usages = baseUses * (float)(Math.pow(3, level()));
 		
-		if (Dungeon.hero.heroClass == HeroClass.HUNTRESS)   usage /= 1.5f;
-		if (holster)                                        usage /= MagicalHolster.HOLSTER_DURABILITY_FACTOR;
+		if (Dungeon.hero.heroClass == HeroClass.HUNTRESS)   usages *= 1.5f;
+		if (holster)                                        usages *= MagicalHolster.HOLSTER_DURABILITY_FACTOR;
 		
-		usage /= RingOfSharpshooting.durabilityMultiplier( Dungeon.hero );
+		usages *= RingOfSharpshooting.durabilityMultiplier( Dungeon.hero );
 		
-		return usage;
+		//at 100 uses, items just last forever.
+		if (usages >= 100f) return 0;
+		
+		//add a tiny amount to account for rounding error for calculations like 1/3
+		return (MAX_DURABILITY/usages) + 0.001f;
 	}
 	
 	@Override
 	public int damageRoll(Char owner) {
 		int damage = augment.damageFactor(super.damageRoll( owner ));
-		damage = Math.round( damage * RingOfSharpshooting.damageMultiplier( owner ));
 		
-		if (owner instanceof Hero &&
-				((Hero)owner).heroClass == HeroClass.HUNTRESS) {
+		if (owner instanceof Hero) {
 			int exStr = ((Hero)owner).STR() - STRReq();
 			if (exStr > 0) {
 				damage += Random.IntRange( 0, exStr );
@@ -217,7 +281,9 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public Item split(int amount) {
+		bundleRestoring = true;
 		Item split = super.split(amount);
+		bundleRestoring = false;
 		
 		//unless the thrown weapon will break, split off a max durability item and
 		//have it reduce the durability of the main stack. Cleaner to the player this way
@@ -237,11 +303,6 @@ abstract public class MissileWeapon extends Weapon {
 	}
 	
 	@Override
-	public boolean isUpgradable() {
-		return false;
-	}
-	
-	@Override
 	public boolean isIdentified() {
 		return true;
 	}
@@ -252,13 +313,14 @@ abstract public class MissileWeapon extends Weapon {
 		String info = desc();
 		
 		info += "\n\n" + Messages.get( MissileWeapon.class, "stats",
-				Math.round(augment.damageFactor(min()) * RingOfSharpshooting.damageMultiplier( Dungeon.hero )),
-				Math.round(augment.damageFactor(max()) * RingOfSharpshooting.damageMultiplier( Dungeon.hero )),
+				tier,
+				Math.round(augment.damageFactor(min())),
+				Math.round(augment.damageFactor(max())),
 				STRReq());
 
 		if (STRReq() > Dungeon.hero.STR()) {
 			info += " " + Messages.get(Weapon.class, "too_heavy");
-		} else if (Dungeon.hero.heroClass == HeroClass.HUNTRESS && Dungeon.hero.STR() > STRReq()){
+		} else if (Dungeon.hero.STR() > STRReq()){
 			info += " " + Messages.get(Weapon.class, "excess_str", Dungeon.hero.STR() - STRReq());
 		}
 
@@ -283,10 +345,17 @@ abstract public class MissileWeapon extends Weapon {
 			info += " " + Messages.get(this, "uses_left",
 					(int)Math.ceil(durability/durabilityPerUse()),
 					(int)Math.ceil(MAX_DURABILITY/durabilityPerUse()));
+		} else {
+			info += " " + Messages.get(this, "unlimited_uses");
 		}
 		
 		
 		return info;
+	}
+	
+	@Override
+	public int price() {
+		return 6 * tier * quantity * (level() + 1);
 	}
 	
 	private static final String DURABILITY = "durability";
@@ -297,9 +366,13 @@ abstract public class MissileWeapon extends Weapon {
 		bundle.put(DURABILITY, durability);
 	}
 	
+	private static boolean bundleRestoring = false;
+	
 	@Override
 	public void restoreFromBundle(Bundle bundle) {
+		bundleRestoring = true;
 		super.restoreFromBundle(bundle);
+		bundleRestoring = false;
 		//compatibility with pre-0.6.3 saves
 		if (bundle.contains(DURABILITY)) {
 			durability = bundle.getInt(DURABILITY);
