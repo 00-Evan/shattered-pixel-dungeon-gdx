@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels.features;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -102,9 +103,11 @@ public class HighGrass {
 		
 		freezeTrample = false;
 		
-		GameScene.updateMap( pos );
-		
-		CellEmitter.get( pos ).burst( LeafParticle.LEVEL_SPECIFIC, 4 );
-		if (Dungeon.level.heroFOV[pos]) Dungeon.observe();
+		if (ShatteredPixelDungeon.scene() instanceof GameScene) {
+			GameScene.updateMap(pos);
+			
+			CellEmitter.get(pos).burst(LeafParticle.LEVEL_SPECIFIC, 4);
+			if (Dungeon.level.heroFOV[pos]) Dungeon.observe();
+		}
 	}
 }

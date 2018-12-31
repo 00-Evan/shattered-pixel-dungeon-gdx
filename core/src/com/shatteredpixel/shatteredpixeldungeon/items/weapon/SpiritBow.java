@@ -68,9 +68,15 @@ public class SpiritBow extends Weapon {
 	
 	@Override
 	public void execute(Hero hero, String action) {
+		
 		super.execute(hero, action);
+		
 		if (action.equals(AC_SHOOT)) {
+			
+			curUser = hero;
+			curItem = this;
 			GameScene.selectCell( shooter );
+			
 		}
 	}
 	
@@ -126,12 +132,12 @@ public class SpiritBow extends Weapon {
 	
 	@Override
 	public int min(int lvl) {
-		return 1 + Dungeon.hero.lvl/6 + RingOfSharpshooting.levelDamageBonus(Dungeon.hero);
+		return 1 + Dungeon.hero.lvl/5 + RingOfSharpshooting.levelDamageBonus(Dungeon.hero);
 	}
 	
 	@Override
 	public int max(int lvl) {
-		return 6 + Dungeon.hero.lvl/3 + 2*RingOfSharpshooting.levelDamageBonus(Dungeon.hero);
+		return 6 + (int)(Dungeon.hero.lvl/2.5f) + 2*RingOfSharpshooting.levelDamageBonus(Dungeon.hero);
 	}
 	
 	private int targetPos;
@@ -293,7 +299,10 @@ public class SpiritBow extends Weapon {
 								new Callback() {
 									@Override
 									public void call() {
-										if (enemy.isAlive()) onThrow(cell);
+										if (enemy.isAlive()) {
+											curUser = user;
+											onThrow(cell);
+										}
 										
 										if (last) {
 											user.spendAndNext(castDelay(user, dst));

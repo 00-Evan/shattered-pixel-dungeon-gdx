@@ -517,6 +517,7 @@ public class Item implements Bundlable {
 							new Callback() {
 						@Override
 						public void call() {
+							curUser = user;
 							Item.this.detach(user.belongings.backpack).onThrow(cell);
 							user.spendAndNext(delay);
 						}
@@ -529,6 +530,7 @@ public class Item implements Bundlable {
 							new Callback() {
 						@Override
 						public void call() {
+							curUser = user;
 							Item.this.detach(user.belongings.backpack).onThrow(cell);
 							user.spendAndNext(delay);
 						}
