@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
-import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
@@ -34,6 +33,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.TouchArea;
+import com.watabou.utils.DeviceCompat;
 
 public class AboutScene extends PixelScene {
 
@@ -94,7 +94,7 @@ public class AboutScene extends PixelScene {
 		TouchArea shpxhotArea = new TouchArea( shpxlink.left(), shpxlink.top(), shpxlink.width(), shpxlink.height() ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				Gdx.net.openURI("http://" + LNK_SHPX);
+				DeviceCompat.openURI("https://" + LNK_SHPX);
 			}
 		};
 		add( shpxhotArea );
@@ -135,7 +135,7 @@ public class AboutScene extends PixelScene {
 		TouchArea hotArea = new TouchArea( wataLink.left(), wataLink.top(), wataLink.width(), wataLink.height() ) {
 			@Override
 			protected void onClick( NoosaInputProcessor.Touch touch ) {
-				Gdx.net.openURI("http://" + LNK_WATA);
+				DeviceCompat.openURI("http://" + LNK_WATA);
 			}
 		};
 		add( hotArea );

@@ -97,6 +97,10 @@ public class SmartTexture extends Texture {
 		width = bitmap.getWidth();
 		height = bitmap.getHeight();
 	}
+	
+	public int getPixel( int x, int y ){
+		return bitmap.getPixel(x, y);
+	}
 
 	public void reload() {
 		id = -1;

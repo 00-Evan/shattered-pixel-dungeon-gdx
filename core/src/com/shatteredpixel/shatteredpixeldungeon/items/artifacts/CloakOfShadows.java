@@ -138,6 +138,11 @@ public class CloakOfShadows extends Artifact {
 	public void charge(Hero target) {
 		if (charge < chargeCap) {
 			partialCharge += 0.25f;
+			if (partialCharge >= 1){
+				partialCharge--;
+				charge++;
+				updateQuickslot();
+			}
 		}
 	}
 	

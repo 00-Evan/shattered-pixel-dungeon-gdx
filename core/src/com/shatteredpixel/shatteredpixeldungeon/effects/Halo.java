@@ -28,6 +28,7 @@ import com.watabou.noosa.Image;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 
+//TODO externalize bitmap stuff to SPD-classes
 public class Halo extends Image {
 	
 	private static final Object CACHE_KEY = Halo.class;

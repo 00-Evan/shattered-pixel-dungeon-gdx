@@ -47,6 +47,7 @@ public class MasterThievesArmband extends Artifact {
 	public void charge(Hero target) {
 		if (charge < chargeCap){
 			charge += 10;
+			updateQuickslot();
 		}
 	}
 

@@ -21,6 +21,7 @@
 
 package com.watabou.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.watabou.noosa.Game;
 
 public class DeviceCompat {
@@ -39,6 +40,14 @@ public class DeviceCompat {
 	
 	public static boolean usesISO_8859_1(){
 		return false;
+	}
+	
+	public static void openURI( String URI ){
+		Gdx.net.openURI( URI );
+	}
+	
+	public static void log( String tag, String message ){
+		Gdx.app.log( tag, message );
 	}
 
 }

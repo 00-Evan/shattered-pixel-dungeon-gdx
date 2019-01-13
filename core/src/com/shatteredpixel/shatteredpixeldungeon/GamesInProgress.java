@@ -109,6 +109,9 @@ public class GamesInProgress {
 
 			} catch (IOException e) {
 				info = null;
+			} catch (Exception e){
+				ShatteredPixelDungeon.reportException( e );
+				info = null;
 			}
 			
 			slotStates.put( slot, info );

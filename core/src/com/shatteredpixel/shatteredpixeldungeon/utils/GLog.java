@@ -20,8 +20,8 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.utils;
 
-import com.badlogic.gdx.Gdx;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.watabou.utils.DeviceCompat;
 import com.watabou.utils.Signal;
 
 public class GLog {
@@ -41,7 +41,7 @@ public class GLog {
 			text = Messages.format( text, args );
 		}
 		
-		Gdx.app.log(TAG, text);
+		DeviceCompat.log(TAG, text);
 		update.dispatch( text );
 	}
 	
