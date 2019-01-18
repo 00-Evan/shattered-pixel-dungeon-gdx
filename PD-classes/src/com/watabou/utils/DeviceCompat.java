@@ -42,6 +42,10 @@ public class DeviceCompat {
 		return false;
 	}
 	
+	public static boolean isDebug(){
+		return false; //TODO must be a way to check this in libgdx
+	}
+	
 	public static void openURI( String URI ){
 		Gdx.net.openURI( URI );
 	}

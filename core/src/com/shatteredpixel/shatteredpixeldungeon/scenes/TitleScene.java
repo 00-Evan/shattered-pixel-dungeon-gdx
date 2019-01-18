@@ -44,6 +44,7 @@ import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
+import com.watabou.utils.DeviceCompat;
 
 public class TitleScene extends PixelScene {
 	
@@ -122,6 +123,16 @@ public class TitleScene extends PixelScene {
 				} else {
 					ShatteredPixelDungeon.switchNoFade( StartScene.class );
 				}
+			}
+			
+			@Override
+			protected boolean onLongClick() {
+				//making it easier to start runs quickly while debugging
+				if (DeviceCompat.isDebug()) {
+					TitleScene.this.add( new WndStartGame(1) );
+					return true;
+				}
+				return super.onLongClick();
 			}
 		};
 		add( btnPlay );

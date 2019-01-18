@@ -52,6 +52,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKn
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
 
@@ -251,6 +252,9 @@ public enum HeroClass {
 	}
 	
 	public boolean isUnlocked(){
+		//always unlock on debug builds
+		if (DeviceCompat.isDebug()) return true;
+		
 		switch (this){
 			case WARRIOR: default:
 				return true;
