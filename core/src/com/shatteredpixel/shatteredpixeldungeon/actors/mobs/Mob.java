@@ -50,9 +50,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourg
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -194,11 +196,15 @@ public abstract class Mob extends Char {
 			}
 		}
 		
-		StoneOfAggression.Aggression aggro = buff( StoneOfAggression.Aggression.class );
-		if (aggro != null){
-			Char source = (Char)Actor.findById( aggro.object );
-			if (source != null){
-				return source;
+		//if we are an enemy, and have no target or current target isn't affected by aggression
+		//then auto-prioritize a target that is affected by aggression, even another enemy
+		if (alignment == Alignment.ENEMY
+				&& (enemy == null || enemy.buff(StoneOfAggression.Aggression.class) == null)) {
+			for (Char ch : Actor.chars()) {
+				if (ch != this && fieldOfView[ch.pos] &&
+						ch.buff(StoneOfAggression.Aggression.class) != null) {
+					return ch;
+				}
 			}
 		}
 
@@ -451,7 +457,8 @@ public abstract class Mob extends Char {
 	@Override
 	public void updateSpriteState() {
 		super.updateSpriteState();
-		if (Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class) != null)
+		if (Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class) != null
+				|| Dungeon.hero.buff(Swiftthistle.TimeBubble.class) != null)
 			sprite.add( CharSprite.State.PARALYSED );
 	}
 	
@@ -551,6 +558,10 @@ public abstract class Mob extends Char {
 			state = HUNTING;
 		}
 	}
+	
+	public boolean isTargeting( Char ch){
+		return enemy == ch;
+	}
 
 	@Override
 	public void damage( int dmg, Object src ) {
@@ -584,7 +595,7 @@ public abstract class Mob extends Char {
 				if (exp > 0) {
 					Dungeon.hero.sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "exp", exp));
 				}
-				Dungeon.hero.earnExp(exp);
+				Dungeon.hero.earnExp(exp, getClass());
 			}
 		}
 	}
@@ -602,8 +613,6 @@ public abstract class Mob extends Char {
 			if (EXP % 2 == 1) EXP += Random.Int(2);
 			EXP /= 2;
 		}
-		
-		super.die( cause );
 
 		if (alignment == Alignment.ENEMY){
 			rollToDropLoot();
@@ -612,6 +621,8 @@ public abstract class Mob extends Char {
 		if (Dungeon.hero.isAlive() && !Dungeon.level.heroFOV[pos]) {
 			GLog.i( Messages.get(this, "died") );
 		}
+		
+		super.die( cause );
 	}
 	
 	public void rollToDropLoot(){
@@ -632,11 +643,22 @@ public abstract class Mob extends Char {
 			int rolls = 1;
 			if (properties.contains(Property.BOSS)) rolls = 15;
 			else if (properties.contains(Property.MINIBOSS)) rolls = 5;
-			ArrayList<Item> bonus = RingOfWealth.tryRareDrop(Dungeon.hero, rolls);
-			if (bonus != null) {
+			ArrayList<Item> bonus = RingOfWealth.tryForBonusDrop(Dungeon.hero, rolls);
+			if (bonus != null && !bonus.isEmpty()) {
 				for (Item b : bonus) Dungeon.level.drop(b, pos).sprite.drop();
-				new Flare(8, 32).color(0xFFFF00, true).show(sprite, 2f);
+				if (RingOfWealth.latestDropWasRare){
+					new Flare(8, 48).color(0xAA00FF, true).show(sprite, 3f);
+					RingOfWealth.latestDropWasRare = false;
+				} else {
+					new Flare(8, 24).color(0xFFFFFF, true).show(sprite, 3f);
+				}
 			}
+		}
+		
+		//lucky enchant logic
+		if (Dungeon.hero.lvl <= maxLvl && buff(Lucky.LuckProc.class) != null){
+			new Flare(8, 24).color(0x00FF00, true).show(sprite, 3f);
+			Dungeon.level.drop(Lucky.genLoot(), pos).sprite.drop();
 		}
 	}
 	

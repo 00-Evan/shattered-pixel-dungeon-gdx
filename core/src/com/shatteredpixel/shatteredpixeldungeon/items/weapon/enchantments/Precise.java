@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,43 +20,36 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Eldritch extends Weapon.Enchantment {
-
-	private static ItemSprite.Glowing GREY = new ItemSprite.Glowing( 0x222222 );
+public class Precise extends Weapon.Enchantment {
+	
+	private static ItemSprite.Glowing WHITE = new ItemSprite.Glowing( 0xFFFFFF );
 	
 	@Override
-	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 20%
-		// lvl 1 - 33%
-		// lvl 2 - 43%
-		int level = Math.max( 0, weapon.level() );
-		
-		if (Random.Int( level + 5 ) >= 4) {
-
-			if (defender == Dungeon.hero) {
-				Buff.affect( defender, Vertigo.class, Vertigo.DURATION );
-			} else {
-				//damage will reduce by 5 turns, so effectively 10 turns of terror
-				Buff.affect( defender, Terror.class, 10f + 5f ).object = attacker.id();
-			}
-
-		}
-
+	public int proc( Weapon weapon, Char attacker, Char defender, int damage) {
 		return damage;
 	}
 	
+	//called from attackSkill in Hero, Statue, and GhostHero
+	public static boolean rollToGuaranteeHit( Weapon weapon ){
+		// lvl 0 - 13%
+		// lvl 1 - 22%
+		// lvl 2 - 30%
+		int level = Math.max( 0, weapon.level() );
+		
+		if (Random.Int( level + 8 ) >= 7) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	@Override
-	public Glowing glowing() {
-		return GREY;
+	public ItemSprite.Glowing glowing() {
+		return WHITE;
 	}
 }

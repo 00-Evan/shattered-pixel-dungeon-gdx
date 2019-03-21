@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,23 +22,23 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
-import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.watabou.utils.Random;
 
-public class Elastic extends Weapon.Enchantment {
+public class Polarized extends Weapon.Enchantment {
 	
 	private static ItemSprite.Glowing BLACK = new ItemSprite.Glowing( 0x000000 );
 	
 	@Override
-	public int proc(Weapon weapon, Char attacker, Char defender, int damage ) {
+	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
 		
-		int oppositeDefender = defender.pos + (defender.pos - attacker.pos);
-		Ballistica trajectory = new Ballistica(defender.pos, oppositeDefender, Ballistica.MAGIC_BOLT);
-		WandOfBlastWave.throwChar(defender, trajectory, 2);
+		if (Random.Int(2) == 0){
+			return Math.round(1.5f*damage);
+		} else {
+			return 0;
+		}
 		
-		return 0;
 	}
 	
 	@Override
@@ -50,5 +50,4 @@ public class Elastic extends Weapon.Enchantment {
 	public ItemSprite.Glowing glowing() {
 		return BLACK;
 	}
-
 }

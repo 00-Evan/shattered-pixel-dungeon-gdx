@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,40 +20,66 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.watabou.utils.PointF;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
-public class Vorpal extends Weapon.Enchantment {
+import java.util.ArrayList;
 
-	private static ItemSprite.Glowing RED = new ItemSprite.Glowing( 0xAA6666 );
-
+public class Blooming extends Weapon.Enchantment {
+	
+	private static ItemSprite.Glowing DARK_GREEN = new ItemSprite.Glowing( 0x008800 );
+	
 	@Override
 	public int proc(Weapon weapon, Char attacker, Char defender, int damage) {
+		
 		// lvl 0 - 33%
 		// lvl 1 - 50%
 		// lvl 2 - 60%
 		int level = Math.max( 0, weapon.level() );
-
+		
 		if (Random.Int( level + 3 ) >= 2) {
-
-			Buff.affect(defender, Bleeding.class).set(damage/5f);
-			Splash.at( defender.sprite.center(), -PointF.PI / 2, PointF.PI / 6,
-					defender.sprite.blood(), 10 );
-
+			
+			if (!plantGrass(defender.pos)){
+				ArrayList<Integer> positions = new ArrayList<>();
+				for (int i : PathFinder.NEIGHBOURS8){
+					positions.add(i);
+				}
+				Random.shuffle( positions );
+				for (int i : positions){
+					if (plantGrass(defender.pos + i)){
+						break;
+					}
+				}
+			}
+		
 		}
-
+		
 		return damage;
 	}
-
+	
+	private boolean plantGrass(int cell){
+		int c = Dungeon.level.map[cell];
+		if ( c == Terrain.EMPTY || c == Terrain.EMPTY_DECO
+				|| c == Terrain.EMBERS || c == Terrain.GRASS){
+			Level.set(cell, Terrain.HIGH_GRASS);
+			GameScene.updateMap(cell);
+			CellEmitter.get( cell ).burst( LeafParticle.LEVEL_SPECIFIC, 4 );
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public ItemSprite.Glowing glowing() {
-		return RED;
+		return DARK_GREEN;
 	}
-
 }

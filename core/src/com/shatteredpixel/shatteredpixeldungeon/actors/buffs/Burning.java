@@ -80,9 +80,9 @@ public class Burning extends Buff implements Hero.Doom {
 	@Override
 	public boolean act() {
 		
-		if (target.isAlive()) {
+		if (target.isAlive() && !target.isImmune(getClass())) {
 			
-			int damage = Random.NormalIntRange( 1, 3 + target.HT/40 );
+			int damage = Random.NormalIntRange( 1, 3 + Dungeon.depth/4 );
 			Buff.detach( target, Chill.class);
 
 			//FIXME doesn't work with the sad ghost
@@ -170,7 +170,11 @@ public class Burning extends Buff implements Hero.Doom {
 	}
 	
 	public void reignite( Char ch ) {
-		left = DURATION;
+		reignite( ch, DURATION );
+	}
+	
+	public void reignite( Char ch, float duration ) {
+		left = duration;
 	}
 	
 	@Override

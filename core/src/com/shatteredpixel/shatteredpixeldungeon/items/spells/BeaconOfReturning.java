@@ -30,9 +30,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPassage;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
@@ -76,9 +76,19 @@ public class BeaconOfReturning extends Spell {
 		}
 	}
 	
+	//we reset return depth when beacons are dropped to prevent
+	//having two stacks of beacons with different return locations
+	
 	@Override
-	protected void onDetach() {
+	protected void onThrow(int cell) {
 		returnDepth = -1;
+		super.onThrow(cell);
+	}
+	
+	@Override
+	public void doDrop(Hero hero) {
+		returnDepth = -1;
+		super.doDrop(hero);
 	}
 	
 	private void setBeacon(Hero hero ){
@@ -129,6 +139,8 @@ public class BeaconOfReturning extends Spell {
 		} else {
 			
 			Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+			if (buff != null) buff.detach();
+			buff = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
 			if (buff != null) buff.detach();
 			
 			InterlevelScene.mode = InterlevelScene.Mode.RETURN;
@@ -183,7 +195,7 @@ public class BeaconOfReturning extends Spell {
 	public static class Recipe extends com.shatteredpixel.shatteredpixeldungeon.items.Recipe.SimpleRecipe {
 		
 		{
-			inputs =  new Class[]{ScrollOfPassage.class, ScrollOfMagicMapping.class};
+			inputs =  new Class[]{ScrollOfPassage.class, ArcaneCatalyst.class};
 			inQuantity = new int[]{1, 1};
 			
 			cost = 10;

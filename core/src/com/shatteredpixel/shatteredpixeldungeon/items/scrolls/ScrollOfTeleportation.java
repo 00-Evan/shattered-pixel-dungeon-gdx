@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
@@ -99,7 +100,7 @@ public class ScrollOfTeleportation extends Scroll {
 		}
 		
 		appear( hero, pos );
-		Dungeon.level.press( pos, hero );
+		if (!hero.flying) Dungeon.level.press( pos, hero );
 		Dungeon.observe();
 		GameScene.updateFog();
 		
@@ -125,7 +126,7 @@ public class ScrollOfTeleportation extends Scroll {
 			GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
 			
 			appear( hero, pos );
-			Dungeon.level.press( pos, hero );
+			if (!hero.flying) Dungeon.level.press( pos, hero );
 			Dungeon.observe();
 			GameScene.updateFog();
 			
@@ -171,9 +172,33 @@ public class ScrollOfTeleportation extends Scroll {
 			teleportHero( hero );
 		} else {
 			int pos = Random.element(candidates);
+			boolean secretDoor = false;
+			int doorPos = -1;
+			if (level.room(pos) instanceof SpecialRoom){
+				SpecialRoom room = (SpecialRoom) level.room(pos);
+				if (room.entrance() != null){
+					doorPos = level.pointToCell(room.entrance());
+					for (int i : PathFinder.NEIGHBOURS8){
+						if (!room.inside(level.cellToPoint(doorPos + i))
+								&& level.passable[doorPos + i]
+								&& Actor.findChar(doorPos + i) == null){
+							secretDoor = room instanceof SecretRoom;
+							pos = doorPos + i;
+							break;
+						}
+					}
+				}
+			}
 			GLog.i( Messages.get(ScrollOfTeleportation.class, "tele") );
 			appear( hero, pos );
-			Dungeon.level.press( pos, hero );
+			if (!hero.flying) Dungeon.level.press( pos, hero );
+			if (secretDoor && level.map[doorPos] == Terrain.SECRET_DOOR){
+				Sample.INSTANCE.play( Assets.SND_SECRET );
+				int oldValue = Dungeon.level.map[doorPos];
+				GameScene.discoverTile( doorPos, oldValue );
+				Dungeon.level.discover( doorPos );
+				ScrollOfMagicMapping.discover( doorPos );
+			}
 			Dungeon.observe();
 			GameScene.updateFog();
 		}
@@ -185,7 +210,7 @@ public class ScrollOfTeleportation extends Scroll {
 		ch.sprite.interruptMotion();
 
 		ch.move( pos );
-		ch.sprite.place( pos );
+		if (ch.pos == pos) ch.sprite.place( pos );
 
 		if (ch.invisible == 0) {
 			ch.sprite.alpha( 0 );

@@ -31,25 +31,25 @@ import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Annoying;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Displacing;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Elastic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Exhausting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Fragile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Friendly;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Polarized;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Sacrificial;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Wayward;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Dazzling;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Eldritch;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Stunning;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vorpal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -61,8 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 abstract public class Weapon extends KindOfWeapon {
-
-	private static final int HITS_TO_KNOW    = 20;
 
 	public float    ACC = 1f;	// Accuracy modifier
 	public float	DLY	= 1f;	// Speed modifier
@@ -91,8 +89,10 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 	
 	public Augment augment = Augment.NONE;
-
-	private int hitsToKnow = HITS_TO_KNOW;
+	
+	private static final int USES_TO_ID = 20;
+	private int usesLeftToID = USES_TO_ID;
+	private float availableUsesToID = USES_TO_ID/2f;
 	
 	public Enchantment enchantment;
 	
@@ -103,25 +103,36 @@ abstract public class Weapon extends KindOfWeapon {
 			damage = enchantment.proc( this, attacker, defender, damage );
 		}
 		
-		if (!levelKnown && attacker == Dungeon.hero) {
-			if (--hitsToKnow <= 0) {
+		if (!levelKnown && attacker == Dungeon.hero && availableUsesToID >= 1) {
+			availableUsesToID--;
+			usesLeftToID--;
+			if (usesLeftToID <= 0) {
 				identify();
-				GLog.i( Messages.get(Weapon.class, "identify") );
+				GLog.p( Messages.get(Weapon.class, "identify") );
 				Badges.validateItemLevelAquired( this );
 			}
 		}
 
 		return damage;
 	}
-
-	private static final String UNFAMILIRIARITY	= "unfamiliarity";
-	private static final String ENCHANTMENT		= "enchantment";
-	private static final String AUGMENT			= "augment";
+	
+	public void onHeroGainExp( float levelPercent, Hero hero ){
+		if (!levelKnown && isEquipped(hero) && availableUsesToID <= USES_TO_ID/2f) {
+			//gains enough uses to ID over 0.5 levels
+			availableUsesToID = Math.min(USES_TO_ID/2f, availableUsesToID + levelPercent * USES_TO_ID);
+		}
+	}
+	
+	private static final String USES_LEFT_TO_ID = "uses_left_to_id";
+	private static final String AVAILABLE_USES  = "available_uses";
+	private static final String ENCHANTMENT	    = "enchantment";
+	private static final String AUGMENT	        = "augment";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
-		bundle.put( UNFAMILIRIARITY, hitsToKnow );
+		bundle.put( USES_LEFT_TO_ID, usesLeftToID );
+		bundle.put( AVAILABLE_USES, availableUsesToID );
 		bundle.put( ENCHANTMENT, enchantment );
 		bundle.put( AUGMENT, augment );
 	}
@@ -129,8 +140,15 @@ abstract public class Weapon extends KindOfWeapon {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		hitsToKnow = bundle.getInt( UNFAMILIRIARITY );
+		usesLeftToID = bundle.getInt( USES_LEFT_TO_ID );
+		availableUsesToID = bundle.getInt( AVAILABLE_USES );
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
+		
+		//pre-0.7.2 saves
+		if (bundle.contains( "unfamiliarity" )){
+			usesLeftToID = bundle.getInt( "unfamiliarity" );
+			availableUsesToID = USES_TO_ID/2f;
+		}
 		
 		//pre-0.6.5 saves
 		if (bundle.contains( "imbue" )){
@@ -141,6 +159,13 @@ abstract public class Weapon extends KindOfWeapon {
 		} else {
 			augment = bundle.getEnum(AUGMENT, Augment.class);
 		}
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		usesLeftToID = USES_TO_ID;
+		availableUsesToID = USES_TO_ID/2f;
 	}
 	
 	@Override
@@ -193,10 +218,16 @@ abstract public class Weapon extends KindOfWeapon {
 	
 	public Item upgrade(boolean enchant ) {
 
-		if (enchant && (enchantment == null || enchantment.curse())){
-			enchant( Enchantment.random() );
-		} else if (!enchant && Random.Float() > Math.pow(0.9, level())){
-			enchant(null);
+		if (enchant){
+			if (enchantment == null || hasCurseEnchant()){
+				enchant(Enchantment.random());
+			}
+		} else {
+			if (hasCurseEnchant()){
+				if (Random.Int(3) == 0) enchant(null);
+			} else if (level() >= 4 && Random.Float(10) < Math.pow(2, level()-4)){
+				enchant(null);
+			}
 		}
 		
 		cursed = false;
@@ -271,14 +302,14 @@ abstract public class Weapon extends KindOfWeapon {
 	public static abstract class Enchantment implements Bundlable {
 		
 		private static final Class<?>[] common = new Class<?>[]{
-				Blazing.class, Venomous.class, Vorpal.class, Shocking.class};
+				Blazing.class, Chilling.class, Shocking.class, Blooming.class};
 		
 		private static final Class<?>[] uncommon = new Class<?>[]{
-				Chilling.class, Eldritch.class, Lucky.class,
-				Projecting.class, Unstable.class, Dazzling.class};
+				Swift.class, Elastic.class, Projecting.class,
+				Unstable.class, Precise.class, Blocking.class};
 		
 		private static final Class<?>[] rare = new Class<?>[]{
-				Grim.class, Stunning.class, Vampiric.class};
+				Grim.class, Vampiric.class, Lucky.class};
 		
 		private static final float[] typeChances = new float[]{
 				50, //12.5% each
@@ -288,7 +319,7 @@ abstract public class Weapon extends KindOfWeapon {
 		
 		private static final Class<?>[] curses = new Class<?>[]{
 				Annoying.class, Displacing.class, Exhausting.class, Fragile.class,
-				Sacrificial.class, Wayward.class, Elastic.class, Friendly.class
+				Sacrificial.class, Wayward.class, Polarized.class, Friendly.class
 		};
 		
 		

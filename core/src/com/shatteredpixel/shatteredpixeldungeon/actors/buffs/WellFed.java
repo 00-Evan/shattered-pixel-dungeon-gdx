@@ -42,7 +42,7 @@ public class WellFed extends Buff {
 		if (left < 0){
 			detach();
 			return true;
-		} else if (left % 10 == 0){
+		} else if (left % 18 == 0){
 			target.HP = Math.min(target.HT, target.HP + 1);
 		}
 		
@@ -51,7 +51,8 @@ public class WellFed extends Buff {
 	}
 	
 	public void reset(){
-		//heals one HP every 10 turns for 450 turns
+		//heals one HP every 18 turns for 450 turns
+		//25 HP healed in total
 		left = (int)Hunger.STARVING;
 	}
 	

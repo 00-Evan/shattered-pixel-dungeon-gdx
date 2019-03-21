@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.WeakFloorRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
@@ -72,6 +73,8 @@ public class Chasm {
 		Sample.INSTANCE.play( Assets.SND_FALLING );
 
 		Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
+		if (buff != null) buff.detach();
+		buff = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
 		if (buff != null) buff.detach();
 		
 		if (Dungeon.hero.isAlive()) {
@@ -121,7 +124,7 @@ public class Chasm {
 	}
 
 	public static void mobFall( Mob mob ) {
-		mob.die( Chasm.class );
+		if (mob.isAlive()) mob.die( Chasm.class );
 		
 		((MobSprite)mob.sprite).fall();
 	}

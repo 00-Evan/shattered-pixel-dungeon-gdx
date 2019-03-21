@@ -63,6 +63,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTiledVisual;
@@ -299,8 +300,8 @@ public abstract class Level implements Bundlable {
 
 		version = bundle.getInt( VERSION );
 		
-		//saves from before 0.6.0b are not supported
-		if (version < ShatteredPixelDungeon.v0_6_0b){
+		//saves from before 0.6.2e are not supported
+		if (version < ShatteredPixelDungeon.v0_6_2e){
 			throw new RuntimeException("old save");
 		}
 
@@ -323,11 +324,6 @@ public abstract class Level implements Bundlable {
 		exit		= bundle.getInt( EXIT );
 
 		locked      = bundle.getBoolean( LOCKED );
-		
-		// pre-0.6.1 saves
-		if (version <= ShatteredPixelDungeon.v0_6_0b){
-			map = Terrain.convertTilesFrom0_6_0b( map );
-		}
 		
 		Collection<Bundlable> collection = bundle.getCollection( HEAPS );
 		for (Bundlable h : collection) {
@@ -820,21 +816,32 @@ public abstract class Level implements Bundlable {
 			TimekeepersHourglass.timeFreeze timeFreeze =
 					Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 			
-			if (timeFreeze == null) {
+			Swiftthistle.TimeBubble bubble =
+					Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
+			
+			if (bubble != null){
+				
+				Sample.INSTANCE.play(Assets.SND_TRAP);
+				
+				discover(cell);
+				
+				bubble.setDelayedPress(cell);
+				
+			} else if (timeFreeze != null){
+				
+				Sample.INSTANCE.play(Assets.SND_TRAP);
+				
+				discover(cell);
+				
+				timeFreeze.setDelayedPress(cell);
+				
+			} else {
 
 				if (ch == Dungeon.hero) {
 					Dungeon.hero.interrupt();
 				}
 
 				trap.trigger();
-
-			} else {
-
-				Sample.INSTANCE.play(Assets.SND_TRAP);
-
-				discover(cell);
-
-				timeFreeze.setDelayedPress(cell);
 
 			}
 		}

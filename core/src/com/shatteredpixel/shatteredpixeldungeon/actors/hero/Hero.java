@@ -79,7 +79,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key;
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.SkeletonKey;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfMight;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfAccuracy;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEvasion;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
@@ -92,6 +95,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMappi
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
@@ -191,6 +198,10 @@ public class Hero extends Char {
 		HT = 20 + 5*(lvl-1) + HTBoost;
 		float multiplier = RingOfMight.HTMultiplier(this);
 		HT = Math.round(multiplier * HT);
+		
+		if (buff(ElixirOfMight.HTBoost.class) != null){
+			HT += buff(ElixirOfMight.HTBoost.class).boost();
+		}
 		
 		if (boostHP){
 			HP += Math.max(HT - curHT, 0);
@@ -307,6 +318,18 @@ public class Hero extends Char {
 	public int attackSkill( Char target ) {
 		KindOfWeapon wep = belongings.weapon;
 		
+		if (wep instanceof Weapon
+				&& (((Weapon) wep).hasEnchant(Precise.class, this)
+				|| (((Weapon) wep).hasEnchant(Unstable.class, this) && Random.Int(11) == 0))){
+			if (Precise.rollToGuaranteeHit((Weapon) wep)){
+				target.sprite.emitter().start( Speck.factory(Speck.LIGHT), 0.05f, 5 );
+				if (((Weapon) wep).hasEnchant(Unstable.class, this)){
+					Unstable.justRolledPrecise = true;
+				}
+				return Integer.MAX_VALUE;
+			}
+		}
+		
 		float accuracy = 1;
 		accuracy *= RingOfAccuracy.accuracyMultiplier( this );
 		
@@ -346,7 +369,6 @@ public class Hero extends Char {
 	@Override
 	public int drRoll() {
 		int dr = 0;
-		Barkskin bark = buff(Barkskin.class);
 
 		if (belongings.armor != null) {
 			int armDr = Random.NormalIntRange( belongings.armor.DRMin(), belongings.armor.DRMax());
@@ -362,8 +384,12 @@ public class Hero extends Char {
 			}
 			if (wepDr > 0) dr += wepDr;
 		}
+		Barkskin bark = buff(Barkskin.class);
 		if (bark != null)               dr += Random.NormalIntRange( 0 , bark.level() );
-
+		
+		Blocking.BlockBuff block = buff(Blocking.BlockBuff.class);
+		if (block != null)              dr += block.blockingRoll();
+		
 		return dr;
 	}
 	
@@ -435,10 +461,16 @@ public class Hero extends Char {
 	}
 	
 	public float attackDelay() {
+		if (buff(Swift.SwiftAttack.class) != null
+				&& buff(Swift.SwiftAttack.class).boostsMelee()) {
+			buff(Swift.SwiftAttack.class).detach();
+			return 0;
+		}
+		
 		if (belongings.weapon != null) {
 			
 			return belongings.weapon.speedFactor( this );
-						
+			
 		} else {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
 			//But there's going to be that one guy who gets a furor+force ring combo
@@ -829,6 +861,8 @@ public class Hero extends Char {
 
 			Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
 			if (buff != null) buff.detach();
+			buff = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
+			if (buff != null) buff.detach();
 			
 			InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
 			Game.switchScene( InterlevelScene.class );
@@ -866,6 +900,8 @@ public class Hero extends Char {
 				curAction = null;
 
 				Buff buff = buff(TimekeepersHourglass.timeFreeze.class);
+				if (buff != null) buff.detach();
+				buff = Dungeon.hero.buff(Swiftthistle.TimeBubble.class);
 				if (buff != null) buff.detach();
 
 				InterlevelScene.mode = InterlevelScene.Mode.ASCEND;
@@ -925,11 +961,10 @@ public class Hero extends Char {
 		KindOfWeapon wep = belongings.weapon;
 
 		if (wep != null) damage = wep.proc( this, enemy, damage );
-			
+		
 		switch (subClass) {
 		case SNIPER:
 			if (wep instanceof MissileWeapon && !(wep instanceof SpiritBow.SpiritArrow)) {
-				final float delay = attackDelay();
 				Actor.add(new Actor() {
 					
 					{
@@ -939,7 +974,7 @@ public class Hero extends Char {
 					@Override
 					protected boolean act() {
 						if (enemy.isAlive()) {
-							Buff.prolong(Hero.this, SnipersMark.class, delay).object = enemy.id();
+							Buff.prolong(Hero.this, SnipersMark.class, 2f).object = enemy.id();
 						}
 						Actor.remove(this);
 						return true;
@@ -1210,7 +1245,7 @@ public class Hero extends Char {
 		return true;
 	}
 	
-	public void earnExp( int exp ) {
+	public void earnExp( int exp, Class source ) {
 		
 		this.exp += exp;
 		float percent = exp/(float)maxExp();
@@ -1227,13 +1262,23 @@ public class Hero extends Char {
 		Berserk berserk = buff(Berserk.class);
 		if (berserk != null) berserk.recover(percent);
 		
+		if (source != PotionOfExperience.class) {
+			for (Item i : belongings) {
+				i.onHeroGainExp(percent, this);
+			}
+		}
+		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
 			this.exp -= maxExp();
 			if (lvl < MAX_LEVEL) {
 				lvl++;
 				levelUp = true;
-
+				
+				if (buff(ElixirOfMight.HTBoost.class) != null){
+					buff(ElixirOfMight.HTBoost.class).onLevelUp();
+				}
+				
 				updateHT( true );
 				attackSkill++;
 				defenseSkill++;
@@ -1333,6 +1378,7 @@ public class Hero extends Char {
 			this.HP = HT/4;
 
 			//ensures that you'll get to act first in almost any case, to prevent reviving and then instantly dieing again.
+			PotionOfHealing.cure(this);
 			Buff.detach(this, Paralysis.class);
 			spend(-cooldown());
 

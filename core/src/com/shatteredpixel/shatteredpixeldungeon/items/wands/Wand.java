@@ -21,6 +21,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -55,8 +56,6 @@ import java.util.ArrayList;
 
 public abstract class Wand extends Item {
 
-	private static final int USAGES_TO_KNOW    = 20;
-
 	public static final String AC_ZAP	= "ZAP";
 
 	private static final float TIME_TO_ZAP	= 1f;
@@ -68,8 +67,10 @@ public abstract class Wand extends Item {
 	protected Charger charger;
 	
 	private boolean curChargeKnown = false;
-
-	protected int usagesToKnow = USAGES_TO_KNOW;
+	
+	private static final int USES_TO_ID = 10;
+	private int usesLeftToID = USES_TO_ID;
+	private float availableUsesToID = USES_TO_ID/2f;
 
 	protected int collisionProperties = Ballistica.MAGIC_BOLT;
 	
@@ -169,13 +170,20 @@ public abstract class Wand extends Item {
 	
 	@Override
 	public Item identify() {
-
+		
 		curChargeKnown = true;
 		super.identify();
 		
 		updateQuickslot();
 		
 		return this;
+	}
+	
+	public void onHeroGainExp( float levelPercent, Hero hero ){
+		if (!isIdentified() && availableUsesToID <= USES_TO_ID/2f) {
+			//gains enough uses to ID over 1 level
+			availableUsesToID = Math.min(USES_TO_ID/2f, availableUsesToID + levelPercent * USES_TO_ID/2f);
+		}
 	}
 
 	@Override
@@ -216,7 +224,7 @@ public abstract class Wand extends Item {
 
 		super.upgrade();
 
-		if (Random.Float() > Math.pow(0.8, level())) {
+		if (Random.Int(3) == 0) {
 			cursed = false;
 		}
 
@@ -268,15 +276,20 @@ public abstract class Wand extends Item {
 	}
 
 	protected void wandUsed() {
-		usagesToKnow -= cursed ? 1 : chargesPerCast();
-		curCharges -= cursed ? 1 : chargesPerCast();
-		if (!isIdentified() && usagesToKnow <= 0) {
-			identify();
-			GLog.w( Messages.get(Wand.class, "identify", name()) );
-		} else {
-			if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
-			updateQuickslot();
+		if (!isIdentified() && availableUsesToID >= 1) {
+			availableUsesToID--;
+			usesLeftToID--;
+			if (usesLeftToID <= 0) {
+				identify();
+				GLog.p( Messages.get(Wand.class, "identify") );
+				Badges.validateItemLevelAquired( this );
+			}
 		}
+		
+		curCharges -= cursed ? 1 : chargesPerCast();
+		
+		if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
+		updateQuickslot();
 
 		curUser.spendAndNext( TIME_TO_ZAP );
 	}
@@ -321,16 +334,18 @@ public abstract class Wand extends Item {
 		}
 		return price;
 	}
-
-	private static final String UNFAMILIRIARITY     = "unfamiliarity";
-	private static final String CUR_CHARGES			= "curCharges";
-	private static final String CUR_CHARGE_KNOWN	= "curChargeKnown";
-	private static final String PARTIALCHARGE 		= "partialCharge";
+	
+	private static final String USES_LEFT_TO_ID = "uses_left_to_id";
+	private static final String AVAILABLE_USES  = "available_uses";
+	private static final String CUR_CHARGES         = "curCharges";
+	private static final String CUR_CHARGE_KNOWN    = "curChargeKnown";
+	private static final String PARTIALCHARGE       = "partialCharge";
 	
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
-		bundle.put( UNFAMILIRIARITY, usagesToKnow );
+		bundle.put( USES_LEFT_TO_ID, usesLeftToID );
+		bundle.put( AVAILABLE_USES, availableUsesToID );
 		bundle.put( CUR_CHARGES, curCharges );
 		bundle.put( CUR_CHARGE_KNOWN, curChargeKnown );
 		bundle.put( PARTIALCHARGE , partialCharge );
@@ -339,12 +354,24 @@ public abstract class Wand extends Item {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		if ((usagesToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
-			usagesToKnow = USAGES_TO_KNOW;
+		usesLeftToID = bundle.getInt( USES_LEFT_TO_ID );
+		availableUsesToID = bundle.getInt( AVAILABLE_USES );
+		
+		//pre-0.7.2 saves
+		if (bundle.contains( "unfamiliarity" )){
+			usesLeftToID = Math.min(10, bundle.getInt( "unfamiliarity" ));
+			availableUsesToID = USES_TO_ID/2f;
 		}
 		curCharges = bundle.getInt( CUR_CHARGES );
 		curChargeKnown = bundle.getBoolean( CUR_CHARGE_KNOWN );
 		partialCharge = bundle.getFloat( PARTIALCHARGE );
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		usesLeftToID = USES_TO_ID;
+		availableUsesToID = USES_TO_ID/2f;
 	}
 	
 	protected static CellSelector.Listener zapper = new  CellSelector.Listener() {
@@ -439,10 +466,14 @@ public abstract class Wand extends Item {
 			if (curCharges < maxCharges)
 				recharge();
 			
-			if (partialCharge >= 1 && curCharges < maxCharges) {
+			while (partialCharge >= 1 && curCharges < maxCharges) {
 				partialCharge--;
 				curCharges++;
 				updateQuickslot();
+			}
+			
+			if (curCharges == maxCharges){
+				partialCharge = 0;
 			}
 			
 			spend( TICK );

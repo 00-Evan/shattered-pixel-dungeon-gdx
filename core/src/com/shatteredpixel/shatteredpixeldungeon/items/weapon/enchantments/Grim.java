@@ -39,17 +39,21 @@ public class Grim extends Weapon.Enchantment {
 		int level = Math.max( 0, weapon.level() );
 
 		int enemyHealth = defender.HP - damage;
-		if (enemyHealth == 0) return damage; //no point in proccing if they're already dead.
+		if (enemyHealth <= 0) return damage; //no point in proccing if they're already dead.
 
-		//scales from 0 - 30% based on how low hp the enemy is, plus 1% per level
-		int chance = Math.round(((defender.HT - enemyHealth) / (float)defender.HT)*30 + level);
+		//scales from 0 - 40% based on how low hp the enemy is, plus 2% per level
+		float maxChance = 0.4f + .02f*level;
+		float chanceMulti = (float)Math.pow( ((defender.HT - enemyHealth) / (float)defender.HT), 2);
+		float chance = maxChance * chanceMulti;
 		
-		if (Random.Int( 100 ) < chance) {
+		if (Random.Float() < chance) {
 			
 			defender.damage( defender.HP, this );
 			defender.sprite.emitter().burst( ShadowParticle.UP, 5 );
 			
-			if (!defender.isAlive() && attacker instanceof Hero) {
+			if (!defender.isAlive() && attacker instanceof Hero
+				//this prevents unstable from triggering grim achievement
+				&& weapon.hasEnchant(Grim.class, attacker)) {
 				Badges.validateGrimWeapon();
 			}
 			

@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class Ring extends KindofMisc {
-
-	private static final int TICKS_TO_KNOW    = 200;
 	
 	protected Buff buff;
 	
@@ -80,7 +78,8 @@ public class Ring extends KindofMisc {
 	
 	private String gem;
 	
-	private int ticksToKnow = TICKS_TO_KNOW;
+	//rings cannot be 'used' like other equipment, so they ID purely based on exp
+	private float levelsToID = 1;
 	
 	@SuppressWarnings("unchecked")
 	public static void initGems() {
@@ -116,6 +115,7 @@ public class Ring extends KindofMisc {
 	
 	public void reset() {
 		super.reset();
+		levelsToID = 1;
 		if (handler != null && handler.contains(this)){
 			image = handler.image(this);
 			gem = handler.label(this);
@@ -195,7 +195,7 @@ public class Ring extends KindofMisc {
 	public Item upgrade() {
 		super.upgrade();
 		
-		if (Random.Float() > Math.pow(0.8, level())) {
+		if (Random.Int(3) == 0) {
 			cursed = false;
 		}
 		
@@ -210,6 +210,7 @@ public class Ring extends KindofMisc {
 	@Override
 	public Item identify() {
 		setKnown();
+		levelsToID = 0;
 		return super.identify();
 	}
 	
@@ -270,24 +271,38 @@ public class Ring extends KindofMisc {
 		return null;
 	}
 
-	private static final String UNFAMILIRIARITY    = "unfamiliarity";
+	private static final String LEVELS_TO_ID    = "levels_to_ID";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
 		super.storeInBundle( bundle );
-		bundle.put( UNFAMILIRIARITY, ticksToKnow );
+		bundle.put( LEVELS_TO_ID, levelsToID );
 	}
 
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		if ((ticksToKnow = bundle.getInt( UNFAMILIRIARITY )) == 0) {
-			ticksToKnow = TICKS_TO_KNOW;
+		levelsToID = bundle.getFloat( LEVELS_TO_ID );
+		
+		//pre-0.7.2 saves
+		if (bundle.contains( "unfamiliarity" )){
+			levelsToID = bundle.getInt( "unfamiliarity" ) / 200f;
 		}
 		
 		//pre-0.6.1 saves
 		if (level() < 0){
 			upgrade(-level());
+		}
+	}
+	
+	public void onHeroGainExp( float levelPercent, Hero hero ){
+		if (isIdentified() || !isEquipped(hero)) return;
+		//becomes IDed after 1 level
+		levelsToID -= levelPercent;
+		if (levelsToID <= 0){
+			identify();
+			GLog.p( Messages.get(Ring.class, "identify", toString()) );
+			Badges.validateItemLevelAquired( this );
 		}
 	}
 
@@ -311,12 +326,6 @@ public class Ring extends KindofMisc {
 		
 		@Override
 		public boolean act() {
-			
-			if (!isIdentified() && --ticksToKnow <= 0) {
-				identify();
-				GLog.w( Messages.get(Ring.class, "identify", Ring.this.toString()) );
-				Badges.validateItemLevelAquired( Ring.this );
-			}
 			
 			spend( TICK );
 			

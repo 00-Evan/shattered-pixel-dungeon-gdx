@@ -93,7 +93,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfBlink;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfClairvoyance;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDeepenedSleep;
-import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDetectCurse;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfDisarming;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfEnchantment;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfFlock;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfIntuition;
@@ -287,7 +287,7 @@ public class Generator {
 					StoneOfBlink.class,
 					StoneOfClairvoyance.class,
 					StoneOfDeepenedSleep.class,
-					StoneOfDetectCurse.class,
+					StoneOfDisarming.class,
 					StoneOfFlock.class,
 					StoneOfShock.class
 			};
@@ -661,19 +661,10 @@ public class Generator {
 		}
 		
 		initArtifacts();
-		if (bundle.contains(SPAWNED_ARTIFACTS)){
-			for ( Class<?extends Artifact> artifact : bundle.getClassArray(SPAWNED_ARTIFACTS) ){
-				removeArtifact(artifact);
-			}
-		//pre-0.6.1 saves
-		} else if (bundle.contains("artifacts")) {
-			String[] names = bundle.getStringArray("artifacts");
-			Category cat = Category.ARTIFACT;
-
-			for (String artifact : names)
-				for (int i = 0; i < cat.classes.length; i++)
-					if (cat.classes[i].getSimpleName().equals(artifact))
-						cat.probs[i] = 0;
+		
+		for ( Class<?extends Artifact> artifact : bundle.getClassArray(SPAWNED_ARTIFACTS) ){
+			removeArtifact(artifact);
 		}
+		
 	}
 }

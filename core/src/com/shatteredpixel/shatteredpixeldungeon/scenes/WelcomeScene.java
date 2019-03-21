@@ -44,7 +44,7 @@ import com.watabou.utils.FileUtils;
 
 public class WelcomeScene extends PixelScene {
 
-	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_7_1;
+	private static int LATEST_UPDATE = ShatteredPixelDungeon.v0_7_2;
 
 	@Override
 	public void create() {
@@ -143,7 +143,7 @@ public class WelcomeScene extends PixelScene {
 				//TODO: change the messages here in accordance with the type of patch.
 				message = Messages.get(this, "patch_intro");
 				message += "\n";
-				message += "\n" + Messages.get(this, "patch_balance");
+				//message += "\n" + Messages.get(this, "patch_balance");
 				message += "\n" + Messages.get(this, "patch_bugfixes");
 				message += "\n" + Messages.get(this, "patch_translations");
 
@@ -216,16 +216,6 @@ public class WelcomeScene extends PixelScene {
 					}
 				}
 			}
-		}
-		
-		//remove changed badges
-		if (previousVersion <= ShatteredPixelDungeon.v0_6_0b){
-			Badges.disown(Badges.Badge.ALL_WANDS_IDENTIFIED);
-			Badges.disown(Badges.Badge.ALL_RINGS_IDENTIFIED);
-			Badges.disown(Badges.Badge.ALL_SCROLLS_IDENTIFIED);
-			Badges.disown(Badges.Badge.ALL_POTIONS_IDENTIFIED);
-			Badges.disown(Badges.Badge.ALL_ITEMS_IDENTIFIED);
-			Badges.saveGlobal();
 		}
 		
 		SPDSettings.version(ShatteredPixelDungeon.versionCode);

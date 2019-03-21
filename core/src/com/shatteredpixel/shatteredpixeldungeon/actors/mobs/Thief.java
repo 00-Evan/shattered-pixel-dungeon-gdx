@@ -138,7 +138,7 @@ public class Thief extends Mob {
 		if (item != null && !item.unique && item.level() < 1 ) {
 
 			GLog.w( Messages.get(Thief.class, "stole", item.name()) );
-			if (!item.stackable || hero.belongings.getSimilar(item) == null) {
+			if (!item.stackable) {
 				Dungeon.quickslot.convertToPlaceholder(item);
 			}
 			item.updateQuickslot();
@@ -191,7 +191,9 @@ public class Thief extends Mob {
 				if (enemySeen) {
 					sprite.showStatus(CharSprite.NEGATIVE, Messages.get(Mob.class, "rage"));
 					state = HUNTING;
-				} else if (item != null && !Dungeon.level.heroFOV[pos]) {
+				} else if (item != null
+						&& !Dungeon.level.heroFOV[pos]
+						&& Dungeon.level.distance(Dungeon.hero.pos, pos) < 6) {
 
 					int count = 32;
 					int newPos;

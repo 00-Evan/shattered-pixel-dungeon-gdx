@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015  Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2018 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,37 +21,38 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Stunning extends Weapon.Enchantment {
+public class Elastic extends Weapon.Enchantment {
 	
-	private static ItemSprite.Glowing YELLOW = new ItemSprite.Glowing( 0xCCAA44 );
+	private static ItemSprite.Glowing PINK = new ItemSprite.Glowing( 0xFF00FF );
 	
 	@Override
-	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 13%
-		// lvl 1 - 22%
-		// lvl 2 - 30%
+	public int proc(Weapon weapon, Char attacker, Char defender, int damage ) {
+		// lvl 0 - 20%
+		// lvl 1 - 33%
+		// lvl 2 - 43%
 		int level = Math.max( 0, weapon.level() );
 		
-		if (Random.Int( level + 8 ) >= 7) {
-			
-			Buff.prolong( defender, Paralysis.class, Random.Float( 1, 1.5f + level ) );
-			defender.sprite.emitter().burst(Speck.factory(Speck.LIGHT), 12 );
-
+		if (Random.Int( level + 5 ) >= 4) {
+			//trace a ballistica to our target (which will also extend past them
+			Ballistica trajectory = new Ballistica(attacker.pos, defender.pos, Ballistica.STOP_TARGET);
+			//trim it to just be the part that goes past them
+			trajectory = new Ballistica(trajectory.collisionPos, trajectory.path.get(trajectory.path.size()-1), Ballistica.PROJECTILE);
+			//knock them back along that ballistica
+			WandOfBlastWave.throwChar(defender, trajectory, 2);
 		}
-
+		
 		return damage;
 	}
 	
 	@Override
-	public Glowing glowing() {
-		return YELLOW;
+	public ItemSprite.Glowing glowing() {
+		return PINK;
 	}
+
 }
