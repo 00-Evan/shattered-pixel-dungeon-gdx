@@ -34,10 +34,6 @@ public class DeviceCompat {
 		return false;
 	}
 	
-	public static boolean supportsPlayServices(){
-		return false;
-	}
-	
 	public static boolean usesISO_8859_1(){
 		return false;
 	}
