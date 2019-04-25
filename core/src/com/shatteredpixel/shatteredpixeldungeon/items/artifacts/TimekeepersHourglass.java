@@ -289,7 +289,7 @@ public class TimekeepersHourglass extends Artifact {
 			type = buffType.POSITIVE;
 		}
 
-		float partialTime = 1f;
+		float partialTime = 0f;
 
 		ArrayList<Integer> presses = new ArrayList<Integer>();
 
@@ -336,6 +336,11 @@ public class TimekeepersHourglass extends Artifact {
 			for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0]))
 				if (mob.paralysed <= 0) mob.sprite.remove(CharSprite.State.PARALYSED);
 			GameScene.freezeEmitters = false;
+			
+			while (partialTime > 0f){
+				partialTime -= 2f;
+				charge --;
+			}
 
 			updateQuickslot();
 			super.detach();

@@ -211,6 +211,12 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 
 	@Override
 	public void resize(int width, int height) {
+		
+		if (scene instanceof PixelScene &&
+				(height != Game.height || width != Game.width)) {
+			((PixelScene) scene).saveWindows();
+		}
+		
 		super.resize(width, height);
 
 		Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
@@ -231,5 +237,13 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		PixelScene.noFade = true;
 		switchScene( c, callback );
 	}
-
+	
+	@Override
+	protected void switchScene() {
+		super.switchScene();
+		if (scene instanceof PixelScene){
+			((PixelScene) scene).restoreWindows();
+		}
+	}
+	
 }
