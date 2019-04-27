@@ -8,7 +8,7 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *  (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,17 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.shatteredpixel.shatteredpixeldungeon.effects;
+package com.watabou.noosa;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
-import com.watabou.noosa.Image;
 
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-
-//TODO externalize bitmap stuff to SPD-classes
 public class Halo extends Image {
 	
 	private static final Object CACHE_KEY = Halo.class;
@@ -65,7 +61,6 @@ public class Halo extends Image {
 	public Halo point( float x, float y ) {
 		this.x = x - (width()/2f);
 		this.y = y - (height()/2f);
-		PixelScene.align(this);
 		return this;
 	}
 	
