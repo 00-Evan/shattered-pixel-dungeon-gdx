@@ -157,11 +157,24 @@ public class WndBag extends WndTabbed {
 			if (b != null) {
 				BagTab tab = new BagTab( b );
 				add( tab );
-				tab.select( b == bag );
+				if (b == bag) {
+					select(tab);
+				}
 			}
 		}
 
 		layoutTabs();
+	}
+
+
+	@Override
+	public void select(Tab tab) {
+		if (selected != null && selected != tab) {
+			hide();
+			Game.scene().addToFront(new WndBag(((BagTab) tab).bag, listener, mode, title));
+		} else {
+			super.select(tab);
+		}
 	}
 
 	@Override

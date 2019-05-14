@@ -20,7 +20,6 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.badlogic.gdx.Input;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
@@ -156,7 +155,7 @@ public class WndTabbed extends Window {
 
 	@Override
 	protected void onKeyDown(NoosaInputProcessor.Key key) {
-		if (key.code == Input.Keys.TAB) {
+		if (key.action == GameAction.TAG_DANGER) {
 			int next = 0;
 			for (int j = 0; j < tabs.size(); j++) {
 				Tab t = tabs.get(j);
