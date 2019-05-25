@@ -41,13 +41,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazin
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Corrupting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -95,6 +95,7 @@ abstract public class Weapon extends KindOfWeapon {
 	private float availableUsesToID = USES_TO_ID/2f;
 	
 	public Enchantment enchantment;
+	public boolean curseInfusionBonus = false;
 	
 	@Override
 	public int proc( Char attacker, Char defender, int damage ) {
@@ -126,6 +127,7 @@ abstract public class Weapon extends KindOfWeapon {
 	private static final String USES_LEFT_TO_ID = "uses_left_to_id";
 	private static final String AVAILABLE_USES  = "available_uses";
 	private static final String ENCHANTMENT	    = "enchantment";
+	private static final String CURSE_INFUSION_BONUS = "curse_infusion_bonus";
 	private static final String AUGMENT	        = "augment";
 
 	@Override
@@ -134,6 +136,7 @@ abstract public class Weapon extends KindOfWeapon {
 		bundle.put( USES_LEFT_TO_ID, usesLeftToID );
 		bundle.put( AVAILABLE_USES, availableUsesToID );
 		bundle.put( ENCHANTMENT, enchantment );
+		bundle.put( CURSE_INFUSION_BONUS, curseInfusionBonus );
 		bundle.put( AUGMENT, augment );
 	}
 	
@@ -143,6 +146,7 @@ abstract public class Weapon extends KindOfWeapon {
 		usesLeftToID = bundle.getInt( USES_LEFT_TO_ID );
 		availableUsesToID = bundle.getInt( AVAILABLE_USES );
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
+		curseInfusionBonus = bundle.getBoolean( CURSE_INFUSION_BONUS );
 		
 		//pre-0.7.2 saves
 		if (bundle.contains( "unfamiliarity" )){
@@ -150,15 +154,7 @@ abstract public class Weapon extends KindOfWeapon {
 			availableUsesToID = USES_TO_ID/2f;
 		}
 		
-		//pre-0.6.5 saves
-		if (bundle.contains( "imbue" )){
-			String imbue = bundle.getString( "imbue" );
-			if (imbue.equals( "LIGHT" ))        augment = Augment.SPEED;
-			else if (imbue.equals( "HEAVY" ))   augment = Augment.DAMAGE;
-			else                                augment = Augment.NONE;
-		} else {
-			augment = bundle.getEnum(AUGMENT, Augment.class);
-		}
+		augment = bundle.getEnum(AUGMENT, Augment.class);
 	}
 	
 	@Override
@@ -210,6 +206,11 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 
 	public abstract int STRReq(int lvl);
+	
+	@Override
+	public int level() {
+		return super.level() + (curseInfusionBonus ? 1 : 0);
+	}
 	
 	@Override
 	public Item upgrade() {
@@ -268,6 +269,7 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 	
 	public Weapon enchant( Enchantment ench ) {
+		if (ench == null || !ench.curse()) curseInfusionBonus = false;
 		enchantment = ench;
 		updateQuickslot();
 		return this;
@@ -302,14 +304,14 @@ abstract public class Weapon extends KindOfWeapon {
 	public static abstract class Enchantment implements Bundlable {
 		
 		private static final Class<?>[] common = new Class<?>[]{
-				Blazing.class, Chilling.class, Shocking.class, Blooming.class};
+				Blazing.class, Chilling.class, Kinetic.class, Shocking.class};
 		
 		private static final Class<?>[] uncommon = new Class<?>[]{
-				Swift.class, Elastic.class, Projecting.class,
-				Unstable.class, Precise.class, Blocking.class};
+				Blocking.class, Blooming.class, Elastic.class,
+				Lucky.class, Projecting.class, Unstable.class};
 		
 		private static final Class<?>[] rare = new Class<?>[]{
-				Grim.class, Vampiric.class, Lucky.class};
+				Corrupting.class, Grim.class, Vampiric.class};
 		
 		private static final float[] typeChances = new float[]{
 				50, //12.5% each

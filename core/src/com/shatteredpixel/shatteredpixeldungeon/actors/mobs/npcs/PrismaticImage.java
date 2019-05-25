@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PrismaticSprite;
 import com.watabou.noosa.audio.Sample;
@@ -107,8 +108,12 @@ public class PrismaticImage extends NPC {
 	@Override
 	public void die(Object cause) {
 		if (deathTimer == -1) {
-			deathTimer = 5;
-			sprite.add(CharSprite.State.PARALYSED);
+			if (cause == Chasm.class){
+				super.die( cause );
+			} else {
+				deathTimer = 5;
+				sprite.add(CharSprite.State.PARALYSED);
+			}
 		}
 	}
 	

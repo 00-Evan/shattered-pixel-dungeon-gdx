@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.CausticBrew;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.InfernalBrew;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.brews.ShockingBrew;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfAquaticRejuvenation;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfArcaneArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfDragonsBlood;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfHoneyedHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs.ElixirOfIcyTouch;
@@ -59,6 +60,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.spells.MagicalPorter;
 import com.shatteredpixel.shatteredpixeldungeon.items.spells.PhaseShift;
 import com.shatteredpixel.shatteredpixeldungeon.items.spells.ReclaimTrap;
 import com.shatteredpixel.shatteredpixeldungeon.items.spells.Recycle;
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.WildEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.Runestone;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
@@ -265,42 +267,6 @@ public class QuickRecipe extends Component {
 				}
 				return result;
 			case 2:
-				r = new TippedDart.TipDart();
-				for (Class<?> cls : Generator.Category.SEED.classes){
-					try{
-						Plant.Seed seed = (Plant.Seed) cls.newInstance();
-						ArrayList<Item> in = new ArrayList<>(Arrays.asList(seed, new Dart()));
-						result.add(new QuickRecipe( r, in, r.sampleOutput(in)));
-					} catch (Exception e){
-						ShatteredPixelDungeon.reportException(e);
-					}
-				}
-				return result;
-			case 3:
-				r = new ExoticPotion.PotionToExotic();
-				for (Class<?> cls : Generator.Category.POTION.classes){
-					try{
-						Potion pot = (Potion) cls.newInstance();
-						ArrayList<Item> in = new ArrayList<>(Arrays.asList(pot, new Plant.Seed.PlaceHolder().quantity(2)));
-						result.add(new QuickRecipe( r, in, r.sampleOutput(in)));
-					} catch (Exception e){
-						ShatteredPixelDungeon.reportException(e);
-					}
-				}
-				return result;
-			case 4:
-				r = new ExoticScroll.ScrollToExotic();
-				for (Class<?> cls : Generator.Category.SCROLL.classes){
-					try{
-						Scroll scroll = (Scroll) cls.newInstance();
-						ArrayList<Item> in = new ArrayList<>(Arrays.asList(scroll, new Runestone.PlaceHolder().quantity(2)));
-						result.add(new QuickRecipe( r, in, r.sampleOutput(in)));
-					} catch (Exception e){
-						ShatteredPixelDungeon.reportException(e);
-					}
-				}
-				return result;
-			case 5:
 				result.add(new QuickRecipe( new StewedMeat.oneMeat() ));
 				result.add(new QuickRecipe( new StewedMeat.twoMeat() ));
 				result.add(new QuickRecipe( new StewedMeat.threeMeat() ));
@@ -324,7 +290,7 @@ public class QuickRecipe extends Component {
 							}
 						}));
 				return result;
-			case 6:
+			case 3:
 				r = new Bomb.EnhanceBomb();
 				int i = 0;
 				for (Class<?> cls : Bomb.EnhanceBomb.validIngredients.keySet()){
@@ -342,7 +308,31 @@ public class QuickRecipe extends Component {
 					}
 				}
 				return result;
-			case 7:
+			case 4:
+				r = new ExoticPotion.PotionToExotic();
+				for (Class<?> cls : Generator.Category.POTION.classes){
+					try{
+						Potion pot = (Potion) cls.newInstance();
+						ArrayList<Item> in = new ArrayList<>(Arrays.asList(pot, new Plant.Seed.PlaceHolder().quantity(2)));
+						result.add(new QuickRecipe( r, in, r.sampleOutput(in)));
+					} catch (Exception e){
+						ShatteredPixelDungeon.reportException(e);
+					}
+				}
+				return result;
+			case 5:
+				r = new ExoticScroll.ScrollToExotic();
+				for (Class<?> cls : Generator.Category.SCROLL.classes){
+					try{
+						Scroll scroll = (Scroll) cls.newInstance();
+						ArrayList<Item> in = new ArrayList<>(Arrays.asList(scroll, new Runestone.PlaceHolder().quantity(2)));
+						result.add(new QuickRecipe( r, in, r.sampleOutput(in)));
+					} catch (Exception e){
+						ShatteredPixelDungeon.reportException(e);
+					}
+				}
+				return result;
+			case 6:
 				result.add(new QuickRecipe(new AlchemicalCatalyst.Recipe(), new ArrayList<>(Arrays.asList(new Potion.PlaceHolder(), new Plant.Seed.PlaceHolder())), new AlchemicalCatalyst()));
 				result.add(new QuickRecipe(new AlchemicalCatalyst.Recipe(), new ArrayList<>(Arrays.asList(new Potion.PlaceHolder(), new Runestone.PlaceHolder())), new AlchemicalCatalyst()));
 				result.add(null);
@@ -350,23 +340,25 @@ public class QuickRecipe extends Component {
 				result.add(new QuickRecipe(new ArcaneCatalyst.Recipe(), new ArrayList<>(Arrays.asList(new Scroll.PlaceHolder(), new Runestone.PlaceHolder())), new ArcaneCatalyst()));
 				result.add(new QuickRecipe(new ArcaneCatalyst.Recipe(), new ArrayList<>(Arrays.asList(new Scroll.PlaceHolder(), new Plant.Seed.PlaceHolder())), new ArcaneCatalyst()));
 				return result;
-			case 8:
+			case 7:
+				result.add(new QuickRecipe(new CausticBrew.Recipe()));
 				result.add(new QuickRecipe(new InfernalBrew.Recipe()));
 				result.add(new QuickRecipe(new BlizzardBrew.Recipe()));
 				result.add(new QuickRecipe(new ShockingBrew.Recipe()));
-				result.add(new QuickRecipe(new CausticBrew.Recipe()));
 				result.add(null);
 				result.add(null);
 				result.add(new QuickRecipe(new ElixirOfHoneyedHealing.Recipe()));
-				result.add(new QuickRecipe(new ElixirOfAquaticRejuvenation.Recipe()));
 				result.add(new QuickRecipe(new ElixirOfMight.Recipe()));
+				result.add(new QuickRecipe(new ElixirOfAquaticRejuvenation.Recipe()));
 				result.add(new QuickRecipe(new ElixirOfDragonsBlood.Recipe()));
 				result.add(new QuickRecipe(new ElixirOfIcyTouch.Recipe()));
 				result.add(new QuickRecipe(new ElixirOfToxicEssence.Recipe()));
+				result.add(new QuickRecipe(new ElixirOfArcaneArmor.Recipe()));
 				return result;
-			case 9:
+			case 8:
 				result.add(new QuickRecipe(new MagicalPorter.Recipe()));
 				result.add(new QuickRecipe(new PhaseShift.Recipe()));
+				result.add(new QuickRecipe(new WildEnergy.Recipe()));
 				result.add(new QuickRecipe(new BeaconOfReturning.Recipe()));
 				result.add(null);
 				result.add(null);

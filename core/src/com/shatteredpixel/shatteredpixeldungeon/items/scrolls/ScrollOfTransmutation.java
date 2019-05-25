@@ -38,11 +38,15 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.ExoticPotio
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.watabou.utils.Random;
@@ -58,6 +62,7 @@ public class ScrollOfTransmutation extends InventoryScroll {
 	
 	public static boolean canTransmute(Item item){
 		return item instanceof MeleeWeapon ||
+				(item instanceof MissileWeapon && !(item instanceof Dart)) ||
 				(item instanceof Potion && !(item instanceof Elixir || item instanceof Brew || item instanceof AlchemicalCatalyst)) ||
 				item instanceof Scroll ||
 				item instanceof Ring ||
@@ -74,8 +79,8 @@ public class ScrollOfTransmutation extends InventoryScroll {
 		
 		if (item instanceof MagesStaff) {
 			result = changeStaff( (MagesStaff)item );
-		} else if (item instanceof MeleeWeapon) {
-			result = changeWeapon( (MeleeWeapon)item );
+		} else if (item instanceof MeleeWeapon || item instanceof MissileWeapon) {
+			result = changeWeapon( (Weapon)item );
 		} else if (item instanceof Scroll) {
 			result = changeScroll( (Scroll)item );
 		} else if (item instanceof Potion) {
@@ -129,20 +134,26 @@ public class ScrollOfTransmutation extends InventoryScroll {
 				n = (Wand) Generator.random(Generator.Category.WAND);
 			} while (Challenges.isItemBlocked(n) || n.getClass() == wandClass);
 			n.level(0);
+			n.identify();
 			staff.imbueWand(n, null);
 		}
 		
 		return staff;
 	}
 	
-	private Weapon changeWeapon(MeleeWeapon w ) {
+	private Weapon changeWeapon( Weapon w ) {
 		
 		Weapon n;
-		Generator.Category c = Generator.wepTiers[w.tier-1];
+		Generator.Category c;
+		if (w instanceof MeleeWeapon) {
+			c = Generator.wepTiers[((MeleeWeapon)w).tier - 1];
+		} else {
+			c = Generator.misTiers[((MissileWeapon)w).tier - 1];
+		}
 		
 		do {
 			try {
-				n = (MeleeWeapon)c.classes[Random.chances(c.probs)].newInstance();
+				n = (Weapon)c.classes[Random.chances(c.probs)].newInstance();
 			} catch (Exception e) {
 				ShatteredPixelDungeon.reportException(e);
 				return null;
@@ -150,6 +161,7 @@ public class ScrollOfTransmutation extends InventoryScroll {
 		} while (Challenges.isItemBlocked(n) || n.getClass() == w.getClass());
 		
 		int level = w.level();
+		if (w.curseInfusionBonus) level--;
 		if (level > 0) {
 			n.upgrade( level );
 		} else if (level < 0) {
@@ -157,6 +169,7 @@ public class ScrollOfTransmutation extends InventoryScroll {
 		}
 		
 		n.enchantment = w.enchantment;
+		n.curseInfusionBonus = w.curseInfusionBonus;
 		n.levelKnown = w.levelKnown;
 		n.cursedKnown = w.cursedKnown;
 		n.cursed = w.cursed;
@@ -210,11 +223,14 @@ public class ScrollOfTransmutation extends InventoryScroll {
 		} while ( Challenges.isItemBlocked(n) || n.getClass() == w.getClass());
 		
 		n.level( 0 );
-		n.upgrade( w.level() );
+		int level = w.level();
+		if (w.curseInfusionBonus) level--;
+		n.upgrade( level );
 		
 		n.levelKnown = w.levelKnown;
 		n.cursedKnown = w.cursedKnown;
 		n.cursed = w.cursed;
+		n.curseInfusionBonus = w.curseInfusionBonus;
 		
 		return n;
 	}

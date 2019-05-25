@@ -95,7 +95,7 @@ public class Bundle {
 
 	public Class getClass( String key ) {
 		String clName =  getString(key).replace("class ", "");;
-		if (clName != null){
+		if (!clName.equals("")){
 			if (aliases.containsKey( clName )) {
 				clName = aliases.get( clName );
 			}

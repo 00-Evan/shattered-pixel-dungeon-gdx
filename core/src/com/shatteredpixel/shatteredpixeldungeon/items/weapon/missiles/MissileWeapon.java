@@ -33,7 +33,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.TippedDart;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -194,47 +193,21 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public float castDelay(Char user, int dst) {
-		if (Actor.findChar( dst ) != null
-				&& user.buff(Swift.SwiftAttack.class) != null
-				&& user.buff(Swift.SwiftAttack.class).boostsRanged()) {
-			user.buff(Swift.SwiftAttack.class).detach();
-			return 0;
-		}
 		return speedFactor( user );
 	}
 	
 	protected void rangedHit( Char enemy, int cell ){
-		//if this weapon was thrown from a source stack, degrade that stack.
-		//unless a weapon is about to break, then break the one being thrown
-		if (parent != null){
-			if (parent.durability <= parent.durabilityPerUse()){
-				durability = 0;
-				parent.durability = MAX_DURABILITY;
-			} else {
-				parent.durability -= parent.durabilityPerUse();
-				if (parent.durability > 0 && parent.durability <= parent.durabilityPerUse()){
-					if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
-					else             GLog.n(Messages.get(this, "about_to_break"));
-				}
-			}
-			parent = null;
-		} else {
-			durability -= durabilityPerUse();
-			if (durability > 0 && durability <= durabilityPerUse()){
-				if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
-				else             GLog.n(Messages.get(this, "about_to_break"));
-			}
-		}
+		decrementDurability();
 		if (durability > 0){
 			//attempt to stick the missile weapon to the enemy, just drop it if we can't.
-			if (enemy.isAlive() && sticky) {
+			if (enemy != null && enemy.isAlive() && sticky) {
 				PinCushion p = Buff.affect(enemy, PinCushion.class);
 				if (p.target == enemy){
 					p.stick(this);
 					return;
 				}
 			}
-			Dungeon.level.drop( this, enemy.pos ).sprite.drop();
+			Dungeon.level.drop( this, cell ).sprite.drop();
 		}
 	}
 	
@@ -256,6 +229,30 @@ abstract public class MissileWeapon extends Weapon {
 		
 		//add a tiny amount to account for rounding error for calculations like 1/3
 		return (MAX_DURABILITY/usages) + 0.001f;
+	}
+	
+	protected void decrementDurability(){
+		//if this weapon was thrown from a source stack, degrade that stack.
+		//unless a weapon is about to break, then break the one being thrown
+		if (parent != null){
+			if (parent.durability <= parent.durabilityPerUse()){
+				durability = 0;
+				parent.durability = MAX_DURABILITY;
+			} else {
+				parent.durability -= parent.durabilityPerUse();
+				if (parent.durability > 0 && parent.durability <= parent.durabilityPerUse()){
+					if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
+					else             GLog.n(Messages.get(this, "about_to_break"));
+				}
+			}
+			parent = null;
+		} else {
+			durability -= durabilityPerUse();
+			if (durability > 0 && durability <= durabilityPerUse()){
+				if (level() <= 0)GLog.w(Messages.get(this, "about_to_break"));
+				else             GLog.n(Messages.get(this, "about_to_break"));
+			}
+		}
 	}
 	
 	@Override
@@ -386,15 +383,6 @@ abstract public class MissileWeapon extends Weapon {
 		bundleRestoring = true;
 		super.restoreFromBundle(bundle);
 		bundleRestoring = false;
-		//compatibility with pre-0.6.3 saves
-		if (bundle.contains(DURABILITY)) {
-			durability = bundle.getInt(DURABILITY);
-		} else {
-			durability = 100;
-			//reduces quantity roughly in line with new durability system
-			if (!(this instanceof TippedDart)){
-				quantity = (int)Math.ceil(quantity/5f);
-			}
-		}
+		durability = bundle.getInt(DURABILITY);
 	}
 }

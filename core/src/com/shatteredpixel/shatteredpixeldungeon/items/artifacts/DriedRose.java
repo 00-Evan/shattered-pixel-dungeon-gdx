@@ -42,10 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPsionicBlast;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -496,18 +493,6 @@ public class DriedRose extends Artifact {
 		@Override
 		public int attackSkill(Char target) {
 			
-			if (rose != null && rose.weapon != null
-					&& (rose.weapon.hasEnchant(Precise.class, this)
-					|| rose.weapon.hasEnchant(Unstable.class, this) && Random.Int(11) == 0)){
-				if (Precise.rollToGuaranteeHit(rose.weapon)){
-					target.sprite.emitter().start( Speck.factory(Speck.LIGHT), 0.05f, 5 );
-					return Integer.MAX_VALUE;
-				}
-				if (rose.weapon.hasEnchant(Unstable.class, this)){
-					Unstable.justRolledPrecise = true;
-				}
-			}
-			
 			//same accuracy as the hero.
 			int acc = Dungeon.hero.lvl + 9;
 			
@@ -567,7 +552,7 @@ public class DriedRose extends Artifact {
 			//TODO improve this when I have proper damage source logic
 			if (rose != null && rose.armor != null && rose.armor.hasGlyph(AntiMagic.class, this)
 					&& AntiMagic.RESISTS.contains(src.getClass())){
-				dmg -= Random.NormalIntRange(rose.armor.DRMin(), rose.armor.DRMax())/3;
+				dmg -= AntiMagic.drRoll(rose.armor.level());
 			}
 			
 			super.damage( dmg, src );
@@ -874,9 +859,9 @@ public class DriedRose extends Artifact {
 						GameScene.selectItem(new WndBag.Listener() {
 							@Override
 							public void onSelect(Item item) {
-								if (!(item instanceof MeleeWeapon || item instanceof Boomerang)) {
+								if (!(item instanceof MeleeWeapon)) {
 									//do nothing, should only happen when window is cancelled
-								} else if (item.unique || item instanceof Boomerang) {
+								} else if (item.unique) {
 									GLog.w( Messages.get(WndGhostHero.class, "cant_unique"));
 									hide();
 								} else if (!item.isIdentified()) {

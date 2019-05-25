@@ -130,10 +130,12 @@ public class PixelScene extends Scene {
 	
 	//FIXME this system currently only works for a subset of windows
 	private static ArrayList<Class<?extends Window>> savedWindows = new ArrayList<>();
+	private static Class<?extends PixelScene> savedClass = null;
 	
 	public void saveWindows(){
 		savedWindows.clear();
-		for (Gizmo g : members){
+		savedClass = getClass();
+		for (Gizmo g : members.toArray(new Gizmo[0])){
 			if (g instanceof Window){
 				savedWindows.add((Class<? extends Window>) g.getClass());
 			}
@@ -141,7 +143,7 @@ public class PixelScene extends Scene {
 	}
 	
 	public void restoreWindows(){
-		if (!savedWindows.isEmpty()){
+		if (getClass().equals(savedClass)){
 			for (Class<?extends Window> w : savedWindows){
 				try{
 					add(w.newInstance());
@@ -149,8 +151,8 @@ public class PixelScene extends Scene {
 					//window has no public zero-arg constructor, just eat the exception
 				}
 			}
-			savedWindows.clear();
 		}
+		savedWindows.clear();
 	}
 
 	@Override

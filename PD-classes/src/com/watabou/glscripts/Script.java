@@ -64,7 +64,7 @@ public class Script extends Program {
 		return (T)curScript;
 	}
 	
-	public static void reset() {
+	public synchronized static void reset() {
 		for (Script script:all.values()) {
 			script.delete();
 		}

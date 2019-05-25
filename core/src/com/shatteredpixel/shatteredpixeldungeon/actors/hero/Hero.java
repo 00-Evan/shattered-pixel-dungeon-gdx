@@ -96,21 +96,20 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstable;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SurfaceScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
@@ -298,37 +297,31 @@ public class Hero extends Char {
 	public int tier() {
 		return belongings.armor == null ? 0 : belongings.armor.tier;
 	}
-
-	//this variable is only needed because of the boomerang, remove if/when it is no longer equippable
-	boolean rangedAttack = false;
 	
 	public boolean shoot( Char enemy, MissileWeapon wep ) {
 
 		//temporarily set the hero's weapon to the missile weapon being used
 		KindOfWeapon equipped = belongings.weapon;
 		belongings.weapon = wep;
-		boolean result = attack( enemy );
+		boolean hit = attack( enemy );
 		Invisibility.dispel();
 		belongings.weapon = equipped;
+		
+		if (subClass == HeroSubClass.GLADIATOR){
+			if (hit) {
+				Buff.affect( this, Combo.class ).hit( enemy );
+			} else {
+				Combo combo = buff(Combo.class);
+				if (combo != null) combo.miss( enemy );
+			}
+		}
 
-		return result;
+		return hit;
 	}
 	
 	@Override
 	public int attackSkill( Char target ) {
 		KindOfWeapon wep = belongings.weapon;
-		
-		if (wep instanceof Weapon
-				&& (((Weapon) wep).hasEnchant(Precise.class, this)
-				|| (((Weapon) wep).hasEnchant(Unstable.class, this) && Random.Int(11) == 0))){
-			if (Precise.rollToGuaranteeHit((Weapon) wep)){
-				target.sprite.emitter().start( Speck.factory(Speck.LIGHT), 0.05f, 5 );
-				if (((Weapon) wep).hasEnchant(Unstable.class, this)){
-					Unstable.justRolledPrecise = true;
-				}
-				return Integer.MAX_VALUE;
-			}
-		}
 		
 		float accuracy = 1;
 		accuracy *= RingOfAccuracy.accuracyMultiplier( this );
@@ -461,12 +454,6 @@ public class Hero extends Char {
 	}
 	
 	public float attackDelay() {
-		if (buff(Swift.SwiftAttack.class) != null
-				&& buff(Swift.SwiftAttack.class).boostsMelee()) {
-			buff(Swift.SwiftAttack.class).detach();
-			return 0;
-		}
-		
 		if (belongings.weapon != null) {
 			
 			return belongings.weapon.speedFactor( this );
@@ -1034,7 +1021,7 @@ public class Hero extends Char {
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class, this)
 				&& AntiMagic.RESISTS.contains(src.getClass())){
-			dmg -= Random.NormalIntRange(belongings.armor.DRMin(), belongings.armor.DRMax())/3;
+			dmg -= AntiMagic.drRoll(belongings.armor.level());
 		}
 
 		super.damage( dmg, src );
@@ -1085,6 +1072,8 @@ public class Hero extends Char {
 		return visibleEnemies.get(index % visibleEnemies.size());
 	}
 	
+	private boolean walkingToVisibleTrapInFog = false;
+	
 	private boolean getCloser( final int target ) {
 
 		if (target == pos)
@@ -1113,6 +1102,11 @@ public class Hero extends Char {
 				}
 				if (Dungeon.level.passable[target] || Dungeon.level.avoid[target]) {
 					step = target;
+				}
+				if (walkingToVisibleTrapInFog
+						&& Dungeon.level.traps.get(target) != null
+						&& Dungeon.level.traps.get(target).visible){
+					return false;
 				}
 			}
 			
@@ -1236,6 +1230,13 @@ public class Hero extends Char {
 			curAction = new HeroAction.Ascend( cell );
 			
 		} else  {
+			
+			if (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]
+					&& Dungeon.level.traps.get(cell) != null && Dungeon.level.traps.get(cell).visible) {
+				walkingToVisibleTrapInFog = true;
+			} else {
+				walkingToVisibleTrapInFog = false;
+			}
 			
 			curAction = new HeroAction.Move( cell );
 			lastAction = null;
@@ -1513,10 +1514,10 @@ public class Hero extends Char {
 
 		if (subClass == HeroSubClass.GLADIATOR){
 			if (hit) {
-				Buff.affect( this, Combo.class ).hit();
+				Buff.affect( this, Combo.class ).hit( enemy );
 			} else {
 				Combo combo = buff(Combo.class);
-				if (combo != null) combo.miss();
+				if (combo != null) combo.miss( enemy );
 			}
 		}
 		

@@ -120,17 +120,7 @@ public class WndSettings extends WndTabbed {
 				protected void onChange() {
 					if (getSelectedValue() != SPDSettings.scale()) {
 						SPDSettings.scale(getSelectedValue());
-						ShatteredPixelDungeon.switchNoFade((Class<? extends PixelScene>) ShatteredPixelDungeon.scene().getClass(), new Game.SceneChangeCallback() {
-							@Override
-							public void beforeCreate() {
-								//do nothing
-							}
-
-							@Override
-							public void afterCreate() {
-								Game.scene().add(new WndSettings());
-							}
-						});
+						ShatteredPixelDungeon.seamlessResetScene();
 					}
 				}
 			};

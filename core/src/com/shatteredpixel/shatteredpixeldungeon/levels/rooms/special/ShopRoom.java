@@ -203,7 +203,7 @@ public class ShopRoom extends SpecialRoom {
 			break;
 		}
 		
-		itemsToSpawn.add( TippedDart.randomTipped() );
+		itemsToSpawn.add( TippedDart.randomTipped(2) );
 
 		itemsToSpawn.add( new MerchantsBeacon() );
 

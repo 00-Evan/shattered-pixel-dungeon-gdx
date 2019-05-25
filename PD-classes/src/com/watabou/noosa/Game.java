@@ -70,7 +70,7 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	// callback to perform logic during scene change
 	protected SceneChangeCallback onChange;
 	// New scene class
-	protected Class<? extends Scene> sceneClass;
+	protected static Class<? extends Scene> sceneClass;
 	
 	// Current time in milliseconds
 	protected long now;

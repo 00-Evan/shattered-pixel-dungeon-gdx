@@ -21,45 +21,41 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.potions.elixirs;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArcaneArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Healing;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfShielding;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfEarthenArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.quest.GooBlob;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
-public class ElixirOfVitality extends Elixir {
+public class ElixirOfArcaneArmor extends Elixir {
 	
 	{
-		image = ItemSpriteSheet.ELIXIR_SURGE;
+		image = ItemSpriteSheet.ELIXIR_ARCANE;
 	}
 	
 	@Override
 	public void apply(Hero hero) {
-		Buff.affect( hero, Healing.class ).setHeal((int)(0.8f*hero.HT + 14), 0.25f, 0);
-		PotionOfHealing.cure(hero);
-		Buff.affect(hero, Barrier.class).setShield((int)(0.6f*hero.HT + 10));
+		Buff.affect(hero, ArcaneArmor.class).set(5 + hero.lvl/2, 80);
 	}
 	
 	@Override
 	public int price() {
 		//prices of ingredients
-		return quantity * (30 + 50);
+		return quantity * (50 + 40);
 	}
 	
 	public static class Recipe extends com.shatteredpixel.shatteredpixeldungeon.items.Recipe.SimpleRecipe {
 		
 		{
-			inputs =  new Class[]{PotionOfHealing.class, PotionOfShielding.class};
+			inputs =  new Class[]{PotionOfEarthenArmor.class, GooBlob.class};
 			inQuantity = new int[]{1, 1};
 			
-			cost = 2;
+			cost = 8;
 			
-			output = ElixirOfVitality.class;
+			output = ElixirOfArcaneArmor.class;
 			outQuantity = 1;
 		}
 		
 	}
-	
 }

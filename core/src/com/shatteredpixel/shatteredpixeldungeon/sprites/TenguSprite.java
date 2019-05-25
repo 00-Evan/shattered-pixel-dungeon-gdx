@@ -22,9 +22,7 @@ package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
+import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.utils.Callback;
@@ -83,14 +81,11 @@ public class TenguSprite extends MobSprite {
 	public void attack( int cell ) {
 		if (!Dungeon.level.adjacent( cell, ch.pos )) {
 
-			final Char enemy = Actor.findChar(cell);
-
 			((MissileSprite)parent.recycle( MissileSprite.class )).
-				reset( ch.pos, cell, new Shuriken(), new Callback() {
+				reset( ch.pos, cell, new TenguShuriken(), new Callback() {
 					@Override
 					public void call() {
-						ch.next();
-						if (enemy != null) ch.attack(enemy);
+						ch.onAttackComplete();
 					}
 				} );
 			
@@ -115,6 +110,12 @@ public class TenguSprite extends MobSprite {
 			}
 		} else {
 			super.onComplete( anim );
+		}
+	}
+	
+	public static class TenguShuriken extends Item {
+		{
+			image = ItemSpriteSheet.SHURIKEN;
 		}
 	}
 }

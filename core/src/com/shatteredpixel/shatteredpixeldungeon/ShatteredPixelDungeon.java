@@ -34,15 +34,13 @@ import com.watabou.utils.PDPlatformSupport;
 public class ShatteredPixelDungeon extends Game<GameAction> {
 	
 	//variable constants for specific older versions of shattered, used for data conversion
-	//versions older than v0.6.2e are no longer supported, and data from them is ignored
-	public static final int v0_6_2e = 229;
-	public static final int v0_6_3b = 245;
-	public static final int v0_6_4a = 252;
+	//versions older than v0.6.5c are no longer supported, and data from them is ignored
 	public static final int v0_6_5c = 264;
 	
 	public static final int v0_7_0c = 311;
 	public static final int v0_7_1d = 323;
-	public static final int v0_7_2  = 333;
+	public static final int v0_7_2d = 340;
+	public static final int v0_7_3  = 346;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -136,8 +134,16 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Venomous" );
 		com.watabou.utils.Bundle.addAlias(
-				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise.class,
+				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vorpal" );
+		
+		//v0.7.3
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Precise" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.class,
+				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift" );
 	}
 
 	@SuppressWarnings("deprecation")
@@ -236,6 +242,19 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public static void switchNoFade(Class<? extends PixelScene> c, SceneChangeCallback callback) {
 		PixelScene.noFade = true;
 		switchScene( c, callback );
+	}
+	
+	public static void seamlessResetScene(SceneChangeCallback callback) {
+		if (scene() instanceof PixelScene){
+			((PixelScene) scene()).saveWindows();
+			switchNoFade((Class<? extends PixelScene>) sceneClass, callback );
+		} else {
+			resetScene();
+		}
+	}
+	
+	public static void seamlessResetScene(){
+		seamlessResetScene(null);
 	}
 	
 	@Override

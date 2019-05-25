@@ -25,9 +25,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Bolas;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Boomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.FishingSpear;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.HeavyBoomerang;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Javelin;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Kunai;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpear;
@@ -84,6 +85,7 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 		ANGULAR_SPEEDS.put(ThrowingKnife.class, 0);
 		ANGULAR_SPEEDS.put(FishingSpear.class,  0);
 		ANGULAR_SPEEDS.put(ThrowingSpear.class, 0);
+		ANGULAR_SPEEDS.put(Kunai.class,         0);
 		ANGULAR_SPEEDS.put(Javelin.class,       0);
 		ANGULAR_SPEEDS.put(Trident.class,       0);
 		
@@ -92,10 +94,12 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 		
 		//720 is default
 		
-		ANGULAR_SPEEDS.put(Boomerang.class,     1440);
+		ANGULAR_SPEEDS.put(HeavyBoomerang.class,1440);
 		ANGULAR_SPEEDS.put(Bolas.class,         1440);
 		
 		ANGULAR_SPEEDS.put(Shuriken.class,      2160);
+		
+		ANGULAR_SPEEDS.put(TenguSprite.TenguShuriken.class,      2160);
 	}
 
 	//TODO it might be nice to have a source and destination angle, to improve thrown weapon visuals
@@ -134,10 +138,13 @@ public class MissileSprite extends ItemSprite implements Tweener.Listener {
 		float speed = SPEED;
 		if (item instanceof Dart && Dungeon.hero.belongings.weapon instanceof Crossbow){
 			speed *= 3f;
-		}
-		if (item instanceof SpiritBow.SpiritArrow || item instanceof ScorpioSprite.ScorpioShot){
+			
+		} else if (item instanceof SpiritBow.SpiritArrow
+				|| item instanceof ScorpioSprite.ScorpioShot
+				|| item instanceof TenguSprite.TenguShuriken){
 			speed *= 1.5f;
 		}
+		
 		PosTweener tweener = new PosTweener( this, to, d.length() / speed );
 		tweener.listener = this;
 		parent.add( tweener );

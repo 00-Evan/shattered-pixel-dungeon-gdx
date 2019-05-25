@@ -34,14 +34,14 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		String version = DesktopLauncher.class.getPackage().getSpecificationVersion();
 		if (version == null) {
-			version = "0.7.2d";
+			version = "0.7.3a";
 		}
 
 		int versionCode;
 		try {
 			versionCode = Integer.parseInt(DesktopLauncher.class.getPackage().getImplementationVersion());
 		} catch (NumberFormatException e) {
-			versionCode = 340;
+			versionCode = 347;
 		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
