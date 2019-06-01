@@ -45,7 +45,7 @@ public class ElixirOfHoneyedHealing extends Elixir {
 	public void apply(Hero hero) {
 		Buff.affect( hero, Healing.class ).setHeal((int)(0.8f*hero.HT + 14), 0.25f, 0);
 		PotionOfHealing.cure(hero);
-		hero.buff(Hunger.class).satisfy(Hunger.STARVING/5f);
+		Buff.affect(hero, Hunger.class).satisfy(Hunger.STARVING/5f);
 	}
 	
 	@Override
@@ -65,6 +65,12 @@ public class ElixirOfHoneyedHealing extends Elixir {
 				
 			}
 		}
+	}
+	
+	@Override
+	public int price() {
+		//prices of ingredients
+		return quantity * (30 + 5);
 	}
 	
 	public static class Recipe extends com.shatteredpixel.shatteredpixeldungeon.items.Recipe.SimpleRecipe {
