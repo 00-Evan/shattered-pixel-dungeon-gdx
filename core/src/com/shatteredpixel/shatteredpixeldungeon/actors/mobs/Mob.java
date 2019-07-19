@@ -46,12 +46,14 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
@@ -59,9 +61,11 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
+import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 public abstract class Mob extends Char {
@@ -186,6 +190,9 @@ public abstract class Mob extends Char {
 		return state.act( enemyInFOV, justAlerted );
 	}
 	
+	//FIXME this is sort of a band-aid correction for allies needing more intelligent behaviour
+	protected boolean intelligentAlly = false;
+	
 	protected Char chooseEnemy() {
 
 		Terror terror = buff( Terror.class );
@@ -250,12 +257,14 @@ public abstract class Mob extends Char {
 				
 			//if the mob is an ally...
 			} else if ( alignment == Alignment.ALLY ) {
-				//look for hostile mobs that are not passive to attack
+				//look for hostile mobs to attack
 				for (Mob mob : Dungeon.level.mobs)
-					if (mob.alignment == Alignment.ENEMY
-							&& fieldOfView[mob.pos]
-							&& mob.state != mob.PASSIVE)
-						enemies.add(mob);
+					if (mob.alignment == Alignment.ENEMY && fieldOfView[mob.pos])
+						//intelligent allies do not target mobs which are passive, wandering, or asleep
+						if (!intelligentAlly ||
+								(mob.state != mob.SLEEPING && mob.state != mob.PASSIVE && mob.state != mob.WANDERING)) {
+							enemies.add(mob);
+						}
 				
 			//if the mob is an enemy...
 			} else if (alignment == Alignment.ENEMY) {
@@ -297,18 +306,6 @@ public abstract class Mob extends Char {
 
 		} else
 			return enemy;
-	}
-
-	protected boolean moveSprite( int from, int to ) {
-
-		if (sprite.isVisible() && (Dungeon.level.heroFOV[from] || Dungeon.level.heroFOV[to])) {
-			sprite.move( from, to );
-			return true;
-		} else {
-			sprite.turnTo(from, to);
-			sprite.place( to );
-			return true;
-		}
 	}
 	
 	@Override
@@ -880,6 +877,58 @@ public abstract class Mob extends Char {
 			spend( TICK );
 			return true;
 		}
+	}
+	
+	
+	private static ArrayList<Mob> heldAllies = new ArrayList<>();
+	
+	public static void holdAllies( Level level ){
+		heldAllies.clear();
+		for (Mob mob : level.mobs.toArray( new Mob[0] )) {
+			//preserve the ghost no matter where they are
+			if (mob instanceof DriedRose.GhostHero) {
+				((DriedRose.GhostHero) mob).clearDefensingPos();
+				level.mobs.remove( mob );
+				heldAllies.add(mob);
+				
+			//preserve intelligent allies if they are near the hero
+			} else if (mob.alignment == Alignment.ALLY
+					&& mob.intelligentAlly
+					&& Dungeon.level.distance(Dungeon.hero.pos, mob.pos) <= 3){
+				level.mobs.remove( mob );
+				heldAllies.add(mob);
+			}
+		}
+	}
+	
+	public static void restoreAllies( Level level, int pos ){
+		if (!heldAllies.isEmpty()){
+			
+			ArrayList<Integer> candidatePositions = new ArrayList<>();
+			for (int i : PathFinder.NEIGHBOURS8) {
+				if (!Dungeon.level.solid[i+pos] && level.findMob(i+pos) == null){
+					candidatePositions.add(i+pos);
+				}
+			}
+			Collections.shuffle(candidatePositions);
+			
+			for (Mob ally : heldAllies) {
+				level.mobs.add(ally);
+				ally.state = ally.WANDERING;
+				
+				if (!candidatePositions.isEmpty()){
+					ally.pos = candidatePositions.remove(0);
+				} else {
+					ally.pos = pos;
+				}
+				
+			}
+		}
+		heldAllies.clear();
+	}
+	
+	public static void clearHeldAllies(){
+		heldAllies.clear();
 	}
 }
 

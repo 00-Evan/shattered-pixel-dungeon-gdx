@@ -108,7 +108,7 @@ public class UpdateNotification extends Component {
 
 	@Override
 	protected void createChildren() {
-		panel = Chrome.get(Chrome.Type.TOAST_TR);
+		panel = Chrome.get(Chrome.Type.GREY_BUTTON_TR);
 		add( panel );
 
 		//updateMessage = new BitmapText("Checking Updates", PixelScene.font1x);
@@ -163,9 +163,9 @@ public class UpdateNotification extends Component {
 			alpha = 0.8f;
 		} else {
 			if (!latestIsUpdate){
-				updateMessage.text("Patch Available!");
+				updateMessage.text("Patch!");
 			} else {
-				updateMessage.text("Update Available!");
+				updateMessage.text("Update!");
 			}
 			updateMessage.hardlight( Window.SHPX_COLOR );
 			alpha = 1f;

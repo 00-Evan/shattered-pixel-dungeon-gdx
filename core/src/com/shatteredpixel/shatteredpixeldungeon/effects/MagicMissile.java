@@ -57,6 +57,8 @@ public class MagicMissile extends Emitter {
 	public static final int BEACON          = 6;
 	public static final int SHADOW          = 7;
 	public static final int RAINBOW         = 8;
+	public static final int EARTH           = 9;
+	public static final int WARD            = 10;
 
 	public static final int FIRE_CONE       = 100;
 	public static final int FOLIAGE_CONE    = 101;
@@ -131,6 +133,14 @@ public class MagicMissile extends Emitter {
 			case RAINBOW:
 				size( 4 );
 				pour( RainbowParticle.BURST, 0.01f );
+				break;
+			case EARTH:
+				size( 4 );
+				pour( EarthParticle.FACTORY, 0.01f );
+				break;
+			case WARD:
+				size( 4 );
+				pour( WardParticle.FACTORY, 0.01f );
 				break;
 
 			case FIRE_CONE:
@@ -244,12 +254,24 @@ public class MagicMissile extends Emitter {
 			}
 		};
 		
+		public static final Emitter.Factory BURST = new Factory() {
+			@Override
+			public void emit( Emitter emitter, int index, float x, float y ) {
+				((EarthParticle)emitter.recycle( EarthParticle.class )).resetBurst( x, y );
+			}
+		};
+		
+		public static final Emitter.Factory ATTRACT = new Factory() {
+			@Override
+			public void emit( Emitter emitter, int index, float x, float y ) {
+				((EarthParticle)emitter.recycle( EarthParticle.class )).resetAttract( x, y );
+			}
+		};
+		
 		public EarthParticle() {
 			super();
 			
 			lifespan = 0.5f;
-			
-			color( ColorMath.random( 0x555555, 0x777766 ) );
 			
 			acc.set( 0, +40 );
 		}
@@ -263,7 +285,30 @@ public class MagicMissile extends Emitter {
 			left = lifespan;
 			size = 4;
 			
+			if (Random.Int(10) == 0){
+				color(ColorMath.random(0xFFF568, 0x80791A));
+			} else {
+				color(ColorMath.random(0x805500, 0x332500));
+			}
+			
 			speed.set( Random.Float( -10, +10 ), Random.Float( -10, +10 ) );
+		}
+		
+		public void resetBurst( float x, float y ){
+			reset(x, y);
+			
+			speed.polar( Random.Float( PointF.PI2 ), Random.Float( 40, 60 ) );
+		}
+		
+		public void resetAttract( float x, float y ){
+			reset(x, y);
+			
+			speed.polar( Random.Float( PointF.PI2 ), Random.Float( 24, 32 ) );
+			
+			this.x = x - speed.x * lifespan;
+			this.y = y - speed.y * lifespan;
+			
+			acc.set( 0, 0 );
 		}
 	}
 	
@@ -375,26 +420,37 @@ public class MagicMissile extends Emitter {
 			am = (1 - left / lifespan) / 2;
 		}
 	}
-	
-	public static class ColdParticle extends PixelParticle.Shrinking {
+
+	public static class WardParticle extends PixelParticle.Shrinking {
 		
 		public static final Emitter.Factory FACTORY = new Factory() {
 			@Override
 			public void emit( Emitter emitter, int index, float x, float y ) {
-				((ColdParticle)emitter.recycle( ColdParticle.class )).reset( x, y );
+				((WardParticle)emitter.recycle( WardParticle.class )).reset( x, y );
 			}
 			@Override
 			public boolean lightMode() {
 				return true;
-			};
+			}
+		};
+
+		public static final Emitter.Factory UP = new Factory() {
+			@Override
+			public void emit( Emitter emitter, int index, float x, float y ) {
+				((WardParticle)emitter.recycle( WardParticle.class )).resetUp( x, y );
+			}
+			@Override
+			public boolean lightMode() {
+				return true;
+			}
 		};
 		
-		public ColdParticle() {
+		public WardParticle() {
 			super();
 			
 			lifespan = 0.6f;
 			
-			color( 0x2244FF );
+			color( 0x8822FF );
 		}
 		
 		public void reset( float x, float y ) {
@@ -405,6 +461,12 @@ public class MagicMissile extends Emitter {
 			
 			left = lifespan;
 			size = 8;
+		}
+
+		public void resetUp( float x, float y){
+			reset(x, y);
+
+			speed.set( Random.Float( -8, +8 ), Random.Float( -32, -48 ) );
 		}
 		
 		@Override

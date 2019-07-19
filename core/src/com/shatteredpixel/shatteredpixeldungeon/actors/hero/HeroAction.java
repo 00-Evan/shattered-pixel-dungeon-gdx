@@ -52,9 +52,9 @@ public class HeroAction {
 	}
 	
 	public static class Interact extends HeroAction {
-		public NPC npc;
-		public Interact( NPC npc ) {
-			this.npc = npc;
+		public Char ch;
+		public Interact( Char ch ) {
+			this.ch = ch;
 		}
 	}
 	

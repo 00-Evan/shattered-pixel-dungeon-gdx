@@ -77,6 +77,15 @@ public class HeavyBoomerang extends MissileWeapon {
 			left = 3;
 		}
 		
+		public int returnPos(){
+			return returnPos;
+		}
+		
+		public MissileWeapon cancel(){
+			detach();
+			return boomerang;
+		}
+		
 		@Override
 		public boolean act() {
 			if (returnDepth == Dungeon.depth){
@@ -106,12 +115,14 @@ public class HeavyBoomerang extends MissileWeapon {
 											} else {
 												Dungeon.level.drop(boomerang, returnPos).sprite.drop();
 											}
+											CircleBack.this.next();
 										}
 									});
 					visual.alpha(0f);
 					float duration = Dungeon.level.trueDistance(thrownPos, returnPos) / 20f;
 					Dungeon.hero.sprite.parent.add(new AlphaTweener(visual, 1f, duration));
 					detach();
+					return false;
 				}
 			}
 			spend( TICK );

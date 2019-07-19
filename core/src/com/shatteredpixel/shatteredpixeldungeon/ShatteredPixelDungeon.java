@@ -120,7 +120,7 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic.class,
-				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.curses.Elastic" );
+				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.curses.Elastic" );
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Dazzling" );

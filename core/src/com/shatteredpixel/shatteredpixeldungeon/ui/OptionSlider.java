@@ -90,7 +90,7 @@ public abstract class OptionSlider extends Component {
 	protected void createChildren() {
 		super.createChildren();
 
-		add( BG = Chrome.get(Chrome.Type.BUTTON));
+		add( BG = Chrome.get(Chrome.Type.RED_BUTTON));
 		BG.alpha(0.5f);
 
 		add(title = PixelScene.renderText(9));
@@ -98,7 +98,7 @@ public abstract class OptionSlider extends Component {
 		add(this.maxTxt = PixelScene.renderText(6));
 
 		add(sliderBG = new ColorBlock(1, 1, 0xFF222222));
-		sliderNode = Chrome.get(Chrome.Type.BUTTON);
+		sliderNode = Chrome.get(Chrome.Type.RED_BUTTON);
 		sliderNode.size(5, 9);
 
 		touchArea = new TouchArea(0, 0, 0, 0){

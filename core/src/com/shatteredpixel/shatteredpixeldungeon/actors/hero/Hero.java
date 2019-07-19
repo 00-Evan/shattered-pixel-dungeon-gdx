@@ -32,11 +32,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Alchemy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdrenalineSurge;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
@@ -52,7 +54,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
@@ -65,6 +66,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
@@ -93,6 +95,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfTenacity;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
@@ -102,14 +106,12 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AlchemyScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.SurfaceScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
@@ -628,17 +630,17 @@ public class Hero extends Char {
 	
 	private boolean actInteract( HeroAction.Interact action ) {
 		
-		NPC npc = action.npc;
+		Char ch = action.ch;
 
-		if (Dungeon.level.adjacent( pos, npc.pos )) {
+		if (ch.canInteract(this)) {
 			
 			ready();
-			sprite.turnTo( pos, npc.pos );
-			return npc.interact();
+			sprite.turnTo( pos, ch.pos );
+			return ch.interact();
 			
 		} else {
 			
-			if (fieldOfView[npc.pos] && getCloser( npc.pos )) {
+			if (fieldOfView[ch.pos] && getCloser( ch.pos )) {
 
 				return true;
 
@@ -992,6 +994,11 @@ public class Hero extends Char {
 		if (armor != null) {
 			damage = armor.absorb( damage );
 		}
+
+		WandOfLivingEarth.RockArmor rockArmor = buff(WandOfLivingEarth.RockArmor.class);
+		if (rockArmor != null) {
+			damage = rockArmor.absorb(damage);
+		}
 		
 		return damage;
 	}
@@ -1050,9 +1057,11 @@ public class Hero extends Char {
 			}
 		}
 
-		if (target != null && (QuickSlotButton.lastTarget == null ||
-							!QuickSlotButton.lastTarget.isAlive() ||
-							!fieldOfView[QuickSlotButton.lastTarget.pos])){
+		Char lastTarget = QuickSlotButton.lastTarget;
+		if (target != null && (lastTarget == null ||
+							!lastTarget.isAlive() ||
+							!fieldOfView[lastTarget.pos]) ||
+							(lastTarget instanceof WandOfWarding.Ward && mindVisionEnemies.contains(lastTarget))){
 			QuickSlotButton.target(target);
 		}
 		
@@ -1192,8 +1201,8 @@ public class Hero extends Char {
 			
 		} else if (fieldOfView[cell] && (ch = Actor.findChar( cell )) instanceof Mob) {
 
-			if (ch instanceof NPC) {
-				curAction = new HeroAction.Interact( (NPC)ch );
+			if (ch.alignment != Alignment.ENEMY && ch.buff(Amok.class) == null) {
+				curAction = new HeroAction.Interact( ch );
 			} else {
 				curAction = new HeroAction.Attack( ch );
 			}
@@ -1391,6 +1400,13 @@ public class Hero extends Char {
 			Sample.INSTANCE.play( Assets.SND_TELEPORT );
 			GLog.w( Messages.get(this, "revive") );
 			Statistics.ankhsUsed++;
+			
+			for (Char ch : Actor.chars()){
+				if (ch instanceof DriedRose.GhostHero){
+					((DriedRose.GhostHero) ch).sayAnhk();
+					return;
+				}
+			}
 
 			return;
 		}
@@ -1568,7 +1584,17 @@ public class Hero extends Char {
 
 		super.onOperateComplete();
 	}
-	
+
+	@Override
+	public boolean isImmune(Class effect) {
+		if (effect == Burning.class
+				&& belongings.armor != null
+				&& belongings.armor.hasGlyph(Brimstone.class, this)){
+			return true;
+		}
+		return super.isImmune(effect);
+	}
+
 	public boolean search( boolean intentional ) {
 		
 		if (!isAlive()) return false;

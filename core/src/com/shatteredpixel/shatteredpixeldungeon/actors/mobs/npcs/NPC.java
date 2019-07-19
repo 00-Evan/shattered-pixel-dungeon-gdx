@@ -50,6 +50,5 @@ public abstract class NPC extends Mob {
 	@Override
 	public void beckon( int cell ) {
 	}
-
-	abstract public boolean interact();
+	
 }

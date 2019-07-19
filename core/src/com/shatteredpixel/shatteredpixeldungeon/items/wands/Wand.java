@@ -110,6 +110,21 @@ public abstract class Wand extends Item {
 
 	public abstract void onHit( MagesStaff staff, Char attacker, Char defender, int damage);
 
+	public boolean tryToZap( Hero owner ){
+
+		if (owner.buff(MagicImmune.class) != null){
+			GLog.w( Messages.get(this, "no_magic") );
+			return false;
+		}
+
+		if ( curCharges >= (cursed ? 1 : chargesPerCast())){
+			return true;
+		} else {
+			GLog.w(Messages.get(this, "fizzles"));
+			return false;
+		}
+	}
+
 	@Override
 	public boolean collect( Bag container ) {
 		if (super.collect( container )) {
@@ -145,11 +160,15 @@ public abstract class Wand extends Item {
 	}
 
 	protected void processSoulMark(Char target, int chargesUsed){
+		processSoulMark(target, level(), chargesUsed);
+	}
+
+	protected static void processSoulMark(Char target, int wandLevel, int chargesUsed){
 		if (target != Dungeon.hero &&
 				Dungeon.hero.subClass == HeroSubClass.WARLOCK &&
 				//standard 1 - 0.92^x chance, plus 7%. Starts at 15%
-				Random.Float() > (Math.pow(0.92f, (level()*chargesUsed)+1) - 0.07f)){
-			SoulMark.prolong(target, SoulMark.class, SoulMark.DURATION + level());
+				Random.Float() > (Math.pow(0.92f, (wandLevel*chargesUsed)+1) - 0.07f)){
+			SoulMark.prolong(target, SoulMark.class, SoulMark.DURATION + wandLevel);
 		}
 	}
 
@@ -410,9 +429,6 @@ public abstract class Wand extends Item {
 				if (target == curUser.pos || cell == curUser.pos) {
 					GLog.i( Messages.get(Wand.class, "self_target") );
 					return;
-				} else if (curUser.buff(MagicImmune.class) != null){
-					GLog.w( Messages.get(Wand.class, "no_magic") );
-					return;
 				}
 
 				curUser.sprite.zap(cell);
@@ -423,12 +439,15 @@ public abstract class Wand extends Item {
 				else
 					QuickSlotButton.target(Actor.findChar(cell));
 				
-				if (curWand.curCharges >= (curWand.cursed ? 1 : curWand.chargesPerCast())) {
+				if (curWand.tryToZap(curUser)) {
 					
 					curUser.busy();
 					Invisibility.dispel();
 					
 					if (curWand.cursed){
+						if (!curWand.cursedKnown){
+							GLog.n(Messages.get(Wand.class, "curse_discover", curWand.name()));
+						}
 						CursedWand.cursedZap(curWand,
 								curUser,
 								new Ballistica(curUser.pos, target, Ballistica.MAGIC_BOLT),
@@ -438,9 +457,6 @@ public abstract class Wand extends Item {
 										curWand.wandUsed();
 									}
 								});
-						if (!curWand.cursedKnown){
-							GLog.n(Messages.get(Wand.class, "curse_discover", curWand.name()));
-						}
 					} else {
 						curWand.fx(shot, new Callback() {
 							public void call() {
@@ -451,10 +467,6 @@ public abstract class Wand extends Item {
 					}
 					curWand.cursedKnown = true;
 					
-				} else {
-
-					GLog.w( Messages.get(Wand.class, "fizzles") );
-
 				}
 				
 			}
@@ -519,6 +531,10 @@ public abstract class Wand extends Item {
 					partialCharge += CHARGE_BUFF_BONUS * bonus.remainder();
 				}
 			}
+		}
+		
+		public Wand wand(){
+			return Wand.this;
 		}
 
 		public void gainCharge(float charge){
