@@ -36,6 +36,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.PrismaticSprite;
@@ -185,6 +187,18 @@ public class PrismaticImage extends NPC {
 	}
 	
 	@Override
+	public void damage(int dmg, Object src) {
+		
+		//TODO improve this when I have proper damage source logic
+		if (hero.belongings.armor != null && hero.belongings.armor.hasGlyph(AntiMagic.class, this)
+				&& AntiMagic.RESISTS.contains(src.getClass())){
+			dmg -= AntiMagic.drRoll(hero.belongings.armor.level());
+		}
+		
+		super.damage(dmg, src);
+	}
+	
+	@Override
 	public float speed() {
 		if (hero.belongings.armor != null){
 			return hero.belongings.armor.speedFactor(this, super.speed());
@@ -212,6 +226,17 @@ public class PrismaticImage extends NPC {
 		}
 		((PrismaticSprite)s).updateArmor( armTier );
 		return s;
+	}
+	
+	@Override
+	public boolean isImmune(Class effect) {
+		if (effect == Burning.class
+				&& hero != null
+				&& hero.belongings.armor != null
+				&& hero.belongings.armor.hasGlyph(Brimstone.class, this)){
+			return true;
+		}
+		return super.isImmune(effect);
 	}
 	
 	{

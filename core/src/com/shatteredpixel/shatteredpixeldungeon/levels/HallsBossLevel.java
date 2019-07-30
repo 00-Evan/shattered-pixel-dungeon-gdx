@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Yog;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
@@ -164,10 +163,10 @@ public class HallsBossLevel extends Level {
 	@Override
 	public int randomRespawnCell() {
 		int pos = entrance == -1 ? stairs : entrance;
-		int cell = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
-		while (!passable[cell]){
+		int cell;
+		do {
 			cell = pos + PathFinder.NEIGHBOURS8[Random.Int(8)];
-		}
+		} while (!passable[cell] || Actor.findChar(cell) != null);
 		return cell;
 	}
 	

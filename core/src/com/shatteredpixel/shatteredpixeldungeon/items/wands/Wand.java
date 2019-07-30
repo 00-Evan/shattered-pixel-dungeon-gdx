@@ -110,7 +110,7 @@ public abstract class Wand extends Item {
 
 	public abstract void onHit( MagesStaff staff, Char attacker, Char defender, int damage);
 
-	public boolean tryToZap( Hero owner ){
+	public boolean tryToZap( Hero owner, int target ){
 
 		if (owner.buff(MagicImmune.class) != null){
 			GLog.w( Messages.get(this, "no_magic") );
@@ -439,7 +439,7 @@ public abstract class Wand extends Item {
 				else
 					QuickSlotButton.target(Actor.findChar(cell));
 				
-				if (curWand.tryToZap(curUser)) {
+				if (curWand.tryToZap(curUser, target)) {
 					
 					curUser.busy();
 					Invisibility.dispel();

@@ -237,7 +237,7 @@ public class QuickSlotButton extends Button<GameAction> implements WndBag.Listen
 	}
 
 	public static void target( Char target ) {
-		if (target != Dungeon.hero) {
+		if (target != null && target.alignment != Char.Alignment.ALLY) {
 			lastTarget = target;
 
 			TargetHealthIndicator.instance.target( target );

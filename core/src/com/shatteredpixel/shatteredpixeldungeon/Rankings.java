@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
@@ -160,6 +161,7 @@ public enum Rankings {
 	public void loadGameData(Record rec){
 		Bundle data = rec.gameData;
 
+		Actor.clear();
 		Dungeon.hero = null;
 		Dungeon.level = null;
 		Generator.reset();
