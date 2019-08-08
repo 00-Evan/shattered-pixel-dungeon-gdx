@@ -69,9 +69,33 @@ public class v0_7_X_Changes {
 		changes.hardlight( Window.TITLE_COLOR );
 		changeInfos.add(changes);
 		
-		changes = new ChangeInfo("", false, null);
+		changes = new ChangeInfo("v0.7.4b", false, null);
 		changes.hardlight( Window.TITLE_COLOR );
 		changeInfos.add(changes);
+		
+		changes.addButton( new ChangeButton(Icons.get(Icons.LIBGDX), "LibGDX",
+				"The Android version of Shattered is now using the same multiplatform library as the desktop verion: _LibGDX._\n\n" +
+				"My plan is to eventually back-port the current desktop features to the android codebase, and use that as a universal codebase moving forward.\n\n" +
+				"This will likely happen slowly over the next few updates, but when its done the desktop version will permanently be at feature parity with the android version!"));
+		
+		changes.addButton( new ChangeButton(new WandOfLivingEarth(),
+				"The wand of living earth is performing fairly reasonably now, but the staff of living earth continues to be really strong. This has led me to re-evaluate the battlemage living earth ability, and to nerf it significantly:\n\n" +
+				"_-_ Earthen armor generated from battlemage melee hits reduced to 0.25x damage from 1x damage.\n\n" +
+				"_-_ Battlemage can no longer stack earthen armor past the max HP of the earthen guardian.\n\n" +
+				"Additionally:\n" +
+				"_-_ Guardian armor is now equivalent to cloth armor when 'faith is my armor' challenge is enabled."));
+		
+		changes.addButton( new ChangeButton(Icons.get(Icons.PREFS), Messages.get(ChangesScene.class, "misc"),
+				"_-_ Updated hero icons in rankings and saved game screens.\n\n" +
+				"_-_ Updated translations"));
+		
+		changes.addButton( new ChangeButton(new Image(Assets.SPINNER, 144, 0, 16, 16), Messages.get(ChangesScene.class, "bugfixes"),
+				"Fixed (caused by 0.7.4):\n" +
+				"_-_ Wards able to be placed in walls\n" +
+				"_-_ Allies incorrectly being lost after Tengu fight\n" +
+				"Fixed (existed prior to 0.7.4):\n" +
+				"_-_ Talisman of foresight warn effect not being saved/loaded\n" +
+				"_-_ Level visuals (e.g. prison torches) rarely bugging out"));
 		
 		changes = new ChangeInfo("v0.7.4a", false, null);
 		changes.hardlight( Window.TITLE_COLOR );
