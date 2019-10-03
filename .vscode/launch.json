@@ -1,0 +1,16 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug (Launch)-DesktopLauncher<shattered-pixel-dungeon-desktop>",
+      "request": "launch",
+      "mainClass": "com.watabou.pd.desktop.DesktopLauncher",
+      "projectName": "shattered-pixel-dungeon-desktop",
+      "cwd": "/Users/cameronsanchez/Source/School/CS-428/flash-card-shattered-pixel-dungeon/android/assets"
+    }
+  ]
+}
