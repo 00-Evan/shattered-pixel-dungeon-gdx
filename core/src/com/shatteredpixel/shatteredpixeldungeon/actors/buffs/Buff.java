@@ -20,11 +20,11 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.noosa.Image;
+import com.watabou.utils.Reflection;
 
 import java.text.DecimalFormat;
 import java.util.HashSet;
@@ -38,7 +38,7 @@ public class Buff extends Actor {
 	}
 
 	//determines how the buff is announced when it is shown.
-	public enum buffType {POSITIVE, NEGATIVE, NEUTRAL};
+	public enum buffType {POSITIVE, NEGATIVE, NEUTRAL}
 	public buffType type = buffType.NEUTRAL;
 	
 	//whether or not the buff announces its name
@@ -95,7 +95,7 @@ public class Buff extends Actor {
 
 	public void fx(boolean on) {
 		//do nothing by default
-	};
+	}
 
 	public String heroMessage(){
 		return null;
@@ -112,14 +112,9 @@ public class Buff extends Actor {
 
 	//creates a fresh instance of the buff and attaches that, this allows duplication.
 	public static<T extends Buff> T append( Char target, Class<T> buffClass ) {
-		try {
-			T buff = buffClass.newInstance();
-			buff.attachTo( target );
-			return buff;
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-			return null;
-		}
+		T buff = Reflection.newInstance(buffClass);
+		buff.attachTo( target );
+		return buff;
 	}
 
 	public static<T extends FlavourBuff> T append( Char target, Class<T> buffClass, float duration ) {

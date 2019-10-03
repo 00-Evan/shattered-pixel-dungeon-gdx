@@ -22,12 +22,12 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.blobs;
 
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Rect;
+import com.watabou.utils.Reflection;
 
 public class Blob extends Actor {
 
@@ -119,7 +119,11 @@ public class Blob extends Actor {
 			cur = tmp;
 			
 		} else {
-			area.setEmpty();
+			if (!area.isEmpty()) {
+				area.setEmpty();
+				//clear any values remaining in off
+				System.arraycopy(cur, 0, off, 0, cur.length);
+			}
 		}
 		
 		return true;
@@ -223,22 +227,19 @@ public class Blob extends Actor {
 	
 	@SuppressWarnings("unchecked")
 	public static<T extends Blob> T seed( int cell, int amount, Class<T> type, Level level ) {
-		try {
-			
-			T gas = (T)level.blobs.get( type );
-			if (gas == null) {
-				gas = ClassReflection.newInstance(type);
-				level.blobs.put( type, gas );
-			}
-			
-			gas.seed( level, cell, amount );
-			
-			return gas;
-			
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-			return null;
+		
+		T gas = (T)level.blobs.get( type );
+		if (gas == null) {
+			gas = Reflection.newInstance(type);
+			level.blobs.put( type, gas );
 		}
+		
+		if (gas != null) {
+			level.blobs.put(type, gas);
+			gas.seed(level, cell, amount);
+		}
+		
+		return gas;
 	}
 
 	public static int volumeAt( int cell, Class<? extends Blob> type){

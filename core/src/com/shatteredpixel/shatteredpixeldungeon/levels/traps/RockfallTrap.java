@@ -46,12 +46,8 @@ public class RockfallTrap extends Trap {
 	{
 		color = GREY;
 		shape = DIAMOND;
-	}
-	
-	@Override
-	public Trap hide() {
-		//this one can't be hidden
-		return reveal();
+		
+		canBeHidden = false;
 	}
 	
 	@Override

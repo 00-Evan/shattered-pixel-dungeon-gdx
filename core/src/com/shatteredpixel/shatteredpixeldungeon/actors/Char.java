@@ -423,10 +423,12 @@ public abstract class Char extends Actor {
 		shielded -= dmg;
 		HP -= dmg;
 		
-		sprite.showStatus( HP > HT / 2 ?
-			CharSprite.WARNING :
-			CharSprite.NEGATIVE,
-			Integer.toString( dmg + shielded ) );
+		if (sprite != null) {
+			sprite.showStatus(HP > HT / 2 ?
+							CharSprite.WARNING :
+							CharSprite.NEGATIVE,
+					Integer.toString(dmg + shielded));
+		}
 
 		if (HP < 0) HP = 0;
 
@@ -578,9 +580,7 @@ public abstract class Char extends Actor {
 			sprite.visible = Dungeon.level.heroFOV[pos];
 		}
 		
-		if (!flying) {
-			Dungeon.level.press( pos, this );
-		}
+		Dungeon.level.occupyCell(this );
 	}
 	
 	public int distance( Char other ) {

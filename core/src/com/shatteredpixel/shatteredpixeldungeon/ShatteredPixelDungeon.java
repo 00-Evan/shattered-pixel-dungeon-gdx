@@ -40,7 +40,9 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 	public static final int v0_7_0c = 311;
 	public static final int v0_7_1d = 323;
 	public static final int v0_7_2d = 340;
-	public static final int v0_7_3  = 346;
+	public static final int v0_7_3b = 349;
+	public static final int v0_7_4c = 362;
+	public static final int v0_7_5  = 371;
 	
 	public ShatteredPixelDungeon(final PDPlatformSupport<GameAction> platformSupport) {
 		super(WelcomeScene.class, platformSupport);
@@ -144,6 +146,17 @@ public class ShatteredPixelDungeon extends Game<GameAction> {
 		com.watabou.utils.Bundle.addAlias(
 				com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic.class,
 				"com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Swift" );
+		
+		//v0.7.5
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.levels.rooms.sewerboss.SewerBossEntranceRoom.class,
+				"com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.SewerBossEntranceRoom" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.levels.OldPrisonBossLevel.class,
+				"com.shatteredpixel.shatteredpixeldungeon.levels.PrisonBossLevel" );
+		com.watabou.utils.Bundle.addAlias(
+				com.shatteredpixel.shatteredpixeldungeon.actors.mobs.OldTengu.class,
+				"com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Tengu" );
 	}
 
 	@SuppressWarnings("deprecation")

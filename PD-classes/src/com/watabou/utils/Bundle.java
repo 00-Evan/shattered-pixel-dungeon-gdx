@@ -94,18 +94,13 @@ public class Bundle {
 	}
 
 	public Class getClass( String key ) {
-		String clName =  getString(key).replace("class ", "");;
+		String clName = getString(key).replace("class ", "");
 		if (!clName.equals("")){
 			if (aliases.containsKey( clName )) {
 				clName = aliases.get( clName );
 			}
-			try {
-				Class cl = Class.forName( clName );
-				return cl;
-			} catch (ClassNotFoundException e) {
-				Game.reportException(e);
-				return null;
-			}
+			
+			return Reflection.forName( clName );
 		}
 		return null;
 	}
@@ -116,24 +111,24 @@ public class Bundle {
 	
 	private Bundlable get() {
 		if (data == null) return null;
-		try {
-			String clName = getString( CLASS_NAME );
-			if (aliases.containsKey( clName )) {
-				clName = aliases.get( clName );
-			}
-			
-			Class<?> cl = ClassReflection.forName( clName );
-			if (cl != null && (!cl.isMemberClass() || Modifier.isStatic(cl.getModifiers()))) {
-				Bundlable object = (Bundlable) ClassReflection.newInstance(cl);
-				object.restoreFromBundle( this );
-				return object;
-			} else {
-				return null;
-			}
-		} catch (ReflectionException e ) {
-			Game.reportException(e);
-			return null;
+		
+		String clName = getString( CLASS_NAME );
+		if (aliases.containsKey( clName )) {
+			clName = aliases.get( clName );
 		}
+		
+		Class<?> cl = Reflection.forName( clName );
+		//Skip none-static inner classes as they can't be instantiated through bundle restoring
+		//Classes which make use of none-static inner classes must manage instantiation manually
+		if (cl != null && (!Reflection.isMemberClass(cl) || Reflection.isStatic(cl))) {
+			Bundlable object = (Bundlable) Reflection.newInstance(cl);
+			if (object != null) {
+				object.restoreFromBundle(this);
+				return object;
+			}
+		}
+		
+		return null;
 	}
 	
 	public Bundlable get( String key ) {
@@ -222,13 +217,8 @@ public class Bundle {
 				if (aliases.containsKey( clName )) {
 					clName = aliases.get( clName );
 				}
-				try {
-					Class cl = Class.forName( clName );
-					result[i] = cl;
-				} catch (ClassNotFoundException e) {
-					Game.reportException(e);
-					result[i] = null;
-				}
+				Class cl = Reflection.forName( clName );
+				result[i] = cl;
 			}
 			return result;
 		} catch (JSONException e) {
@@ -400,7 +390,7 @@ public class Bundle {
 			//Classes which make use of none-static inner classes must manage instantiation manually
 			if (object != null) {
 				Class cl = object.getClass();
-				if (!cl.isMemberClass() || Modifier.isStatic(cl.getModifiers())) {
+				if ((!Reflection.isMemberClass(cl) || Reflection.isStatic(cl))) {
 					Bundle bundle = new Bundle();
 					bundle.put(CLASS_NAME, cl.getName());
 					object.storeInBundle(bundle);

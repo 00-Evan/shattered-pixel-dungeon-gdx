@@ -54,7 +54,7 @@ public class WandOfLivingEarth extends DamageWand {
 	
 	@Override
 	public int min(int lvl) {
-		return 3 + lvl;
+		return 4;
 	}
 	
 	@Override
@@ -127,7 +127,7 @@ public class WandOfLivingEarth extends DamageWand {
 				} else {
 					guardian.pos = closest;
 					GameScene.add(guardian, 1);
-					Dungeon.level.press(guardian.pos, guardian);
+					Dungeon.level.occupyCell(guardian);
 				}
 
 				if (ch.alignment == Char.Alignment.ENEMY || ch.buff(Amok.class) != null) {
@@ -137,7 +137,7 @@ public class WandOfLivingEarth extends DamageWand {
 			} else {
 				guardian.pos = bolt.collisionPos;
 				GameScene.add(guardian, 1);
-				Dungeon.level.press(guardian.pos, guardian);
+				Dungeon.level.occupyCell(guardian);
 			}
 
 			guardian.sprite.centerEmitter().burst(MagicMissile.EarthParticle.ATTRACT, 8 + level()/2);
@@ -164,7 +164,7 @@ public class WandOfLivingEarth extends DamageWand {
 				}
 
 			} else {
-				Dungeon.level.press(bolt.collisionPos, null, true);
+				Dungeon.level.pressCell(bolt.collisionPos);
 			}
 		}
 
@@ -319,7 +319,7 @@ public class WandOfLivingEarth extends DamageWand {
 
 		@Override
 		public int damageRoll() {
-			return Random.NormalIntRange(3 + Dungeon.depth/4, 6 + Dungeon.depth/2);
+			return Random.NormalIntRange(2, 4 + Dungeon.depth/2);
 		}
 
 		@Override

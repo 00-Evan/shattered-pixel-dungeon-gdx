@@ -107,7 +107,7 @@ public class TimekeepersHourglass extends Artifact {
 									activeBuff.attachTo(Dungeon.hero);
 									((timeFreeze)activeBuff).processTime(0f);
 								}
-							};
+							}
 						}
 				);
 		}
@@ -318,7 +318,7 @@ public class TimekeepersHourglass extends Artifact {
 
 		private void triggerPresses(){
 			for (int cell : presses)
-				Dungeon.level.press(cell, null, true);
+				Dungeon.level.pressCell(cell);
 
 			presses = new ArrayList<>();
 		}

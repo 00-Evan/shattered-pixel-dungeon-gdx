@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -56,6 +55,7 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -370,65 +370,45 @@ abstract public class Weapon extends KindOfWeapon {
 		
 		@SuppressWarnings("unchecked")
 		public static Enchantment randomCommon( Class<? extends Enchantment> ... toIgnore ) {
-			try {
-				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(common));
-				enchants.removeAll(Arrays.asList(toIgnore));
-				if (enchants.isEmpty()) {
-					return random();
-				} else {
-					return (Enchantment) Random.element(enchants).newInstance();
-				}
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
+			ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(common));
+			enchants.removeAll(Arrays.asList(toIgnore));
+			if (enchants.isEmpty()) {
+				return random();
+			} else {
+				return (Enchantment) Reflection.newInstance(Random.element(enchants));
 			}
 		}
 		
 		@SuppressWarnings("unchecked")
 		public static Enchantment randomUncommon( Class<? extends Enchantment> ... toIgnore ) {
-			try {
-				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(uncommon));
-				enchants.removeAll(Arrays.asList(toIgnore));
-				if (enchants.isEmpty()) {
-					return random();
-				} else {
-					return (Enchantment) Random.element(enchants).newInstance();
-				}
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
+			ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(uncommon));
+			enchants.removeAll(Arrays.asList(toIgnore));
+			if (enchants.isEmpty()) {
+				return random();
+			} else {
+				return (Enchantment) Reflection.newInstance(Random.element(enchants));
 			}
 		}
 		
 		@SuppressWarnings("unchecked")
 		public static Enchantment randomRare( Class<? extends Enchantment> ... toIgnore ) {
-			try {
-				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(rare));
-				enchants.removeAll(Arrays.asList(toIgnore));
-				if (enchants.isEmpty()) {
-					return random();
-				} else {
-					return (Enchantment) Random.element(enchants).newInstance();
-				}
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
+			ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(rare));
+			enchants.removeAll(Arrays.asList(toIgnore));
+			if (enchants.isEmpty()) {
+				return random();
+			} else {
+				return (Enchantment) Reflection.newInstance(Random.element(enchants));
 			}
 		}
 		
 		@SuppressWarnings("unchecked")
 		public static Enchantment randomCurse( Class<? extends Enchantment> ... toIgnore ){
-			try {
-				ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(curses));
-				enchants.removeAll(Arrays.asList(toIgnore));
-				if (enchants.isEmpty()) {
-					return random();
-				} else {
-					return (Enchantment) Random.element(enchants).newInstance();
-				}
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
+			ArrayList<Class<?>> enchants = new ArrayList<>(Arrays.asList(curses));
+			enchants.removeAll(Arrays.asList(toIgnore));
+			if (enchants.isEmpty()) {
+				return random();
+			} else {
+				return (Enchantment) Reflection.newInstance(Random.element(enchants));
 			}
 		}
 		

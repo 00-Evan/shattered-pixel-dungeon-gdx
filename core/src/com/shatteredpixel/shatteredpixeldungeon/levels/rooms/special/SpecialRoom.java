@@ -26,11 +26,12 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class SpecialRoom extends Room {
+public abstract class SpecialRoom extends Room {
 	
 	@Override
 	public int minWidth() { return 5; }
@@ -41,12 +42,6 @@ public class SpecialRoom extends Room {
 		return 5;
 	}
 	public int maxHeight() { return 10; }
-	
-	@Override
-	public int minConnections(int direction) {
-		if (direction == ALL)   return 1;
-		else                    return 0;
-	}
 	
 	@Override
 	public int maxConnections(int direction) {
@@ -153,11 +148,8 @@ public class SpecialRoom extends Room {
 				int newidx = Random.Int( floorSpecials.size() );
 				if (newidx < index) index = newidx;
 			}
-			try {
-				r = floorSpecials.get( index ).newInstance();
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-			}
+			
+			r = Reflection.newInstance(floorSpecials.get( index ));
 			
 			if (r instanceof WeakFloorRoom){
 				pitNeededDepth = Dungeon.depth + 1;

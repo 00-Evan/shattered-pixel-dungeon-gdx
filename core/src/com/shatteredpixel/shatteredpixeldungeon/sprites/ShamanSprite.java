@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Shaman;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.watabou.noosa.TextureFilm;
+import com.watabou.noosa.audio.Sample;
 
 public class ShamanSprite extends MobSprite {
 	
@@ -62,6 +63,7 @@ public class ShamanSprite extends MobSprite {
 		} else {
 			parent.add(new Lightning(center(), pos, (Shaman) ch));
 		}
+		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
 		
 		turnTo( ch.pos, pos );
 		play( zap );

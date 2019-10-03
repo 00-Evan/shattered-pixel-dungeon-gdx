@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.spells;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.MetalShard;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -36,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Reflection;
 
 public class ReclaimTrap extends TargetedSpell {
 	
@@ -62,16 +62,12 @@ public class ReclaimTrap extends TargetedSpell {
 			}
 		} else {
 			
-			try {
-				Trap t = storedTrap.newInstance();
-				storedTrap = null;
-				
-				t.pos = bolt.collisionPos;
-				t.activate();
-				
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-			}
+			Trap t = Reflection.newInstance(storedTrap);
+			storedTrap = null;
+			
+			t.pos = bolt.collisionPos;
+			t.activate();
+			
 		}
 	}
 	
@@ -111,11 +107,7 @@ public class ReclaimTrap extends TargetedSpell {
 	@Override
 	public ItemSprite.Glowing glowing() {
 		if (storedTrap != null){
-			try {
-				return COLORS[storedTrap.newInstance().color];
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-			}
+			return COLORS[Reflection.newInstance(storedTrap).color];
 		}
 		return null;
 	}

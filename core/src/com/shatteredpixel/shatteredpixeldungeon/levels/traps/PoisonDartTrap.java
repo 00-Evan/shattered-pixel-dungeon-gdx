@@ -40,23 +40,31 @@ public class PoisonDartTrap extends Trap {
 	{
 		color = GREEN;
 		shape = CROSSHAIR;
+		
+		canBeHidden = false;
 	}
 	
-	@Override
-	public Trap hide() {
-		//this one can't be hidden
-		return reveal();
+	protected int poisonAmount(){
+		return 8 + Math.round(2*Dungeon.depth / 3f);
+	}
+	
+	protected boolean canTarget( Char ch ){
+		return true;
 	}
 	
 	@Override
 	public void activate() {
 		Char target = Actor.findChar(pos);
 		
+		if (target != null && !canTarget(target)){
+			target = null;
+		}
+		
 		//find the closest char that can be aimed at
 		if (target == null){
 			for (Char ch : Actor.chars()){
 				Ballistica bolt = new Ballistica(pos, ch.pos, Ballistica.PROJECTILE);
-				if (bolt.collisionPos == ch.pos &&
+				if (canTarget(ch) && bolt.collisionPos == ch.pos &&
 						(target == null || Dungeon.level.trueDistance(pos, ch.pos) < Dungeon.level.trueDistance(pos, target.pos))){
 					target = ch;
 				}
@@ -85,8 +93,7 @@ public class PoisonDartTrap extends Trap {
 									if (finalTarget == Dungeon.hero && !finalTarget.isAlive()){
 										Dungeon.fail( trap.getClass() );
 									}
-									Buff.affect( finalTarget, Poison.class )
-											.set( 8 + Math.round(2*Dungeon.depth / 3f) );
+									Buff.affect( finalTarget, Poison.class ).set( poisonAmount() );
 									Sample.INSTANCE.play(Assets.SND_HIT, 1, 1, Random.Float(0.8f, 1.25f));
 									finalTarget.sprite.bloodBurstA(finalTarget.sprite.center(), dmg);
 									finalTarget.sprite.flash();
@@ -99,8 +106,7 @@ public class PoisonDartTrap extends Trap {
 				});
 			} else {
 				finalTarget.damage(Random.NormalIntRange(1, 4) - finalTarget.drRoll(), trap);
-				Buff.affect( finalTarget, Poison.class )
-						.set( 8 + Math.round(2*Dungeon.depth / 3f) );
+				Buff.affect( finalTarget, Poison.class ).set( poisonAmount() );
 			}
 		}
 	}

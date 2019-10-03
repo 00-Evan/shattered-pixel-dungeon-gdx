@@ -21,7 +21,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -50,6 +49,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,7 +156,7 @@ public abstract class Scroll extends Item {
 			image = handler.image(this);
 			rune = handler.label(this);
 		}
-	};
+	}
 	
 	@Override
 	public ArrayList<String> actions( Hero hero ) {
@@ -192,7 +192,7 @@ public abstract class Scroll extends Item {
 	public abstract void doRead();
 	
 	//currently unused. Used to be used for unstable spellbook prior to 0.7.0
-	public void empoweredRead(){};
+	public void empoweredRead(){}
 
 	protected void readAnimation() {
 		curUser.spend( TIME_TO_READ );
@@ -354,25 +354,15 @@ public abstract class Scroll extends Item {
 			
 			s.quantity(s.quantity() - 1);
 			
-			try{
-				return stones.get(s.getClass()).newInstance().quantity(amnts.get(s.getClass()));
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
-			}
+			return Reflection.newInstance(stones.get(s.getClass())).quantity(amnts.get(s.getClass()));
 		}
 		
 		@Override
 		public Item sampleOutput(ArrayList<Item> ingredients) {
 			if (!testIngredients(ingredients)) return null;
 			
-			try{
-				Scroll s = (Scroll) ingredients.get(0);
-				return stones.get(s.getClass()).newInstance().quantity(amnts.get(s.getClass()));
-			} catch (Exception e) {
-				ShatteredPixelDungeon.reportException(e);
-				return null;
-			}
+			Scroll s = (Scroll) ingredients.get(0);
+			return Reflection.newInstance(stones.get(s.getClass())).quantity(amnts.get(s.getClass()));
 		}
 	}
 }

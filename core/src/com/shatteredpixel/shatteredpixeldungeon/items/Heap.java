@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.ChargrilledMeat;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.FrozenCarpaccio;
@@ -83,33 +82,6 @@ public class Heap implements Bundlable {
 	public boolean haunted = false;
 	
 	public LinkedList<Item> items = new LinkedList<Item>();
-	
-	public int image() {
-		switch (type) {
-		case HEAP:
-		case FOR_SALE:
-			return size() > 0 ? items.peek().image() : 0;
-		case CHEST:
-		case MIMIC:
-			return ItemSpriteSheet.CHEST;
-		case LOCKED_CHEST:
-			return ItemSpriteSheet.LOCKED_CHEST;
-		case CRYSTAL_CHEST:
-			return ItemSpriteSheet.CRYSTAL_CHEST;
-		case TOMB:
-			return ItemSpriteSheet.TOMB;
-		case SKELETON:
-			return ItemSpriteSheet.BONES;
-		case REMAINS:
-			return ItemSpriteSheet.REMAINS;
-		default:
-			return 0;
-		}
-	}
-	
-	public ItemSprite.Glowing glowing() {
-		return (type == Type.HEAP || type == Type.FOR_SALE) && items.size() > 0 ? items.peek().glowing() : null;
-	}
 	
 	public void open( Hero hero ) {
 		switch (type) {
@@ -180,8 +152,7 @@ public class Heap implements Bundlable {
 		if (items.isEmpty()) {
 			destroy();
 		} else if (sprite != null) {
-			sprite.view( image(), glowing() );
-			sprite.place( pos );
+			sprite.view(this).place( pos );
 		}
 		
 		return item;
@@ -205,18 +176,14 @@ public class Heap implements Bundlable {
 			
 		}
 		
-		if ((item instanceof Dewdrop || item instanceof DriedRose.Petal) && type != Type.FOR_SALE) {
+		if (item.dropsDownHeap && type != Type.FOR_SALE) {
 			items.add( item );
 		} else {
 			items.addFirst( item );
 		}
 		
 		if (sprite != null) {
-			if (type == Type.HEAP || type == Type.FOR_SALE)
-				sprite.view( items.peek() );
-			else
-				sprite.view( image(), glowing() );
-			sprite.place( pos );
+			sprite.view(this).place( pos );
 		}
 	}
 	
@@ -225,6 +192,15 @@ public class Heap implements Bundlable {
 		if (index != -1) {
 			items.remove( index );
 			items.add( index, b );
+		}
+	}
+	
+	public void remove( Item a ){
+		items.remove(a);
+		if (items.isEmpty()){
+			destroy();
+		} else if (sprite != null) {
+			sprite.view(this).place( pos );
 		}
 	}
 	
@@ -282,7 +258,7 @@ public class Heap implements Bundlable {
 			if (isEmpty()) {
 				destroy();
 			} else if (sprite != null) {
-				sprite.view( items.peek() );
+				sprite.view(this).place( pos );
 			}
 			
 		}
@@ -329,7 +305,7 @@ public class Heap implements Bundlable {
 			if (isEmpty()){
 				destroy();
 			} else if (sprite != null) {
-				sprite.view( items.peek() );
+				sprite.view(this).place( pos );
 			}
 		}
 	}
@@ -367,7 +343,7 @@ public class Heap implements Bundlable {
 			if (isEmpty()) {
 				destroy();
 			} else if (sprite != null) {
-				sprite.view( items.peek() );
+				sprite.view(this).place( pos );
 			}
 		}
 	}

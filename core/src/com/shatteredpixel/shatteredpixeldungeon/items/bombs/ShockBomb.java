@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
 
@@ -79,6 +80,7 @@ public class ShockBomb extends Bomb {
 
 		CellEmitter.center(cell).burst(SparkParticle.FACTORY, 20);
 		Dungeon.hero.sprite.parent.addToFront(new Lightning(arcs, null));
+		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
 	}
 	
 	@Override

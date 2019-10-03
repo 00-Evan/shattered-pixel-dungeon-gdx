@@ -106,6 +106,7 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Earthroot;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
@@ -1305,9 +1306,11 @@ public class Hero extends Char {
 		
 		if (levelUp) {
 			
-			GLog.p( Messages.get(this, "new_level"), lvl );
-			sprite.showStatus( CharSprite.POSITIVE, Messages.get(Hero.class, "level_up") );
-			Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			if (sprite != null) {
+				GLog.p( Messages.get(this, "new_level"), lvl );
+				sprite.showStatus( CharSprite.POSITIVE, Messages.get(Hero.class, "level_up") );
+				Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			}
 			
 			Item.updateQuickslot();
 			
@@ -1552,33 +1555,46 @@ public class Hero extends Char {
 
 			int doorCell = ((HeroAction.Unlock)curAction).dst;
 			int door = Dungeon.level.map[doorCell];
-
-			if (door == Terrain.LOCKED_DOOR){
-				Notes.remove(new IronKey(Dungeon.depth));
-				Level.set( doorCell, Terrain.DOOR );
-			} else {
-				Notes.remove(new SkeletonKey(Dungeon.depth));
-				Level.set( doorCell, Terrain.UNLOCKED_EXIT );
-			}
-			GameScene.updateKeyDisplay();
 			
-			Level.set( doorCell, door == Terrain.LOCKED_DOOR ? Terrain.DOOR : Terrain.UNLOCKED_EXIT );
-			GameScene.updateMap( doorCell );
-			spend( Key.TIME_TO_UNLOCK );
+			if (Dungeon.level.distance(pos, doorCell) <= 1) {
+				boolean hasKey = true;
+				if (door == Terrain.LOCKED_DOOR) {
+					hasKey = Notes.remove(new IronKey(Dungeon.depth));
+					if (hasKey) Level.set(doorCell, Terrain.DOOR);
+				} else {
+					hasKey = Notes.remove(new SkeletonKey(Dungeon.depth));
+					if (hasKey) Level.set(doorCell, Terrain.UNLOCKED_EXIT);
+				}
+				
+				if (hasKey) {
+					GameScene.updateKeyDisplay();
+					Level.set(doorCell, door == Terrain.LOCKED_DOOR ? Terrain.DOOR : Terrain.UNLOCKED_EXIT);
+					GameScene.updateMap(doorCell);
+					spend(Key.TIME_TO_UNLOCK);
+				}
+			}
 			
 		} else if (curAction instanceof HeroAction.OpenChest) {
-
+			
 			Heap heap = Dungeon.level.heaps.get( ((HeroAction.OpenChest)curAction).dst );
-			if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
-				Sample.INSTANCE.play( Assets.SND_BONES );
-			} else if (heap.type == Type.LOCKED_CHEST){
-				Notes.remove(new GoldenKey(Dungeon.depth));
-			} else if (heap.type == Type.CRYSTAL_CHEST){
-				Notes.remove(new CrystalKey(Dungeon.depth));
+			
+			if (Dungeon.level.distance(pos, heap.pos) <= 1){
+				boolean hasKey = true;
+				if (heap.type == Type.SKELETON || heap.type == Type.REMAINS) {
+					Sample.INSTANCE.play( Assets.SND_BONES );
+				} else if (heap.type == Type.LOCKED_CHEST){
+					hasKey = Notes.remove(new GoldenKey(Dungeon.depth));
+				} else if (heap.type == Type.CRYSTAL_CHEST){
+					hasKey = Notes.remove(new CrystalKey(Dungeon.depth));
+				}
+				
+				if (hasKey) {
+					GameScene.updateKeyDisplay();
+					heap.open(this);
+					spend(Key.TIME_TO_UNLOCK);
+				}
 			}
-			GameScene.updateKeyDisplay();
-			heap.open( this );
-			spend( Key.TIME_TO_UNLOCK );
+			
 		}
 		curAction = null;
 
@@ -1639,6 +1655,11 @@ public class Hero extends Char {
 					}
 					
 					if (Dungeon.level.secret[p]){
+						
+						Trap trap = Dungeon.level.traps.get( p );
+						if (trap != null && !trap.canBeSearched){
+							continue;
+						}
 						
 						float chance;
 						//intentional searches always succeed

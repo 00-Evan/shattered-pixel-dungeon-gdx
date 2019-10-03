@@ -224,7 +224,7 @@ public class Speck extends Image {
 			
 		case RATTLE:
 			lifespan = 0.5f;
-			speed.set( 0, -200 );
+			speed.set( 0, -100 );
 			acc.set( 0, -2 * speed.y / lifespan );
 			angle = Random.Float( 360 );
 			angularSpeed = 360;
@@ -271,7 +271,7 @@ public class Speck extends Image {
 			break;
 			
 		case STEAM:
-			speed.y = -Random.Float( 20, 30 );
+			speed.y = -Random.Float( 10, 15 );
 			angularSpeed = Random.Float( +180 );
 			angle = Random.Float( 360 );
 			lifespan = 1f;

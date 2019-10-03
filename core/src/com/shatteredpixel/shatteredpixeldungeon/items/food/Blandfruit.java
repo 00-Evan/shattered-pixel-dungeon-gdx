@@ -22,7 +22,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.food;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -48,6 +47,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 
@@ -123,14 +123,7 @@ public class Blandfruit extends Food {
 	}
 
 	public Item cook(Seed seed){
-
-		try {
-			return imbuePotion(Potion.SeedToPotion.types.get(seed.getClass()).newInstance());
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-			return null;
-		}
-
+		return imbuePotion(Reflection.newInstance(Potion.SeedToPotion.types.get(seed.getClass())));
 	}
 
 	public Item imbuePotion(Potion potion){

@@ -24,6 +24,7 @@ package com.watabou.noosa;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 
@@ -190,12 +191,12 @@ public class Group extends Gizmo {
 			return null;
 
 		} else {
-
-			try {
-				return add( ClassReflection.newInstance(c) );
-			} catch (Exception e) {
-				Game.reportException(e);
+			
+			g = Reflection.newInstance(c);
+			if (g != null) {
+				return add(g);
 			}
+			
 		}
 
 		return null;

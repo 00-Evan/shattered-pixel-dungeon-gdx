@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -44,6 +43,7 @@ import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +69,7 @@ public class Item implements Bundlable {
 	
 	public boolean stackable = false;
 	protected int quantity = 1;
+	public boolean dropsDownHeap = false;
 	
 	private int level = 0;
 
@@ -218,21 +219,20 @@ public class Item implements Bundlable {
 		if (amount <= 0 || amount >= quantity()) {
 			return null;
 		} else {
-			try {
-
-				//pssh, who needs copy constructors?
-				Item split = getClass().newInstance();
-				Bundle copy = new Bundle();
-				this.storeInBundle(copy);
-				split.restoreFromBundle(copy);
-				split.quantity(amount);
-				quantity -= amount;
-
-				return split;
-			} catch (Exception e){
-				ShatteredPixelDungeon.reportException(e);
+			//pssh, who needs copy constructors?
+			Item split = Reflection.newInstance(getClass());
+			
+			if (split == null){
 				return null;
 			}
+			
+			Bundle copy = new Bundle();
+			this.storeInBundle(copy);
+			split.restoreFromBundle(copy);
+			split.quantity(amount);
+			quantity -= amount;
+			
+			return split;
 		}
 	}
 
@@ -424,17 +424,12 @@ public class Item implements Bundlable {
 	}
 	
 	public Item virtual(){
-		try {
-			
-			Item item = (Item)ClassReflection.newInstance(getClass());
-			item.quantity = 0;
-			item.level = level;
-			return item;
-			
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-			return null;
-		}
+		Item item = Reflection.newInstance(getClass());
+		if (item == null) return null;
+		
+		item.quantity = 0;
+		item.level = level;
+		return item;
 	}
 	
 	public Item random() {

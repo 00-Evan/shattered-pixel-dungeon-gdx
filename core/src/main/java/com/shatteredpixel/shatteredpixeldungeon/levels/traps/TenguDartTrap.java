@@ -1,6 +1,6 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2019 Evan Debenham
@@ -19,16 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-package com.watabou.utils;
+package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
-import com.badlogic.gdx.utils.TimeUtils;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.NewTengu;
 
-public class SystemTime {
-
-	public static long now;
+public class TenguDartTrap extends PoisonDartTrap {
 	
-	public static void tick() {
-		now = TimeUtils.millis();
+	{
+		canBeHidden = true;
+		canBeSearched = false;
+	}
+	
+	@Override
+	protected int poisonAmount() {
+		return 8; //17 damage total
+	}
+	
+	@Override
+	protected boolean canTarget(Char ch) {
+		return !(ch instanceof NewTengu);
 	}
 }
-

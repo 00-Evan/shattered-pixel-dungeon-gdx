@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -63,6 +62,7 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -153,13 +153,7 @@ public abstract class Mob extends Char {
 	}
 	
 	public CharSprite sprite() {
-		CharSprite sprite = null;
-		try {
-			sprite = ClassReflection.newInstance(spriteClass);
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-		}
-		return sprite;
+		return Reflection.newInstance(spriteClass);
 	}
 	
 	@Override
@@ -217,8 +211,8 @@ public abstract class Mob extends Char {
 
 		//find a new enemy if..
 		boolean newEnemy = false;
-		//we have no enemy, or the current one is dead
-		if ( enemy == null || !enemy.isAlive() || state == WANDERING)
+		//we have no enemy, or the current one is dead/missing
+		if ( enemy == null || !enemy.isAlive() || !Actor.chars().contains(enemy) || state == WANDERING)
 			newEnemy = true;
 		//We are an ally, and current enemy is another ally.
 		else if (alignment == Alignment.ALLY && enemy.alignment == Alignment.ALLY)

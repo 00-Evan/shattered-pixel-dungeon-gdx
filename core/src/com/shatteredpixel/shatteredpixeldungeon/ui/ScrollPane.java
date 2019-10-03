@@ -159,7 +159,7 @@ public class ScrollPane extends Component {
 		private void doScroll(PointF current) {
 			final Camera c = content.camera;
 
-			c.scroll.offset( PointF.diff(lastPos, current).invScale( c.zoom ) );
+			c.shift( PointF.diff(lastPos, current).invScale( c.zoom ) );
 			if (c.scroll.x + width > content.width()) {
 				c.scroll.x = content.width() - width;
 			}

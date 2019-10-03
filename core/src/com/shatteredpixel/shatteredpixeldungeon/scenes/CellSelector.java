@@ -74,7 +74,7 @@ public class CellSelector extends TouchArea<GameAction> {
 				}
 			}
 
-			for (Heap heap : Dungeon.level.heaps.values()){
+			for (Heap heap : Dungeon.level.heaps.valueList()){
 				if (heap.sprite != null && heap.sprite.overlapsPoint( p.x, p.y)){
 					select( heap.pos );
 					return;
@@ -275,8 +275,6 @@ public class CellSelector extends TouchArea<GameAction> {
 
 	@Override
 	protected void onDrag( NoosaInputProcessor.Touch t ) {
-		 
-		camera.target = null;
 
 		if (pinching) {
 
@@ -295,7 +293,7 @@ public class CellSelector extends TouchArea<GameAction> {
 				lastPos.set( t.current );
 				
 			} else if (dragging) {
-				camera.scroll.offset( PointF.diff( lastPos, t.current ).invScale( camera.zoom ) );
+				camera.shift( PointF.diff( lastPos, t.current ).invScale( camera.zoom ) );
 				lastPos.set( t.current );
 			}
 		}

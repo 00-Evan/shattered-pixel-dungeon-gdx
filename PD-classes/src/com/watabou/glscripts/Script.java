@@ -21,10 +21,9 @@
 
 package com.watabou.glscripts;
 
-import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.watabou.glwrap.Program;
 import com.watabou.glwrap.Shader;
-import com.watabou.noosa.Game;
+import com.watabou.utils.Reflection;
 
 import java.util.HashMap;
 
@@ -43,11 +42,7 @@ public class Script extends Program {
 			
 			Script script = all.get( c );
 			if (script == null) {
-				try {
-					script = ClassReflection.newInstance(c);
-				} catch (Exception e) {
-					Game.reportException(e);
-				}
+				script = Reflection.newInstance( c );
 				all.put( c, script );
 			}
 			

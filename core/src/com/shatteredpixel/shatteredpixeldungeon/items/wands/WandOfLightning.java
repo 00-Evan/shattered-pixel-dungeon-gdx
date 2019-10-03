@@ -20,6 +20,7 @@
  */
 package com.shatteredpixel.shatteredpixeldungeon.items.wands;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -35,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -135,6 +137,7 @@ public class WandOfLightning extends DamageWand {
 
 		//don't want to wait for the effect before processing damage.
 		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
+		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
 		callback.call();
 	}
 

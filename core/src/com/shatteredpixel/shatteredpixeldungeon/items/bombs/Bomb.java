@@ -20,7 +20,6 @@ package com.shatteredpixel.shatteredpixeldungeon.items.bombs;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
@@ -51,6 +50,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -269,7 +269,7 @@ public class Bomb extends Item {
 			}
 
 			//look for our bomb, remove it from its heap, and blow it up.
-			for (Heap heap : Dungeon.level.heaps.values()) {
+			for (Heap heap : Dungeon.level.heaps.valueList()) {
 				if (heap.items.contains(bomb)) {
 
 					//FIXME this is a bit hacky, might want to generalize the functionality
@@ -395,11 +395,7 @@ public class Bomb extends Item {
 			for (Item i : ingredients){
 				i.quantity(i.quantity()-1);
 				if (validIngredients.containsKey(i.getClass())){
-					try {
-						result = validIngredients.get(i.getClass()).newInstance();
-					} catch (Exception e) {
-						ShatteredPixelDungeon.reportException(e);
-					}
+					result = Reflection.newInstance(validIngredients.get(i.getClass()));
 				}
 			}
 			
@@ -410,11 +406,7 @@ public class Bomb extends Item {
 		public Item sampleOutput(ArrayList<Item> ingredients) {
 			for (Item i : ingredients){
 				if (validIngredients.containsKey(i.getClass())){
-					try {
-						return validIngredients.get(i.getClass()).newInstance();
-					} catch (Exception e) {
-						ShatteredPixelDungeon.reportException(e);
-					}
+					return Reflection.newInstance(validIngredients.get(i.getClass()));
 				}
 			}
 			return null;

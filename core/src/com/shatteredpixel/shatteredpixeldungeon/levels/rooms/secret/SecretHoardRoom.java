@@ -22,7 +22,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
@@ -34,13 +33,12 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.RockfallTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 public class SecretHoardRoom extends SecretRoom {
 	
 	@Override
 	public void paint(Level level) {
-		super.paint(level);
-		
 		Painter.fill(level, this, Terrain.WALL);
 		Painter.fill(level, this, 1, Terrain.EMPTY);
 		
@@ -70,12 +68,8 @@ public class SecretHoardRoom extends SecretRoom {
 		
 		for (Point p : getPoints()){
 			if (Random.Int(2) == 0 && level.map[level.pointToCell(p)] == Terrain.EMPTY){
-				try {
-					level.setTrap(trapClass.newInstance().reveal(), level.pointToCell(p));
-					Painter.set(level, p, Terrain.TRAP);
-				} catch (Exception e) {
-					ShatteredPixelDungeon.reportException(e);
-				}
+				level.setTrap(Reflection.newInstance(trapClass).reveal(), level.pointToCell(p));
+				Painter.set(level, p, Terrain.TRAP);
 			}
 		}
 		

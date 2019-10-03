@@ -31,7 +31,7 @@ public class BadgeBanner extends Image {
 
 	private enum State {
 		FADE_IN, STATIC, FADE_OUT
-	};
+	}
 	private State state;
 	
 	private static final float DEFAULT_SCALE	= 3;

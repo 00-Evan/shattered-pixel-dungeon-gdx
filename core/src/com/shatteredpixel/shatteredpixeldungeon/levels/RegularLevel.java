@@ -139,22 +139,6 @@ public abstract class RegularLevel extends Level {
 	
 	protected abstract Painter painter();
 	
-	protected float waterFill(){
-		return 0;
-	}
-	
-	protected int waterSmoothing(){
-		return 0;
-	}
-	
-	protected float grassFill(){
-		return 0;
-	}
-	
-	protected int grassSmoothing(){
-		return 0;
-	}
-	
 	protected int nTraps() {
 		return Random.NormalIntRange( 1, 3+(Dungeon.depth/3) );
 	}
@@ -180,8 +164,8 @@ public abstract class RegularLevel extends Level {
 	
 	@Override
 	protected void createMobs() {
-		//on floor 1, 10 rats are created so the player can get level 2.
-		int mobsToSpawn = Dungeon.depth == 1 ? 10 : nMobs();
+		//on floor 1, 8 pre-set mobs are created so the player can get level 2.
+		int mobsToSpawn = Dungeon.depth == 1 ? 8 : nMobs();
 
 		ArrayList<Room> stdRooms = new ArrayList<>();
 		for (Room room : rooms) {
@@ -195,27 +179,30 @@ public abstract class RegularLevel extends Level {
 		Iterator<Room> stdRoomIter = stdRooms.iterator();
 
 		while (mobsToSpawn > 0) {
-			if (!stdRoomIter.hasNext())
-				stdRoomIter = stdRooms.iterator();
-			Room roomToSpawn = stdRoomIter.next();
-
 			Mob mob = createMob();
-			mob.pos = pointToCell(roomToSpawn.random());
+			Room roomToSpawn;
+			
+			if (!stdRoomIter.hasNext()) {
+				stdRoomIter = stdRooms.iterator();
+			}
+			roomToSpawn = stdRoomIter.next();
+			
+			do {
+				mob.pos = pointToCell(roomToSpawn.random());
+			} while (findMob(mob.pos) != null || !passable[mob.pos] || mob.pos == exit);
 
-			if (findMob(mob.pos) == null && passable[mob.pos] && mob.pos != exit) {
+			mobsToSpawn--;
+			mobs.add(mob);
+
+			if (mobsToSpawn > 0 && Random.Int(4) == 0){
+				mob = createMob();
+				
+				do {
+					mob.pos = pointToCell(roomToSpawn.random());
+				} while (findMob(mob.pos) != null || !passable[mob.pos] || mob.pos == exit);
+
 				mobsToSpawn--;
 				mobs.add(mob);
-
-				//TODO: perhaps externalize this logic into a method. Do I want to make mobs more likely to clump deeper down?
-				if (mobsToSpawn > 0 && Random.Int(4) == 0){
-					mob = createMob();
-					mob.pos = pointToCell(roomToSpawn.random());
-
-					if (findMob(mob.pos)  == null && passable[mob.pos] && mob.pos != exit) {
-						mobsToSpawn--;
-						mobs.add(mob);
-					}
-				}
 			}
 		}
 

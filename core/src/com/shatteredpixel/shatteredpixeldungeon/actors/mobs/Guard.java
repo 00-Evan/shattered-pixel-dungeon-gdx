@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
@@ -49,11 +48,11 @@ public class Guard extends Mob {
 		HP = HT = 40;
 		defenseSkill = 10;
 
-		EXP = 6;
+		EXP = 7;
 		maxLvl = 14;
 
-		loot = null;    //see createloot.
-		lootChance = 0.25f;
+		loot = Generator.Category.ARMOR;
+		lootChance = 0.1667f;
 
 		properties.add(Property.UNDEAD);
 		
@@ -95,7 +94,7 @@ public class Guard extends Mob {
 						Actor.addDelayed(new Pushing(enemy, enemy.pos, newPosFinal, new Callback(){
 							public void call() {
 								enemy.pos = newPosFinal;
-								Dungeon.level.press(newPosFinal, enemy, true);
+								Dungeon.level.occupyCell(enemy);
 								Cripple.prolong(enemy, Cripple.class, 4f);
 								if (enemy == Dungeon.hero) {
 									Dungeon.hero.interrupt();
@@ -125,25 +124,13 @@ public class Guard extends Mob {
 
 	@Override
 	protected Item createLoot() {
-		//first see if we drop armor, overall chance is 1/8
-		if (Random.Int(2) == 0){
-			Armor loot;
-			do{
-				loot = Generator.randomArmor();
-				//50% chance of re-rolling tier 4 or 5 items
-			} while (loot.tier >= 4 && Random.Int(2) == 0);
-			loot.level(0);
-			return loot;
-		//otherwise, we may drop a health potion. overall chance is 1/8 * (6-potions dropped)/6
-		//with 0 potions dropped that simplifies to 1/8
-		} else {
-			if (Random.Float() < ((6f - Dungeon.LimitedDrops.GUARD_HP.count) / 6f)){
-				Dungeon.LimitedDrops.GUARD_HP.count++;
-				return new PotionOfHealing();
-			}
-		}
-
-		return null;
+		Armor loot;
+		do{
+			loot = Generator.randomArmor();
+		//50% chance of re-rolling tier 4 or 5 items
+		} while (loot.tier >= 4 && Random.Int(2) == 0);
+		loot.level(0);
+		return loot;
 	}
 
 	private final String CHAINSUSED = "chainsused";

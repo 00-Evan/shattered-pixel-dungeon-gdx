@@ -25,6 +25,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.watabou.glscripts.Script;
@@ -35,7 +36,7 @@ import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PDPlatformSupport;
-import com.watabou.utils.SystemTime;
+import com.watabou.utils.Reflection;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,14 +73,10 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	// New scene class
 	protected static Class<? extends Scene> sceneClass;
 	
-	// Current time in milliseconds
-	protected long now;
-	// Milliseconds passed since previous update
-	protected long step;
-	
 	public static float timeScale = 1f;
 	public static float elapsed = 0f;
 	public static float timeTotal = 0f;
+	public static long realTime = 0;
 
 	public Game( Class<? extends Scene> c, PDPlatformSupport<GameActionType> platformSupport ) {
 		super();
@@ -103,8 +100,6 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	
 	@Override
 	public void resume() {
-		now = 0;
-
 		Music.INSTANCE.resume();
 		Sample.INSTANCE.resume();
 	}
@@ -143,11 +138,6 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		draw();
 
 		Gdx.gl.glFlush();
-
-		SystemTime.tick();
-		long rightNow = SystemTime.now;
-		step = (now == 0 ? 0 : rightNow - now);
-		now = rightNow;
 
 		step();
 	}
@@ -209,12 +199,12 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		
 		if (requestedReset) {
 			requestedReset = false;
-			try {
-				requestedScene = ClassReflection.newInstance(sceneClass);
+			
+			requestedScene = Reflection.newInstance(sceneClass);
+			if (requestedScene != null){
 				switchScene();
-			} catch (ReflectionException e) {
-				e.printStackTrace();
 			}
+			
 		}
 		
 		update();
@@ -242,8 +232,10 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 	}
 	
 	protected void update() {
-		Game.elapsed = Game.timeScale * step * 0.001f;
+		Game.elapsed = Game.timeScale * Gdx.graphics.getDeltaTime();
 		Game.timeTotal += Game.elapsed;
+		
+		Game.realTime = TimeUtils.millis();
 		
 		scene.update();
 		Camera.updateAll();

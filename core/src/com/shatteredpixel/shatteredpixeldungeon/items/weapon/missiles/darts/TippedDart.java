@@ -22,7 +22,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.PinCushion;
@@ -45,6 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,12 +156,7 @@ public abstract class TippedDart extends Dart {
 	}
 	
 	public static TippedDart getTipped( Plant.Seed s, int quantity ){
-		try {
-			return (TippedDart) types.get(s.getClass()).newInstance().quantity(quantity);
-		} catch (Exception e){
-			ShatteredPixelDungeon.reportException(e);
-			return null;
-		}
+		return (TippedDart) Reflection.newInstance(types.get(s.getClass())).quantity(quantity);
 	}
 	
 	public static TippedDart randomTipped( int quantity ){

@@ -21,9 +21,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.watabou.utils.Random;
+import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
 
@@ -97,18 +97,6 @@ public abstract class StandardRoom extends Room {
 	public int minHeight() { return sizeCat.minDim; }
 	public int maxHeight() { return sizeCat.maxDim; }
 	
-	@Override
-	public int minConnections(int direction) {
-		if (direction == ALL)   return 1;
-		else                    return 0;
-	}
-	
-	@Override
-	public int maxConnections(int direction) {
-		if (direction == ALL)   return 16;
-		else                    return 4;
-	}
-	
 	//FIXME this is a very messy way of handing variable standard rooms
 	private static ArrayList<Class<?extends StandardRoom>> rooms = new ArrayList<>();
 	static {
@@ -148,7 +136,7 @@ public abstract class StandardRoom extends Room {
 		chances[1] =  new float[]{20,  15,5, 0,0, 0,0, 0,0, 0,0,    1,0,1,0,1,0,1,1,0,0};
 		chances[2] =  new float[]{20,  15,5, 0,0, 0,0, 0,0, 0,0,    1,1,1,1,1,1,1,1,1,1};
 		chances[4] =  chances[3] = chances[2];
-		chances[5] =  new float[]{50,  0,0, 0,0, 0,0, 0,0, 0,0,     0,0,0,0,0,0,0,0,0,0};
+		chances[5] =  new float[]{20,  15,5, 0,0, 0,0, 0,0, 0,0,    0,0,0,0,0,0,0,0,0,0};
 		
 		chances[6] =  new float[]{20,  0,0, 15,5, 0,0, 0,0, 0,0,    1,1,1,1,1,1,1,1,1,1};
 		chances[10] = chances[9] = chances[8] = chances[7] = chances[6];
@@ -167,12 +155,7 @@ public abstract class StandardRoom extends Room {
 	
 	
 	public static StandardRoom createRoom(){
-		try{
-			return rooms.get(Random.chances(chances[Dungeon.depth])).newInstance();
-		} catch (Exception e) {
-			ShatteredPixelDungeon.reportException(e);
-			return null;
-		}
+		return Reflection.newInstance(rooms.get(Random.chances(chances[Dungeon.depth])));
 	}
 	
 }
