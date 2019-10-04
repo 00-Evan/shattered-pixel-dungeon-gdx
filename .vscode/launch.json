@@ -10,7 +10,7 @@
       "request": "launch",
       "mainClass": "com.watabou.pd.desktop.DesktopLauncher",
       "projectName": "shattered-pixel-dungeon-desktop",
-      "cwd": "/Users/cameronsanchez/Source/School/CS-428/flash-card-shattered-pixel-dungeon/android/assets"
+      "cwd": "${workspaceFolder}/android/assets"
     }
   ]
 }
