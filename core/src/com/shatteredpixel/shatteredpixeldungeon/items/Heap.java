@@ -81,7 +81,7 @@ public class Heap implements Bundlable {
 	public boolean seen = false;
 	public boolean haunted = false;
 	
-	public LinkedList<Item> items = new LinkedList<Item>();
+	public LinkedList<Item> items = new LinkedList<>();
 	
 	public void open( Hero hero ) {
 		switch (type) {

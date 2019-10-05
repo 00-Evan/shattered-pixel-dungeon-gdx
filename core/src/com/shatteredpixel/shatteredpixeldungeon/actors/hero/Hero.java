@@ -191,7 +191,7 @@ public class Hero extends Char {
 		
 		belongings = new Belongings( this );
 		
-		visibleEnemies = new ArrayList<Mob>();
+		visibleEnemies = new ArrayList<>();
 	}
 	
 	public void updateHT( boolean boostHP ){
@@ -845,7 +845,7 @@ public class Hero extends Char {
 	
 	private boolean actDescend( HeroAction.Descend action ) {
 		int stairs = action.dst;
-		if (pos == stairs && pos == Dungeon.level.exit) {
+		if (pos == stairs) {
 			
 			curAction = null;
 
@@ -871,7 +871,7 @@ public class Hero extends Char {
 	
 	private boolean actAscend( HeroAction.Ascend action ) {
 		int stairs = action.dst;
-		if (pos == stairs && pos == Dungeon.level.entrance) {
+		if (pos == stairs) {
 			
 			if (Dungeon.depth == 1) {
 				
@@ -1231,11 +1231,12 @@ public class Hero extends Char {
 			
 			curAction = new HeroAction.Unlock( cell );
 			
-		} else if (cell == Dungeon.level.exit && Dungeon.depth < 26) {
+		} else if ((cell == Dungeon.level.exit || Dungeon.level.map[cell] == Terrain.EXIT || Dungeon.level.map[cell] == Terrain.UNLOCKED_EXIT)
+				&& Dungeon.depth < 26) {
 			
 			curAction = new HeroAction.Descend( cell );
 			
-		} else if (cell == Dungeon.level.entrance) {
+		} else if (cell == Dungeon.level.entrance || Dungeon.level.map[cell] == Terrain.ENTRANCE) {
 			
 			curAction = new HeroAction.Ascend( cell );
 			
@@ -1458,7 +1459,7 @@ public class Hero extends Char {
 
 		int pos = Dungeon.hero.pos;
 
-		ArrayList<Integer> passable = new ArrayList<Integer>();
+		ArrayList<Integer> passable = new ArrayList<>();
 		for (Integer ofs : PathFinder.NEIGHBOURS8) {
 			int cell = pos + ofs;
 			if ((Dungeon.level.passable[cell] || Dungeon.level.avoid[cell]) && Dungeon.level.heaps.get( cell ) == null) {
@@ -1467,7 +1468,7 @@ public class Hero extends Char {
 		}
 		Collections.shuffle( passable );
 
-		ArrayList<Item> items = new ArrayList<Item>( Dungeon.hero.belongings.backpack.items );
+		ArrayList<Item> items = new ArrayList<>(Dungeon.hero.belongings.backpack.items);
 		for (Integer cell : passable) {
 			if (items.isEmpty()) {
 				break;

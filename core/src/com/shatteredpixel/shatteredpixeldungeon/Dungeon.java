@@ -197,7 +197,7 @@ public class Dungeon {
 		for (LimitedDrops a : LimitedDrops.values())
 			a.count = 0;
 		
-		chapters = new HashSet<Integer>();
+		chapters = new HashSet<>();
 		
 		Ghost.Quest.reset();
 		Wandmaker.Quest.reset();
@@ -412,7 +412,7 @@ public class Dungeon {
 		int depth = Dungeon.depth + 1;
 		ArrayList<Item> dropped = Dungeon.droppedItems.get( depth );
 		if (dropped == null) {
-			Dungeon.droppedItems.put( depth, dropped = new ArrayList<Item>() );
+			Dungeon.droppedItems.put( depth, dropped = new ArrayList<>() );
 		}
 		dropped.add( item );
 	}
@@ -588,7 +588,7 @@ public class Dungeon {
 			
 			LimitedDrops.restore( bundle.getBundle(LIMDROPS) );
 
-			chapters = new HashSet<Integer>();
+			chapters = new HashSet<>();
 			int ids[] = bundle.getIntArray( CHAPTERS );
 			if (ids != null) {
 				for (int id : ids) {

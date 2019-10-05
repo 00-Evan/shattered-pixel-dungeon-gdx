@@ -49,7 +49,7 @@ public class Bundle {
 
 	private static final String CLASS_NAME = "__className";
 	
-	private static HashMap<String,String> aliases = new HashMap<String, String>();
+	private static HashMap<String,String> aliases = new HashMap<>();
 	
 	private JSONObject data;
 	
@@ -229,7 +229,7 @@ public class Bundle {
 	
 	public Collection<Bundlable> getCollection( String key ) {
 		
-		ArrayList<Bundlable> list = new ArrayList<Bundlable>();
+		ArrayList<Bundlable> list = new ArrayList<>();
 		
 		try {
 			JSONArray array = data.getJSONArray( key );
