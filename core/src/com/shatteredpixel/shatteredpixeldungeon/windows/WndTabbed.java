@@ -25,12 +25,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.NinePatch;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.utils.RectF;
@@ -213,7 +213,7 @@ public class WndTabbed extends Window {
 	
 	protected class LabeledTab extends Tab {
 		
-		private RenderedText btLabel;
+		private RenderedTextBlock btLabel;
 		
 		public LabeledTab( String label ) {
 			
@@ -226,7 +226,7 @@ public class WndTabbed extends Window {
 		protected void createChildren() {
 			super.createChildren();
 			
-			btLabel = PixelScene.renderText( 9 );
+			btLabel = PixelScene.renderTextBlock( 9 );
 			add( btLabel );
 		}
 		
@@ -234,18 +234,17 @@ public class WndTabbed extends Window {
 		protected void layout() {
 			super.layout();
 			
-			btLabel.x = x + (width - btLabel.width()) / 2;
-			btLabel.y = y + (height - btLabel.baseLine()) / 2 - 1;
-			if (!selected) {
-				btLabel.y -= 2;
-			}
+			btLabel.setPos(
+					x + (width - btLabel.width()) / 2,
+					y + (height - btLabel.height()) / 2 - (selected ? 1 : 3)
+			);
 			PixelScene.align(btLabel);
 		}
 		
 		@Override
 		protected void select( boolean value ) {
 			super.select( value );
-			btLabel.am = selected ? 1.0f : 0.6f;
+			btLabel.alpha( selected ? 1.0f : 0.6f );
 		}
 	}
 	

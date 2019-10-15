@@ -87,8 +87,7 @@ public class Shaman extends Mob implements Callback {
 			
 		} else {
 			
-			boolean visible = fieldOfView[pos] || fieldOfView[enemy.pos];
-			if (visible) {
+			if (sprite != null && sprite.visible) {
 				sprite.zap( enemy.pos );
 			}
 			
@@ -117,7 +116,12 @@ public class Shaman extends Mob implements Callback {
 				enemy.sprite.showStatus( CharSprite.NEUTRAL,  enemy.defenseVerb() );
 			}
 			
-			return !visible;
+			if (sprite != null && sprite.visible) {
+				sprite.zap( enemy.pos );
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 	

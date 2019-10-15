@@ -1,6 +1,6 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2019 Evan Debenham
@@ -18,24 +18,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.glwrap.Blending;
-import com.watabou.glwrap.Texture;
 import com.watabou.noosa.BitmapText;
 import com.watabou.noosa.BitmapText.Font;
-import com.watabou.noosa.BitmapTextMultiline;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Gizmo;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.Visual;
 import com.watabou.noosa.ui.Component;
@@ -45,35 +45,33 @@ import com.watabou.utils.Reflection;
 import java.util.ArrayList;
 
 public class PixelScene extends Scene {
-
+	
 	// Minimum virtual display size for portrait orientation
 	public static final float MIN_WIDTH_P        = 135;
 	public static final float MIN_HEIGHT_P        = 225;
-
+	
 	// Minimum virtual display size for landscape orientation
 	public static final float MIN_WIDTH_L        = 240;
 	public static final float MIN_HEIGHT_L        = 160;
-
+	
 	public static int defaultZoom = 0;
 	public static int maxDefaultZoom = 0;
+	public static int maxScreenZoom = 0;
 	public static float minZoom;
 	public static float maxZoom;
-
+	
 	public static Camera uiCamera;
-
-	//stylized pixel font
+	
+	//stylized 3x5 bitmapped pixel font. Only latin characters supported.
 	public static BitmapText.Font pixelFont;
-	//These represent various mipmaps of the same font
-	public static BitmapText.Font font1x;
-	public static BitmapText.Font font2x;
-
+	
 	@Override
 	public void create() {
-
+		
 		super.create();
-
+		
 		GameScene.scene = null;
-
+		
 		float minWidth, minHeight;
 		if (SPDSettings.landscape()) {
 			minWidth = MIN_WIDTH_L;
@@ -82,51 +80,39 @@ public class PixelScene extends Scene {
 			minWidth = MIN_WIDTH_P;
 			minHeight = MIN_HEIGHT_P;
 		}
-
+		
 		maxDefaultZoom = (int)Math.min(Game.width/minWidth, Game.height/minHeight);
 		defaultZoom = SPDSettings.scale();
-
+		
 		if (defaultZoom < Math.ceil( Game.density * 2 ) || defaultZoom > maxDefaultZoom){
 			defaultZoom = (int)Math.round((Math.ceil( Game.density * 2 ) + maxDefaultZoom)/2);
 			while ((
-				Game.width / defaultZoom < minWidth ||
-				Game.height / defaultZoom < minHeight
+					Game.width / defaultZoom < minWidth ||
+							Game.height / defaultZoom < minHeight
 			) && defaultZoom > 1) {
 				defaultZoom--;
 			}
 		}
-
+		
 		minZoom = 1;
 		maxZoom = defaultZoom * 2;
-
+		
 		Camera.reset( new PixelCamera( defaultZoom ) );
-
+		
 		float uiZoom = defaultZoom;
 		uiCamera = Camera.createFullscreen( uiZoom );
 		Camera.add( uiCamera );
-
+		
 		if (pixelFont == null) {
-
+			
 			// 3x5 (6)
 			pixelFont = Font.colorMarked(
-				BitmapCache.get( Assets.PIXELFONT), 0x00000000, BitmapText.Font.LATIN_FULL );
+					BitmapCache.get( Assets.PIXELFONT), 0x00000000, BitmapText.Font.LATIN_FULL );
 			pixelFont.baseLine = 6;
 			pixelFont.tracking = -1;
-
-			// 9x15 (18)
-			font1x = Font.colorMarked(
-					BitmapCache.get( Assets.FONT1X), 22, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font1x.baseLine = 17;
-			font1x.tracking = -2;
-			font1x.texture.filter(Texture.LINEAR, Texture.LINEAR);
-
-			//font1x double scaled
-			font2x = Font.colorMarked(
-					BitmapCache.get( Assets.FONT2X), 44, 0x00000000, BitmapText.Font.LATIN_FULL );
-			font2x.baseLine = 38;
-			font2x.tracking = -4;
-			font2x.texture.filter(Texture.LINEAR, Texture.LINEAR);
+			
 		}
+		
 	}
 	
 	//FIXME this system currently only works for a subset of windows
@@ -155,114 +141,45 @@ public class PixelScene extends Scene {
 		}
 		savedWindows.clear();
 	}
-
+	
 	@Override
 	public void destroy() {
 		super.destroy();
 		Game.instance.getInputProcessor().removeAllTouchEvent();
 	}
-
-	public static BitmapText.Font font;
-	public static float scale;
-
-	public static void chooseFont( float size ) {
-		chooseFont( size, defaultZoom );
-	}
-
-	public static void chooseFont( float size, float zoom ) {
-
-		float pt = size * zoom;
-
-		if (pt >= 25) {
-
-			font = font2x;
-			scale = pt / 38f;
-
-		} else if (pt >= 12) {
-
-			font = font1x;
-			scale = pt / 19f;
-
-		} else {
-			font = pixelFont;
-			scale = 1f;
-		}
-
-		scale /= zoom;
+	
+	public static RenderedTextBlock renderTextBlock(int size ){
+		return renderTextBlock("", size);
 	}
 	
-	public static BitmapText createText( float size ) {
-		return createText( null, size );
-	}
-	
-	public static BitmapText createText( String text, float size ) {
-		
-		chooseFont( size );
-		
-		BitmapText result = new BitmapText( text, font );
-		result.scale.set( scale );
-		
+	public static RenderedTextBlock renderTextBlock(String text, int size ){
+		RenderedTextBlock result = new RenderedTextBlock( text, size*defaultZoom);
+		result.zoom(1/(float)defaultZoom);
 		return result;
 	}
 	
-	public static BitmapTextMultiline createMultiline( float size ) {
-		return createMultiline( null, size );
-	}
-	
-	public static BitmapTextMultiline createMultiline( String text, float size ) {
-		
-		chooseFont( size );
-		
-		BitmapTextMultiline result = new BitmapTextMultiline( text, font );
-		result.scale.set( scale );
-		
-		return result;
-	}
-
-	//TODO: correct these when proper renderedtext is added
-	public static RenderedText renderText(int size ) {
-		return renderText("", size);
-	}
-
-	public static RenderedText renderText( String text, int size ) {
-		chooseFont( size );
-
-		RenderedText result = new RenderedText( text, font);
-		result.scale.set( scale );
-		return result;
-	}
-
-	public static RenderedTextMultiline renderMultiline(int size ){
-		return renderMultiline("", size);
-	}
-
-	public static RenderedTextMultiline renderMultiline(String text, int size ){
-		RenderedTextMultiline result = new RenderedTextMultiline( text, size );
-		return result;
-	}
-
 	/**
 	 * These methods align UI elements to device pixels.
 	 * e.g. if we have a scale of 3x then valid positions are #.0, #.33, #.67
 	 */
-
+	
 	public static float align( float pos ) {
 		return Math.round(pos * defaultZoom) / (float)defaultZoom;
 	}
-
+	
 	public static float align( Camera camera, float pos ) {
 		return Math.round(pos * camera.zoom) / camera.zoom;
 	}
-
+	
 	public static void align( Visual v ) {
 		v.x = align( v.x );
 		v.y = align( v.y );
 	}
-
+	
 	public static void align( Component c ){
 		c.setPos(align(c.left()), align(c.top()));
 	}
-
+	
 	public static boolean noFade = false;
 	protected void fadeIn() {
 		if (noFade) {
@@ -332,10 +249,10 @@ public class PixelScene extends Scene {
 		
 		public PixelCamera( float zoom ) {
 			super(
-				(int)(Game.width - Math.ceil( Game.width / zoom ) * zoom) / 2,
-				(int)(Game.height - Math.ceil( Game.height / zoom ) * zoom) / 2,
-				(int)Math.ceil( Game.width / zoom ),
-				(int)Math.ceil( Game.height / zoom ), zoom );
+					(int)(Game.width - Math.ceil( Game.width / zoom ) * zoom) / 2,
+					(int)(Game.height - Math.ceil( Game.height / zoom ) * zoom) / 2,
+					(int)Math.ceil( Game.width / zoom ),
+					(int)Math.ceil( Game.height / zoom ), zoom );
 			fullScreen = true;
 		}
 		

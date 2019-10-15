@@ -25,7 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Game;
@@ -58,19 +58,19 @@ public class WndStory extends Window {
 		CHAPTERS.put( ID_HALLS, "halls" );
 	}
 	
-	private RenderedTextMultiline tf;
+	private RenderedTextBlock tf;
 	
 	private float delay;
 	
 	public WndStory( String text ) {
 		super( 0, 0, Chrome.get( Chrome.Type.SCROLL ) );
 		
-		tf = PixelScene.renderMultiline( text, 6 );
+		tf = PixelScene.renderTextBlock( text, 6 );
 		tf.maxWidth(SPDSettings.landscape() ?
 					WIDTH_L - MARGIN * 2:
 					WIDTH_P - MARGIN *2);
 		tf.invert();
-		tf.setPos(MARGIN, 0);
+		tf.setPos(MARGIN, 2);
 		add( tf );
 		
 		add( new TouchArea( chrome ) {
@@ -80,7 +80,7 @@ public class WndStory extends Window {
 			}
 		} );
 		
-		resize( (int)(tf.width() + MARGIN * 2), (int)Math.min( tf.height(), 180 ) );
+		resize( (int)(tf.width() + MARGIN * 2), (int)Math.min( tf.height()+2, 180 ) );
 	}
 	
 	@Override

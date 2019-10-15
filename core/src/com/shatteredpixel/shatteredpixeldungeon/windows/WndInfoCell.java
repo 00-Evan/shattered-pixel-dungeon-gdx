@@ -28,7 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Image;
 
@@ -102,7 +102,7 @@ public class WndInfoCell extends Window {
 		titlebar.setRect(0, 0, WIDTH, 0);
 		add(titlebar);
 
-		RenderedTextMultiline info = PixelScene.renderMultiline(6);
+		RenderedTextBlock info = PixelScene.renderTextBlock(6);
 		add(info);
 
 		for (Blob blob:Dungeon.level.blobs.values()) {
@@ -116,8 +116,8 @@ public class WndInfoCell extends Window {
 		
 		info.text( desc.length() == 0 ? Messages.get(this, "nothing") : desc );
 		info.maxWidth(WIDTH);
-		info.setPos(titlebar.left(), titlebar.bottom() + GAP);
+		info.setPos(titlebar.left(), titlebar.bottom() + 2*GAP);
 		
-		resize( WIDTH, (int)(info.top() + info.height()) );
+		resize( WIDTH, (int)info.bottom()+2 );
 	}
 }

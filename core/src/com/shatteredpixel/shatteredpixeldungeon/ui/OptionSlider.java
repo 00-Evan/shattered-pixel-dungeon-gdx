@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.ColorBlock;
 import com.watabou.noosa.NinePatch;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.TouchArea;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.GameMath;
@@ -35,9 +34,9 @@ public abstract class OptionSlider extends Component {
 
 	private TouchArea touchArea;
 
-	private RenderedText title;
-	private RenderedText minTxt;
-	private RenderedText maxTxt;
+	private RenderedTextBlock title;
+	private RenderedTextBlock minTxt;
+	private RenderedTextBlock maxTxt;
 
 	//values are expressed internally as ints, but they can easily be interpreted as something else externally.
 	private int minVal;
@@ -93,9 +92,9 @@ public abstract class OptionSlider extends Component {
 		add( BG = Chrome.get(Chrome.Type.RED_BUTTON));
 		BG.alpha(0.5f);
 
-		add(title = PixelScene.renderText(9));
-		add(this.minTxt = PixelScene.renderText(6));
-		add(this.maxTxt = PixelScene.renderText(6));
+		add(title = PixelScene.renderTextBlock(9));
+		add(this.minTxt = PixelScene.renderTextBlock(6));
+		add(this.maxTxt = PixelScene.renderTextBlock(6));
 
 		add(sliderBG = new ColorBlock(1, 1, 0xFF222222));
 		sliderNode = Chrome.get(Chrome.Type.RED_BUTTON);
@@ -141,8 +140,10 @@ public abstract class OptionSlider extends Component {
 
 	@Override
 	protected void layout() {
-		title.x = x + (width-title.width())/2;
-		title.y = y+2;
+		title.setPos(
+				x + (width-title.width())/2,
+				y+2
+		);
 		PixelScene.align(title);
 		sliderBG.y = y + height() - 8;
 		sliderBG.x = x+2;
@@ -153,10 +154,14 @@ public abstract class OptionSlider extends Component {
 			sliderTicks[i].x = (int)(x + 2 + (tickDist*i));
 		}
 
-		minTxt.y = maxTxt.y = sliderBG.y-6-minTxt.baseLine();
-		minTxt.x = x+1;
-		maxTxt.x = x+width()-maxTxt.width()-1;
-
+		minTxt.setPos(
+				x+1,
+				sliderBG.y-6-minTxt.height()
+		);
+		maxTxt.setPos(
+				x+width()-maxTxt.width()-1,
+				sliderBG.y-6-minTxt.height()
+		);
 
 		sliderNode.x = (int)(x + tickDist*(selectedVal-minVal));
 		sliderNode.y = sliderBG.y-4;

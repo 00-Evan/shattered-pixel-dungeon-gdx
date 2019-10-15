@@ -31,10 +31,10 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.OptionSlider;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.Group;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.DeviceCompat;
 
@@ -169,8 +169,8 @@ public class WndSettings extends WndTabbed {
 		public UITab(){
 			super();
 
-			RenderedText barDesc = PixelScene.renderText(Messages.get(this, "mode"), 9);
-			barDesc.x = (WIDTH-barDesc.width())/2;
+			RenderedTextBlock barDesc = PixelScene.renderTextBlock(Messages.get(this, "mode"), 9);
+			barDesc.setPos((WIDTH-barDesc.width())/2f, GAP_TINY);
 			PixelScene.align(barDesc);
 			add(barDesc);
 
@@ -181,7 +181,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnSplit.setRect( 0, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnSplit.setRect( 0, barDesc.bottom() + GAP_TINY, 36, 16);
 			add(btnSplit);
 
 			RedButton btnGrouped = new RedButton(Messages.get(this, "group")){
@@ -191,7 +191,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnGrouped.setRect( btnSplit.right()+GAP_TINY, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnGrouped.setRect( btnSplit.right()+GAP_TINY, btnSplit.top(), 36, 16);
 			add(btnGrouped);
 
 			RedButton btnCentered = new RedButton(Messages.get(this, "center")){
@@ -201,7 +201,7 @@ public class WndSettings extends WndTabbed {
 					Toolbar.updateLayout();
 				}
 			};
-			btnCentered.setRect(btnGrouped.right()+GAP_TINY, barDesc.y + barDesc.baseLine()+GAP_TINY, 36, 16);
+			btnCentered.setRect(btnGrouped.right()+GAP_TINY, btnSplit.top(), 36, 16);
 			add(btnCentered);
 
 			CheckBox chkFlipToolbar = new CheckBox(Messages.get(this, "flip_toolbar")){

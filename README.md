@@ -1,3 +1,11 @@
+# This Codebase is Deprecated!
+
+I am currently transitioning the original [android codebase](https://github.com/00-Evan/shattered-pixel-dungeon) to be multiplatform. As a result support for this repository is ending!
+
+This repo will likely receive 0.7.6, and maybe the next update after that, but none afterward. As a result I would strongly advise against forking this repository. You should fork the original repository if you want to receive updates from upstream.
+
+If you are a regular user you have nothing to worry about. You will not miss any updates, and should be able to seamlessly switch to desktop builds from the original codebase once they become available.
+
 shattered-pixel-dungeon-gdx
 =================
 

@@ -1,6 +1,6 @@
 /*
  * Pixel Dungeon
- * Copyright (C) 2012-2015  Oleg Dolya
+ * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
  * Copyright (C) 2014-2019 Evan Debenham
@@ -18,35 +18,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+
 package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
-import com.watabou.noosa.BitmapText;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
+import com.watabou.noosa.RenderedText;
+import com.watabou.utils.Callback;
 import com.watabou.utils.SparseArray;
 
 import java.util.ArrayList;
 
-//TODO: change this to be based on renderedtext when that works
-public class FloatingText extends BitmapText {
-
+public class FloatingText extends RenderedTextBlock {
+	
 	private static final float LIFESPAN	= 1f;
 	private static final float DISTANCE	= DungeonTilemap.SIZE;
-
+	
 	private float timeLeft;
 	
 	private int key = -1;
-
-	private float cameraZoom = -1;
-
+	
 	private static final SparseArray<ArrayList<FloatingText>> stacks = new SparseArray<>();
 	
 	public FloatingText() {
-		super();
-		speed.y = - DISTANCE / LIFESPAN;
+		super(9*PixelScene.defaultZoom);
 	}
 	
 	@Override
@@ -59,6 +58,12 @@ public class FloatingText extends BitmapText {
 			} else {
 				float p = timeLeft / LIFESPAN;
 				alpha( p > 0.5f ? 1 : p * 2 );
+				
+				float yMove = (DISTANCE / LIFESPAN) * Game.elapsed;
+				y -= yMove;
+				for (RenderedText t : words){
+					t.y -= yMove;
+				}
 			}
 		}
 	}
@@ -83,20 +88,16 @@ public class FloatingText extends BitmapText {
 	public void reset( float x, float y, String text, int color ) {
 		
 		revive();
-
-		if (cameraZoom != Camera.main.zoom) {
-			cameraZoom = Camera.main.zoom;
-			PixelScene.chooseFont( 9, cameraZoom );
-			font = PixelScene.font;
-			scale.set( PixelScene.scale );
-		}
-
+		
+		zoom( 1 / (float)PixelScene.defaultZoom );
+		
 		text( text );
 		hardlight( color );
 		
-		measure();
-		this.x = x - width() / 2;
-		this.y = y - height();
+		setPos(
+				PixelScene.align( Camera.main, x - width() / 2),
+				PixelScene.align( Camera.main, y - height())
+		);
 		
 		timeLeft = LIFESPAN;
 	}
@@ -104,18 +105,28 @@ public class FloatingText extends BitmapText {
 	/* STATIC METHODS */
 	
 	public static void show( float x, float y, String text, int color ) {
-		FloatingText txt = GameScene.status();
-		if (txt != null){
-			txt.reset(x, y, text, color);
-		}
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				FloatingText txt = GameScene.status();
+				if (txt != null){
+					txt.reset(x, y, text, color);
+				}
+			}
+		});
 	}
 	
 	public static void show( float x, float y, int key, String text, int color ) {
-		FloatingText txt = GameScene.status();
-		if (txt != null) {
-			txt.reset(x, y, text, color);
-			push(txt, key);
-		}
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				FloatingText txt = GameScene.status();
+				if (txt != null){
+					txt.reset(x, y, text, color);
+					push(txt, key);
+				}
+			}
+		});
 	}
 	
 	private static void push( FloatingText txt, int key ) {
@@ -134,8 +145,8 @@ public class FloatingText extends BitmapText {
 				int aboveIndex = stack.size() - 1;
 				while (aboveIndex >= 0) {
 					FloatingText above = stack.get(aboveIndex);
-					if (above.y + above.height() > below.y) {
-						above.y = below.y - above.height();
+					if (above.bottom() + 4 > below.top()) {
+						above.setPos(above.left(), below.top() - above.height() - 4);
 						
 						below = above;
 						aboveIndex--;

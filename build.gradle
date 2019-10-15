@@ -15,13 +15,13 @@ allprojects {
 	apply plugin: "eclipse"
 	apply plugin: "idea"
 
-	version = '0.7.5a'
+	version = '0.7.5b'
 	ext {
-		versionCode = 372
+		versionCode = 378
 		appName = 'shattered-pixel-dungeon'
 		appTitle = 'Shattered Pixel Dungeon'
 		appId = 'com.shatteredpixel.shatteredpixeldungeon'
-		gdxVersion = '1.9.8'
+		gdxVersion = '1.9.10'
 		roboVMVersion = '2.3.3'
 	}
 
@@ -43,6 +43,7 @@ project(":desktop") {
 		compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 		compile "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
 		compile "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
+		compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
 	}
 }
 
@@ -111,6 +112,7 @@ project(":PD-classes") {
 	dependencies {
 		compile "com.badlogicgames.gdx:gdx:$gdxVersion"
 		compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
+		compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 		compile "org.json:json:20140107"
 	}
 }

@@ -33,6 +33,7 @@ import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.TouchArea;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Component;
+import com.watabou.utils.Callback;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -49,7 +50,7 @@ public class UpdateNotification extends Component {
 	private static String updateURL;
 
 	private NinePatch panel;
-	private BitmapText updateMessage;
+	private RenderedTextBlock updateMessage;
 	private TouchArea touchUpdate;
 
 	private float alpha;
@@ -112,7 +113,7 @@ public class UpdateNotification extends Component {
 		add( panel );
 
 		//updateMessage = new BitmapText("Checking Updates", PixelScene.font1x);
-		updateMessage = PixelScene.createText("Checking Updates", 9);
+		updateMessage = PixelScene.renderTextBlock("Checking Updates", 9);
 		add(updateMessage);
 
 		touchUpdate = new TouchArea( panel ){
@@ -136,9 +137,8 @@ public class UpdateNotification extends Component {
 		panel.alpha(alpha);
 		panel.visible = updateAvailable || !quiet;
 
-		updateMessage.x = panel.x+panel.marginLeft();
-		updateMessage.y = panel.y+panel.marginTop();
-		updateMessage.measure();
+		updateMessage.setPos( panel.x+panel.marginLeft(), panel.y+panel.marginTop() );
+		//updateMessage.measure();
 		updateMessage.alpha(alpha);
 		updateMessage.visible = updateAvailable || !quiet;
 
@@ -149,28 +149,33 @@ public class UpdateNotification extends Component {
 	}
 
 	private void updateMessage(){
-		if (latestVersion == -1){
-			updateMessage.text("Connection Failed");
-			updateMessage.hardlight( 0xFFCC66 );
-			alpha = 1f;
-		} else if (latestVersion == 0){
-			updateMessage.text("Checking Updates");
-			updateMessage.hardlight( 0xFFFFFF );
-			alpha = 0.8f;
-		} else if (!updateAvailable){
-			updateMessage.text("Up to Date!");
-			updateMessage.hardlight( 0xFFFFFF );
-			alpha = 0.8f;
-		} else {
-			if (!latestIsUpdate){
-				updateMessage.text("Patch!");
-			} else {
-				updateMessage.text("Update!");
+		Game.runOnRenderThread(new Callback() {
+			@Override
+			public void call() {
+				if (latestVersion == -1){
+					updateMessage.text("Connection Failed");
+					updateMessage.hardlight( 0xFFCC66 );
+					alpha = 1f;
+				} else if (latestVersion == 0){
+					updateMessage.text("Checking Updates");
+					updateMessage.hardlight( 0xFFFFFF );
+					alpha = 0.8f;
+				} else if (!updateAvailable){
+					updateMessage.text("Up to Date!");
+					updateMessage.hardlight( 0xFFFFFF );
+					alpha = 0.8f;
+				} else {
+					if (!latestIsUpdate){
+						updateMessage.text("Patch!");
+					} else {
+						updateMessage.text("Update!");
+					}
+					updateMessage.hardlight( Window.SHPX_COLOR );
+					alpha = 1f;
+				}
+				layout();
 			}
-			updateMessage.hardlight( Window.SHPX_COLOR );
-			alpha = 1f;
-		}
-		layout();
+		});
 	}
 
 	@Override

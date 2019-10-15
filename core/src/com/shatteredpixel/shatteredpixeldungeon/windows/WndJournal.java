@@ -40,7 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickRecipe;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.BitmapText;
@@ -148,7 +148,7 @@ public class WndJournal extends WndTabbed {
 	
 	private static class ListItem extends Component {
 		
-		protected RenderedTextMultiline label;
+		protected RenderedTextBlock label;
 		protected BitmapText depth;
 		protected ColorBlock line;
 		protected Image icon;
@@ -177,7 +177,7 @@ public class WndJournal extends WndTabbed {
 		
 		@Override
 		protected void createChildren() {
-			label = PixelScene.renderMultiline( 7 );
+			label = PixelScene.renderTextBlock( 7 );
 			add( label );
 			
 			icon = new Image();
@@ -247,7 +247,7 @@ public class WndJournal extends WndTabbed {
 			line.y = pos;
 			content.add(line);
 			
-			RenderedTextMultiline title = PixelScene.renderMultiline(Document.ADVENTURERS_GUIDE.title(), 9);
+			RenderedTextBlock title = PixelScene.renderTextBlock(Document.ADVENTURERS_GUIDE.title(), 9);
 			title.hardlight(TITLE_COLOR);
 			title.maxWidth( (int)width() - 2 );
 			title.setPos( (width() - title.width())/2f, pos + 1 + ((ITEM_HEIGHT) - title.height())/2f);
@@ -313,7 +313,7 @@ public class WndJournal extends WndTabbed {
 		private static int currentPageIdx   = -1;
 		
 		private IconTitle title;
-		private RenderedTextMultiline body;
+		private RenderedTextBlock body;
 		
 		private ScrollPane list;
 		private ArrayList<QuickRecipe> recipes = new ArrayList<>();
@@ -343,7 +343,7 @@ public class WndJournal extends WndTabbed {
 			title.icon( new ItemSprite(ItemSpriteSheet.ALCH_PAGE));
 			title.visible = false;
 
-			body = PixelScene.renderMultiline(6);
+			body = PixelScene.renderTextBlock(6);
 			
 			list = new ScrollPane(new Component());
 			add(list);
@@ -502,7 +502,7 @@ public class WndJournal extends WndTabbed {
 				line.y = pos;
 				content.add(line);
 				
-				RenderedTextMultiline title = PixelScene.renderMultiline(Messages.get(this, "keys"), 9);
+				RenderedTextBlock title = PixelScene.renderTextBlock(Messages.get(this, "keys"), 9);
 				title.hardlight(TITLE_COLOR);
 				title.maxWidth( (int)width() - 2 );
 				title.setPos( (width() - title.width())/2f, pos + 1 + ((ITEM_HEIGHT) - title.height())/2f);
@@ -527,7 +527,7 @@ public class WndJournal extends WndTabbed {
 				line.y = pos;
 				content.add(line);
 				
-				RenderedTextMultiline title = PixelScene.renderMultiline(Messages.get(this, "landmarks"), 9);
+				RenderedTextBlock title = PixelScene.renderTextBlock(Messages.get(this, "landmarks"), 9);
 				title.hardlight(TITLE_COLOR);
 				title.maxWidth( (int)width() - 2 );
 				title.setPos( (width() - title.width())/2f, pos + 1 + ((ITEM_HEIGHT) - title.height())/2f);

@@ -35,11 +35,11 @@ public class DeviceCompat {
 	}
 	
 	public static boolean usesISO_8859_1(){
-		return false;
+		return true;
 	}
 	
 	public static boolean isDebug(){
-		return false; //TODO must be a way to check this in libgdx
+		return Game.version.contains("INDEV");
 	}
 	
 	public static void openURI( String URI ){

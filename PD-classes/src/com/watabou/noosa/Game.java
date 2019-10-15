@@ -35,6 +35,7 @@ import com.watabou.glwrap.Vertexbuffer;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.Callback;
 import com.watabou.utils.PDPlatformSupport;
 import com.watabou.utils.Reflection;
 
@@ -164,7 +165,6 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		
 		//refreshes texture and vertex data stored on the gpu
 		TextureCache.reload();
-		RenderedText.reloadCache();
 		Vertexbuffer.refreshAllBuffers();
 	}
 	
@@ -239,6 +239,15 @@ public abstract class Game<GameActionType> implements ApplicationListener {
 		
 		scene.update();
 		Camera.updateAll();
+	}
+	
+	public static void runOnRenderThread(final Callback c){
+		Gdx.app.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				c.call();
+			}
+		});
 	}
 	
 	public static void vibrate( int milliseconds ) {

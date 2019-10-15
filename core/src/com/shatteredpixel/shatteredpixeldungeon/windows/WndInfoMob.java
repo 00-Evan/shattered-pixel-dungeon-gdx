@@ -26,7 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.HealthBar;
-import com.watabou.noosa.RenderedText;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.watabou.noosa.ui.Component;
 
 public class WndInfoMob extends WndTitledMessage {
@@ -42,13 +42,13 @@ public class WndInfoMob extends WndTitledMessage {
 		private static final int GAP	= 2;
 		
 		private CharSprite image;
-		private RenderedText name;
+		private RenderedTextBlock name;
 		private HealthBar health;
 		private BuffIndicator buffs;
 		
 		public MobTitle( Mob mob ) {
 			
-			name = PixelScene.renderText( Messages.titleCase( mob.name ), 9 );
+			name = PixelScene.renderTextBlock( Messages.titleCase( mob.name ), 9 );
 			name.hardlight( TITLE_COLOR );
 			add( name );
 			
@@ -69,16 +69,17 @@ public class WndInfoMob extends WndTitledMessage {
 			image.x = 0;
 			image.y = Math.max( 0, name.height() + health.height() - image.height );
 
-			name.x = image.width + GAP;
-			name.y = Math.max( 0, image.height - health.height() - name.height());
+			name.setPos(x + image.width + GAP,
+					image.height > name.height() ? y +(image.height() - name.height()) / 2 : y);
 
 			float w = width - image.width - GAP;
 
-			health.setRect(image.width + GAP, name.y + name.height(), w, health.height());
+			health.setRect(image.width + GAP, name.bottom() + GAP, w, health.height());
 
 			buffs.setPos(
-				name.x + name.width() + GAP-1,
-				name.y + name.baseLine() - BuffIndicator.SIZE-2 );
+				name.right() + GAP-1,
+				name.bottom() - BuffIndicator.SIZE-2
+			);
 
 			height = health.bottom();
 		}

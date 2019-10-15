@@ -58,7 +58,11 @@ public class Texture {
 			bound_id = id;
 		}
 	}
-
+	
+	public static void clear(){
+		bound_id = 0;
+	}
+	
 	public void filter( int minMode, int maxMode ) {
 		bind();
 		Gdx.gl.glTexParameterf( GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MIN_FILTER, minMode );

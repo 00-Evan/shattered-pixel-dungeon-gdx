@@ -27,7 +27,6 @@ import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.NinePatch;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 
@@ -35,7 +34,7 @@ import com.watabou.noosa.ui.Button;
 public class StyledButton extends Button<GameAction> {
 	
 	protected NinePatch bg;
-	protected RenderedText text;
+	protected RenderedTextBlock text;
 	protected Image icon;
 	
 	public StyledButton(Chrome.Type type, String label ) {
@@ -48,7 +47,7 @@ public class StyledButton extends Button<GameAction> {
 		bg = Chrome.get( type );
 		addToBack( bg );
 		
-		text = PixelScene.renderText( size );
+		text = PixelScene.renderTextBlock( size );
 		text.text( label );
 		add( text );
 	}
@@ -69,8 +68,10 @@ public class StyledButton extends Button<GameAction> {
 		if (text != null && !text.text().equals("")){
 			componentWidth += text.width() + 2;
 			
-			text.x = x + (width() + componentWidth)/2f - text.width() - 1;
-			text.y = y + (height() - text.baseLine()) / 2f;
+			text.setPos(
+					x + (width() + componentWidth)/2f - text.width() - 1,
+					y + (height() - text.height()) / 2f
+			);
 			PixelScene.align(text);
 			
 		}
@@ -141,7 +142,7 @@ public class StyledButton extends Button<GameAction> {
 			reqHeight = Math.max(icon.height() + 4, reqHeight);
 		}
 		if (text != null && !text.text().equals("")){
-			reqHeight = Math.max(text.baseLine() + 4, reqHeight);
+			reqHeight = Math.max(text.height() + 4, reqHeight);
 		}
 		return reqHeight;
 	}

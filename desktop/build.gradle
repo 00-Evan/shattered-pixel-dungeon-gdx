@@ -1,6 +1,5 @@
 apply plugin: "java"
 
-sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 project.ext.mainClassName = "com.watabou.pd.desktop.DesktopLauncher"

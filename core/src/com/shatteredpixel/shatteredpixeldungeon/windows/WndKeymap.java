@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.input.GameAction;
 import com.shatteredpixel.shatteredpixeldungeon.input.PDInputProcessor;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ScrollPane;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.input.NoosaInputProcessor;
@@ -150,9 +151,9 @@ public class WndKeymap extends Window {
 		private final GameAction gameAction;
 		private final KeyPair keys;
 
-		private BitmapText action;
-		private BitmapText key1;
-		private BitmapText key2;
+		private RenderedTextBlock action;
+		private RenderedTextBlock key1;
+		private RenderedTextBlock key2;
 
 		public ListItem( GameAction gameAction, KeyPair keys ) {
 			super();
@@ -161,36 +162,33 @@ public class WndKeymap extends Window {
 			this.keys = keys;
 
 			action.text(gameAction.getDescription());
-			action.measure();
+			//action.measure();
 
 			reconfigureKeysText();
 		}
 
 		@Override
 		protected void createChildren() {
-			action = PixelScene.createText( 9 );
+			action = PixelScene.renderTextBlock( 9 );
 			add( action );
 
-			key1 = PixelScene.createText( 9 );
+			key1 = PixelScene.renderTextBlock( 9 );
 			add( key1 );
 
-			key2 = PixelScene.createText( 9 );
+			key2 = PixelScene.renderTextBlock( 9 );
 			add( key2 );
 		}
 
 		@Override
 		protected void layout() {
-			final float ty = y + (height - action.baseLine()) / 2;
+			final float ty = y + (height - action.height()) / 2;
 			final float w4 = width / 4;
 
-			action.x = MARGIN;
-			action.y = ty;
+			action.setPos( MARGIN, ty );
 
-			key1.x = w4 * 2 + (w4 - key1.width()) / 2;
-			key1.y = ty;
-
-			key2.x = w4 * 3 + (w4 - key2.width()) / 2;
-			key2.y = ty;
+			key1.setPos( w4 * 2 + (w4 - key1.width()) / 2, ty );
+			
+			key2.setPos( w4 * 3 + (w4 - key2.width()) / 2, ty );
 		}
 
 		private void reconfigureKeysText() {
@@ -201,7 +199,7 @@ public class WndKeymap extends Window {
 				key1.text( TXT_UNASSIGNED );
 				key1.hardlight( NOT_BOUND );
 			}
-			key1.measure();
+			//key1.measure();
 
 			if (keys.key2 > 0) {
 				key2.text( Input.Keys.toString( keys.key2 ) );
@@ -210,7 +208,7 @@ public class WndKeymap extends Window {
 				key2.text( TXT_UNASSIGNED );
 				key2.hardlight( NOT_BOUND );
 			}
-			key2.measure();
+			//key2.measure();
 
 			layout();
 		}

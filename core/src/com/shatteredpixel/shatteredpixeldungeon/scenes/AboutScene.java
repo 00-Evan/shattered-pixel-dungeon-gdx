@@ -26,12 +26,11 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
-import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextMultiline;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.input.NoosaInputProcessor;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Image;
-import com.watabou.noosa.RenderedText;
 import com.watabou.noosa.TouchArea;
 import com.watabou.utils.DeviceCompat;
 
@@ -68,22 +67,24 @@ public class AboutScene extends PixelScene {
 
 		new Flare( 7, 64 ).color( 0x225511, true ).show( shpx, 0 ).angularSpeed = +20;
 
-		RenderedText shpxtitle = renderText( TTL_SHPX, 8 );
+		RenderedTextBlock shpxtitle = renderTextBlock( TTL_SHPX, 8 );
 		shpxtitle.hardlight( Window.SHPX_COLOR );
 		add( shpxtitle );
 
-		shpxtitle.x = (colWidth - shpxtitle.width()) / 2;
-		shpxtitle.y = shpx.y + shpx.height + 5;
+		shpxtitle.setPos(
+				(colWidth - shpxtitle.width()) / 2,
+				shpx.y + shpx.height + 5
+		);
 		align(shpxtitle);
 
-		RenderedTextMultiline shpxtext = renderMultiline( TXT_SHPX, 8 );
+		RenderedTextBlock shpxtext = renderTextBlock( TXT_SHPX, 8 );
 		shpxtext.maxWidth((int)Math.min(colWidth, 120));
 		add( shpxtext );
 
-		shpxtext.setPos((colWidth - shpxtext.width()) / 2, shpxtitle.y + shpxtitle.height() + 12);
+		shpxtext.setPos((colWidth - shpxtext.width()) / 2, shpxtitle.bottom() + 12);
 		align(shpxtext);
 
-		RenderedTextMultiline shpxlink = renderMultiline( LNK_SHPX, 8 );
+		RenderedTextBlock shpxlink = renderTextBlock( LNK_SHPX, 8 );
 		shpxlink.maxWidth(shpxtext.maxWidth());
 		shpxlink.hardlight( Window.SHPX_COLOR );
 		add( shpxlink );
@@ -109,22 +110,25 @@ public class AboutScene extends PixelScene {
 
 		new Flare( 7, 64 ).color( 0x112233, true ).show( wata, 0 ).angularSpeed = +20;
 
-		RenderedText wataTitle = renderText( TTL_WATA, 8 );
+		RenderedTextBlock wataTitle = renderTextBlock( TTL_WATA, 8 );
 		wataTitle.hardlight(Window.TITLE_COLOR);
 		add( wataTitle );
 
-		wataTitle.x = wataOffset + (colWidth - wataTitle.width()) / 2;
-		wataTitle.y = wata.y + wata.height + 11;
+		wataTitle.setPos(
+				wataOffset + (colWidth - wataTitle.width()) / 2,
+				wata.y + wata.height + 11
+		);
 		align(wataTitle);
 
-		RenderedTextMultiline wataText = renderMultiline( TXT_WATA, 8 );
+		RenderedTextBlock wataText = renderTextBlock( TXT_WATA, 8 );
 		wataText.maxWidth((int)Math.min(colWidth, 120));
+		wataText.setHightlighting(false); //underscore in cube_code
 		add( wataText );
 
-		wataText.setPos(wataOffset + (colWidth - wataText.width()) / 2, wataTitle.y + wataTitle.height() + 12);
+		wataText.setPos(wataOffset + (colWidth - wataText.width()) / 2, wataTitle.bottom() + 12);
 		align(wataText);
 
-		RenderedTextMultiline wataLink = renderMultiline( LNK_WATA, 8 );
+		RenderedTextBlock wataLink = renderTextBlock( LNK_WATA, 8 );
 		wataLink.maxWidth((int)Math.min(colWidth, 120));
 		wataLink.hardlight(Window.TITLE_COLOR);
 		add(wataLink);
