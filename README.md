@@ -9,7 +9,6 @@ If you are a regular user you have nothing to worry about. You will not miss any
 shattered-pixel-dungeon-gdx
 
 # flash-card-shattered-pixel-dungeon
-=================
 
 Learning game derived from [Shattered Pixel Dungeon](https://github.com/00-Evan/shattered-pixel-dungeon) the awesome fork of [Pixel Dungeon](https://github.com/watabou/pixel-dungeon)
 
