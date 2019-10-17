@@ -7,7 +7,7 @@ This repo will likely receive 0.7.6, and maybe the next update after that, but n
 If you are a regular user you have nothing to worry about. You will not miss any updates, and should be able to seamlessly switch to desktop builds from the original codebase once they become available.
 
 flash-card-shattered-pixel-dungeon
-=================
+==========
 
 Learning game derived from [Shattered Pixel Dungeon](https://github.com/00-Evan/shattered-pixel-dungeon) the awesome fork of [Pixel Dungeon](https://github.com/watabou/pixel-dungeon)
 
