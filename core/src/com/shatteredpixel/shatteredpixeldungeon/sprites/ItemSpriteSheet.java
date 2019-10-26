@@ -655,6 +655,8 @@ public class ItemSpriteSheet {
 		assignItemRect(SHARD,    8, 10);
 	}
 
+	                                                                                    //16 free slots
+
 	private static final int BAGS       =                                   xy(1, 31);  //16 slots
 	public static final int VIAL        = BAGS+0;
 	public static final int POUCH       = BAGS+1;
@@ -669,8 +671,11 @@ public class ItemSpriteSheet {
 		assignItemRect(HOLSTER,     15, 16);
 	}
 
-	                                                                                    //16 free slots
-
+	private static final int MYSTICAL		=									xy(1, 32);
+	public static final int MYSTICAL_ORB	= MYSTICAL+0;
+	static{
+		assignItemRect(MYSTICAL_ORB,	16, 16);
+	}
 
 	private static void assignItemRect( int item, int width, int height){
 		int x = (item % WIDTH) * WIDTH;
