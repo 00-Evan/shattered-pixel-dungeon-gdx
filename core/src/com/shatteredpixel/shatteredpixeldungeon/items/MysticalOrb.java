@@ -155,16 +155,9 @@ public class MysticalOrb extends Item {
 					
 					try
 					{
-						if ( action.equals( AC_USE_AS_POTION ) )
-						{
-							Potion selectedPotion = (Potion) curSelection.newInstance();
-							Game.scene().addToFront(new WndItem( null, selectedPotion, true) );
-						}
-						else if ( action.equals( AC_USE_AS_SCROLL ) )
-						{
-							Scroll selectedScroll = (Scroll) curSelection.newInstance();
-							Game.scene().addToFront(new WndItem( null, selectedScroll, true) );
-						}
+						Item selectedItem = (Item) curSelection.newInstance();
+						selectedItem.collect();
+						Game.scene().addToFront(new WndItem( null, selectedItem, true) );
 					}
 					catch(Exception e)
 					{
