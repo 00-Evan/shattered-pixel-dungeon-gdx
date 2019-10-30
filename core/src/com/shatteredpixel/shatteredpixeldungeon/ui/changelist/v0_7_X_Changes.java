@@ -71,9 +71,13 @@ public class v0_7_X_Changes {
 		changes.hardlight( Window.TITLE_COLOR );
 		changeInfos.add(changes);
 		
-		changes = new ChangeInfo("", false, null);
+		changes = new ChangeInfo("v0.7.5f", false, null);
 		changes.hardlight( Window.TITLE_COLOR );
 		changeInfos.add(changes);
+		
+		changes.addButton( new ChangeButton(new Image(Assets.SPINNER, 144, 0, 16, 16), Messages.get(ChangesScene.class, "bugfixes"),
+				"Fixed (caused by 0.7.5):\n" +
+				"_-_ Update notification not appearing in many cases when it should"));
 		
 		changes = new ChangeInfo("v0.7.5e", false, null);
 		changes.hardlight( Window.TITLE_COLOR );

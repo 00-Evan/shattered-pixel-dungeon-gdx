@@ -142,7 +142,7 @@ public class UpdateNotification extends Component {
 		updateMessage.alpha(alpha);
 		updateMessage.visible = updateAvailable || !quiet;
 
-		panel.size( panel.marginHor()+updateMessage.width(), panel.marginVer()+updateMessage.height()-1);
+		panel.size( panel.marginHor()+updateMessage.width(), panel.marginVer()+updateMessage.height());
 		this.width = panel.width();
 		this.height = panel.height();
 
@@ -196,8 +196,11 @@ public class UpdateNotification extends Component {
 		}
 
 		layout();
-		if (alpha <= 0f)
-			parent.remove( this );
+		if (alpha <= 0f) {
+			visible = false;
+		} else {
+			visible = true;
+		}
 	}
 
 	public static class WndUpdate extends WndOptions {
