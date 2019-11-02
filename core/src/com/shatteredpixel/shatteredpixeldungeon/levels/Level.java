@@ -174,6 +174,17 @@ public abstract class Level implements Bundlable {
 		if (!(Dungeon.bossLevel() || Dungeon.depth == 21) /*final shop floor*/) {
 
 			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
+			addItemToSpawn( new MysticalOrb() );
 
 			if (Dungeon.isChallenged(Challenges.NO_FOOD)){
 				addItemToSpawn( new SmallRation() );
