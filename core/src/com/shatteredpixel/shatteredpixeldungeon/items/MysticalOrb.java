@@ -96,37 +96,17 @@ public class MysticalOrb extends Item {
 		return 100 * quantity;
 	}
 
-	List<Class<? extends Item>> potionClasses = Arrays.asList(
-		PotionOfExperience.class,
-		PotionOfFrost.class,
-		PotionOfHaste.class,
-		PotionOfHealing.class,
-		PotionOfInvisibility.class,
-		PotionOfLevitation.class,
-		PotionOfLiquidFlame.class,
-		PotionOfMindVision.class,
-		PotionOfParalyticGas.class,
-		PotionOfPurity.class,
-		PotionOfStrength.class,
-		PotionOfToxicGas.class
-	);
+	List<Class<? extends Item>> potionClasses = Arrays.asList(PotionOfExperience.class, PotionOfFrost.class,
+			PotionOfHaste.class, PotionOfHealing.class, PotionOfInvisibility.class, PotionOfLevitation.class,
+			PotionOfLiquidFlame.class, PotionOfMindVision.class, PotionOfParalyticGas.class, PotionOfPurity.class,
+			PotionOfStrength.class, PotionOfToxicGas.class);
 
-	List<Class<? extends Item>> scrollClasses = Arrays.asList(
-		ScrollOfIdentify.class,
-		ScrollOfLullaby.class,
-		ScrollOfMagicMapping.class,
-		ScrollOfMirrorImage.class,
-		ScrollOfRetribution.class,
-		ScrollOfRage.class,
-		ScrollOfRecharging.class,
-		ScrollOfRemoveCurse.class,
-		ScrollOfTeleportation.class,
-		ScrollOfTerror.class,
-		ScrollOfTransmutation.class, 
-		ScrollOfUpgrade.class
-	);
+	List<Class<? extends Item>> scrollClasses = Arrays.asList(ScrollOfIdentify.class, ScrollOfLullaby.class,
+			ScrollOfMagicMapping.class, ScrollOfMirrorImage.class, ScrollOfRetribution.class, ScrollOfRage.class,
+			ScrollOfRecharging.class, ScrollOfRemoveCurse.class, ScrollOfTeleportation.class, ScrollOfTerror.class,
+			ScrollOfTransmutation.class, ScrollOfUpgrade.class);
 
-	static Class curSelection = null;
+	static Class<?> curSelection = null;
 
 	public class WndSelectEffect extends Window {
 
@@ -151,11 +131,11 @@ public class MysticalOrb extends Item {
 				@Override
 				protected void onClick() {
 					super.onClick();
-
 					GameScene.show(new WndFlashCard());
 					hide();
 				}
 			};
+
 			choose.visible = false;
 			choose.icon(new ItemSprite(new MysticalOrb()));
 			choose.enable(false);
@@ -227,8 +207,7 @@ public class MysticalOrb extends Item {
 		public WndFlashCard() {
 			super(0, 0, Chrome.get(Chrome.Type.SCROLL));
 
-			final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2
-					: WIDTH_P - MARGIN_HORIZONTAL * 2;
+			final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2 : WIDTH_P - MARGIN_HORIZONTAL * 2;
 			int y = MARGIN_VERTICAL;
 
 			tb1 = PixelScene.renderTextBlock(Messages.get(this, "intro"), 6);
@@ -308,8 +287,7 @@ public class MysticalOrb extends Item {
 		public WndFlashCardAnswer() {
 			super(0, 0, Chrome.get(Chrome.Type.SCROLL));
 
-			final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2
-					: WIDTH_P - MARGIN_HORIZONTAL * 2;
+			final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2 : WIDTH_P - MARGIN_HORIZONTAL * 2;
 			int y = MARGIN_VERTICAL;
 
 			tb1 = PixelScene.renderTextBlock(Messages.get(this, "intro"), 6);
@@ -385,7 +363,7 @@ public class MysticalOrb extends Item {
 
 	public void onQuestionSuccess() {
 		try {
-			Item selectedItem = (Item) curSelection.newInstance();
+			Item selectedItem = (Item) curSelection.getDeclaredConstructor().newInstance();
 			selectedItem.collect();
 			Game.scene().addToFront(new WndItem(null, selectedItem, true));
 		} catch (Exception e) {

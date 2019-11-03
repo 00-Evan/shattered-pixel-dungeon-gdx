@@ -228,7 +228,7 @@ public class TitleScene extends PixelScene {
 		add( btnExit );
 
 		UpdateNotification updInfo = new UpdateNotification();
-		updInfo.setPos(2, h-updInfo.height()-2);
+		updInfo.setPos(2, h-19);
 		add(updInfo);
 
 		fadeIn();
