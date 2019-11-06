@@ -35,10 +35,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.IconTitle;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndItem;
-import com.watabou.noosa.Game;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndFlashCardQuestion;
 import com.watabou.noosa.Image;
 
 import java.util.ArrayList;
@@ -46,17 +44,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MysticalOrb extends Item {
-
 	private static final String AC_USE_AS_POTION = "POTION";
 	private static final String AC_USE_AS_SCROLL = "SCROLL";
 
 	{
 		image = ItemSpriteSheet.MYSTICAL_ORB;
-
 		stackable = true;
-
 		defaultAction = AC_USE_AS_POTION;
-
 		bones = true;
 	}
 
@@ -70,7 +64,6 @@ public class MysticalOrb extends Item {
 
 	@Override
 	public void execute(Hero hero, String action) {
-
 		super.execute(hero, action);
 
 		if (action.equals(AC_USE_AS_POTION) || action.equals(AC_USE_AS_SCROLL)) {
@@ -104,15 +97,13 @@ public class MysticalOrb extends Item {
 			ScrollOfRecharging.class, ScrollOfRemoveCurse.class, ScrollOfTeleportation.class, ScrollOfTerror.class,
 			ScrollOfTransmutation.class, ScrollOfUpgrade.class);
 
-	static Class<?> curSelection = null;
+	static Class<? extends Item> curSelection = null;
 
 	public class WndSelectEffect extends Window {
-
 		private static final int WIDTH = 120;
 		private static final int BTN_SIZE = 20;
 
 		public WndSelectEffect(String action) {
-
 			IconTitle titlebar = new IconTitle();
 			titlebar.icon(new ItemSprite(ItemSpriteSheet.MYSTICAL_ORB, null));
 			titlebar.label(Messages.get(MysticalOrb.class, "name"));
@@ -129,18 +120,11 @@ public class MysticalOrb extends Item {
 				@Override
 				protected void onClick() {
 					super.onClick();
-
-					try {
-						Item selectedItem = (Item) curSelection.getDeclaredConstructor().newInstance();
-						selectedItem.collect();
-						Game.scene().addToFront(new WndItem(null, selectedItem, true));
-					} catch (Exception e) {
-						GLog.n(e.getMessage());
-					}
-
+					GameScene.show(new WndFlashCardQuestion(curSelection));
 					hide();
 				}
 			};
+
 			choose.visible = false;
 			choose.icon(new ItemSprite(new MysticalOrb()));
 			choose.enable(false);
@@ -148,32 +132,32 @@ public class MysticalOrb extends Item {
 			add(choose);
 
 			List<Class<? extends Item>> classList = action.equals(AC_USE_AS_POTION) ? potionClasses : scrollClasses;
-
 			float left = (WIDTH - BTN_SIZE * ((classList.size() + 1) / 2)) / 2f;
-			;
 			float top = text.bottom() + 5;
 			int row = action.equals(AC_USE_AS_POTION) ? 0 : 16;
 			int placed = 0;
 
-			for (int i = 0; i < classList.size(); i++) {
-				final int j = i;
+			for (int i = 0; i < classList.size(); ++i) {
+				final Class<? extends Item> itemClass = classList.get(i);
+
 				IconButton btn = new IconButton() {
 					@Override
 					protected void onClick() {
-						curSelection = classList.get(j);
+						curSelection = itemClass;
 						choose.visible = true;
 						choose.text(Messages.get(curSelection, "name"));
 						choose.enable(true);
 						super.onClick();
 					}
 				};
+
 				Image im = new Image(Assets.CONS_ICONS, 7 * i, row, 7, 8);
 				im.scale.set(2f);
 				btn.icon(im);
 				btn.setRect(left + placed * BTN_SIZE, top, BTN_SIZE, BTN_SIZE);
 				add(btn);
 
-				placed++;
+				++placed;
 				if (placed == ((classList.size() + 1) / 2)) {
 					placed = 0;
 					if (classList.size() % 2 == 1) {
