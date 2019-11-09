@@ -17,8 +17,8 @@ public class FlashDeck implements IFlashDeck
 
 	public static FlashDeck getTestDeck() {
 		Vector<FlashQuestion> multQuestions = new Vector<FlashQuestion>();
-		for (int i = 0; i < 13; i++) {
-			for (int j = 0; j < 13; j++) {
+		for (int i = 1; i < 5; i++) {
+			for (int j = 1; j < 5; j++) {
 				String q = Integer.toString(i) + " * " + Integer.toString(j);
 				String a = Integer.toString(i*j);
 				multQuestions.add(new FlashQuestion(q, a));

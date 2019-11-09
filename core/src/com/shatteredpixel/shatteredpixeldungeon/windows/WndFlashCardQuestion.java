@@ -3,15 +3,16 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
 
 public class WndFlashCardQuestion extends WndFlashCard {
-  public WndFlashCardQuestion(final Class<? extends Item> item) {
-    super(item);
+  public WndFlashCardQuestion(final Class<? extends Item> item, FlashQuestion question) {
+    super(item, question);
   }
 
   @Override
   public String getText() {
-    return "4 x 9 = ?";
+    return question.getQuestion();
   }
 
   @Override
@@ -20,7 +21,7 @@ public class WndFlashCardQuestion extends WndFlashCard {
       @Override
       protected void onClick() {
         super.onClick();
-        GameScene.show(new WndFlashCardAnswer(item));
+        GameScene.show(new WndFlashCardAnswer(item, question));
         hide();
       }
     };
