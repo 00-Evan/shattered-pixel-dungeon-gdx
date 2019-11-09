@@ -90,12 +90,12 @@ public class MysticalOrb extends Item {
 	List<Class<? extends Item>> potionClasses = Arrays.asList(PotionOfExperience.class, PotionOfFrost.class,
 			PotionOfHaste.class, PotionOfHealing.class, PotionOfInvisibility.class, PotionOfLevitation.class,
 			PotionOfLiquidFlame.class, PotionOfMindVision.class, PotionOfParalyticGas.class, PotionOfPurity.class,
-			PotionOfStrength.class, PotionOfToxicGas.class);
+			PotionOfToxicGas.class);
 
 	List<Class<? extends Item>> scrollClasses = Arrays.asList(ScrollOfIdentify.class, ScrollOfLullaby.class,
 			ScrollOfMagicMapping.class, ScrollOfMirrorImage.class, ScrollOfRetribution.class, ScrollOfRage.class,
 			ScrollOfRecharging.class, ScrollOfRemoveCurse.class, ScrollOfTeleportation.class, ScrollOfTerror.class,
-			ScrollOfTransmutation.class, ScrollOfUpgrade.class);
+			ScrollOfTransmutation.class);
 
 	static Class<? extends Item> curSelection = null;
 
@@ -131,7 +131,8 @@ public class MysticalOrb extends Item {
 			choose.setRect(0, 95, WIDTH, 20);
 			add(choose);
 
-			List<Class<? extends Item>> classList = action.equals(AC_USE_AS_POTION) ? potionClasses : scrollClasses;
+			List<Class<? extends Item>> classList;
+			classList = action.equals(AC_USE_AS_POTION) ? potionClasses : scrollClasses;
 			float left = (WIDTH - BTN_SIZE * ((classList.size() + 1) / 2)) / 2f;
 			float top = text.bottom() + 5;
 			int row = action.equals(AC_USE_AS_POTION) ? 0 : 16;
@@ -150,8 +151,8 @@ public class MysticalOrb extends Item {
 						super.onClick();
 					}
 				};
-
-				Image im = new Image(Assets.CONS_ICONS, 7 * i, row, 7, 8);
+				int image_index = action.equals(AC_USE_AS_POTION) && i == classList.size()-1 ? i+1 : i;
+				Image im = new Image(Assets.CONS_ICONS, 7 * image_index, row, 7, 8);
 				im.scale.set(2f);
 				btn.icon(im);
 				btn.setRect(left + placed * BTN_SIZE, top, BTN_SIZE, BTN_SIZE);
