@@ -149,7 +149,7 @@ public class MysticalOrb extends Item {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					GameScene.show(new WndFlashCardQuestion(curSelection));
+					GameScene.show(new WndFlashCardQuestion(curSelection, null));
 					hide();
 				}
 			};
