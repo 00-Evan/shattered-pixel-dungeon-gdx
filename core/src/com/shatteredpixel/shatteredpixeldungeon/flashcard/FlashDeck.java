@@ -6,9 +6,13 @@ import com.watabou.utils.Random;
 public class FlashDeck implements IFlashDeck
 {
 	private Vector<FlashQuestion> questions;
-	public FlashDeck(Vector<FlashQuestion> questions)
+	private boolean isActive;
+	private String deckName;
+
+	public FlashDeck(Vector<FlashQuestion> questions, String deckName)
 	{
 		this.questions = questions;
+		this.deckName = deckName;
 	}
 
 	public static FlashDeck getTestDeck() {
@@ -20,7 +24,23 @@ public class FlashDeck implements IFlashDeck
 				multQuestions.add(new FlashQuestion(q, a));
 			}
 		}
-		return new FlashDeck(multQuestions);
+		return new FlashDeck(multQuestions, "Times Tables");
+	}
+
+	public String getDeckName() {
+		return deckName;
+	}
+
+	public void setDeckName(String deckName) {
+		this.deckName = deckName;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	public void addQuestion(FlashQuestion newQuestion) {
