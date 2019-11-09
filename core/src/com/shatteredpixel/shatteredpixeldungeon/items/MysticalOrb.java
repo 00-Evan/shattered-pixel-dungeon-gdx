@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndFlashCardQuestion;
 import com.watabou.noosa.Image;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Arrays;
 import java.util.List;
 
@@ -97,6 +98,34 @@ public class MysticalOrb extends Item {
 			ScrollOfRecharging.class, ScrollOfRemoveCurse.class, ScrollOfTeleportation.class, ScrollOfTerror.class,
 			ScrollOfTransmutation.class);
 
+	HashMap<Class<? extends Item>, Integer> imageMap= new HashMap<Class<? extends Item>, Integer>() {{
+		put(PotionOfExperience.class,0);
+		put(PotionOfFrost.class,1);
+		put(PotionOfHaste.class,2);
+		put(PotionOfHealing.class,3);
+		put(PotionOfInvisibility.class,4);
+		put(PotionOfLevitation.class,5);
+		put(PotionOfLiquidFlame.class,6);
+		put(PotionOfMindVision.class,7);
+		put(PotionOfParalyticGas.class,8);
+		put(PotionOfPurity.class,9);
+		put(PotionOfStrength.class,10);
+		put(PotionOfToxicGas.class,11);
+		put(ScrollOfIdentify.class,0);
+		put(ScrollOfLullaby.class,1);
+		put(ScrollOfMagicMapping.class,2);
+		put(ScrollOfMirrorImage.class,3);
+		put(ScrollOfRetribution.class,4);
+		put(ScrollOfRage.class,5);
+		put(ScrollOfRecharging.class,6);
+		put(ScrollOfRemoveCurse.class,7);
+		put(ScrollOfTeleportation.class,8);
+		put(ScrollOfTerror.class,9);
+		put(ScrollOfTransmutation.class,10);
+		put(ScrollOfUpgrade.class,11);
+	 }};
+	
+
 	static Class<? extends Item> curSelection = null;
 
 	public class WndSelectEffect extends Window {
@@ -151,8 +180,7 @@ public class MysticalOrb extends Item {
 						super.onClick();
 					}
 				};
-				int image_index = action.equals(AC_USE_AS_POTION) && i == classList.size()-1 ? i+1 : i;
-				Image im = new Image(Assets.CONS_ICONS, 7 * image_index, row, 7, 8);
+				Image im = new Image(Assets.CONS_ICONS, 7 * imageMap.get(itemClass), row, 7, 8);
 				im.scale.set(2f);
 				btn.icon(im);
 				btn.setRect(left + placed * BTN_SIZE, top, BTN_SIZE, BTN_SIZE);
