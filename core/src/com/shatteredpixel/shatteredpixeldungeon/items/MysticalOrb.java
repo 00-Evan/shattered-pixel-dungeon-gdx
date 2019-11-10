@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.Potion;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
@@ -14,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfParalyticG
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfPurity;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfToxicGas;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -40,6 +42,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndFlashCardQuestion;
 import com.watabou.noosa.Image;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,12 +94,40 @@ public class MysticalOrb extends Item {
 	List<Class<? extends Item>> potionClasses = Arrays.asList(PotionOfExperience.class, PotionOfFrost.class,
 			PotionOfHaste.class, PotionOfHealing.class, PotionOfInvisibility.class, PotionOfLevitation.class,
 			PotionOfLiquidFlame.class, PotionOfMindVision.class, PotionOfParalyticGas.class, PotionOfPurity.class,
-			PotionOfStrength.class, PotionOfToxicGas.class);
+			PotionOfToxicGas.class);
 
 	List<Class<? extends Item>> scrollClasses = Arrays.asList(ScrollOfIdentify.class, ScrollOfLullaby.class,
 			ScrollOfMagicMapping.class, ScrollOfMirrorImage.class, ScrollOfRetribution.class, ScrollOfRage.class,
 			ScrollOfRecharging.class, ScrollOfRemoveCurse.class, ScrollOfTeleportation.class, ScrollOfTerror.class,
-			ScrollOfTransmutation.class, ScrollOfUpgrade.class);
+			ScrollOfTransmutation.class);
+
+	HashMap<Class<? extends Item>, Integer> imageMap= new HashMap<Class<? extends Item>, Integer>() {{
+		put(PotionOfExperience.class,0);
+		put(PotionOfFrost.class,1);
+		put(PotionOfHaste.class,2);
+		put(PotionOfHealing.class,3);
+		put(PotionOfInvisibility.class,4);
+		put(PotionOfLevitation.class,5);
+		put(PotionOfLiquidFlame.class,6);
+		put(PotionOfMindVision.class,7);
+		put(PotionOfParalyticGas.class,8);
+		put(PotionOfPurity.class,9);
+		//put(PotionOfStrength.class,10);
+		put(PotionOfToxicGas.class,11);
+		put(ScrollOfIdentify.class,0);
+		put(ScrollOfLullaby.class,1);
+		put(ScrollOfMagicMapping.class,2);
+		put(ScrollOfMirrorImage.class,3);
+		put(ScrollOfRetribution.class,4);
+		put(ScrollOfRage.class,5);
+		put(ScrollOfRecharging.class,6);
+		put(ScrollOfRemoveCurse.class,7);
+		put(ScrollOfTeleportation.class,8);
+		put(ScrollOfTerror.class,9);
+		put(ScrollOfTransmutation.class,10);
+		//put(ScrollOfUpgrade.class,11);
+	 }};
+	
 
 	static Class<? extends Item> curSelection = null;
 
@@ -120,7 +152,7 @@ public class MysticalOrb extends Item {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					GameScene.show(new WndFlashCardQuestion(curSelection));
+					GameScene.show(new WndFlashCardQuestion(curSelection, null));
 					hide();
 				}
 			};
@@ -136,39 +168,41 @@ public class MysticalOrb extends Item {
 			float top = text.bottom() + 5;
 			int row = action.equals(AC_USE_AS_POTION) ? 0 : 16;
 			int placed = 0;
-
+			
+			HashSet<Class<? extends Potion>> knownPotions = Potion.getKnown();
+			HashSet<Class<? extends Scroll>> knownScrolls = Scroll.getKnown();
 			for (int i = 0; i < classList.size(); ++i) {
 				final Class<? extends Item> itemClass = classList.get(i);
-
-				IconButton btn = new IconButton() {
-					@Override
-					protected void onClick() {
-						curSelection = itemClass;
-						choose.visible = true;
-						choose.text(Messages.get(curSelection, "name"));
-						choose.enable(true);
-						super.onClick();
+				if (knownPotions.contains(itemClass) || knownScrolls.contains(itemClass))
+				{
+					IconButton btn = new IconButton() {
+						@Override
+						protected void onClick() {
+							curSelection = itemClass;
+							choose.visible = true;
+							choose.text(Messages.get(curSelection, "name"));
+							choose.enable(true);
+							super.onClick();
+						}
+					};
+					Image im = new Image(Assets.CONS_ICONS, 7 * imageMap.get(itemClass), row, 7, 8);
+					im.scale.set(2f);
+					btn.icon(im);
+					btn.setRect(left + placed * BTN_SIZE, top, BTN_SIZE, BTN_SIZE);
+					add(btn);
+	
+					++placed;
+					if (placed == ((classList.size() + 1) / 2)) {
+						placed = 0;
+						if (classList.size() % 2 == 1) {
+							left += BTN_SIZE / 2f;
+						}
+						top += BTN_SIZE;
 					}
-				};
-
-				Image im = new Image(Assets.CONS_ICONS, 7 * i, row, 7, 8);
-				im.scale.set(2f);
-				btn.icon(im);
-				btn.setRect(left + placed * BTN_SIZE, top, BTN_SIZE, BTN_SIZE);
-				add(btn);
-
-				++placed;
-				if (placed == ((classList.size() + 1) / 2)) {
-					placed = 0;
-					if (classList.size() % 2 == 1) {
-						left += BTN_SIZE / 2f;
-					}
-					top += BTN_SIZE;
 				}
 			}
 
 			resize(WIDTH, 115);
-
 		}
 
 		@Override

@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashDecks;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
 import com.watabou.noosa.Game;
 
 public abstract class WndFlashCard extends Window {
@@ -14,6 +16,7 @@ public abstract class WndFlashCard extends Window {
   protected static final int MARGIN_HORIZONTAL = 2;
   protected static final int MARGIN_VERTICAL = 2;
   protected static final int MARGIN_BETWEEN = 2;
+  protected FlashQuestion question;
 
   private static final int WIDTH_P = 125;
   private static final int WIDTH_L = 160;
@@ -26,9 +29,14 @@ public abstract class WndFlashCard extends Window {
 
   private float delay;
 
-  public WndFlashCard(final Class<? extends Item> item) {
+  public WndFlashCard(final Class<? extends Item> item, FlashQuestion question) {
     super(0, 0, Chrome.get(Chrome.Type.SCROLL));
     this.item = item;
+    if (question != null) {
+      this.question = question;
+    } else {
+      this.question = FlashDecks.getQuestion();
+    }
 
     final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2 : WIDTH_P - MARGIN_HORIZONTAL * 2;
     int y = MARGIN_VERTICAL;
