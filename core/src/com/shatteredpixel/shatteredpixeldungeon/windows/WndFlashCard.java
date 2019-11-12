@@ -2,7 +2,6 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
@@ -21,17 +20,14 @@ public abstract class WndFlashCard extends Window {
   private static final int WIDTH_P = 125;
   private static final int WIDTH_L = 160;
 
-  protected Class<? extends Item> item;
-
   private RenderedTextBlock tb1;
   private RenderedTextBlock tb2;
   private RenderedTextBlock tb3;
 
   private float delay;
 
-  public WndFlashCard(final Class<? extends Item> item, FlashQuestion question) {
+  public WndFlashCard(FlashQuestion question) {
     super(0, 0, Chrome.get(Chrome.Type.SCROLL));
-    this.item = item;
     if (question != null) {
       this.question = question;
     } else {

@@ -1,15 +1,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
-import com.watabou.noosa.Game;
 
 public class WndFlashCardAnswer extends WndFlashCard {
-  WndFlashCardAnswer(final Class<? extends Item> item, FlashQuestion question) {
-    super(item, question);
+  WndFlashCardAnswer(FlashQuestion question) {
+    super(question);
   }
 
   @Override
@@ -47,17 +44,20 @@ public class WndFlashCardAnswer extends WndFlashCard {
 
   private void onQuestionFail() {
     question.increaseWeight();
-    GameScene.show(new WndFlashCardQuestion(item, null));
+    GameScene.show(new WndFlashCardQuestion(null));
   }
 
   private void onQuestionSuccess() {
-    try {
-      question.decreaseWeight();
-      Item selectedItem = (Item) item.getDeclaredConstructor().newInstance();
-      selectedItem.collect();
-      Game.scene().addToFront(new WndItem(null, selectedItem, true));
-    } catch (Exception e) {
-      GLog.n(e.getMessage());
-    }
+    GameScene.show(new WndFlashCardReward());
+    // try {
+    //   question.decreaseWeight();
+    //   Item selectedItem = (Item) item.getDeclaredConstructor().newInstance();
+    //   selectedItem.setTemp(true);
+    //   selectedItem.execute(Dungeon.hero);
+    //   //selectedItem.collect();
+    //   //Game.scene().addToFront(new WndItem(null, selectedItem, true));
+    // } catch (Exception e) {
+    //   GLog.n(e.getMessage());
+    // }
   }
 }

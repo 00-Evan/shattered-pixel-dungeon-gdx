@@ -124,6 +124,7 @@ public class Messages {
 			key += "." + k;
 		} else
 			key = k;
+		System.out.println(key);
 
 		if (strings.containsKey(key.toLowerCase(Locale.ENGLISH))){
 			if (args.length > 0) return format(strings.get(key.toLowerCase(Locale.ENGLISH)), args);
