@@ -4,11 +4,11 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
 import com.watabou.noosa.Game;
 
 public class WndFlashCardAnswer extends WndFlashCard {
-  WndFlashCardAnswer(final Class<? extends Item> item, FlashQuestion question) {
+  WndFlashCardAnswer(final Class<? extends Item> item, IFlashQuestion question) {
     super(item, question);
   }
 
