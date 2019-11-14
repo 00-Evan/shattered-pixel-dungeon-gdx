@@ -14,6 +14,7 @@ public class WndFlashCardQuestion extends WndFlashCard {
     return question.getQuestion();
   }
 
+
   @Override
   public int renderInputs(final int height, final int width) {
     RedButton btn = new RedButton("Reveal Answer", 8) {

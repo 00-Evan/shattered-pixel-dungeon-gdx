@@ -70,6 +70,7 @@ put(ScrollOfUpgrade.class,11);
 static Class<? extends Item> curSelection = null;
 
     public WndSelectEffect(String action) {
+        GLog.w(Messages.get(this, action + "_text"));
         IconTitle titlebar = new IconTitle();
         titlebar.icon(new ItemSprite(ItemSpriteSheet.MYSTICAL_ORB, null));
         titlebar.label(Messages.get(MysticalOrb.class, "name"));
@@ -88,7 +89,6 @@ static Class<? extends Item> curSelection = null;
                 super.onClick();
                 hide();
                 try{
-                    GLog.n(Messages.get(this, action + "_text"));
                     Item selectedItem = (Item) curSelection.getDeclaredConstructor().newInstance();
                     selectedItem.setTemp(true);
                     selectedItem.execute(Dungeon.hero);

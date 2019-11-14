@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashDecks;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
 import com.watabou.noosa.Game;
@@ -37,7 +38,9 @@ public abstract class WndFlashCard extends Window {
     final int WIDTH = SPDSettings.landscape() ? WIDTH_L - MARGIN_HORIZONTAL * 2 : WIDTH_P - MARGIN_HORIZONTAL * 2;
     int y = MARGIN_VERTICAL;
 
-    tb1 = PixelScene.renderTextBlock(Messages.get(this, "intro"), 6);
+    String intro = Messages.get(this, "intro");
+    tb1 = PixelScene.renderTextBlock(intro, 6);
+    GLog.w(intro);
     tb1.maxWidth(WIDTH);
     tb1.invert();
     tb1.setPos(y, 2);
@@ -77,6 +80,10 @@ public abstract class WndFlashCard extends Window {
       tb2.visible = true;
       tb3.visible = true;
     }
+  }
+  protected void printOutro()
+  {
+    GLog.w(Messages.get(this, "outro"));
   }
 
   protected abstract String getText();
