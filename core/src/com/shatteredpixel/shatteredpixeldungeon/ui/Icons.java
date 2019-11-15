@@ -61,12 +61,19 @@ public enum Icons {
 	
 	//main menu icons
 	ENTER,
+	FLASH_CARD,
 	GOLD,
 	RANKINGS,
 	BADGES,
 	CHANGES,
 	SHPX,
 	
+	//flash deck icons
+	ACTIVE,
+	INACTIVE,
+	EDIT,
+	DELETE,
+
 	//misc icons
 	LIBGDX,
 	WATA,
@@ -166,6 +173,9 @@ public enum Icons {
 		case ENTER:
 			icon.frame( icon.texture.uvRect( 0, 64, 17, 81 ) );
 			break;
+		case FLASH_CARD:
+			icon.frame( icon.texture.uvRect( 102, 64, 118, 81 ) );
+			break;
 		case RANKINGS:
 			icon.frame( icon.texture.uvRect( 17, 64, 34, 81 ) );
 			break;
@@ -182,6 +192,19 @@ public enum Icons {
 			icon.frame( icon.texture.uvRect( 85, 64, 102, 80 ) );
 			break;
 		
+		case ACTIVE:
+			icon.frame( icon.texture.uvRect( 33, 95, 45, 107 ) );
+			break;
+		case INACTIVE:
+			icon.frame( icon.texture.uvRect( 49, 95, 61, 107 ) );
+			break;
+		case EDIT:
+			icon.frame( icon.texture.uvRect( 0, 94, 14, 108 ) );
+			break;
+		case DELETE:
+			icon.frame( icon.texture.uvRect( 16, 94, 30, 108 ) );
+			break;
+
 		case LIBGDX:
 			icon.frame( icon.texture.uvRect( 0, 81, 16, 94 ) );
 			break;

@@ -5,18 +5,18 @@ import com.watabou.utils.Random;
 
 public class FlashDeck implements IFlashDeck
 {
-	private Vector<FlashQuestion> questions;
+	private Vector<IFlashQuestion> questions;
 	private boolean isActive;
 	private String deckName;
 
-	public FlashDeck(Vector<FlashQuestion> questions, String deckName)
+	public FlashDeck(Vector<IFlashQuestion> questions, String deckName)
 	{
 		this.questions = questions;
 		this.deckName = deckName;
 	}
 
 	public static FlashDeck getTestDeck() {
-		Vector<FlashQuestion> multQuestions = new Vector<FlashQuestion>();
+		Vector<IFlashQuestion> multQuestions = new Vector<IFlashQuestion>();
 		for (int i = 1; i < 5; i++) {
 			for (int j = 1; j < 5; j++) {
 				String q = Integer.toString(i) + " * " + Integer.toString(j);
@@ -24,7 +24,9 @@ public class FlashDeck implements IFlashDeck
 				multQuestions.add(new FlashQuestion(q, a));
 			}
 		}
-		return new FlashDeck(multQuestions, "Times Tables");
+		FlashDeck testDeck = new FlashDeck(multQuestions, "Times Tables");
+		testDeck.setIsActive(true);
+		return testDeck;
 	}
 
 	public String getDeckName() {
@@ -48,7 +50,7 @@ public class FlashDeck implements IFlashDeck
 	}
 
 	//this function could definitely be made faster if it ends up slowing things down
-	public FlashQuestion getQuestion() {
+	public IFlashQuestion getQuestion() {
 		int totalWeight = 0;
 		for (int i = 0; i < questions.size(); i++) {
 			totalWeight += questions.get(i).getWeight();

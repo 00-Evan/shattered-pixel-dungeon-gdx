@@ -3,10 +3,10 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
 
 public class WndFlashCardQuestion extends WndFlashCard {
-  public WndFlashCardQuestion(final Class<? extends Item> item, FlashQuestion question) {
+  public WndFlashCardQuestion(final Class<? extends Item> item, IFlashQuestion question) {
     super(item, question);
   }
 
