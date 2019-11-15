@@ -2,21 +2,11 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-<<<<<<< HEAD
-import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
-
-public class WndFlashCardAnswer extends WndFlashCard {
-  WndFlashCardAnswer(FlashQuestion question) {
-    super(question);
-=======
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
-import com.watabou.noosa.Game;
 
 public class WndFlashCardAnswer extends WndFlashCard {
-  WndFlashCardAnswer(final Class<? extends Item> item, IFlashQuestion question) {
-    super(item, question);
->>>>>>> origin/master
+  WndFlashCardAnswer(IFlashQuestion question) {
+    super(question);
   }
 
   @Override

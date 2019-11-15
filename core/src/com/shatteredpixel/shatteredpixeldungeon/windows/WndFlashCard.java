@@ -8,7 +8,6 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashDecks;
-import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
 import com.watabou.noosa.Game;
 
@@ -28,11 +27,7 @@ public abstract class WndFlashCard extends Window {
 
   private float delay;
 
-<<<<<<< HEAD
-  public WndFlashCard(FlashQuestion question) {
-=======
-  public WndFlashCard(final Class<? extends Item> item, IFlashQuestion question) {
->>>>>>> origin/master
+  public WndFlashCard(IFlashQuestion question) {
     super(0, 0, Chrome.get(Chrome.Type.SCROLL));
     if (question != null) {
       this.question = question;
