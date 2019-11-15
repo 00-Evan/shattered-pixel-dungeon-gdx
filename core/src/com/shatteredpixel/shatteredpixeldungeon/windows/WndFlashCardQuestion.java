@@ -2,11 +2,16 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
-import com.shatteredpixel.shatteredpixeldungeon.flashcard.FlashQuestion;
+import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
 
 public class WndFlashCardQuestion extends WndFlashCard {
+<<<<<<< HEAD
   public WndFlashCardQuestion(FlashQuestion question) {
     super(question);
+=======
+  public WndFlashCardQuestion(final Class<? extends Item> item, IFlashQuestion question) {
+    super(item, question);
+>>>>>>> origin/master
   }
 
   @Override
