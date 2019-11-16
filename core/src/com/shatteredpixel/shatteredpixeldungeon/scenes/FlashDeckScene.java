@@ -215,10 +215,15 @@ public class FlashDeckScene extends PixelScene {
  
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
-
-					// TODO: Call Johnathan's importing functions here
 					// AFAIK this will only work on desktops, when porting this to Android this SO thread may be useful:
 					//		https://stackoverflow.com/questions/7856959/android-file-chooser
+
+					try {
+						FlashDecks.importFromFile(file);
+					} catch (Exception e) {
+						//TODO: handle exception
+					}
+					FlashDeckScene.this.create();
 				}
 			} else {
 				deckIconActive.visible = !deckIconActive.visible;
