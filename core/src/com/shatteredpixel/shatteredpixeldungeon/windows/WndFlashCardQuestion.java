@@ -1,13 +1,12 @@
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.flashcard.IFlashQuestion;
 
 public class WndFlashCardQuestion extends WndFlashCard {
-  public WndFlashCardQuestion(final Class<? extends Item> item, IFlashQuestion question) {
-    super(item, question);
+  public WndFlashCardQuestion(IFlashQuestion question) {
+    super(question);
   }
 
   @Override
@@ -15,13 +14,14 @@ public class WndFlashCardQuestion extends WndFlashCard {
     return question.getQuestion();
   }
 
+
   @Override
   public int renderInputs(final int height, final int width) {
     RedButton btn = new RedButton("Reveal Answer", 8) {
       @Override
       protected void onClick() {
         super.onClick();
-        GameScene.show(new WndFlashCardAnswer(item, question));
+        GameScene.show(new WndFlashCardAnswer(question));
         hide();
       }
     };
