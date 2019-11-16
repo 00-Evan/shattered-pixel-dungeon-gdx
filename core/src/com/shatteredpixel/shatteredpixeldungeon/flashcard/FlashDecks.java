@@ -3,7 +3,11 @@ package com.shatteredpixel.shatteredpixeldungeon.flashcard;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.io.File;
+import java.nio.file.Files;
 import com.watabou.utils.Random;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class FlashDecks
 {
@@ -46,6 +50,23 @@ public class FlashDecks
 			decks.get(0).setIsActive(true);
 		}
 		return Collections.unmodifiableList(activeDecks);
+	}
+
+	public static FlashDeck importFromFile(File file) throws Exception {
+		String data = new String(Files.readAllBytes(file.toPath()));
+		JSONObject jsonDeck = new JSONObject(data);
+		String name = jsonDeck.getString("name");
+		Vector<IFlashQuestion> questions = new Vector<IFlashQuestion>();
+		JSONArray jsonQuestions = jsonDeck.getJSONArray("questions");
+		for (int i = 0; i < jsonQuestions.length(); i++) {
+			String q = jsonQuestions.getJSONObject(i).getString("question");
+			String a = jsonQuestions.getJSONObject(i).getString("answer");
+			questions.add(new FlashQuestion(q,a));
+		}
+		FlashDeck newDeck = new FlashDeck(questions, name);
+		newDeck.setIsActive(true);
+		FlashDecks.addDeck(newDeck);
+		return newDeck;
 	}
 
 	//todo someday: give decks their own weights
