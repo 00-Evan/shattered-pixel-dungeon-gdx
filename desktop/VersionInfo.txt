@@ -1,5 +1,5 @@
-383
-371
-v0.7.5f
-v0.7.5!
-github.com/00-Evan/shattered-pixel-dungeon-gdx/releases/download/v0.7.5f/ShatteredPD.Desktop.v0.7.5f.jar
+412
+412
+v0.8.0
+v0.8.0+! (The Desktop version has migrated to a new codebase! You should be able to switch to the new version seamlessly, but please let me know if you run into any issues!)
+github.com/00-Evan/shattered-pixel-dungeon/releases/
